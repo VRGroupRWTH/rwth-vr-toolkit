@@ -12,7 +12,7 @@ class NDISPLAYEXTENSIONS_API ADisplayClusterPawnCAVE : public ADisplayClusterPaw
 
 public:
   virtual void BeginPlay() override;
-  virtual void MoveForward(float value) override;
+  virtual void MoveForward(float Value) override;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pawn")
   UDisplayClusterSceneComponent* Flystick = nullptr;
