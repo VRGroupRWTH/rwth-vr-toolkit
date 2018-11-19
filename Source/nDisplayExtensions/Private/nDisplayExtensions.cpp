@@ -2,7 +2,7 @@
 
 #define LOCTEXT_NAMESPACE "FnDisplayExtensionsModule"
 
-void FnDisplayExtensionsModule::StartupModule()
+void FnDisplayExtensionsModule::StartupModule ()
 {
 
 }

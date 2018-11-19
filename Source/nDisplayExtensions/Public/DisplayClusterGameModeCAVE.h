@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DisplayClusterGameMode.h"
+
 #include "DisplayClusterGameModeCAVE.generated.h"
 
 UCLASS()

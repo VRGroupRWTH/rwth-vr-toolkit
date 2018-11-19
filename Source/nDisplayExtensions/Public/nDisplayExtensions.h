@@ -6,6 +6,6 @@
 class NDISPLAYEXTENSIONS_API FnDisplayExtensionsModule : public IModuleInterface
 {
 public:
-  virtual void StartupModule() override;
+  virtual void StartupModule () override;
   virtual void ShutdownModule() override;
 };

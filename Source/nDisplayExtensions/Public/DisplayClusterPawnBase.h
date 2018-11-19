@@ -6,6 +6,7 @@
 #include "GameFramework/RotatingMovementComponent.h"
 #include "CoreMinimal.h"
 #include "DisplayClusterPawn.h"
+
 #include "DisplayClusterPawnBase.generated.h"
 
 UCLASS()

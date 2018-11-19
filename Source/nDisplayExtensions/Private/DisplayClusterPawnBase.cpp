@@ -144,10 +144,10 @@ void ADisplayClusterPawnBase::SetupPlayerInputComponent(UInputComponent* PlayerI
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (PlayerInputComponent)
 	{
-		PlayerInputComponent->BindAxis("MoveForward", this, &ADisplayClusterPawnBase::MoveForward );
-		PlayerInputComponent->BindAxis("MoveRight"  , this, &ADisplayClusterPawnBase::MoveRight   );
-		PlayerInputComponent->BindAxis("MoveUp"     , this, &ADisplayClusterPawnBase::MoveUp      );
-		PlayerInputComponent->BindAxis("TurnRate"   , this, &ADisplayClusterPawnBase::TurnAtRate2 );
-		PlayerInputComponent->BindAxis("LookUpRate" , this, &ADisplayClusterPawnBase::LookUpAtRate);
+    PlayerInputComponent->BindAxis("MoveForward", this, &ADisplayClusterPawnBase::MoveForward );
+    PlayerInputComponent->BindAxis("MoveRight"  , this, &ADisplayClusterPawnBase::MoveRight   );
+    PlayerInputComponent->BindAxis("MoveUp"     , this, &ADisplayClusterPawnBase::MoveUp      );
+    PlayerInputComponent->BindAxis("TurnRate"   , this, &ADisplayClusterPawnBase::TurnAtRate2 );
+    PlayerInputComponent->BindAxis("LookUpRate" , this, &ADisplayClusterPawnBase::LookUpAtRate);
 	}
 }
