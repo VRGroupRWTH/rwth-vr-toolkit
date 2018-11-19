@@ -17,7 +17,9 @@ public:
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Input") void OnTriggerEvent(bool      Pressed);
   
 protected:
-  virtual void Tick (float DeltaSeconds) override;
+  virtual void BeginPlay   ()                   override;
+  virtual void Tick        (float DeltaSeconds) override;
+  virtual void BeginDestroy()                   override;
 
   UDisplayClusterSceneComponent* Flystick = nullptr;
 };

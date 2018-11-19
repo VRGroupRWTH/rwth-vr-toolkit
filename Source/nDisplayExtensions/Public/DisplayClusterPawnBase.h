@@ -24,6 +24,7 @@ public:
 
   virtual void                    BeginPlay           ()                         override;
   virtual void                    Tick                (float DeltaSeconds)       override;
+  virtual void                    BeginDestroy        ()                         override;
   virtual UPawnMovementComponent* GetMovementComponent()                   const override;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float BaseTurnRate  ;

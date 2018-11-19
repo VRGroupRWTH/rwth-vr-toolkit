@@ -20,6 +20,10 @@ void ADisplayClusterPawnCAVE::OnButtonEvent_Implementation (bool      Pressed   
 
 }
 
+void ADisplayClusterPawnCAVE::BeginPlay                    ()
+{
+  Super::BeginPlay();
+}
 void ADisplayClusterPawnCAVE::Tick                         (float     DeltaSeconds)
 {
   // Due to these declarations, this class is bound to aixcave.cfg.
@@ -51,4 +55,8 @@ void ADisplayClusterPawnCAVE::Tick                         (float     DeltaSecon
     if (ButtonPressed ) OnButtonEvent_Implementation(true , i);
     if (ButtonReleased) OnButtonEvent_Implementation(false, i);
   }
+}
+void ADisplayClusterPawnCAVE::BeginDestroy                 ()
+{
+  Super::BeginDestroy();
 }

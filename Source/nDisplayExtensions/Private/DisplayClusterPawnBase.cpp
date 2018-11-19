@@ -133,6 +133,10 @@ void                    ADisplayClusterPawnBase::Tick                (float Delt
 	const float Mult = GetWorld()->GetWorldSettings()->WorldToMeters / 100.f;
 	SetActorScale3D(FVector(Mult, Mult, Mult));
 }
+void                    ADisplayClusterPawnBase::BeginDestroy()
+{
+  Super::BeginDestroy();
+}
 UPawnMovementComponent* ADisplayClusterPawnBase::GetMovementComponent() const
 {
   return MovementComponent;
