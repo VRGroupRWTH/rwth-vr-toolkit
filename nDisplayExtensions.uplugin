@@ -13,9 +13,10 @@
   "CanContainContent": true,
   "IsBetaVersion": false,
   "Installed": false,
+  "EnabledByDefault": true,
   "Modules": [
     {
-      "Name": "nDisplayExtensions",
+      "Name": "DisplayClusterExtensions",
       "Type": "Developer",
       "LoadingPhase": "Default"
     }
@@ -23,6 +24,10 @@
   "Plugins": [
     {
       "Name": "nDisplay",
+      "Enabled": true
+    },
+    {
+      "Name": "nDisplayInput",
       "Enabled": true
     }
   ]
