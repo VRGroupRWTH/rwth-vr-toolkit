@@ -71,11 +71,11 @@ void                    ADisplayClusterPawnCAVE::OnLookUpRate_Implementation(flo
     AddControllerPitchInput(BaseTurnRate * Rate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    ADisplayClusterPawnCAVE::OnFire_Implementation      ()
+void                    ADisplayClusterPawnCAVE::OnFire_Implementation      (bool Pressed)
 { 
 
 }
-void                    ADisplayClusterPawnCAVE::OnAction_Implementation    (int32 Index)
+void                    ADisplayClusterPawnCAVE::OnAction_Implementation    (bool Pressed, int32 Index)
 { 
 
 }
@@ -110,7 +110,7 @@ void                    ADisplayClusterPawnCAVE::Tick                       (flo
 	const float Mult = GetWorld()->GetWorldSettings()->WorldToMeters / 100.f;
 	SetActorScale3D(FVector(Mult, Mult, Mult));
 
-  if (!Flystick) 
+  if (!Flystick && IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
     Flystick = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick")); // There MUST be an scene node called flystick in the config.
 }
 void                    ADisplayClusterPawnCAVE::BeginDestroy               ()
@@ -124,16 +124,24 @@ void                    ADisplayClusterPawnCAVE::SetupPlayerInputComponent  (UIn
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-    PlayerInputComponent->BindAxis                   ("MoveForward"             , this, &ADisplayClusterPawnCAVE::OnForward   );
-    PlayerInputComponent->BindAxis                   ("MoveRight"               , this, &ADisplayClusterPawnCAVE::OnRight     );
-    PlayerInputComponent->BindAxis                   ("TurnRate"                , this, &ADisplayClusterPawnCAVE::OnTurnRate  );
-    PlayerInputComponent->BindAxis                   ("LookUpRate"              , this, &ADisplayClusterPawnCAVE::OnLookUpRate);
-    PlayerInputComponent->BindAction                 ("Fire"       , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnFire      );
-    PlayerInputComponent->BindAction<FButtonDelegate>("Action1"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction , 1);
-    PlayerInputComponent->BindAction<FButtonDelegate>("Action2"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction , 2);
-    PlayerInputComponent->BindAction<FButtonDelegate>("Action3"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction , 3);
-    PlayerInputComponent->BindAction<FButtonDelegate>("Action4"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction , 4);
-    PlayerInputComponent->BindAction<FButtonDelegate>("Action5"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction , 5);
+    PlayerInputComponent->BindAxis                   ("MoveForward"             , this, &ADisplayClusterPawnCAVE::OnForward             );
+    PlayerInputComponent->BindAxis                   ("MoveRight"               , this, &ADisplayClusterPawnCAVE::OnRight               );
+    PlayerInputComponent->BindAxis                   ("TurnRate"                , this, &ADisplayClusterPawnCAVE::OnTurnRate            );
+    PlayerInputComponent->BindAxis                   ("LookUpRate"              , this, &ADisplayClusterPawnCAVE::OnLookUpRate          );
+
+    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnFire      , true    );
+    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 5);
+    
+    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Released, this, &ADisplayClusterPawnCAVE::OnFire      , false   );
+    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 5);
   }
 }
 UPawnMovementComponent* ADisplayClusterPawnCAVE::GetMovementComponent       () const
