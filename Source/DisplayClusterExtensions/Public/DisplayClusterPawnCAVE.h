@@ -15,18 +15,19 @@ class DISPLAYCLUSTEREXTENSIONS_API ADisplayClusterPawnCAVE : public ADisplayClus
   GENERATED_UCLASS_BODY()
 
 public:
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward   (float Value);
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight     (float Value);
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire      ();
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction    (int32 Index);
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward   (float Value  );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire      (bool  Pressed);
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction    (bool  Pressed, int32 Index);
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float                          BaseTurnRate = 45.0f  ;
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") UDisplayClusterSceneComponent* Flystick     = nullptr;
 
 protected:
-  DECLARE_DELEGATE_OneParam(FButtonDelegate, int32);
+  DECLARE_DELEGATE_OneParam (FFireDelegate  , bool);
+  DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
 
   virtual void                    BeginPlay                ()                                            override;
   virtual void                    Tick                     (float            DeltaSeconds        )       override;
