@@ -1,8 +1,8 @@
 using UnrealBuildTool;
 
-public class nDisplayExtensions : ModuleRules
+public class DisplayClusterExtensions : ModuleRules
 {
-  public nDisplayExtensions(ReadOnlyTargetRules Target) : base(Target)
+  public DisplayClusterExtensions(ReadOnlyTargetRules Target) : base(Target)
   {
     PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -28,6 +28,7 @@ public class nDisplayExtensions : ModuleRules
         "Core",
         "CoreUObject",
         "DisplayCluster",
+        "DisplayClusterInput",
         "Engine",
         "InputCore"
       }
