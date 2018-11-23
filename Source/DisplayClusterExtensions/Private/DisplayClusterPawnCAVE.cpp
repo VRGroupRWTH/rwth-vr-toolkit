@@ -11,43 +11,29 @@
 
 ADisplayClusterPawnCAVE::ADisplayClusterPawnCAVE(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	MovementComponent                        = CreateDefaultSubobject<UFloatingPawnMovement>     (TEXT("MovementComponent0"));
-	MovementComponent->UpdatedComponent      = RootComponent;
-
-	RotatingComponent                        = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingComponent0"));
-	RotatingComponent->UpdatedComponent      = RootComponent;
-	RotatingComponent->bRotationInLocalSpace = false;
-	RotatingComponent->PivotTranslation      = FVector::ZeroVector;
-	RotatingComponent->RotationRate          = FRotator::ZeroRotator;
+  MovementComponent                        = CreateDefaultSubobject<UFloatingPawnMovement>     (TEXT("MovementComponent0"));
+  MovementComponent->UpdatedComponent      = RootComponent;
+  
+  RotatingComponent                        = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingComponent0"));
+  RotatingComponent->UpdatedComponent      = RootComponent;
+  RotatingComponent->bRotationInLocalSpace = false;
+  RotatingComponent->PivotTranslation      = FVector::ZeroVector;
+  RotatingComponent->RotationRate          = FRotator::ZeroRotator;
+  
+  TranslationDirection                     = RootComponent;
 }
 
 void                    ADisplayClusterPawnCAVE::OnForward_Implementation   (float Value) 
 {
-  if (Flystick)
-  {
-    if (IDisplayCluster::Get().GetClusterMgr()->IsMaster()) 
-      AddMovementInput(Flystick->GetForwardVector(), Value);
-  }
-  else
-  {
-    AddMovementInput((TranslationDirection ? TranslationDirection : RootComponent)->GetForwardVector(), Value);
-  }
+  AddMovementInput(TranslationDirection->GetForwardVector(), Value);
 }
 void                    ADisplayClusterPawnCAVE::OnRight_Implementation     (float Value)
-{ 
-  if (Flystick)
-  {
-    if (IDisplayCluster::Get().GetClusterMgr()->IsMaster())
-      AddMovementInput(Flystick->GetRightVector(), Value);
-  }
-  else
-  {
-    AddMovementInput((TranslationDirection ? TranslationDirection : RootComponent)->GetRightVector(), Value);
-  }
+{
+  AddMovementInput(TranslationDirection->GetRightVector  (), Value);
 }
 void                    ADisplayClusterPawnCAVE::OnTurnRate_Implementation  (float Rate )
 {
-  if (Flystick)
+  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
     if (!RotatingComponent->UpdatedComponent || !IDisplayCluster::Get().GetGameMgr() || !IDisplayCluster::Get().GetGameMgr()->GetActiveCamera()) return;
 
@@ -62,7 +48,7 @@ void                    ADisplayClusterPawnCAVE::OnTurnRate_Implementation  (flo
 }
 void                    ADisplayClusterPawnCAVE::OnLookUpRate_Implementation(float Rate )
 { 
-  if (Flystick)
+  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
     // User-centered projection causes motion sickness on look up interaction hence not implemented.
   }
@@ -106,12 +92,12 @@ void                    ADisplayClusterPawnCAVE::Tick                       (flo
 {
 	Super::Tick(DeltaSeconds);
 
-  // Is this really necessary?
-	const float Mult = GetWorld()->GetWorldSettings()->WorldToMeters / 100.f;
-	SetActorScale3D(FVector(Mult, Mult, Mult));
-
-  if (!Flystick && IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
+  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster && !Flystick)
+  {
     Flystick = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick")); // There MUST be an scene node called flystick in the config.
+    if (Flystick) 
+      TranslationDirection = Flystick;
+  }
 }
 void                    ADisplayClusterPawnCAVE::BeginDestroy               ()
 {
