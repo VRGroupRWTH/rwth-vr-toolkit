@@ -94,7 +94,7 @@ void                    ADisplayClusterPawnCAVE::Tick                       (flo
 
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster && !Flystick)
   {
-    Flystick = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick")); // There MUST be an scene node called flystick in the config.
+    Flystick = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick")); // Note: Requires a scene node called flystick in the config. Make settable.
     if (Flystick) 
       TranslationDirection = Flystick;
   }
