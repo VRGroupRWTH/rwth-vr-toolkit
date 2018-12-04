@@ -6,11 +6,12 @@
 #include "CoreMinimal.h"
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
+#include "MotionControllerComponent.h"
 
-#include "DisplayClusterPawnCAVE.generated.h"
+#include "VirtualRealityPawn.generated.h"
 
 UCLASS()
-class DISPLAYCLUSTEREXTENSIONS_API ADisplayClusterPawnCAVE : public ADisplayClusterPawn
+class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
 {
   GENERATED_UCLASS_BODY()
 
@@ -35,6 +36,8 @@ protected:
   virtual void                    SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)       override;
   virtual UPawnMovementComponent* GetMovementComponent     ()                                      const override;
   
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UFloatingPawnMovement*      MovementComponent = nullptr;
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingComponent = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UFloatingPawnMovement*      MovementComponent              = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingComponent              = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* LeftMotionControllerComponent  = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* RightMotionControllerComponent = nullptr;
 };
