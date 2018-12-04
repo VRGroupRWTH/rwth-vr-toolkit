@@ -30,6 +30,7 @@ public class DisplayClusterExtensions : ModuleRules
         "DisplayCluster",
         "DisplayClusterInput",
         "Engine",
+        "HeadMountedDisplay",
         "InputCore"
       }
       );

@@ -7,6 +7,7 @@
 #include "Input/IDisplayClusterInputManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DisplayClusterSettings.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "IDisplayCluster.h"
 
 ADisplayClusterPawnCAVE::ADisplayClusterPawnCAVE(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -21,6 +22,8 @@ ADisplayClusterPawnCAVE::ADisplayClusterPawnCAVE(const FObjectInitializer& Objec
   RotatingComponent->RotationRate          = FRotator::ZeroRotator;
   
   TranslationDirection                     = RootComponent;
+
+  AutoPossessPlayer                        = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 }
 
 void                    ADisplayClusterPawnCAVE::OnForward_Implementation   (float Value) 
@@ -87,6 +90,17 @@ void                    ADisplayClusterPawnCAVE::BeginPlay                  ()
   MovementComponent->Deceleration   = Settings->MovementDeceleration;
   MovementComponent->TurningBoost   = Settings->MovementTurningBoost;
   BaseTurnRate                      = Settings->RotationSpeed       ;
+  
+  if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
+  {
+    LeftMotionControllerComponent  = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftMotionControllerComponent"));
+    LeftMotionControllerComponent->SetTrackingSource (EControllerHand::Left);
+    LeftMotionControllerComponent->SetShowDeviceModel(true);
+
+    RightMotionControllerComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightMotionControllerComponent"));
+    RightMotionControllerComponent->SetTrackingSource (EControllerHand::Right);
+    RightMotionControllerComponent->SetShowDeviceModel(true);
+  }
 }
 void                    ADisplayClusterPawnCAVE::Tick                       (float DeltaSeconds)
 {
