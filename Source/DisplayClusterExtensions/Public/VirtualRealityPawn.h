@@ -8,10 +8,10 @@
 #include "DisplayClusterSceneComponent.h"
 #include "MotionControllerComponent.h"
 
-#include "DisplayClusterPawnCAVE.generated.h"
+#include "VirtualRealityPawn.generated.h"
 
 UCLASS()
-class DISPLAYCLUSTEREXTENSIONS_API ADisplayClusterPawnCAVE : public ADisplayClusterPawn
+class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
 {
   GENERATED_UCLASS_BODY()
 

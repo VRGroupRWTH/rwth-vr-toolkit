@@ -1,4 +1,4 @@
-#include "DisplayClusterPawnCAVE.h"
+#include "VirtualRealityPawn.h"
 
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Engine/World.h"
@@ -10,7 +10,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IDisplayCluster.h"
 
-ADisplayClusterPawnCAVE::ADisplayClusterPawnCAVE(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
   MovementComponent                        = CreateDefaultSubobject<UFloatingPawnMovement>     (TEXT("MovementComponent0"));
   MovementComponent->UpdatedComponent      = RootComponent;
@@ -26,15 +26,15 @@ ADisplayClusterPawnCAVE::ADisplayClusterPawnCAVE(const FObjectInitializer& Objec
   AutoPossessPlayer                        = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 }
 
-void                    ADisplayClusterPawnCAVE::OnForward_Implementation   (float Value) 
+void                    AVirtualRealityPawn::OnForward_Implementation   (float Value)
 {
   AddMovementInput(TranslationDirection->GetForwardVector(), Value);
 }
-void                    ADisplayClusterPawnCAVE::OnRight_Implementation     (float Value)
+void                    AVirtualRealityPawn::OnRight_Implementation     (float Value)
 {
   AddMovementInput(TranslationDirection->GetRightVector  (), Value);
 }
-void                    ADisplayClusterPawnCAVE::OnTurnRate_Implementation  (float Rate )
+void                    AVirtualRealityPawn::OnTurnRate_Implementation  (float Rate )
 {
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
@@ -49,7 +49,7 @@ void                    ADisplayClusterPawnCAVE::OnTurnRate_Implementation  (flo
     AddControllerYawInput(BaseTurnRate * Rate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    ADisplayClusterPawnCAVE::OnLookUpRate_Implementation(float Rate )
+void                    AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate )
 { 
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
@@ -60,16 +60,16 @@ void                    ADisplayClusterPawnCAVE::OnLookUpRate_Implementation(flo
     AddControllerPitchInput(BaseTurnRate * Rate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    ADisplayClusterPawnCAVE::OnFire_Implementation      (bool Pressed)
+void                    AVirtualRealityPawn::OnFire_Implementation      (bool Pressed)
 { 
 
 }
-void                    ADisplayClusterPawnCAVE::OnAction_Implementation    (bool Pressed, int32 Index)
+void                    AVirtualRealityPawn::OnAction_Implementation    (bool Pressed, int32 Index)
 { 
 
 }
 
-void                    ADisplayClusterPawnCAVE::BeginPlay                  ()
+void                    AVirtualRealityPawn::BeginPlay                  ()
 {
   Super::BeginPlay();
   
@@ -102,7 +102,7 @@ void                    ADisplayClusterPawnCAVE::BeginPlay                  ()
     RightMotionControllerComponent->SetShowDeviceModel(true);
   }
 }
-void                    ADisplayClusterPawnCAVE::Tick                       (float DeltaSeconds)
+void                    AVirtualRealityPawn::Tick                       (float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -113,38 +113,38 @@ void                    ADisplayClusterPawnCAVE::Tick                       (flo
       TranslationDirection = Flystick;
   }
 }
-void                    ADisplayClusterPawnCAVE::BeginDestroy               ()
+void                    AVirtualRealityPawn::BeginDestroy               ()
 {
   Super::BeginDestroy();
 }
 
-void                    ADisplayClusterPawnCAVE::SetupPlayerInputComponent  (UInputComponent* PlayerInputComponent)
+void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputComponent* PlayerInputComponent)
 {
   check(PlayerInputComponent);
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-    PlayerInputComponent->BindAxis                   ("MoveForward"             , this, &ADisplayClusterPawnCAVE::OnForward             );
-    PlayerInputComponent->BindAxis                   ("MoveRight"               , this, &ADisplayClusterPawnCAVE::OnRight               );
-    PlayerInputComponent->BindAxis                   ("TurnRate"                , this, &ADisplayClusterPawnCAVE::OnTurnRate            );
-    PlayerInputComponent->BindAxis                   ("LookUpRate"              , this, &ADisplayClusterPawnCAVE::OnLookUpRate          );
+    PlayerInputComponent->BindAxis                   ("MoveForward"             , this, &AVirtualRealityPawn::OnForward             );
+    PlayerInputComponent->BindAxis                   ("MoveRight"               , this, &AVirtualRealityPawn::OnRight               );
+    PlayerInputComponent->BindAxis                   ("TurnRate"                , this, &AVirtualRealityPawn::OnTurnRate            );
+    PlayerInputComponent->BindAxis                   ("LookUpRate"              , this, &AVirtualRealityPawn::OnLookUpRate          );
 
-    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnFire      , true    );
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Pressed , this, &ADisplayClusterPawnCAVE::OnAction    , true , 5);
+    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Pressed , this, &AVirtualRealityPawn::OnFire      , true    );
+    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 5);
     
-    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Released, this, &ADisplayClusterPawnCAVE::OnFire      , false   );
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Released, this, &ADisplayClusterPawnCAVE::OnAction    , false, 5);
+    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Released, this, &AVirtualRealityPawn::OnFire      , false   );
+    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 5);
   }
 }
-UPawnMovementComponent* ADisplayClusterPawnCAVE::GetMovementComponent       () const
+UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent       () const
 {
   return MovementComponent;
 }
