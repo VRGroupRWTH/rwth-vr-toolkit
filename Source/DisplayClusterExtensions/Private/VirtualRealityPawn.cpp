@@ -100,6 +100,8 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
     RightMotionControllerComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightMotionControllerComponent"));
     RightMotionControllerComponent->SetTrackingSource (EControllerHand::Right);
     RightMotionControllerComponent->SetShowDeviceModel(true);
+
+    TranslationDirection = LeftMotionControllerComponent;
   }
 }
 void                    AVirtualRealityPawn::Tick                       (float DeltaSeconds)
