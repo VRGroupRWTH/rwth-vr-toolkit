@@ -3,6 +3,7 @@
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Engine/World.h"
 #include "Game/IDisplayClusterGameManager.h"
+#include "GameFramework/InputSettings.h"
 #include "GameFramework/WorldSettings.h"
 #include "Input/IDisplayClusterInputManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -81,6 +82,10 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
 {
   Super::BeginPlay();
   
+  bUseControllerRotationYaw   = true;
+  bUseControllerRotationPitch = true;
+  bUseControllerRotationRoll  = true;
+  
   // Display cluster settings apply to all setups (PC, HMD, CAVE/ROLV) despite the unfortunate name due to being an UE4 internal.
   TArray<AActor*> SettingsActors;
   UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADisplayClusterSettings::StaticClass(), SettingsActors);
@@ -95,7 +100,10 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
   }
 
   if      (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
-  { 
+  {
+    UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("TurnRate"  )), EKeys::MouseX));
+    UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("LookUpRate")), EKeys::MouseY));
+
     // Requires a scene node called flystick in the config.
     Flystick  = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick"));
 
@@ -103,8 +111,11 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
     LeftHand  = Flystick;
     RightHand = Flystick;
   }
-  else if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
+  else if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayConnected())
   {
+    UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("TurnRate"  )), EKeys::MouseX));
+    UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("LookUpRate")), EKeys::MouseY));
+
     LeftMotionController ->SetVisibility(true);
     RightMotionController->SetVisibility(true);
     
@@ -114,10 +125,6 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
   }
   else
   {
-    bUseControllerRotationYaw   = true;
-    bUseControllerRotationPitch = true;
-    bUseControllerRotationRoll  = true;
-    
     Forward   = RootComponent;
     LeftHand  = RootComponent;
     RightHand = RootComponent;
