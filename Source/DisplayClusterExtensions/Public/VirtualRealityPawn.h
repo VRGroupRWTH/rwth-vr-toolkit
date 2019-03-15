@@ -10,6 +10,12 @@
 
 #include "VirtualRealityPawn.generated.h"
 
+UENUM(BlueprintType)
+enum class EVRNavigationModes : uint8{
+  NAV_MODE_NONE UMETA(DisplayName = "Navigation Mode None"),
+  NAV_MODE_FLY UMETA(DisplayName = "Navigation Mode Fly")
+};
+
 UCLASS()
 class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
 {
@@ -22,6 +28,8 @@ public:
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire      (bool  Pressed);
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction    (bool  Pressed, int32 Index);
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
 
 protected:
   DECLARE_DELEGATE_OneParam (FFireDelegate  , bool);
