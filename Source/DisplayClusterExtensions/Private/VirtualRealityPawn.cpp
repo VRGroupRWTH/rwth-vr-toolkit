@@ -39,14 +39,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void                    AVirtualRealityPawn::OnForward_Implementation   (float Value)
 {
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY)
+  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
     AddMovementInput(Forward->GetForwardVector(), Value);
   }
 }
 void                    AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY)
+  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
     AddMovementInput(Forward->GetRightVector(), Value);
   }
