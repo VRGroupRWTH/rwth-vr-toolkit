@@ -28,7 +28,6 @@ public class DisplayClusterExtensions : ModuleRules
         "Core",
         "CoreUObject",
         "DisplayCluster",
-        "DisplayClusterInput",
         "Engine",
         "HeadMountedDisplay",
         "InputCore"

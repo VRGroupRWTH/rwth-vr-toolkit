@@ -25,10 +25,6 @@
     {
       "Name": "nDisplay",
       "Enabled": true
-    },
-    {
-      "Name": "nDisplayInput",
-      "Enabled": true
     }
   ]
 }
