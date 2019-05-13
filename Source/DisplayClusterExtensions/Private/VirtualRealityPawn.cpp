@@ -14,7 +14,7 @@
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
   UE_LOG(LogTemp, Warning, TEXT("AVirtualRealityPawn constructor started"));
-  AutoPossessPlayer                       = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
+  //AutoPossessPlayer                       = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
   Movement                                = CreateDefaultSubobject<UFloatingPawnMovement>     (TEXT("Movement"));
   Movement->UpdatedComponent              = RootComponent;
@@ -116,6 +116,10 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
     BaseTurnRate           = Settings->RotationSpeed       ;
   }
 
+  if (!IDisplayCluster::IsAvailable()) {
+    UE_LOG(LogTemp, Error, TEXT("AVirtualRealityPawn cannot begin play, since the DisplayClusterModule is not available yet."));
+  }
+
   if      (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
     UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("TurnRate"  )), EKeys::MouseX));
@@ -123,6 +127,11 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
 
     // Requires a scene node called flystick in the config.
     Flystick  = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick"));
+
+    TArray<UDisplayClusterSceneComponent*> nodes = IDisplayCluster::Get().GetGameMgr()->GetAllNodes();
+    for (UDisplayClusterSceneComponent* node : nodes) {
+      UE_LOG(LogTemp, Warning, TEXT("An available node id is %s"), *node->GetId());
+    }
 
     Forward   = Flystick;
     LeftHand  = Flystick;
