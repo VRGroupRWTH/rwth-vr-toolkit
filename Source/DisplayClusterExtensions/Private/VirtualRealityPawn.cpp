@@ -153,7 +153,7 @@ void                    AVirtualRealityPawn::Tick                       (float D
 {
   UE_LOG(LogTemp, Warning, TEXT("AVirtualRealityPawn Tick started"));
   Super::Tick(DeltaSeconds);
-   Flystick might not be available at start, hence is checked every frame.
+  //Flystick might not be available at start, hence is checked every frame.
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster && !Flystick)
   {
     // Requires a scene node called flystick in the config.
