@@ -185,19 +185,19 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
     PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
     PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
   
-    PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnFire, true);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 5);
-  
-    PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Released, this, &AVirtualRealityPawn::OnFire, false);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 5);
+    //PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnFire, true);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action1", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 1);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action2", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 2);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action3", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 3);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action4", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 4);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action5", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 5);
+    //
+    //PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Released, this, &AVirtualRealityPawn::OnFire, false);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action1", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 1);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action2", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 2);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action3", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 3);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action4", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 4);
+    //PlayerInputComponent->BindAction<FActionDelegate>("Action5", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 5);
   }
 
   UE_LOG(LogTemp, Warning, TEXT("AVirtualRealityPawn SetupPlayerInputComponent finished"));
