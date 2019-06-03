@@ -180,11 +180,11 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-    PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
-    PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
-    PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
-  
+    //PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
+    //PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+    //PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
+    //PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
+    //
     //PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnFire, true);
     //PlayerInputComponent->BindAction<FActionDelegate>("Action1", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 1);
     //PlayerInputComponent->BindAction<FActionDelegate>("Action2", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 2);
