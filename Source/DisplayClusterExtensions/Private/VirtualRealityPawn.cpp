@@ -163,7 +163,7 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
 
     // needs potentially [input_setup] id=dtrack_axis ch=0 bind="nDisplay Analog 0"
     //PlayerInputComponent->BindAxis("nDisplay Analog 0", this, &AVirtualRealityPawn::OnForward);
-    //PlayerInputComponent->BindAxis("nDisplay Analog 1", this, &AVirtualRealityPawn::OnRight);
+    PlayerInputComponent->BindAxis("nDisplayAnalog1", this, &AVirtualRealityPawn::OnRight);
     //PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
     //PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
     //
