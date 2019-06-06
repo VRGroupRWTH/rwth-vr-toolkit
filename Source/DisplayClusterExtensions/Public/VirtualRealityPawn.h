@@ -33,6 +33,7 @@ public:
 
 protected:
   DECLARE_DELEGATE_OneParam (FFireDelegate  , bool);
+  DECLARE_DELEGATE_OneParam (FAxisDelegate, float);
   DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
 
   virtual void                    BeginPlay                ()                                            override;
