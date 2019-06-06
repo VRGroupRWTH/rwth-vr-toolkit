@@ -75,14 +75,6 @@ void                    AVirtualRealityPawn::OnLookUpRate_Implementation(float R
     AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    AVirtualRealityPawn::OnFire_Implementation      (bool Pressed)
-{ 
-
-}
-void                    AVirtualRealityPawn::OnAction_Implementation    (bool Pressed, int32 Index)
-{ 
-
-}
 
 void                    AVirtualRealityPawn::BeginPlay                  ()
 {
@@ -162,28 +154,10 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
   {
 
     // needs potentially [input_setup] id=dtrack_axis ch=0 bind="nDisplay Analog 0"
-    //PlayerInputComponent->BindAxis("nDisplay Analog 0", this, &AVirtualRealityPawn::OnForward);
-    PlayerInputComponent->BindAxis("nDisplayAnalog1", this, &AVirtualRealityPawn::OnRight);
-    //PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
-    //PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
-    PlayerInputComponent->BindAction<FAxisDelegate>("nDisplay Analog 0", IE_Axis, this, &AVirtualRealityPawn::OnForward);
-
-    //
-    //need [input_setup] id=dtrack_buttons ch=1 bind="nDisplay Button 1"
-    //     [input_setup] id=dtrack_buttons ch=2 bind="nDisplay Button 2"
-    //PlayerInputComponent->BindAction<FFireDelegate>("nDisplay Button 1", IE_Pressed, this, &AVirtualRealityPawn::OnFire, true);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 1", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 2", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 3", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 4", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 5", IE_Pressed, this, &AVirtualRealityPawn::OnAction, true, 5);
-    //
-    //PlayerInputComponent->BindAction<FFireDelegate>("Fire", IE_Released, this, &AVirtualRealityPawn::OnFire, false);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 1", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 2", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 3", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 4", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("nDisplay Button 5", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 5);
+    PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
+    PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+    PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
+    PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
   }
 }
 UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent       () const

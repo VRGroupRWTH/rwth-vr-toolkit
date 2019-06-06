@@ -26,15 +26,10 @@ public:
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire      (bool  Pressed);
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction    (bool  Pressed, int32 Index);
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
 
 protected:
-  DECLARE_DELEGATE_OneParam (FFireDelegate  , bool);
-  DECLARE_DELEGATE_OneParam (FAxisDelegate, float);
-  DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
 
   virtual void                    BeginPlay                ()                                            override;
   virtual void                    Tick                     (float            DeltaSeconds        )       override;
