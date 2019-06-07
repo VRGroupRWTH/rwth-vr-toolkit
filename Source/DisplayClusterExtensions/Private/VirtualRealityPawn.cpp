@@ -42,7 +42,8 @@ void                    AVirtualRealityPawn::OnForward   (float Value)
   UE_LOG(LogTemp, Warning, TEXT("OnForward called"));
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
-    AddMovementInput(Forward->GetForwardVector(), Value);
+    if(Forward != nullptr)
+      AddMovementInput(Forward->GetForwardVector(), Value);
   }
   UE_LOG(LogTemp, Warning, TEXT("OnForward done"));
 }
