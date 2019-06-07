@@ -37,21 +37,23 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
   RightMotionController->SetVisibility(false);
 }
 
-void                    AVirtualRealityPawn::OnForward_Implementation   (float Value)
+void                    AVirtualRealityPawn::OnForward   (float Value)
 {
+  UE_LOG(LogTemp, Warning, TEXT("OnForward called"));
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
     AddMovementInput(Forward->GetForwardVector(), Value);
   }
+  UE_LOG(LogTemp, Warning, TEXT("OnForward done"));
 }
-void                    AVirtualRealityPawn::OnRight_Implementation(float Value)
+void                    AVirtualRealityPawn::OnRight(float Value)
 {
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
     AddMovementInput(Forward->GetRightVector(), Value);
   }
 }
-void                    AVirtualRealityPawn::OnTurnRate_Implementation  (float Rate )
+void                    AVirtualRealityPawn::OnTurnRate  (float Rate )
 {
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
@@ -64,7 +66,7 @@ void                    AVirtualRealityPawn::OnTurnRate_Implementation  (float R
     AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate )
+void                    AVirtualRealityPawn::OnLookUpRate(float Rate )
 { 
   if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
   {
@@ -152,12 +154,13 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-
+    UE_LOG(LogTemp, Warning, TEXT("Start binding MoveForward"));
     // needs potentially [input_setup] id=dtrack_axis ch=0 bind="nDisplay Analog 0"
     PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
     //PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
     //PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
     //PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
+    UE_LOG(LogTemp, Warning, TEXT("Done binding MoveForward"));
   }
 }
 UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent       () const

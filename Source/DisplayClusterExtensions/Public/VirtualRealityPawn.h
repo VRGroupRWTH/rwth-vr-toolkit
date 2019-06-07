@@ -22,10 +22,10 @@ class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterP
   GENERATED_UCLASS_BODY()
 
 public:
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward   (float Value  );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
+  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnForward   (float Value  );
+  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
+  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
+  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
 
