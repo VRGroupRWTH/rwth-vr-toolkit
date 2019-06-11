@@ -39,19 +39,18 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void                    AVirtualRealityPawn::OnForward   (float Value)
 {
-  UE_LOG(LogTemp, Warning, TEXT("OnForward called"));
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
     if(Forward != nullptr)
       AddMovementInput(Forward->GetForwardVector(), Value);
   }
-  UE_LOG(LogTemp, Warning, TEXT("OnForward done"));
 }
 void                    AVirtualRealityPawn::OnRight(float Value)
 {
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
-    AddMovementInput(Forward->GetRightVector(), Value);
+    if (Forward != nullptr)
+      AddMovementInput(Forward->GetRightVector(), Value);
   }
 }
 void                    AVirtualRealityPawn::OnTurnRate  (float Rate )
@@ -155,13 +154,10 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-    UE_LOG(LogTemp, Warning, TEXT("Start binding MoveForward"));
-    // needs potentially [input_setup] id=dtrack_axis ch=0 bind="nDisplay Analog 0"
     PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
-    //PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
-    //PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
-    //PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
-    UE_LOG(LogTemp, Warning, TEXT("Done binding MoveForward"));
+    PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+    PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
+    PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
   }
 }
 UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent       () const
