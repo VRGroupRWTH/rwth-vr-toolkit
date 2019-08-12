@@ -10,6 +10,7 @@
 #include "DisplayClusterSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IDisplayCluster.h"
+#include "IXRTrackingSystem.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -24,36 +25,36 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
   RotatingMovement->PivotTranslation      = FVector::ZeroVector;
   RotatingMovement->RotationRate          = FRotator::ZeroRotator;
   
-  LeftMotionController                    = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftMotionController"));
-  LeftMotionController->SetupAttachment    (RootComponent);
-  LeftMotionController->SetTrackingSource  (EControllerHand::Left);
-  LeftMotionController->SetShowDeviceModel (true );
-  LeftMotionController->SetVisibility      (false);
+  HmdLeftMotionController                    = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
+  HmdLeftMotionController->SetupAttachment    (RootComponent);
+  HmdLeftMotionController->SetTrackingSource  (EControllerHand::Left);
+  HmdLeftMotionController->SetShowDeviceModel (true );
+  HmdLeftMotionController->SetVisibility      (false);
 
-  RightMotionController                   = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightMotionController"));
-  RightMotionController->SetupAttachment   (RootComponent);
-  RightMotionController->SetTrackingSource (EControllerHand::Right);
-  RightMotionController->SetShowDeviceModel(true );
-  RightMotionController->SetVisibility     (false);
+  HmdRightMotionController                   = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdRightMotionController"));
+  HmdRightMotionController->SetupAttachment   (RootComponent);
+  HmdRightMotionController->SetTrackingSource (EControllerHand::Right);
+  HmdRightMotionController->SetShowDeviceModel(true );
+  HmdRightMotionController->SetVisibility     (false);
 }
 
-void                    AVirtualRealityPawn::OnForward_Implementation   (float Value)
+void                           AVirtualRealityPawn::OnForward_Implementation            (float Value)
 {
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
+  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IsDesktopMode() || IsHeadMountedMode()) // Check if this function triggers correctly on ROLV.
   {
     AddMovementInput(Forward->GetForwardVector(), Value);
   }
 }
-void                    AVirtualRealityPawn::OnRight_Implementation(float Value)
+void                           AVirtualRealityPawn::OnRight_Implementation              (float Value)
 {
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
+  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IsDesktopMode() || IsHeadMountedMode())
   {
     AddMovementInput(Forward->GetRightVector(), Value);
   }
 }
-void                    AVirtualRealityPawn::OnTurnRate_Implementation  (float Rate )
+void                           AVirtualRealityPawn::OnTurnRate_Implementation           (float Rate )
 {
-  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
+  if (IsRoomMountedMode())
   {
     const FVector CameraLocation       = IDisplayCluster::Get().GetGameMgr()->GetActiveCamera()->GetComponentLocation();
     RotatingMovement->PivotTranslation = RotatingMovement->UpdatedComponent->GetComponentTransform().InverseTransformPositionNoScale(CameraLocation);
@@ -64,9 +65,9 @@ void                    AVirtualRealityPawn::OnTurnRate_Implementation  (float R
     AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate )
+void                           AVirtualRealityPawn::OnLookUpRate_Implementation         (float Rate )
 { 
-  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
+  if (IsRoomMountedMode())
   {
     // User-centered projection causes simulation sickness on look up interaction hence not implemented.
   }
@@ -75,16 +76,74 @@ void                    AVirtualRealityPawn::OnLookUpRate_Implementation(float R
     AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
   }
 }
-void                    AVirtualRealityPawn::OnFire_Implementation      (bool Pressed)
+void                           AVirtualRealityPawn::OnFire_Implementation               (bool Pressed)
 { 
 
 }
-void                    AVirtualRealityPawn::OnAction_Implementation    (bool Pressed, int32 Index)
+void                           AVirtualRealityPawn::OnAction_Implementation             (bool Pressed, int32 Index)
 { 
 
 }
+                               
+bool                           AVirtualRealityPawn::IsDesktopMode                       ()
+{
+  return !IsRoomMountedMode() && !IsHeadMountedMode();
+}
+bool                           AVirtualRealityPawn::IsRoomMountedMode                   ()
+{
+  return IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster;
+}
+bool                           AVirtualRealityPawn::IsHeadMountedMode                   ()
+{
+  return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
+}
 
-void                    AVirtualRealityPawn::BeginPlay                  ()
+
+float                          AVirtualRealityPawn::GetBaseTurnRate                     () const
+{
+  return BaseTurnRate;
+}
+UFloatingPawnMovement*         AVirtualRealityPawn::GetFloatingPawnMovement             ()
+{
+  return Movement;
+}
+URotatingMovementComponent*    AVirtualRealityPawn::GetRotatingMovementComponent        ()
+{
+  return RotatingMovement;
+}
+
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetFlystickComponent                ()
+{
+  return Flystick;
+}
+UMotionControllerComponent*    AVirtualRealityPawn::GetHmdLeftMotionControllerComponent ()
+{
+  return HmdLeftMotionController;
+}
+UMotionControllerComponent*    AVirtualRealityPawn::GetHmdRightMotionControllerComponent()
+{
+  return HmdRightMotionController;
+}
+
+USceneComponent*               AVirtualRealityPawn::GetForwardComponent                 ()
+{
+  return Forward;
+}
+USceneComponent*               AVirtualRealityPawn::GetLeftHandComponent                ()
+{
+  return LeftHand;
+}
+USceneComponent*               AVirtualRealityPawn::GetRightHandComponent               ()
+{
+  return RightHand;
+}
+
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetClusterComponent                 (const FString& name)
+{
+  return IDisplayCluster::Get().GetGameMgr()->GetNodeById(name);
+}
+
+void                           AVirtualRealityPawn::BeginPlay                           ()
 {
   Super::BeginPlay();
   
@@ -105,29 +164,31 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
     BaseTurnRate           = Settings->RotationSpeed       ;
   }
 
-  if      (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
+  if      (IsRoomMountedMode())
   {
     UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("TurnRate"  )), EKeys::MouseX));
     UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("LookUpRate")), EKeys::MouseY));
 
     // Requires a scene node called flystick in the config.
-    Flystick  = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick"));
+    Flystick  = GetClusterComponent(TEXT("flystick"));
 
     Forward   = Flystick;
     LeftHand  = Flystick;
     RightHand = Flystick;
+
+    // TODO
   }
-  else if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayConnected())
+  else if (IsHeadMountedMode())
   {
     UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("TurnRate"  )), EKeys::MouseX));
     UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping(FName(TEXT("LookUpRate")), EKeys::MouseY));
 
-    LeftMotionController ->SetVisibility(true);
-    RightMotionController->SetVisibility(true);
+    HmdLeftMotionController ->SetVisibility(true);
+    HmdRightMotionController->SetVisibility(true);
     
-    Forward   = LeftMotionController ;
-    LeftHand  = LeftMotionController ;
-    RightHand = RightMotionController;
+    Forward   = HmdLeftMotionController ;
+    LeftHand  = HmdLeftMotionController ;
+    RightHand = HmdRightMotionController;
   }
   else
   {
@@ -136,12 +197,12 @@ void                    AVirtualRealityPawn::BeginPlay                  ()
     RightHand = RootComponent;
   }
 }
-void                    AVirtualRealityPawn::Tick                       (float DeltaSeconds)
+void                           AVirtualRealityPawn::Tick                                (float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
   
   // Flystick might not be available at start, hence is checked every frame.
-  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster && !Flystick)
+  if (IsRoomMountedMode() && !Flystick)
   { 
     // Requires a scene node called flystick in the config.
     Flystick  = IDisplayCluster::Get().GetGameMgr()->GetNodeById(TEXT("flystick"));
@@ -151,12 +212,12 @@ void                    AVirtualRealityPawn::Tick                       (float D
     RightHand = Flystick;
   }
 }
-void                    AVirtualRealityPawn::BeginDestroy               ()
+void                           AVirtualRealityPawn::BeginDestroy                        ()
 {
   Super::BeginDestroy();
 }
-
-void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputComponent* PlayerInputComponent)
+                              
+void                           AVirtualRealityPawn::SetupPlayerInputComponent           (UInputComponent* PlayerInputComponent)
 {
   check(PlayerInputComponent);
   Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -182,7 +243,7 @@ void                    AVirtualRealityPawn::SetupPlayerInputComponent  (UInputC
     PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 5);
   }
 }
-UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent       () const
+UPawnMovementComponent*        AVirtualRealityPawn::GetMovementComponent                () const
 {
   return Movement;
 }

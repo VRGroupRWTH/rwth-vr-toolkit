@@ -29,6 +29,24 @@ public:
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire      (bool  Pressed);
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction    (bool  Pressed, int32 Index);
 
+  UFUNCTION(BlueprintCallable, Category = "Pawn") bool                           IsDesktopMode                       ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") bool                           IsRoomMountedMode                   ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") bool                           IsHeadMountedMode                   ();
+
+  UFUNCTION(BlueprintCallable, Category = "Pawn") float                          GetBaseTurnRate                     () const;
+  UFUNCTION(BlueprintCallable, Category = "Pawn") UFloatingPawnMovement*         GetFloatingPawnMovement             ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") URotatingMovementComponent*    GetRotatingMovementComponent        ();
+
+  UFUNCTION(BlueprintCallable, Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent                ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") UMotionControllerComponent*    GetHmdLeftMotionControllerComponent ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") UMotionControllerComponent*    GetHmdRightMotionControllerComponent();
+  
+  UFUNCTION(BlueprintCallable, Category = "Pawn") USceneComponent*               GetForwardComponent                 ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") USceneComponent*               GetLeftHandComponent                ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") USceneComponent*               GetRightHandComponent               ();
+
+  UFUNCTION(BlueprintCallable, Category = "Pawn") UDisplayClusterSceneComponent* GetClusterComponent                 (const FString& name);
+
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
 
 protected:
@@ -48,14 +66,14 @@ protected:
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* Flystick              = nullptr;
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD left  motion controller.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    LeftMotionController  = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdLeftMotionController  = nullptr;
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD right motion controller.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    RightMotionController = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdRightMotionController = nullptr;
 
-  // PC: RootComponent, HMD: LeftMotionController , CAVE/ROLV: Flystick. Movement follows this component.
+  // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Movement follows this component.
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*               Forward               = nullptr;
-  // PC: RootComponent, HMD: LeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+  // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*               LeftHand              = nullptr;
-  // PC: RootComponent, HMD: RightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+  // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*               RightHand             = nullptr;
 };
