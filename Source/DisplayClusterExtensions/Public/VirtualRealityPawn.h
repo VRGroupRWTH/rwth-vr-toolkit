@@ -33,6 +33,9 @@ public:
   UFUNCTION(BlueprintCallable, Category = "Pawn") bool                           IsRoomMountedMode                   ();
   UFUNCTION(BlueprintCallable, Category = "Pawn") bool                           IsHeadMountedMode                   ();
 
+  UFUNCTION(BlueprintCallable, Category = "Pawn") FString                        GetNodeName                         ();
+  UFUNCTION(BlueprintCallable, Category = "Pawn") float                          GetEyeDistance                      ();
+
   UFUNCTION(BlueprintCallable, Category = "Pawn") float                          GetBaseTurnRate                     () const;
   UFUNCTION(BlueprintCallable, Category = "Pawn") UFloatingPawnMovement*         GetFloatingPawnMovement             ();
   UFUNCTION(BlueprintCallable, Category = "Pawn") URotatingMovementComponent*    GetRotatingMovementComponent        ();

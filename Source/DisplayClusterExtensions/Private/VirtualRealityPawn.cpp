@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DisplayClusterSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "IDisplayClusterConfigManager.h"
 #include "IDisplayCluster.h"
 #include "IXRTrackingSystem.h"
 
@@ -98,6 +99,14 @@ bool                           AVirtualRealityPawn::IsHeadMountedMode           
   return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
 }
 
+FString                        AVirtualRealityPawn::GetNodeName                         ()
+{
+  return IsRoomMountedMode() ? IDisplayCluster::Get().GetClusterMgr()->GetNodeId() : FString(TEXT("Localhost"));
+}
+float                          AVirtualRealityPawn::GetEyeDistance()
+{
+  return IDisplayCluster::Get().GetConfigMgr()->GetConfigStereo().EyeDist;
+}
 
 float                          AVirtualRealityPawn::GetBaseTurnRate                     () const
 {
@@ -176,7 +185,7 @@ void                           AVirtualRealityPawn::BeginPlay                   
     LeftHand  = Flystick;
     RightHand = Flystick;
 
-    // TODO
+    RootComponent->SetWorldLocation(FVector(0, 2, 0), false, nullptr, ETeleportType::None);
   }
   else if (IsHeadMountedMode())
   {
@@ -223,24 +232,25 @@ void                           AVirtualRealityPawn::SetupPlayerInputComponent   
   Super::SetupPlayerInputComponent(PlayerInputComponent);
   if (PlayerInputComponent)
   {
-    PlayerInputComponent->BindAxis                   ("MoveForward"             , this, &AVirtualRealityPawn::OnForward             );
-    PlayerInputComponent->BindAxis                   ("MoveRight"               , this, &AVirtualRealityPawn::OnRight               );
-    PlayerInputComponent->BindAxis                   ("TurnRate"                , this, &AVirtualRealityPawn::OnTurnRate            );
-    PlayerInputComponent->BindAxis                   ("LookUpRate"              , this, &AVirtualRealityPawn::OnLookUpRate          );
+    PlayerInputComponent->BindAxis                   ("MoveForward"    , this, &AVirtualRealityPawn::OnForward   );
+    PlayerInputComponent->BindAxis                   ("MoveRight"      , this, &AVirtualRealityPawn::OnRight     );
+    PlayerInputComponent->BindAxis                   ("TurnRate"       , this, &AVirtualRealityPawn::OnTurnRate  );
+    PlayerInputComponent->BindAxis                   ("LookUpRate"     , this, &AVirtualRealityPawn::OnLookUpRate);
 
-    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Pressed , this, &AVirtualRealityPawn::OnFire      , true    );
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Pressed , this, &AVirtualRealityPawn::OnAction    , true , 5);
-    
-    PlayerInputComponent->BindAction<FFireDelegate>  ("Fire"       , IE_Released, this, &AVirtualRealityPawn::OnFire      , false   );
-    PlayerInputComponent->BindAction<FActionDelegate>("Action1"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 1);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action2"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 2);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action3"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 3);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action4"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 4);
-    PlayerInputComponent->BindAction<FActionDelegate>("Action5"    , IE_Released, this, &AVirtualRealityPawn::OnAction    , false, 5);
+    // The button names are based on the definitions in aixcave_422.cfg.
+    PlayerInputComponent->BindAction<FFireDelegate>  ("nDisplayButton0", IE_Pressed , this, &AVirtualRealityPawn::OnFire  , true    );
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton1", IE_Pressed , this, &AVirtualRealityPawn::OnAction, true , 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton2", IE_Pressed , this, &AVirtualRealityPawn::OnAction, true , 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton3", IE_Pressed , this, &AVirtualRealityPawn::OnAction, true , 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton4", IE_Pressed , this, &AVirtualRealityPawn::OnAction, true , 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton5", IE_Pressed , this, &AVirtualRealityPawn::OnAction, true , 5);
+
+    PlayerInputComponent->BindAction<FFireDelegate>  ("nDisplayButton0", IE_Released, this, &AVirtualRealityPawn::OnFire  , false   );
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton1", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 1);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton2", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 2);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton3", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 3);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton4", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 4);
+    PlayerInputComponent->BindAction<FActionDelegate>("nDisplayButton5", IE_Released, this, &AVirtualRealityPawn::OnAction, false, 5);
   }
 }
 UPawnMovementComponent*        AVirtualRealityPawn::GetMovementComponent                () const
