@@ -301,10 +301,10 @@ void AVirtualRealityPawn::InitComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
 	if (!CaveOrigin) CaveOrigin = GetClusterComponent("cave_origin");
-	if (!CaveOrigin) CaveCenter = GetClusterComponent("cave_center");
-	if (!CaveOrigin) {
+	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
+	if (!ShutterGlasses) {
 		ShutterGlasses = GetClusterComponent("shutter_glasses");
-		Head = Flystick;
+		Head = ShutterGlasses;
 	}
 	if (!Flystick)
 	{
