@@ -42,55 +42,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
   HmdRightMotionController->SetVisibility(false);
 }
 
-void                    AVirtualRealityPawn::OnForward   (float Value)
-{
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
-  {
-    if(RightHand != nullptr)
-      AddMovementInput(RightHand->GetForwardVector(), Value);
-  }
-}
-void                    AVirtualRealityPawn::OnRight(float Value)
-{
-  if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
-  {
-    if (RightHand != nullptr)
-      AddMovementInput(RightHand->GetRightVector(), Value);
-  }
-}
-void                    AVirtualRealityPawn::OnTurnRate  (float Rate )
-{
-  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
-  {
-    const FVector CameraLocation = IDisplayCluster::Get().GetGameMgr()->GetActiveCamera()->GetComponentLocation();
-    RotatingMovement->PivotTranslation = RotatingMovement->UpdatedComponent->GetComponentTransform().InverseTransformPositionNoScale(CameraLocation);
-    RotatingMovement->RotationRate = FRotator(RotatingMovement->RotationRate.Pitch, Rate * BaseTurnRate, 0.0f);
-  }
-  else
-  {
-    AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-  }
-}
-void                    AVirtualRealityPawn::OnLookUpRate(float Rate )
-{ 
-  if (IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster)
-  {
-    // User-centered projection causes simulation sickness on look up interaction hence not implemented.
-  }
-  else
-  {
-    AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-  }
-}
-
 void AVirtualRealityPawn::OnForward_Implementation(float Value) {
 	// Check if this function triggers correctly on ROLV.
-	if (NavigationMode == EVRNavigationModes::Nav_Mode_Fly || IsDesktopMode() || IsHeadMountedMode()) {
+	if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IsDesktopMode() || IsHeadMountedMode()) {
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 }
 void AVirtualRealityPawn::OnRight_Implementation(float Value) {
-	if (NavigationMode == EVRNavigationModes::Nav_Mode_Fly || IsDesktopMode() || IsHeadMountedMode()) {
+	if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IsDesktopMode() || IsHeadMountedMode()) {
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
@@ -122,7 +81,6 @@ void AVirtualRealityPawn::OnFire_Implementation(bool Pressed) {
 }
 void AVirtualRealityPawn::OnAction_Implementation(bool Pressed, int32 Index) {
 }
-
 
 bool AVirtualRealityPawn::IsDesktopMode() {
 	return !IsRoomMountedMode() && !IsHeadMountedMode();

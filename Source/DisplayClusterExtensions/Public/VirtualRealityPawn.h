@@ -22,13 +22,11 @@ class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterP
   GENERATED_UCLASS_BODY()
 
 public:
-  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnForward   (float Value  );
-  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
-  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
-  UFUNCTION(BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
-  //Bis hier gleich
-
-  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnFire(bool Pressed);
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward   (float Value  );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight     (float Value  );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate  (float Rate   );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate   );
+  UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintCallable, Category = "Pawn") void OnFire(bool Pressed);
   UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction(bool Pressed, int32 Index);
 
   UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsDesktopMode();
@@ -58,8 +56,7 @@ public:
   UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
 
   //Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
-  UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(
-	  const FString& Name);
+  UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
    
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
 
