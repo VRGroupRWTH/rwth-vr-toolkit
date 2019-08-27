@@ -46,16 +46,16 @@ void                    AVirtualRealityPawn::OnForward   (float Value)
 {
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
-    if(Forward != nullptr)
-      AddMovementInput(Forward->GetForwardVector(), Value);
+    if(RightHand != nullptr)
+      AddMovementInput(RightHand->GetForwardVector(), Value);
   }
 }
 void                    AVirtualRealityPawn::OnRight(float Value)
 {
   if (NavigationMode == EVRNavigationModes::NAV_MODE_FLY || IDisplayCluster::Get().GetClusterMgr()->IsStandalone())
   {
-    if (Forward != nullptr)
-      AddMovementInput(Forward->GetRightVector(), Value);
+    if (RightHand != nullptr)
+      AddMovementInput(RightHand->GetRightVector(), Value);
   }
 }
 void                    AVirtualRealityPawn::OnTurnRate  (float Rate )
