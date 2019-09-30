@@ -12,8 +12,8 @@
 
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8{
-  NAV_MODE_NONE UMETA(DisplayName = "Navigation Mode None"),
-  NAV_MODE_FLY UMETA(DisplayName = "Navigation Mode Fly")
+  nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
+  nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
 };
 
 UCLASS()
@@ -58,7 +58,7 @@ public:
   //Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
   UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
    
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_MODE_FLY;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
 protected:
 	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
