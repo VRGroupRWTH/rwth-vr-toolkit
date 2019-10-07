@@ -23,8 +23,7 @@ enum class EEyeType : uint8 {
 	ET_STEREO_RIGHT 	UMETA(DisplayName = "stero_right"),
 	ET_STEREO_LEFT		UMETA(DisplayName = "stereo_left"),
 	ET_MONO_DETECT1		UMETA(DisplayName = "detect1"),
-	ET_MONO_DETECT2		UMETA(DisplayName = "detect2"),
-	ET_MONO_DETECT3		UMETA(DisplayName = "detect3")
+	ET_MONO_DETECT2		UMETA(DisplayName = "detect2")
 };
 
 UCLASS()

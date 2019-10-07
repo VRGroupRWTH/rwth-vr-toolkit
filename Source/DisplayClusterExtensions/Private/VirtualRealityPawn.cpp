@@ -295,26 +295,29 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 
 	UE_LOG(CAVEOverlayLog, Error, TEXT("-----------------------------"));
 	UE_LOG(CAVEOverlayLog, Error, TEXT("%s"),*s);
-	UE_LOG(CAVEOverlayLog, Error, TEXT("-----------------------------"));
 
 	if (s.Contains("mono_eye")) {
 		TArray<FString> stringArray;
 		TCHAR splitAt = ',';
 		int32 count = s.ParseIntoArray(stringArray, &splitAt, true);
 		for (int x = 0; x < count; x++) {
+			UE_LOG(CAVEOverlayLog, Error, TEXT("%s"), *stringArray[x]);
 			if (stringArray[x].Contains("mono_eye")) {
+				UE_LOG(CAVEOverlayLog, Error, TEXT("--Conatins- MONO_EYE --%s"), *stringArray[x]);
 				if (stringArray[x].Contains("left")) {
+					UE_LOG(CAVEOverlayLog, Error, TEXT("--Conatins- left --%s"), *stringArray[x]);
 					return EEyeType::ET_STEREO_LEFT;
 				}
 				if (stringArray[x].Contains("right")) {
+					UE_LOG(CAVEOverlayLog, Error, TEXT("--Conatins- right --%s"), *stringArray[x]);
 					return EEyeType::ET_STEREO_RIGHT;
 				}
 			}
 		}
 	}
 	else {
-		return EEyeType::ET_MONO_DETECT2;
+		return EEyeType::ET_MONO_DETECT1;
 	}
-	return EEyeType::ET_MONO_DETECT3;
+	return EEyeType::ET_MONO_DETECT2;
 }
 
