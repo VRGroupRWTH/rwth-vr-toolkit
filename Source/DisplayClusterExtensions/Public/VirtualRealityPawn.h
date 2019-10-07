@@ -10,6 +10,9 @@
 
 #include "VirtualRealityPawn.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(CAVEOverlayLog, Log, All);
+DEFINE_LOG_CATEGORY(CAVEOverlayLog);
+
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8{
   nav_mode_none UMETA(DisplayName = "Navigation Mode None"),

@@ -290,6 +290,11 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 
 	FString s = CurrentNodeConfig.ToString();
 
+
+	UE_LOG(CAVEOverlayLog, Error, TEXT("-----------------------------"));
+	UE_LOG(CAVEOverlayLog, Error, TEXT("%s"),*s);
+	UE_LOG(CAVEOverlayLog, Error, TEXT("-----------------------------"));
+
 	if (s.Contains("mono_eye")) {
 		TArray<FString> stringArray;
 		TCHAR splitAt = ',';
@@ -299,11 +304,8 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 				if (stringArray[x].Contains("left")) {
 					return EEyeType::ET_STEREO_LEFT;
 				}
-				else if (stringArray[x].Contains("right")) {
+				if (stringArray[x].Contains("right")) {
 					return EEyeType::ET_STEREO_RIGHT;
-				}
-				else {
-					return EEyeType::ET_MONO_DETECT1;
 				}
 			}
 		}
