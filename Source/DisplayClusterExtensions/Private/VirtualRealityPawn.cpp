@@ -293,17 +293,13 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	if (s.Contains("mono_eye")) {
 		TArray<FString> stringArray;
 		TCHAR splitAt = ',';
-		int32 count = s.ParseIntoArray(stringArray, &splitAt , true);
+		int32 count = s.ParseIntoArray(stringArray, &splitAt, true);
 		for (int x = 0; x < count; x++) {
 			if (stringArray[x].Contains("mono_eye")) {
-				TArray<FString> secondStringArray;
-				TCHAR secondSplitAt = '=';
-				int32 secondCount = stringArray[x].ParseIntoArray(secondStringArray, &secondSplitAt, true);
-				secondStringArray[1].TrimStartAndEndInline();
-				if (secondStringArray[1].Equals("left")) {
+				if (stringArray[1].Contains("left")) {
 					return EEyeType::ET_STEREO_LEFT;
 				}
-				else if (secondStringArray[1].Equals("right")) {
+				else if (stringArray[x].Contains("right")) {
 					return EEyeType::ET_STEREO_RIGHT;
 				}
 				else {
