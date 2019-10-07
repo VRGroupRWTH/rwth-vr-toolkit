@@ -296,7 +296,7 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 		int32 count = s.ParseIntoArray(stringArray, &splitAt, true);
 		for (int x = 0; x < count; x++) {
 			if (stringArray[x].Contains("mono_eye")) {
-				if (stringArray[1].Contains("left")) {
+				if (stringArray[x].Contains("left")) {
 					return EEyeType::ET_STEREO_LEFT;
 				}
 				else if (stringArray[x].Contains("right")) {
