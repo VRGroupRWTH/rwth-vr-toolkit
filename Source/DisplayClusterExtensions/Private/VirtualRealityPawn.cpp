@@ -293,12 +293,12 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	if (s.Contains("mono_eye")) {
 		TArray<FString> stringArray;
 		TCHAR splitAt = ',';
-		int32 count = s.ParseIntoArray(stringArray, &splitAt , false);
+		int32 count = s.ParseIntoArray(stringArray, &splitAt , true);
 		for (int x = 0; x < count; x++) {
 			if (stringArray[x].Contains("mono_eye")) {
 				TArray<FString> secondStringArray;
 				TCHAR secondSplitAt = '=';
-				int32 secondCount = stringArray[x].ParseIntoArray(secondStringArray, &secondSplitAt, false);
+				int32 secondCount = stringArray[x].ParseIntoArray(secondStringArray, &secondSplitAt, true);
 				secondStringArray[1].TrimStartAndEndInline();
 				if (secondStringArray[1].Equals("left")) {
 					return EEyeType::ET_STEREO_LEFT;
@@ -307,14 +307,14 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 					return EEyeType::ET_STEREO_RIGHT;
 				}
 				else {
-					return EEyeType::ET_MONO;
+					return EEyeType::ET_MONO_DETECT1;
 				}
 			}
 		}
 	}
 	else {
-		return EEyeType::ET_MONO;
+		return EEyeType::ET_MONO_DETECT2;
 	}
-	return EEyeType::ET_MONO;
+	return EEyeType::ET_MONO_DETECT3;
 }
 
