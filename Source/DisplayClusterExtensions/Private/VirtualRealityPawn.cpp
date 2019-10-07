@@ -283,3 +283,38 @@ void AVirtualRealityPawn::InitComponentReferences()
 		RightHand = Flystick;
 	}
 }
+
+EEyeType AVirtualRealityPawn::GetNodeEyeType() {
+	FDisplayClusterConfigClusterNode CurrentNodeConfig;
+	IDisplayCluster::Get().GetConfigMgr()->GetClusterNode(GetNodeName(), CurrentNodeConfig);
+
+	FString s = CurrentNodeConfig.ToString();
+
+	if (s.Contains("mono_eye")) {
+		TArray<FString> stringArray;
+		TCHAR splitAt = ',';
+		int32 count = s.ParseIntoArray(stringArray, &splitAt , false);
+		for (int x = 0; x < count; x++) {
+			if (stringArray[x].Contains("mono_eye")) {
+				TArray<FString> secondStringArray;
+				TCHAR secondSplitAt = '=';
+				int32 secondCount = stringArray[x].ParseIntoArray(secondStringArray, &secondSplitAt, false);
+				secondStringArray[1].TrimStartAndEndInline();
+				if (secondStringArray[1].Equals("left")) {
+					return EEyeType::ET_STEREO_LEFT;
+				}
+				else if (secondStringArray[1].Equals("right")) {
+					return EEyeType::ET_STEREO_RIGHT;
+				}
+				else {
+					return EEyeType::ET_MONO;
+				}
+			}
+		}
+	}
+	else {
+		return EEyeType::ET_MONO;
+	}
+	return EEyeType::ET_MONO;
+}
+

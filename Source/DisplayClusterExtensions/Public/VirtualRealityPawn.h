@@ -15,6 +15,12 @@ enum class EVRNavigationModes : uint8{
   nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
   nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
 };
+UENUM(BlueprintType)
+enum class EEyeType : uint8 {
+	ET_MONO 			UMETA(DisplayName = "middle"),
+	ET_STEREO_RIGHT 	UMETA(DisplayName = "right"),
+	ET_STEREO_LEFT		UMETA(DisplayName = "left")
+};
 
 UCLASS()
 class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
@@ -35,6 +41,8 @@ public:
 
   UFUNCTION(BlueprintPure, Category = "Pawn") static FString GetNodeName();
   UFUNCTION(BlueprintPure, Category = "Pawn") static float GetEyeDistance();
+
+  UFUNCTION(BlueprintPure, Category = "Pawn") static EEyeType GetNodeEyeType();
 
   UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
   UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
