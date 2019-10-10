@@ -299,7 +299,7 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	if (s.Contains("mono_eye")) {
 		TArray<FString> stringArray;
 		TCHAR splitAt = ',';
-		int32 count = s.ParseIntoArray(stringArray, &splitAt, true);
+		int32 count = s.ParseIntoArray(stringArray, TEXT(","));
 		for (int x = 0; x < count; x++) {
 			UE_LOG(CAVEOverlayLog, Error, TEXT("%s"), *stringArray[x]);
 			if (stringArray[x].Contains("mono_eye")) {
