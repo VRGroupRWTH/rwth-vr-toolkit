@@ -14,8 +14,6 @@
 #include "Engine/Engine.h"
 #include "Camera/CameraComponent.h"
 
-DEFINE_LOG_CATEGORY(CAVEOverlayLog);
-
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bUseControllerRotationYaw = true;

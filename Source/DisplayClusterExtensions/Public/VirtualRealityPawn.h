@@ -7,10 +7,7 @@
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
 #include "MotionControllerComponent.h"
-
 #include "VirtualRealityPawn.generated.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(CAVEOverlayLog, Log, All);
 
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8{
