@@ -238,6 +238,18 @@ void AVirtualRealityPawn::BeginPlay()
 		RightHand = RootComponent;
 		Head = GetCameraComponent();
 	}
+
+        //In ADisplayClusterPawn input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly:
+        UWorld* World = GetWorld();
+        if (World)
+        {
+          APlayerController* PlayerController = World->GetFirstPlayerController();
+          if (PlayerController)
+          {
+            UE_LOG(LogDisplayClusterGame, Log, TEXT("Deactivating input on slave node..."));
+            this->EnableInput(PlayerController);
+          }
+        }
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
