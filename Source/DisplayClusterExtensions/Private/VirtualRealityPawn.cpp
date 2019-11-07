@@ -238,6 +238,18 @@ void AVirtualRealityPawn::BeginPlay()
 		RightHand = RootComponent;
 		Head = GetCameraComponent();
 	}
+
+        //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
+        //Therefore, we activate it again:
+        UWorld* World = GetWorld();
+        if (World)
+        {
+          APlayerController* PlayerController = World->GetFirstPlayerController();
+          if (PlayerController)
+          {
+            this->EnableInput(PlayerController);
+          }
+        }
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
