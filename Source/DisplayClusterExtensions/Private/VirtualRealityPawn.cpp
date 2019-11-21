@@ -47,7 +47,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 	// Check if this function triggers correctly on ROLV.
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode() || IsHeadMountedMode()))
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
@@ -55,7 +55,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode() || IsHeadMountedMode()))
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
