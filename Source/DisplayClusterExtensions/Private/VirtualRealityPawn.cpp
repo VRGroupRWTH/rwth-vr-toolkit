@@ -31,6 +31,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->PivotTranslation = FVector::ZeroVector;
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
+        Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+        RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+        LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
 	HmdLeftMotionController->SetTrackingSource(EControllerHand::Left);
@@ -174,9 +178,9 @@ USceneComponent* AVirtualRealityPawn::GetRightHandComponent()
 	return RightHand;
 }
 
-USceneComponent* AVirtualRealityPawn::GetCaveOriginComponent()
+USceneComponent* AVirtualRealityPawn::GetTrackingOriginComponent()
 {
-	return CaveOrigin;
+	return TrackingOrigin;
 }
 
 USceneComponent* AVirtualRealityPawn::GetCaveCenterComponent()
@@ -228,15 +232,15 @@ void AVirtualRealityPawn::BeginPlay()
 		HmdLeftMotionController->SetVisibility(true);
 		HmdRightMotionController->SetVisibility(true);
 
-		LeftHand = HmdLeftMotionController;
-		RightHand = HmdRightMotionController;
-		Head = GetCameraComponent();
+		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	else //Desktop
 	{
-		LeftHand = RootComponent;
-		RightHand = RootComponent;
-		Head = GetCameraComponent();
+                LeftHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+                RightHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+                Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
         //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
@@ -280,19 +284,19 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 void AVirtualRealityPawn::InitComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
-	if (!CaveOrigin) CaveOrigin = GetClusterComponent("cave_origin");
+	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("cave_origin");
 	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
 	if (!ShutterGlasses)
 	{
 		ShutterGlasses = GetClusterComponent("shutter_glasses");
-		Head = ShutterGlasses;
+                Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	if (!Flystick)
 	{
 		Flystick = GetClusterComponent("flystick");
 
-		LeftHand = Flystick;
-		RightHand = Flystick;
+		LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
 

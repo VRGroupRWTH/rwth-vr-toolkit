@@ -58,9 +58,13 @@ public:
   UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
-  UFUNCTION(Category = "Pawn") USceneComponent* GetCaveOriginComponent();
+private:
+
+  UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
+
+public:
 
   //Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
   UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
@@ -90,16 +94,16 @@ protected:
   // PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				Head						= nullptr;
   // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				LeftHand					= nullptr;
-  // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				RightHand					= nullptr;
+  // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				LeftHand					= nullptr;
 
   // Holding the Cave Origin Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				CaveOrigin					= nullptr;
-  // Holding the Cave Center Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				CaveCenter					= nullptr;
+  UPROPERTY() USceneComponent*				TrackingOrigin					= nullptr;
+  // Holding the Cave Center Component that is attached to this Pawn, it is needed for the internal transform of nDisplay
+  UPROPERTY() USceneComponent*				CaveCenter					= nullptr;
   // Holding the Shutter Glasses Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				ShutterGlasses				= nullptr;
+  UPROPERTY() USceneComponent*				ShutterGlasses				        = nullptr;
 
 private:
 	void InitComponentReferences();
