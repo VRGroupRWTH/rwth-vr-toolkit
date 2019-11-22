@@ -51,6 +51,9 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
+	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) {
+		AddMovementInput(RightHand->GetForwardVector(), Value);
+	}
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
@@ -81,9 +84,9 @@ void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
-	if (IsRoomMountedMode())
+	if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk)
 	{
-		// User-centered projection causes simulation sickness on look up interaction hence not implemented.
+	
 	}
 	else
 	{
@@ -246,6 +249,13 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
+
+	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
+	    UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Walk"));
+	if (NavigationMode == EVRNavigationModes::nav_mode_fly)
+		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Fly"));
+	if (NavigationMode == EVRNavigationModes::nav_mode_none)
+		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Non"));
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -308,4 +318,3 @@ EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	}
 	return EEyeType::ET_MONO;
 }
-

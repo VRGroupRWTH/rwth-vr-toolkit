@@ -12,7 +12,8 @@
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8{
   nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
-  nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
+  nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly"),
+  nav_mode_walk UMETA(DisplayName = "Navigation Mode Walk")
 };
 UENUM(BlueprintType)
 enum class EEyeType : uint8 {
@@ -42,6 +43,7 @@ public:
   UFUNCTION(BlueprintPure, Category = "Pawn") static float GetEyeDistance();
 
   UFUNCTION(BlueprintPure, Category = "Pawn") static EEyeType GetNodeEyeType();
+
 
   UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
   UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
