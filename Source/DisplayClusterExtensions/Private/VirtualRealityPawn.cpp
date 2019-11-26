@@ -221,8 +221,6 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
 		InitComponentReferences();
-
-		RootComponent->SetWorldLocation(FVector(0, 2, 0), false, nullptr, ETeleportType::None);
 	}
 	else if (IsHeadMountedMode())
 	{
@@ -241,6 +239,9 @@ void AVirtualRealityPawn::BeginPlay()
                 LeftHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
                 RightHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
                 Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+                //move to eyelevel
+                GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
         //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
