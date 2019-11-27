@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "MotionControllerComponent.h"
 #include "VirtualRealityPawn.generated.h"
 
@@ -103,6 +104,9 @@ protected:
   // Holding the Shutter Glasses Component that is attached to this Pawn
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				ShutterGlasses				= nullptr;
 
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent*             BaseCollisionComponent      = nullptr;
+	  
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent*             BaseCollisionComponent1 = nullptr;
 private:
 	void InitComponentReferences();
 };

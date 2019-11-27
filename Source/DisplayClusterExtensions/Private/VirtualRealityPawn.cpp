@@ -13,6 +13,7 @@
 #include "IXRTrackingSystem.h"
 #include "Engine/Engine.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -42,6 +43,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetTrackingSource(EControllerHand::Right);
 	HmdRightMotionController->SetShowDeviceModel(true);
 	HmdRightMotionController->SetVisibility(false);
+
+	// Create the root CapsuleComponent to handle the pickup's collision
+	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BaseCapsuleComponent"));
+	BaseCollisionComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+	BaseCollisionComponent1 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BaseCapsuleComponent1"));
+	GetCollisionComponent()->AttachToComponent(BaseCollisionComponent1, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -52,6 +60,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) {
+	//	if(RightHand->RelativeLocation.Z==0)
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 }
@@ -84,14 +93,16 @@ void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
-	if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk)
-	{
-	
-	}
-	else
-	{
+	//if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk)
+	//{
+	//
+	//}
+	//else
+	//{
+
+
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-	}
+	//}
 }
 
 void AVirtualRealityPawn::OnFire_Implementation(bool Pressed)
@@ -256,6 +267,18 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Fly"));
 	if (NavigationMode == EVRNavigationModes::nav_mode_none)
 		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Non"));
+
+
+	if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk) {
+		BaseCollisionComponent->SetCollisionProfileName(FName("Vehicle"));
+		BaseCollisionComponent->SetEnableGravity(true);
+		BaseCollisionComponent->SetSimulatePhysics(true);
+
+		BaseCollisionComponent1->SetCollisionProfileName(FName("Vehicle"));
+		BaseCollisionComponent1->SetEnableGravity(true);
+		BaseCollisionComponent1->SetSimulatePhysics(true);
+	}
+
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
