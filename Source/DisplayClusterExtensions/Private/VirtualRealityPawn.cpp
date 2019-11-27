@@ -221,6 +221,9 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
 		InitRoomMountedComponentReferences();
+
+                //as a test move this up to see whether we get images on the floor from the beginning
+                GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 	else if (IsHeadMountedMode())
 	{
