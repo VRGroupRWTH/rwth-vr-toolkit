@@ -239,9 +239,12 @@ void AVirtualRealityPawn::BeginPlay()
 	}
 	else //Desktop
 	{
-                LeftHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-                RightHand->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
                 Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+                //also attach the hands to the camera component so we can use them for interaction
+                LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+                RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+                
 
                 //move to eyelevel
                 GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
