@@ -220,7 +220,7 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		InitComponentReferences();
+		InitRoomMountedComponentReferences();
 	}
 	else if (IsHeadMountedMode())
 	{
@@ -262,7 +262,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//Flystick might not be available at start, hence is checked every frame.
-	InitComponentReferences();
+	InitRoomMountedComponentReferences();
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -282,7 +282,7 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 	return Movement;
 }
 
-void AVirtualRealityPawn::InitComponentReferences()
+void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
 	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("cave_origin");

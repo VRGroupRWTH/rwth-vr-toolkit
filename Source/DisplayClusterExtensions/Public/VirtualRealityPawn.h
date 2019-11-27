@@ -106,5 +106,5 @@ protected:
   UPROPERTY() USceneComponent*				ShutterGlasses				        = nullptr;
 
 private:
-	void InitComponentReferences();
+	void InitRoomMountedComponentReferences();
 };
