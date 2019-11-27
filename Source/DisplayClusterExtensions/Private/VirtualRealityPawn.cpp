@@ -286,6 +286,7 @@ void AVirtualRealityPawn::InitComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
 	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("cave_origin");
+        if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("rolv_origin");
 	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
 	if (!ShutterGlasses)
 	{
