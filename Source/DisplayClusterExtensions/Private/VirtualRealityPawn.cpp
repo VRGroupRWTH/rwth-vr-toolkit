@@ -31,9 +31,9 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->PivotTranslation = FVector::ZeroVector;
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
-        Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
-        RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
-        LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+    Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+    RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+    LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
 
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
@@ -221,9 +221,6 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
 		InitRoomMountedComponentReferences();
-
-                //as a test move this up to see whether we get images on the floor from the beginning
-                GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 	else if (IsHeadMountedMode())
 	{
@@ -239,15 +236,15 @@ void AVirtualRealityPawn::BeginPlay()
 	}
 	else //Desktop
 	{
-                Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
-                //also attach the hands to the camera component so we can use them for interaction
-                LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-                RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		//also attach the hands to the camera component so we can use them for interaction
+		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
                 
 
-                //move to eyelevel
-                GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
+		//move to eyelevel
+		GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
         //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
