@@ -255,8 +255,8 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		HmdLeftMotionController->SetVisibility(ShowHMDControlers);
-		HmdRightMotionController->SetVisibility(ShowHMDControlers);
+		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
+		HmdRightMotionController->SetVisibility(ShowHMDControllers);
 
 		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
 		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
