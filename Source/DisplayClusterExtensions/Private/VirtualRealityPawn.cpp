@@ -19,7 +19,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
-	
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
 	Movement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
@@ -194,6 +194,24 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetClusterComponent(const FS
 	return IDisplayCluster::Get().GetGameMgr()->GetNodeById(Name);
 }
 
+void AVirtualRealityPawn::ClusterExecute(const FString& Command)
+{
+	FDisplayClusterClusterEvent event;
+	event.Name = "NDisplayCMD: " + Command;
+	event.Type = "NDisplayCMD";
+	event.Category = "VRPawn";
+	event.Parameters.Add("Command", Command);
+	IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
+}
+
+void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
+{
+	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
+	{
+		GEngine->Exec(GetWorld(), *Event.Parameters["Command"]);
+	}
+}
+
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -239,17 +257,36 @@ void AVirtualRealityPawn::BeginPlay()
 		Head = GetCameraComponent();
 	}
 
-        //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
-        //Therefore, we activate it again:
-        UWorld* World = GetWorld();
-        if (World)
-        {
-          APlayerController* PlayerController = World->GetFirstPlayerController();
-          if (PlayerController)
-          {
-            this->EnableInput(PlayerController);
-          }
-        }
+	//In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
+	//Therefore, we activate it again:
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			this->EnableInput(PlayerController);
+		}
+	}
+
+	// Register cluster event listeners
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterEventListenerDelegate = FOnClusterEventListener::CreateUObject(this, &AVirtualRealityPawn::HandleClusterEvent);
+		ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
+	}
+}
+
+void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -296,28 +333,33 @@ void AVirtualRealityPawn::InitComponentReferences()
 	}
 }
 
-EEyeType AVirtualRealityPawn::GetNodeEyeType() {
+EEyeType AVirtualRealityPawn::GetNodeEyeType()
+{
 	FDisplayClusterConfigClusterNode CurrentNodeConfig;
 	IDisplayCluster::Get().GetConfigMgr()->GetClusterNode(GetNodeName(), CurrentNodeConfig);
 
 	FString s = CurrentNodeConfig.ToString();
 
-	if (s.Contains("mono_eye")) {
+	if (s.Contains("mono_eye"))
+	{
 		TArray<FString> stringArray;
 		int32 count = s.ParseIntoArray(stringArray, TEXT(","));
-		for (int x = 0; x < count; x++) {
+		for (int x = 0; x < count; x++)
+		{
 			if (!stringArray[x].Contains("mono_eye")) continue;
-			if (stringArray[x].Contains("left")) {
+			if (stringArray[x].Contains("left"))
+			{
 				return EEyeType::ET_STEREO_LEFT;
 			}
-			if (stringArray[x].Contains("right")) {
+			if (stringArray[x].Contains("right"))
+			{
 				return EEyeType::ET_STEREO_RIGHT;
 			}
 		}
 	}
-	else {
+	else
+	{
 		return EEyeType::ET_MONO;
 	}
 	return EEyeType::ET_MONO;
 }
-
