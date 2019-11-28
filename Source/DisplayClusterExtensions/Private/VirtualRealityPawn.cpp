@@ -153,6 +153,16 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetFlystickComponent()
 	return Flystick;
 }
 
+UDisplayClusterSceneComponent * AVirtualRealityPawn::GetRightHandtargetComponent()
+{
+	return RightHandTarget;
+}
+
+UDisplayClusterSceneComponent * AVirtualRealityPawn::GetLeftHandtargetComponent()
+{
+	return LeftHandTarget;
+}
+
 UMotionControllerComponent* AVirtualRealityPawn::GetHmdLeftMotionControllerComponent()
 {
 	return HmdLeftMotionController;
@@ -227,8 +237,8 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		HmdLeftMotionController->SetVisibility(true);
-		HmdRightMotionController->SetVisibility(true);
+		HmdLeftMotionController->SetVisibility(ShowHMDControlers);
+		HmdRightMotionController->SetVisibility(ShowHMDControlers);
 
 		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
 		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
@@ -299,10 +309,26 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 	if (!Flystick)
 	{
 		Flystick = GetClusterComponent("flystick");
-		LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
-		RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		if(AttachRightHandInCAVE==EAttachementType::AT_FLYSTICK)
+			RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		if (AttachLeftHandInCAVE == EAttachementType::AT_FLYSTICK)
+			LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		
+	}
+	if (!LeftHandTarget)
+	{
+		LeftHandTarget = GetClusterComponent("left_hand_target");
+		if (AttachLeftHandInCAVE == EAttachementType::AT_HANDTARGET)
+			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	if (!RightHandTarget)
+	{
+		RightHandTarget = GetClusterComponent("right_hand_target");
+		if (AttachRightHandInCAVE == EAttachementType::AT_HANDTARGET)
+			RightHand->AttachToComponent(RightHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
+
 
 EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	FDisplayClusterConfigClusterNode CurrentNodeConfig;

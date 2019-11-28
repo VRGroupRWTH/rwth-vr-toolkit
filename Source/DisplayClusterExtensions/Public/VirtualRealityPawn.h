@@ -21,6 +21,13 @@ enum class EEyeType : uint8 {
 	ET_STEREO_LEFT		UMETA(DisplayName = "stereo_left")
 };
 
+UENUM(BlueprintType)
+enum class EAttachementType : uint8 {
+	AT_NONE						UMETA(DisplayName = "not attached"),
+	AT_HANDTARGET 	UMETA(DisplayName = "to the right/left hand target"),
+	AT_FLYSTICK		UMETA(DisplayName = "to the Flystick")
+};
+
 UCLASS()
 class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
 {
@@ -51,6 +58,8 @@ public:
   //Bunch of Getter Functions for components to avoid users having to know the names
 
   UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetRightHandtargetComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
   UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdLeftMotionControllerComponent();
   UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdRightMotionControllerComponent();
 
@@ -84,11 +93,16 @@ protected:
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent*    RotatingMovement      = nullptr;
   
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* Flystick              = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* Flystick				= nullptr;
+	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* RightHandTarget	= nullptr;
+	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* LeftHandTarget	= nullptr;
+
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD left  motion controller.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdLeftMotionController  = nullptr;
+  UMotionControllerComponent*    HmdLeftMotionController  = nullptr;
   // Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD right motion controller.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdRightMotionController = nullptr;
+  UMotionControllerComponent*    HmdRightMotionController = nullptr;
 
   // PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				Head							= nullptr;
@@ -103,6 +117,11 @@ protected:
   UPROPERTY() USceneComponent*				CaveCenter					= nullptr;
   // Holding the Shutter Glasses Component that is attached to this Pawn
   UPROPERTY() USceneComponent*				ShutterGlasses			= nullptr;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") bool ShowHMDControlers = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
 private:
 	void InitRoomMountedComponentReferences();
