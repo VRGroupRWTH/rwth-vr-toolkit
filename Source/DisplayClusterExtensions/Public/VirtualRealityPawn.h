@@ -11,12 +11,12 @@
 
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8{
-  nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
-  nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
+  nav_mode_none		UMETA(DisplayName = "Navigation Mode None"),
+  nav_mode_fly		UMETA(DisplayName = "Navigation Mode Fly")
 };
 UENUM(BlueprintType)
 enum class EEyeType : uint8 {
-	ET_MONO 			UMETA(DisplayName = "mono"),
+	ET_MONO						UMETA(DisplayName = "mono"),
 	ET_STEREO_RIGHT 	UMETA(DisplayName = "stero_right"),
 	ET_STEREO_LEFT		UMETA(DisplayName = "stereo_left")
 };
@@ -58,9 +58,8 @@ public:
   UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
+	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
 private:
-
-  UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
   UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
 
@@ -92,18 +91,18 @@ protected:
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdRightMotionController = nullptr;
 
   // PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				Head						= nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				Head							= nullptr;
   // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				RightHand					= nullptr;
   // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				LeftHand					= nullptr;
 
   // Holding the Cave Origin Component that is attached to this Pawn
-  UPROPERTY() USceneComponent*				TrackingOrigin					= nullptr;
+  UPROPERTY() USceneComponent*				TrackingOrigin			= nullptr;
   // Holding the Cave Center Component that is attached to this Pawn, it is needed for the internal transform of nDisplay
   UPROPERTY() USceneComponent*				CaveCenter					= nullptr;
   // Holding the Shutter Glasses Component that is attached to this Pawn
-  UPROPERTY() USceneComponent*				ShutterGlasses				        = nullptr;
+  UPROPERTY() USceneComponent*				ShutterGlasses			= nullptr;
 
 private:
 	void InitRoomMountedComponentReferences();

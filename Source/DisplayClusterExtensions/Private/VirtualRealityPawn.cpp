@@ -31,9 +31,9 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->PivotTranslation = FVector::ZeroVector;
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
-    Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
-    RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
-    LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+	Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+	RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+	LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
 
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
@@ -247,17 +247,15 @@ void AVirtualRealityPawn::BeginPlay()
 		GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
-        //In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
-        //Therefore, we activate it again:
-        UWorld* World = GetWorld();
-        if (World)
-        {
-          APlayerController* PlayerController = World->GetFirstPlayerController();
-          if (PlayerController)
-          {
-            this->EnableInput(PlayerController);
-          }
-        }
+	//In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
+	//Therefore, we activate it again:
+	UWorld* World = GetWorld();
+	if (World){
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController){
+			this->EnableInput(PlayerController);
+		}
+	}
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -288,18 +286,19 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
+
+	//check whether the nodes already exist (otherwise GetClusterComponent() returns nullptr and prints a warning) and assign them
 	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("cave_origin");
-        if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("rolv_origin");
+	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("rolv_origin");
 	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
 	if (!ShutterGlasses)
 	{
 		ShutterGlasses = GetClusterComponent("shutter_glasses");
-                Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	if (!Flystick)
 	{
 		Flystick = GetClusterComponent("flystick");
-
 		LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
 		RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
 	}
