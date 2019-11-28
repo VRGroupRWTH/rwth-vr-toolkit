@@ -1,13 +1,13 @@
 #pragma once
 
+#include "CoreMinimal.h"
+#include "Cluster/DisplayClusterClusterEvent.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
+#include "DisplayClusterPawn.h"
+#include "DisplayClusterSceneComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
-#include "CoreMinimal.h"
-#include "DisplayClusterPawn.h"
-#include "DisplayClusterSceneComponent.h"
-#include "Cluster/IDisplayClusterClusterManager.h"
-#include "Cluster/DisplayClusterClusterEvent.h"
 #include "MotionControllerComponent.h"
 #include "VirtualRealityPawn.generated.h"
 
@@ -16,14 +16,6 @@ enum class EVRNavigationModes : uint8
 {
 	nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
 	nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
-};
-
-UENUM(BlueprintType)
-enum class EEyeType : uint8
-{
-	ET_MONO UMETA(DisplayName = "mono"),
-	ET_STEREO_RIGHT UMETA(DisplayName = "stero_right"),
-	ET_STEREO_LEFT UMETA(DisplayName = "stereo_left")
 };
 
 UENUM(BlueprintType)
@@ -47,16 +39,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintCallable, Category = "Pawn") void OnFire(bool Pressed);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction(bool Pressed, int32 Index);
 
-	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsDesktopMode();
-	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsRoomMountedMode();
-	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsHeadMountedMode();
-
-
-	UFUNCTION(BlueprintPure, Category = "Pawn") static FString GetNodeName();
-	UFUNCTION(BlueprintPure, Category = "Pawn") static float GetEyeDistance();
-
-	UFUNCTION(BlueprintPure, Category = "Pawn") static EEyeType GetNodeEyeType();
-
 	UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
 	UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
 	UFUNCTION(Category = "Pawn") UFloatingPawnMovement* GetFloatingPawnMovement();
@@ -79,14 +61,7 @@ private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
 
 public:
-
-	//Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
-
-	//Execute specified console command on all nDisplayCluster Nodes
-	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
@@ -131,7 +106,6 @@ protected:
 	UPROPERTY() USceneComponent* CaveCenter = nullptr;
 	// Holding the Shutter Glasses Component that is attached to this Pawn
 	UPROPERTY() USceneComponent* ShutterGlasses = nullptr;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") bool ShowHMDControllers = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
