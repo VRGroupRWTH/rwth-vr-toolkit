@@ -26,6 +26,14 @@ enum class EEyeType : uint8
 	ET_STEREO_LEFT UMETA(DisplayName = "stereo_left")
 };
 
+UENUM(BlueprintType)
+enum class EAttachementType : uint8
+{
+	AT_NONE UMETA(DisplayName = "not attached"),
+	AT_HANDTARGET UMETA(DisplayName = "to the right/left hand target"),
+	AT_FLYSTICK UMETA(DisplayName = "to the Flystick")
+};
+
 UCLASS()
 class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
 {
@@ -43,6 +51,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsRoomMountedMode();
 	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsHeadMountedMode();
 
+
 	UFUNCTION(BlueprintPure, Category = "Pawn") static FString GetNodeName();
 	UFUNCTION(BlueprintPure, Category = "Pawn") static float GetEyeDistance();
 
@@ -54,8 +63,9 @@ public:
 	UFUNCTION(Category = "Pawn") URotatingMovementComponent* GetRotatingMovementComponent();
 
 	//Bunch of Getter Functions for components to avoid users having to know the names
-
 	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetRightHandtargetComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
 	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdLeftMotionControllerComponent();
 	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdRightMotionControllerComponent();
 
@@ -63,9 +73,12 @@ public:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
-	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveOriginComponent();
+	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
+private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
+
+public:
 
 	//Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Pawn") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
@@ -89,31 +102,41 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
-	UPROPERTY(EditAnywhere , BlueprintReadWrite, Category = "Pawn", meta = (AllowPrivateAccess = "true")) float BaseTurnRate = 45.0f;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UFloatingPawnMovement* Movement = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingMovement = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn", meta = (AllowPrivateAccess = "true")) float BaseTurnRate = 45.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UFloatingPawnMovement* Movement = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingMovement = nullptr;
 
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* Flystick = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* Flystick = nullptr;
+	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* RightHandTarget = nullptr;
+	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* LeftHandTarget = nullptr;
+
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD left  motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdLeftMotionController = nullptr;
+	UMotionControllerComponent* HmdLeftMotionController = nullptr;
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD right motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdRightMotionController = nullptr;
+	UMotionControllerComponent* HmdRightMotionController = nullptr;
 
 	// PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* Head = nullptr;
-	// PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* LeftHand = nullptr;
-	// PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+	// PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: regarding to AttachRightHandInCAVE. Useful for line trace (e.g. for holding objects).
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* RightHand = nullptr;
+	// PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: regarding to AttachLeftHandInCAVE. Useful for line trace (e.g. for holding objects).
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* LeftHand = nullptr;
 
-	// Holding the Cave Origin Component that is attached to this Pawn
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* CaveOrigin = nullptr;
-	// Holding the Cave Center Component that is attached to this Pawn
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* CaveCenter = nullptr;
+	// Holding the Cave/rolv Origin Component that is attached to this Pawn
+	UPROPERTY() USceneComponent* TrackingOrigin = nullptr;
+	// Holding the Cave Center Component that is attached to this Pawn, it is needed for the internal transform of nDisplay
+	UPROPERTY() USceneComponent* CaveCenter = nullptr;
 	// Holding the Shutter Glasses Component that is attached to this Pawn
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* ShutterGlasses = nullptr;
+	UPROPERTY() USceneComponent* ShutterGlasses = nullptr;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") bool ShowHMDControllers = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
 private:
-	void InitComponentReferences();
+	void InitRoomMountedComponentReferences();
 };

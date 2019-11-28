@@ -31,6 +31,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->PivotTranslation = FVector::ZeroVector;
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
+	Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+	RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+	LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
 	HmdLeftMotionController->SetTrackingSource(EControllerHand::Left);
@@ -149,6 +153,16 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetFlystickComponent()
 	return Flystick;
 }
 
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetRightHandtargetComponent()
+{
+	return RightHandTarget;
+}
+
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetLeftHandtargetComponent()
+{
+	return LeftHandTarget;
+}
+
 UMotionControllerComponent* AVirtualRealityPawn::GetHmdLeftMotionControllerComponent()
 {
 	return HmdLeftMotionController;
@@ -174,9 +188,9 @@ USceneComponent* AVirtualRealityPawn::GetRightHandComponent()
 	return RightHand;
 }
 
-USceneComponent* AVirtualRealityPawn::GetCaveOriginComponent()
+USceneComponent* AVirtualRealityPawn::GetTrackingOriginComponent()
 {
-	return CaveOrigin;
+	return TrackingOrigin;
 }
 
 USceneComponent* AVirtualRealityPawn::GetCaveCenterComponent()
@@ -234,27 +248,31 @@ void AVirtualRealityPawn::BeginPlay()
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		InitComponentReferences();
-
-		RootComponent->SetWorldLocation(FVector(0, 2, 0), false, nullptr, ETeleportType::None);
+		InitRoomMountedComponentReferences();
 	}
 	else if (IsHeadMountedMode())
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		HmdLeftMotionController->SetVisibility(true);
-		HmdRightMotionController->SetVisibility(true);
+		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
+		HmdRightMotionController->SetVisibility(ShowHMDControllers);
 
-		LeftHand = HmdLeftMotionController;
-		RightHand = HmdRightMotionController;
-		Head = GetCameraComponent();
+		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	else //Desktop
 	{
-		LeftHand = RootComponent;
-		RightHand = RootComponent;
-		Head = GetCameraComponent();
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+		//also attach the hands to the camera component so we can use them for interaction
+		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+
+		//move to eyelevel
+		GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
 	//In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
@@ -294,7 +312,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//Flystick might not be available at start, hence is checked every frame.
-	InitComponentReferences();
+	InitRoomMountedComponentReferences();
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -314,24 +332,41 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 	return Movement;
 }
 
-void AVirtualRealityPawn::InitComponentReferences()
+void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 {
 	if (!IsRoomMountedMode()) return;
-	if (!CaveOrigin) CaveOrigin = GetClusterComponent("cave_origin");
+
+	//check whether the nodes already exist (otherwise GetClusterComponent() returns nullptr and prints a warning) and assign them
+	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("cave_origin");
+	if (!TrackingOrigin) TrackingOrigin = GetClusterComponent("rolv_origin");
 	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
 	if (!ShutterGlasses)
 	{
 		ShutterGlasses = GetClusterComponent("shutter_glasses");
-		Head = ShutterGlasses;
+		Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	if (!Flystick)
 	{
 		Flystick = GetClusterComponent("flystick");
-
-		LeftHand = Flystick;
-		RightHand = Flystick;
+		if (AttachRightHandInCAVE == EAttachementType::AT_FLYSTICK)
+			RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		if (AttachLeftHandInCAVE == EAttachementType::AT_FLYSTICK)
+			LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	if (!LeftHandTarget)
+	{
+		LeftHandTarget = GetClusterComponent("left_hand_target");
+		if (AttachLeftHandInCAVE == EAttachementType::AT_HANDTARGET)
+			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	if (!RightHandTarget)
+	{
+		RightHandTarget = GetClusterComponent("right_hand_target");
+		if (AttachRightHandInCAVE == EAttachementType::AT_HANDTARGET)
+			RightHand->AttachToComponent(RightHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
+
 
 EEyeType AVirtualRealityPawn::GetNodeEyeType()
 {
