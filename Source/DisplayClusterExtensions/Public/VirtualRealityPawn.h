@@ -6,6 +6,8 @@
 #include "CoreMinimal.h"
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
+#include "Cluster/DisplayClusterClusterEvent.h"
 #include "MotionControllerComponent.h"
 #include "VirtualRealityPawn.generated.h"
 
@@ -49,6 +51,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsRoomMountedMode();
 	UFUNCTION(BlueprintPure, Category = "Pawn") static bool IsHeadMountedMode();
 
+
 	UFUNCTION(BlueprintPure, Category = "Pawn") static FString GetNodeName();
 	UFUNCTION(BlueprintPure, Category = "Pawn") static float GetEyeDistance();
 
@@ -60,7 +63,6 @@ public:
 	UFUNCTION(Category = "Pawn") URotatingMovementComponent* GetRotatingMovementComponent();
 
 	//Bunch of Getter Functions for components to avoid users having to know the names
-
 	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent();
 	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetRightHandtargetComponent();
 	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
@@ -83,11 +85,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
+	//Execute specified console command on all nDisplayCluster Nodes
+	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
+
+private:
+	FOnClusterEventListener ClusterEventListenerDelegate;
+	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
+
 protected:
 	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
 	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
@@ -110,12 +120,12 @@ protected:
 
 	// PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* Head = nullptr;
-	// PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+	// PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: regarding to AttachRightHandInCAVE. Useful for line trace (e.g. for holding objects).
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* RightHand = nullptr;
-	// PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
+	// PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: regarding to AttachLeftHandInCAVE. Useful for line trace (e.g. for holding objects).
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* LeftHand = nullptr;
 
-	// Holding the Cave Origin Component that is attached to this Pawn
+	// Holding the Cave/rolv Origin Component that is attached to this Pawn
 	UPROPERTY() USceneComponent* TrackingOrigin = nullptr;
 	// Holding the Cave Center Component that is attached to this Pawn, it is needed for the internal transform of nDisplay
 	UPROPERTY() USceneComponent* CaveCenter = nullptr;

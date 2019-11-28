@@ -208,6 +208,24 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetClusterComponent(const FS
 	return IDisplayCluster::Get().GetGameMgr()->GetNodeById(Name);
 }
 
+void AVirtualRealityPawn::ClusterExecute(const FString& Command)
+{
+	FDisplayClusterClusterEvent event;
+	event.Name = "NDisplayCMD: " + Command;
+	event.Type = "NDisplayCMD";
+	event.Category = "VRPawn";
+	event.Parameters.Add("Command", Command);
+	IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
+}
+
+void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
+{
+	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
+	{
+		GEngine->Exec(GetWorld(), *Event.Parameters["Command"]);
+	}
+}
+
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -268,6 +286,25 @@ void AVirtualRealityPawn::BeginPlay()
 			this->EnableInput(PlayerController);
 		}
 	}
+
+	// Register cluster event listeners
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterEventListenerDelegate = FOnClusterEventListener::CreateUObject(this, &AVirtualRealityPawn::HandleClusterEvent);
+		ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
+	}
+}
+
+void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
