@@ -30,7 +30,4 @@ public:
 
 	//Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
-
-	//Execute specified console command on all nDisplayCluster Nodes
-	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 };

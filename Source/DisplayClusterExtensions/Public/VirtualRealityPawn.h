@@ -63,6 +63,9 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
+  //Execute specified console command on all nDisplayCluster Nodes
+  UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
+
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
 	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);

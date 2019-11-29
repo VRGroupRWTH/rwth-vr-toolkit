@@ -176,6 +176,16 @@ USceneComponent* AVirtualRealityPawn::GetShutterGlassesComponent()
 	return ShutterGlasses;
 }
 
+void AVirtualRealityPawn::ClusterExecute(const FString& Command)
+{
+  FDisplayClusterClusterEvent event;
+  event.Name = "NDisplayCMD: " + Command;
+  event.Type = "NDisplayCMD";
+  event.Category = "VRPawn";
+  event.Parameters.Add("Command", Command);
+  IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
+}
+
 void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
 {
 	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))

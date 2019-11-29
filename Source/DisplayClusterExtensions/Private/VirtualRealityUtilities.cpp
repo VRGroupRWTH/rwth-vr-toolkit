@@ -2,7 +2,6 @@
 
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Engine/Engine.h"
-#include "DisplayClusterClusterEvent.h"
 #include "Game/IDisplayClusterGameManager.h"
 #include "IDisplayCluster.h"
 #include "IDisplayClusterConfigManager.h"
@@ -64,14 +63,4 @@ EEyeType UVirtualRealityUtilities::GetNodeEyeType()
 UDisplayClusterSceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Name)
 {
 	return IDisplayCluster::Get().GetGameMgr()->GetNodeById(Name);
-}
-
-void UVirtualRealityUtilities::ClusterExecute(const FString& Command)
-{
-	FDisplayClusterClusterEvent event;
-	event.Name = "NDisplayCMD: " + Command;
-	event.Type = "NDisplayCMD";
-	event.Category = "VRPawn";
-	event.Parameters.Add("Command", Command);
-	IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
 }
