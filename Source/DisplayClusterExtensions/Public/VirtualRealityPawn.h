@@ -70,6 +70,12 @@ public:
    
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
+  // declare overlap begin function
+  UFUNCTION(Category = "Pawn")  void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+  // declare overlap end function
+  UFUNCTION(Category = "Pawn")  void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	 
 protected:
 	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
 	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
@@ -106,7 +112,13 @@ protected:
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent*             BaseCollisionComponent      = nullptr;
 	  
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent*             BaseCollisionComponent1 = nullptr;
+
 private:
+
 	void InitComponentReferences();
+
+
+	bool OnForwardClicked;
+	bool OnRightClicked;
+	
 };

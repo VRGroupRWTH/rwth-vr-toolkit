@@ -20,7 +20,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
-	
+
+	OnForwardClicked = false;
+	OnRightClicked = false;
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
 	Movement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
@@ -48,12 +51,20 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	BaseCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BaseCapsuleComponent"));
 	BaseCollisionComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
-	BaseCollisionComponent1 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BaseCapsuleComponent1"));
-	GetCollisionComponent()->AttachToComponent(BaseCollisionComponent1, FAttachmentTransformRules::KeepRelativeTransform);
+
+	BaseCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapBegin);
+	BaseCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapEnd);
+	BaseCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
+	if(Value !=0)
+	OnForwardClicked = true;
+	else
+	OnForwardClicked = false;
+
 	// Check if this function triggers correctly on ROLV.
 	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
 	{
@@ -63,14 +74,22 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	//	if(RightHand->RelativeLocation.Z==0)
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
+
+
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
+	if (Value != 0)
+		OnRightClicked = true;
+	else
+		OnRightClicked = false;
+	
 	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
+
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -208,6 +227,41 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetClusterComponent(const FS
 	return IDisplayCluster::Get().GetGameMgr()->GetNodeById(Name);
 }
 
+void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+
+	if (OtherActor && (OtherActor != this) && OtherComp) {
+       GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap Begin"));
+       UE_LOG(LogTemp, Warning, TEXT("Overlap Begin"));
+
+	   
+
+	   FVector closestPointOnSurface;
+	   float distance = OtherComp->GetDistanceToCollision(BaseCollisionComponent->GetComponentLocation(), closestPointOnSurface);
+	   UE_LOG(LogTemp, Warning, TEXT(" Returns Distance to closest Body Instance surface. (this is from OnOverlapBegin) %f "), distance);
+	   UE_LOG(LogTemp, Warning, TEXT(" Returns Point on the surface of collision closest to Point. (this is from OnOverlapBegin) %s "), *closestPointOnSurface.ToString());
+	   UE_LOG(LogTemp, Warning, TEXT(" BaseCollisionComponents from My Camera %s "), *BaseCollisionComponent->GetComponentLocation().ToString());
+
+	   FVector Diff_Camera_ClosestPoint(BaseCollisionComponent->GetComponentLocation() - closestPointOnSurface);
+	   UE_LOG(LogTemp, Warning, TEXT(" The Difference between BaseCollisionComponent and closestPointOnSurface. (this is from OnOverlapBegin) %s "), *Diff_Camera_ClosestPoint.ToString());
+	   FVector Diff(RootComponent->GetComponentLocation() - Diff_Camera_ClosestPoint);
+	   UE_LOG(LogTemp, Warning, TEXT(" Set The Pawn of this Point %s "), *Diff.ToString());
+	   RootComponent->SetWorldLocation(Diff);
+	}
+	
+}
+
+void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+{
+	
+	if (OtherActor && (OtherActor != this) && OtherComp) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap End"));
+	    UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
+		
+	}
+		
+}
+
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -252,6 +306,16 @@ void AVirtualRealityPawn::BeginPlay()
 		RightHand = RootComponent;
 		Head = GetCameraComponent();
 	}
+
+	
+	
+	//CollisionComponent->SetCollisionProfileName(FName("BlockAll"));
+	//CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	//BaseCollisionComponent->SetCollisionProfileName(FName("BlockAll"));
+	//BaseCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -260,25 +324,15 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
-
-	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
-	    UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Walk"));
-	if (NavigationMode == EVRNavigationModes::nav_mode_fly)
-		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Fly"));
-	if (NavigationMode == EVRNavigationModes::nav_mode_none)
-		UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Non"));
-
-
-	if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk) {
-		BaseCollisionComponent->SetCollisionProfileName(FName("Vehicle"));
-		BaseCollisionComponent->SetEnableGravity(true);
-		BaseCollisionComponent->SetSimulatePhysics(true);
-
-		BaseCollisionComponent1->SetCollisionProfileName(FName("Vehicle"));
-		BaseCollisionComponent1->SetEnableGravity(true);
-		BaseCollisionComponent1->SetSimulatePhysics(true);
-	}
-
+	
+	//if (NavigationMode == EVRNavigationModes::nav_mode_walk)
+	//    UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Walk"));
+	//if (NavigationMode == EVRNavigationModes::nav_mode_fly)
+	//	UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Fly"));
+	//if (NavigationMode == EVRNavigationModes::nav_mode_none)
+	//	UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Non"));
+	
+	
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
