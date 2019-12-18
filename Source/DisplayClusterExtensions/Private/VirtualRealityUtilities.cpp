@@ -20,6 +20,20 @@ bool UVirtualRealityUtilities::IsHeadMountedMode()
 	return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
 }
 
+UFUNCTION(BlueprintPure, Category = "DisplayCluster") bool UVirtualRealityUtilities::IsMaster()
+{
+	IDisplayClusterClusterManager* manager = IDisplayCluster::Get().GetClusterMgr();
+	if (manager == nullptr) // no manager means we are not in clustermode and therefore master
+		return true;
+
+	return manager->IsMaster();
+}
+
+UFUNCTION(BlueprintPure, Category = "DisplayCluster") bool UVirtualRealityUtilities::IsSlave()
+{
+	return !IsMaster();
+}
+
 FString UVirtualRealityUtilities::GetNodeName()
 {
 	return IsRoomMountedMode() ? IDisplayCluster::Get().GetClusterMgr()->GetNodeId() : FString(TEXT("Localhost"));

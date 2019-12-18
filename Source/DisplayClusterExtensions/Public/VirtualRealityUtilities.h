@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsRoomMountedMode();
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsHeadMountedMode();
 
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsMaster();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsSlave();
+
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static FString GetNodeName();
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static float GetEyeDistance();
 
