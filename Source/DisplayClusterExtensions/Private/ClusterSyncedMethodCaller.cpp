@@ -21,14 +21,19 @@ void UClusterSyncedMethodCaller::DeregisterListener() {
 	}
 }
 
-void UClusterSyncedMethodCaller::CallMethodSynced(FSyncMethod MethodToCall, TMap<FString, FString> Parameters, FString UniqueIdentifier)
+void UClusterSyncedMethodCaller::CallMethodSynced(FString UniqueIdentifier, TMap<FString, FString> Parameters)
 {
+
+	check(SyncedFunctions.Contains(UniqueIdentifier))
+
 	IDisplayClusterClusterManager* const Manager = IDisplayCluster::Get().GetClusterMgr();
 	if (Manager)
 	{
 		if (Manager->IsStandalone()) {
 			//in standalone (e.g., desktop editor play) cluster events are not executed....
-			MethodToCall.Execute(Parameters);
+			if (SyncedFunctions.Contains(UniqueIdentifier)) {
+				SyncedFunctions.FindChecked(UniqueIdentifier).Execute(Parameters);
+			}
 		}
 		else {
 			// else create a cluster event to react to
@@ -37,11 +42,15 @@ void UClusterSyncedMethodCaller::CallMethodSynced(FSyncMethod MethodToCall, TMap
 			cluster_event.Type = "ClusterSyncedMethodCaller";
 			cluster_event.Name = UniqueIdentifier;
 			cluster_event.Parameters = Parameters;
-			Manager->EmitClusterEvent(cluster_event, true);
 
-			SyncedFunctions.Add(UniqueIdentifier, MethodToCall);
+			Manager->EmitClusterEvent(cluster_event, true);
 		}
 	}
+}
+
+void UClusterSyncedMethodCaller::RegisterSyncedMethod(FString UniqueIdentifier, FSyncMethod MethodToCall)
+{
+	SyncedFunctions.Add(UniqueIdentifier, MethodToCall);
 }
 
 void UClusterSyncedMethodCaller::HandleClusterEvent(const FDisplayClusterClusterEvent & Event)
