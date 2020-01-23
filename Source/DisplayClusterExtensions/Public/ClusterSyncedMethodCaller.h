@@ -1,13 +1,14 @@
 #pragma once
 
-#include "Templates/UnrealTemplate.h"
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Delegates/IntegerSequence.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "Delegates/Delegate.h"
+#include "Templates/UnrealTemplate.h"
 #include "Delegates/IntegerSequence.h"
+#include "Serialization/MemoryWriter.h"
+#include "Serialization/MemoryReader.h"
 
 #include "ClusterSyncedMethodCaller.generated.h"
 
@@ -58,9 +59,16 @@ template <typename CurrentValueType, typename... RemainingValueTypes>
 struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 {
 	template <int ArgumentIndex>
-	static inline void Invoke(TMap<FString, FString>* ParameterMap, const CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues)
+	static inline void Invoke(TMap<FString, FString>* ParameterMap, CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues)
 	{
-		ParameterMap->Add(FString::FromInt(ArgumentIndex), CurrentValue); // TODO: convert!
+		TArray<uint8> bytes;
+		FMemoryWriter writer(bytes);
+		writer << CurrentValue;
+		FString value;
+		for (const uint8 byte : bytes) {
+			value += static_cast<TCHAR>(byte + 1); // TODO: Preallocate!
+		}
+		ParameterMap->Add(FString::FromInt(ArgumentIndex), value);
 		FillParameterMapImpl<RemainingValues...>::Invoke<ArgumentIndex + 1>(ParameterMap, RemainingValues...); // TODO: forward remaining values!
 	}
 };
@@ -92,12 +100,33 @@ void InvokeDelegateUsingArgumentTupleImpl(const DelegateType& Delegate, const Tu
 	Delegate.Execute(ArgumentTuple.Get<Indices>()...); // TODO: Add Forward<>() here!
 }
 
+// This can be replaces with tuple.ApplyBefore/After
 template <typename TupleType, typename RetType, typename... ArgTypes>
 RetType InvokeDelegateUsingArgumentTuple(const TBaseDelegate<RetType, ArgTypes...>& Delegate, const TupleType& ArgumentTuple) {
 	return InvokeDelegateUsingArgumentTupleImpl<RetType>(
 		Forward<const TBaseDelegate<RetType, ArgTypes...>&>(Delegate),
 		Forward<const TupleType&>(ArgumentTuple),
 		TMakeIntegerSequence<int, sizeof...(ArgTypes)>{});
+}
+
+template <int CurrentIndex, typename... ArgTypes>
+inline void FillArgumentTuple(TTuple<ArgTypes...>* ArgumentTuple, const TMap<FString, FString>& Parameters)
+{
+	constexpr auto ArgumentCount = sizeof...(ArgTypes);
+	if (CurrentIndex < ArgumentCount)
+	{
+		const auto& DataString = Parameters[FString::FromInt(CurrentIndex)];
+		TArray<uint8> Bytes; // TODO: Preallocate
+
+		for (const auto Character : DataString)
+		{
+			Bytes.Add(static_cast<uint8>(Character - 1));
+		}
+
+		FMemoryReader Reader(Bytes);
+		Reader << ArgumentTuple->Get<CurrentIndex>();
+		//FillArgumentTuple<CurrentIndex + 1>(ArgumentTuple, Parameters); // TODO: Fix this!
+	}
 }
 
 template <typename RetType, typename... ArgTypes>
@@ -107,9 +136,9 @@ void UClusterSyncedMethodCaller::RegisterAutoTypedDelegate(FString UniqueIdentif
 		UniqueIdentifier,
 		FSyncMethod::CreateLambda(
 			[Delegate](TMap<FString, FString> Parameters) {
-				TTuple<typename TRemoveReference<ArgTypes>::Type...> ParameterTuple;
-				// TODO: Convert parameter to value
-				InvokeDelegateUsingArgumentTuple(Delegate, ParameterTuple);
+				TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+				FillArgumentTuple<0>(&ArgumentTuple, Parameters);
+				InvokeDelegateUsingArgumentTuple(Delegate, ArgumentTuple);
 			}
 	));
 }
