@@ -59,11 +59,11 @@ template <typename CurrentValueType, typename... RemainingValueTypes>
 struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 {
 	template <int ArgumentIndex>
-	static inline void Invoke(TMap<FString, FString>* ParameterMap, CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues)
+	static inline void Invoke(TMap<FString, FString>* ParameterMap, CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues) // TODO: CurrentValue should probably be const
 	{
 		TArray<uint8> bytes;
 		FMemoryWriter writer(bytes);
-		writer << CurrentValue;
+		writer << CurrentValue; // TODO: We might need a const cast here
 		FString value;
 		for (const uint8 byte : bytes) {
 			value += static_cast<TCHAR>(byte + 1); // TODO: Preallocate!
