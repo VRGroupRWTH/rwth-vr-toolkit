@@ -36,8 +36,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate(float Rate);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, BlueprintCallable, Category = "Pawn") void OnFire(bool Pressed);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnAction(bool Pressed, int32 Index);
 
 	UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
 	UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
@@ -71,9 +69,6 @@ private:
 	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
 
 protected:
-	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
-	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
-
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;

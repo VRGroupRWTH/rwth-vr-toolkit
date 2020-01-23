@@ -93,14 +93,6 @@ void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 	}
 }
 
-void AVirtualRealityPawn::OnFire_Implementation(bool Pressed)
-{
-}
-
-void AVirtualRealityPawn::OnAction_Implementation(bool Pressed, int32 Index)
-{
-}
-
 float AVirtualRealityPawn::GetBaseTurnRate() const
 {
 	return BaseTurnRate;
