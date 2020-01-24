@@ -1,38 +1,38 @@
 #pragma once
 
-#include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include "Cluster/IDisplayClusterClusterManager.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
+#include "CoreMinimal.h"
 #include "Delegates/Delegate.h"
-#include "Templates/UnrealTemplate.h"
 #include "Delegates/IntegerSequence.h"
-#include "Serialization/MemoryWriter.h"
 #include "Serialization/MemoryReader.h"
+#include "Serialization/MemoryWriter.h"
+#include "Templates/UnrealTemplate.h"
+#include "UObject/NoExportTypes.h"
 
 #include "ClusterSyncedMethodCaller.generated.h"
 
 typedef TMap<FString, FString> FStringMap;
 DECLARE_DELEGATE_OneParam(FSyncMethod, FStringMap)
-//typedef FSyncMethod::FDelegate FSyncMethodDelegate;
+	// typedef FSyncMethod::FDelegate FSyncMethodDelegate;
 
-UCLASS()
-class DISPLAYCLUSTEREXTENSIONS_API UClusterSyncedMethodCaller : public UObject
+	UCLASS() class DISPLAYCLUSTEREXTENSIONS_API UClusterSyncedMethodCaller : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	//RegisterListener should be called in BeginPlay()
+	// RegisterListener should be called in BeginPlay()
 	void RegisterListener();
 
-	//DeregisterListener() should be called in EndPlay()
+	// DeregisterListener() should be called in EndPlay()
 	void DeregisterListener();
 
-	//This will call a with UniqueIdentifier registered method in a synced manner with given parameters, also works in non-cluster mode.
-	//Notice that in the cluster case this call is synced between all nodes, but async to the call of this method!
+	// This will call a with UniqueIdentifier registered method in a synced manner with given parameters, also works in non-cluster
+	// mode. Notice that in the cluster case this call is synced between all nodes, but async to the call of this method!
 	void CallMethodSynced(FString UniqueIdentifier, TMap<FString, FString> Parameters);
 
-	//Register a method to be called in a synced manner, UniqueIdentifier should be unique to any call of this method of any object!
+	// Register a method to be called in a synced manner, UniqueIdentifier should be unique to any call of this method of any
+	// object!
 	void RegisterSyncedMethod(FString UniqueIdentifier, FSyncMethod MethodToCall);
 
 	// Calls a previosuly registered delegate with automatic type conversion.
@@ -44,32 +44,37 @@ public:
 	// Delegates registered with this function should only be called via CallAutoTypedDelegate().
 	template <typename RetType, typename... ArgTypes>
 	void RegisterAutoTypedDelegate(FString UniqueIdentifier, const TBaseDelegate<RetType, ArgTypes...>& Delegate);
-  
+
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
 	virtual void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
 
 	TMap<FString, FSyncMethod> SyncedFunctions;
-
 };
 
-template <typename... Values> struct FillParameterMapImpl;
+template <typename... Values>
+struct FillParameterMapImpl;
 
 template <typename CurrentValueType, typename... RemainingValueTypes>
 struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 {
 	template <int ArgumentIndex>
-	static inline void Invoke(TMap<FString, FString>* ParameterMap, CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues) // TODO: CurrentValue should probably be const
+	static inline void Invoke(
+		TMap<FString, FString>* ParameterMap, const CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues)
 	{
 		TArray<uint8> bytes;
 		FMemoryWriter writer(bytes);
-		writer << CurrentValue; // TODO: We might need a const cast here
+		// Const cast is necessary here because the "<<" operator is used for reading and writing!
+		auto NonConstCurrentValue = const_cast<CurrentValueType&>(CurrentValue);
+		writer << NonConstCurrentValue;
 		FString value;
-		for (const uint8 byte : bytes) {
-			value += static_cast<TCHAR>(byte + 1); // TODO: Preallocate!
+		for (const uint8 byte : bytes)
+		{
+			value += static_cast<TCHAR>(byte + 1);	  // TODO: Preallocate!
 		}
 		ParameterMap->Add(FString::FromInt(ArgumentIndex), value);
-		FillParameterMapImpl<RemainingValues...>::Invoke<ArgumentIndex + 1>(ParameterMap, RemainingValues...); // TODO: forward remaining values!
+		FillParameterMapImpl<RemainingValues...>::Invoke<ArgumentIndex + 1>(
+			ParameterMap, RemainingValues...);	  // TODO: forward remaining values!
 	}
 };
 
@@ -77,17 +82,20 @@ template <>
 struct FillParameterMapImpl<>
 {
 	template <int ArgumentIndex>
-	static inline void Invoke(TMap<FString, FString>* ParameterMap) {}
+	static inline void Invoke(TMap<FString, FString>* ParameterMap)
+	{
+	}
 };
 
 template <typename... ArgTypes>
 void FillParameterMap(TMap<FString, FString>* ParameterMap, ArgTypes&&... Arguments)
 {
-	FillParameterMapImpl<ArgTypes...>::Invoke<0>(ParameterMap, Arguments...); // TODO: forward arguments!
+	FillParameterMapImpl<ArgTypes...>::Invoke<0>(ParameterMap, Arguments...);	 // TODO: forward arguments!
 }
 
 template <typename... ArgTypes>
-void UClusterSyncedMethodCaller::CallAutoTypedDelegate(FString UniqueIdentifier, ArgTypes&&... Arguments) {
+void UClusterSyncedMethodCaller::CallAutoTypedDelegate(FString UniqueIdentifier, ArgTypes&&... Arguments)
+{
 	TMap<FString, FString> ParameterMap;
 	// TODO: Add inline constrcution with a initializer list for performance reasons?
 	//       However this is possibly be super complicated
@@ -96,17 +104,18 @@ void UClusterSyncedMethodCaller::CallAutoTypedDelegate(FString UniqueIdentifier,
 }
 
 template <typename RetType, typename DelegateType, typename TupleType, int... Indices>
-void InvokeDelegateUsingArgumentTupleImpl(const DelegateType& Delegate, const TupleType& ArgumentTuple, TIntegerSequence<int, Indices...>) {
-	Delegate.Execute(ArgumentTuple.Get<Indices>()...); // TODO: Add Forward<>() here!
+void InvokeDelegateUsingArgumentTupleImpl(
+	const DelegateType& Delegate, const TupleType& ArgumentTuple, TIntegerSequence<int, Indices...>)
+{
+	Delegate.Execute(ArgumentTuple.Get<Indices>()...);	  // TODO: Add Forward<>() here!
 }
 
 // This can be replaces with tuple.ApplyBefore/After
 template <typename TupleType, typename RetType, typename... ArgTypes>
-RetType InvokeDelegateUsingArgumentTuple(const TBaseDelegate<RetType, ArgTypes...>& Delegate, const TupleType& ArgumentTuple) {
-	return InvokeDelegateUsingArgumentTupleImpl<RetType>(
-		Forward<const TBaseDelegate<RetType, ArgTypes...>&>(Delegate),
-		Forward<const TupleType&>(ArgumentTuple),
-		TMakeIntegerSequence<int, sizeof...(ArgTypes)>{});
+RetType InvokeDelegateUsingArgumentTuple(const TBaseDelegate<RetType, ArgTypes...>& Delegate, const TupleType& ArgumentTuple)
+{
+	return InvokeDelegateUsingArgumentTupleImpl<RetType>(Forward<const TBaseDelegate<RetType, ArgTypes...>&>(Delegate),
+		Forward<const TupleType&>(ArgumentTuple), TMakeIntegerSequence<int, sizeof...(ArgTypes)>{});
 }
 
 template <int CurrentIndex, typename... ArgTypes>
@@ -116,7 +125,7 @@ inline void FillArgumentTuple(TTuple<ArgTypes...>* ArgumentTuple, const TMap<FSt
 	if (CurrentIndex < ArgumentCount)
 	{
 		const auto& DataString = Parameters[FString::FromInt(CurrentIndex)];
-		TArray<uint8> Bytes; // TODO: Preallocate
+		TArray<uint8> Bytes;	// TODO: Preallocate
 
 		for (const auto Character : DataString)
 		{
@@ -125,20 +134,17 @@ inline void FillArgumentTuple(TTuple<ArgTypes...>* ArgumentTuple, const TMap<FSt
 
 		FMemoryReader Reader(Bytes);
 		Reader << ArgumentTuple->Get<CurrentIndex>();
-		//FillArgumentTuple<CurrentIndex + 1>(ArgumentTuple, Parameters); // TODO: Fix this!
+		// FillArgumentTuple<CurrentIndex + 1>(ArgumentTuple, Parameters); // TODO: Fix this!
 	}
 }
 
 template <typename RetType, typename... ArgTypes>
-void UClusterSyncedMethodCaller::RegisterAutoTypedDelegate(FString UniqueIdentifier, const TBaseDelegate<RetType, ArgTypes...>& Delegate)
+void UClusterSyncedMethodCaller::RegisterAutoTypedDelegate(
+	FString UniqueIdentifier, const TBaseDelegate<RetType, ArgTypes...>& Delegate)
 {
-	RegisterSyncedMethod(
-		UniqueIdentifier,
-		FSyncMethod::CreateLambda(
-			[Delegate](TMap<FString, FString> Parameters) {
-				TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
-				FillArgumentTuple<0>(&ArgumentTuple, Parameters);
-				InvokeDelegateUsingArgumentTuple(Delegate, ArgumentTuple);
-			}
-	));
+	RegisterSyncedMethod(UniqueIdentifier, FSyncMethod::CreateLambda([Delegate](TMap<FString, FString> Parameters) {
+		TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+		FillArgumentTuple<0>(&ArgumentTuple, Parameters);
+		InvokeDelegateUsingArgumentTuple(Delegate, ArgumentTuple);
+	}));
 }
