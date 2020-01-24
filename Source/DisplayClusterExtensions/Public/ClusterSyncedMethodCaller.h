@@ -73,7 +73,7 @@ struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 			value += static_cast<TCHAR>(byte + 1);	  // TODO: Preallocate!
 		}
 		ParameterMap->Add(FString::FromInt(ArgumentIndex), value);
-		FillParameterMapImpl<RemainingValues...>::Invoke<ArgumentIndex + 1>(
+		FillParameterMapImpl<RemainingValueTypes...>::Invoke<ArgumentIndex + 1>(
 			ParameterMap, RemainingValues...);	  // TODO: forward remaining values!
 	}
 };
