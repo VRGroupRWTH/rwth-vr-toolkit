@@ -119,23 +119,28 @@ RetType InvokeDelegateUsingArgumentTuple(const TBaseDelegate<RetType, ArgTypes..
 }
 
 template <int CurrentIndex, typename... ArgTypes>
-inline void FillArgumentTuple(TTuple<ArgTypes...>* ArgumentTuple, const TMap<FString, FString>& Parameters)
+inline typename TEnableIf<(CurrentIndex < sizeof...(ArgTypes))>::Type FillArgumentTuple(
+	TTuple<ArgTypes...>* ArgumentTuple, const TMap<FString, FString>& Parameters)
 {
-	constexpr auto ArgumentCount = sizeof...(ArgTypes);
-	if (CurrentIndex < ArgumentCount)
+	const auto& DataString = Parameters[FString::FromInt(CurrentIndex)];
+	TArray<uint8> Bytes;	// TODO: Preallocate
+
+	for (const auto Character : DataString)
 	{
-		const auto& DataString = Parameters[FString::FromInt(CurrentIndex)];
-		TArray<uint8> Bytes;	// TODO: Preallocate
-
-		for (const auto Character : DataString)
-		{
-			Bytes.Add(static_cast<uint8>(Character - 1));
-		}
-
-		FMemoryReader Reader(Bytes);
-		Reader << ArgumentTuple->Get<CurrentIndex>();
-		// FillArgumentTuple<CurrentIndex + 1>(ArgumentTuple, Parameters); // TODO: Fix this!
+		Bytes.Add(static_cast<uint8>(Character - 1));
 	}
+
+	FMemoryReader Reader(Bytes);
+	Reader << ArgumentTuple->Get<CurrentIndex>();
+
+	FillArgumentTuple<CurrentIndex + 1>(
+		Forward<TTuple<ArgTypes...>*>(ArgumentTuple), Forward<const TMap<FString, FString>&>(Parameters));
+}
+
+template <int CurrentIndex, typename... ArgTypes>
+inline typename TEnableIf<(CurrentIndex >= sizeof...(ArgTypes))>::Type FillArgumentTuple(
+	TTuple<ArgTypes...>* ArgumentTuple, const TMap<FString, FString>& Parameters)
+{
 }
 
 template <typename RetType, typename... ArgTypes>
