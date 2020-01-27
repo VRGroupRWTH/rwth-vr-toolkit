@@ -64,6 +64,7 @@ struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 	static inline void Invoke(
 		TMap<FString, FString>* ParameterMap, const CurrentValueType& CurrentValue, RemainingValueTypes&&... RemainingValues)
 	{
+		// If this assertion fails: implement the workaround described below!
 		static_assert(sizeof(TCHAR) > sizeof(uint8), "TCHAR needs to have extra room!");
 
 		TArray<uint8> SerializedValue;
