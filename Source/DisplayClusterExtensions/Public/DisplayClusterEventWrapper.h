@@ -3,52 +3,69 @@
 #include "ClusterSyncedMethodCaller.h"
 #include "Templates/IsInvocable.h"
 
+// A helper function to wrap the RegisterAutoTypedDelegate() call. This is necessary to extract the arguments types as a
+// parameter pack.
 template <typename ClassType, typename ReturnType, typename... ArgTypes>
-inline void RegisterImpl(UClusterSyncedMethodCaller* ClusterCaller, ClassType* Recevier, const FString& MethodName,
+inline void RegisterImpl(UClusterSyncedMethodCaller* ClusterCaller, ClassType* Receiver, const FString& MethodName,
 	ReturnType (ClassType::*MethodPointer)(ArgTypes...))
 {
-	ClusterCaller->RegisterAutoTypedDelegate(
-		Forward<const FString&>(MethodName), TBaseDelegate<ReturnType, ArgTypes...>::CreateUObject(Recevier, MethodPointer));
 }
 
-template <typename T>
-struct SendImpl;
+template <typename MemberFunctionType, MemberFunctionType MemberFunction>
+class ClusterEventWrapperEvent;
 
-template <typename ClassType, typename ReturnType, typename... ArgTypes>
-struct SendImpl<ReturnType (ClassType::*)(ArgTypes...)>
+template <typename OwnerType, typename ReturnType, typename... ArgTypes, ReturnType (OwnerType::*MemberFunction)(ArgTypes...)>
+class ClusterEventWrapperEvent<ReturnType (OwnerType::*)(ArgTypes...), MemberFunction>
 {
-	static void Invoke(UClusterSyncedMethodCaller* ClusterCaller, const FString& MethodName, ArgTypes&&... Arguments)
+public:
+	using MemberFunctionType = decltype(MemberFunction);
+
+	void Attach(OwnerType* Owner, UClusterSyncedMethodCaller* ClusterCaller)
 	{
-		ClusterCaller->CallAutoTypedDelegate(Forward<const FString&>(MethodName), Forward<ArgTypes>(Arguments)...);
+		check(this->Owner == nullptr);
+		check(this->ClusterCaller == nullptr);
+		this->Owner = Owner;
+		this->ClusterCaller = ClusterCaller;
+		ClusterCaller->RegisterSyncedAutoTypedMethod(
+			Forward<const FString&>(MethodName), TBaseDelegate<ReturnType, ArgTypes...>::CreateUObject(Receiver, MemberFunction));
 	}
+
+	void Send(ArgTypes&&... Arguments)
+	{
+		ClusterCaller->CallAutoTypedMethodSynced(Forward<const FString&>(MethodName), Forward<ArgTypes>(Arguments)...);
+	}
+
+private:
+	OwnerType* Owner = nullptr;
+	UClusterSyncedMethodCaller* ClusterCaller = nullptr;
 };
 
-#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                            \
-	class                                                                                                                      \
-	{                                                                                                                          \
-		UPROPERTY()                                                                                                            \
-		UClusterSyncedMethodCaller* ClusterCaller = nullptr;                                                                   \
-                                                                                                                               \
-	public:                                                                                                                    \
-		inline void Register(OwningType* Receiver)                                                                             \
-		{                                                                                                                      \
-			if (ClusterCaller == nullptr)                                                                                      \
-			{                                                                                                                  \
-				ClusterCaller = NewObject<UClusterSyncedMethodCaller>();                                                       \
-				RegisterImpl(ClusterCaller, Receiver, #OwningType "_" #MethodIdentifier, &OwningType::MethodIdentifier);       \
-			}                                                                                                                  \
-			ClusterCaller->RegisterListener();                                                                                 \
-		}                                                                                                                      \
-		inline void Deregister()                                                                                               \
-		{                                                                                                                      \
-			ClusterCaller->DeregisterListener();                                                                               \
-		}                                                                                                                      \
-		template <typename... ArgTypes>                                                                                        \
-		void Send(ArgTypes&&... Arguments)                                                                                     \
-		{                                                                                                                      \
-			static_assert(                                                                                                     \
-				TIsInvocable<decltype(&OwningType::MethodIdentifier), OwningType*, ArgTypes...>::Value, "Invalid Parameters"); \
-			SendImpl<decltype(&OwningType::MethodIdentifier)>::Invoke(                                                         \
-				ClusterCaller, #OwningType "_" #MethodIdentifier, Forward<ArgTypes>(Arguments)...);                            \
-		}                                                                                                                      \
-	} MethodIdentifier##Event;
+#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier) \
+	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier> MethodIdentifier##Event
+
+// #define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                            \
+// 	class                                                                 \
+// 	{                                                                                                                          \
+// 	public:                                                                                                                    \
+// 		inline void Register(OwningType* Receiver)                                                                             \
+// 		{                                                                                                                      \
+// 			if (ClusterCaller.Num() == 0)                                                                                      \
+// 			{                                                                                                                  \
+// 				ClusterCaller.Add(NewObject<UClusterSyncedMethodCaller>());                                                    \
+// 				RegisterImpl(ClusterCaller[0], Receiver, #OwningType "_" #MethodIdentifier, &OwningType::MethodIdentifier);    \
+// 			}                                                                                                                  \
+// 			ClusterCaller[0]->RegisterListener();                                                                              \
+// 		}                                                                                                                      \
+// 		inline void Deregister()                                                                                               \
+// 		{                                                                                                                      \
+// 			ClusterCaller[0]->DeregisterListener();                                                                            \
+// 		}                                                                                                                      \
+// 		template <typename... ArgTypes>                                                                                        \
+// 		void Send(ArgTypes&&... Arguments)                                                                                     \
+// 		{                                                                                                                      \
+// 			static_assert(                                                                                                     \
+// 				TIsInvocable<decltype(&OwningType::MethodIdentifier), OwningType*, ArgTypes...>::Value, "Invalid Parameters"); \
+// 			SendImpl<decltype(&OwningType::MethodIdentifier)>::Invoke(                                                         \
+// 				ClusterCaller[0], #OwningType "_" #MethodIdentifier, Forward<ArgTypes>(Arguments)...);                         \
+// 		}                                                                                                                      \
+// 	} MethodIdentifier##Event;
