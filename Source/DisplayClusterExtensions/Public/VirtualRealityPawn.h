@@ -110,7 +110,7 @@ protected:
   // Holding the Shutter Glasses Component that is attached to this Pawn
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				ShutterGlasses				= nullptr;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent*             BaseCollisionComponent      = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent*             SphereCollisionComponent     = nullptr;
 	  
 
 private:
@@ -120,5 +120,10 @@ private:
 
 	bool OnForwardClicked;
 	bool OnRightClicked;
-	
+
+	FVector Point;
+	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
+	float dist_Betw_Collision_And_ClossestPointOnSurface;
+
+	bool HasContact;
 };
