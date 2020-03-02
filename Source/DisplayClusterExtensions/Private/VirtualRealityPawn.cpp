@@ -64,52 +64,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	bool isDistSmallerThenRadiusCollision = false;
-	{ //LineTrace
-	
-		FHitResult OutHit;
-		FVector Start = GetCameraComponent()->GetComponentLocation();
 
-
-		FVector ForwardVector = GetCameraComponent()->GetForwardVector();
-		FVector End = ((ForwardVector * 1000.f) + Start);
-		FCollisionQueryParams CollisionParams;
-
-		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-		{
-			if (OutHit.bBlockingHit)
-			{
-				if (GEngine) {
-
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
-
-					UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
-					UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
-					UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
-				}
-
-
-				FVector MyCamera = GetCameraComponent()->GetComponentLocation();
-				FVector MyPawn = GetRootComponent()->GetComponentLocation();
-				FVector MyWall = OutHit.ImpactPoint;
-				float Dist_Betw_ImpactPoint_and_MyCamera = sqrt(pow((MyCamera.X - MyWall.X), 2) + pow((MyCamera.Y - MyWall.Y), 2) + pow((MyCamera.Z - MyWall.Z), 2));
-				float Dist_Betw_ImpactPoint_and_MyPawn = sqrt(pow((MyPawn.X - MyWall.X), 2) + pow((MyPawn.Y - MyWall.Y), 2) + pow((MyPawn.Z - MyWall.Z), 2));
-
-				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
-				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
-
-				if (Dist_Betw_ImpactPoint_and_MyCamera < SphereCollisionComponent->GetScaledSphereRadius()) {
-					isDistSmallerThenRadiusCollision = true;
-				}
-
-			}
-		}
-	}
-
+	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(Value, GetCameraComponent()->GetForwardVector());
+	bool isDistSmallerThenRadiusCollision_RightVector = CreateLineTrace(Value, GetCameraComponent()->GetRightVector());
+	bool isDistSmallerThenRadiusCollision_LeftVector = CreateLineTrace(Value, -GetCameraComponent()->GetRightVector());
 
 
 	if(Value !=0)
@@ -124,7 +82,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	}
 	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) 
 	{
-		if (isDistSmallerThenRadiusCollision && Value > 0.0f) {
+		if ((isDistSmallerThenRadiusCollision_ForwardVector || isDistSmallerThenRadiusCollision_RightVector || isDistSmallerThenRadiusCollision_LeftVector)  && Value > 0.0f ) {
 			Value = 0;
 		}
 		AddMovementInput(RightHand->GetForwardVector(), Value);
@@ -442,6 +400,56 @@ void AVirtualRealityPawn::InitComponentReferences()
 		LeftHand = Flystick;
 		RightHand = Flystick;
 	}
+}
+
+bool AVirtualRealityPawn::CreateLineTrace(float Value, FVector Forward_OR_Right_Vector)
+{
+	bool isDistSmallerThenRadiusCollision = false;
+	{ //LineTrace 
+
+		FHitResult OutHit;
+		FVector Start = GetCameraComponent()->GetComponentLocation();
+
+		FVector End = ((Forward_OR_Right_Vector * 1000.f) + Start);
+		FCollisionQueryParams CollisionParams;
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+		{
+			if (OutHit.bBlockingHit)
+			{
+				if (GEngine) {
+
+					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
+					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
+					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
+
+					UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
+					UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
+					UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
+				}
+
+
+				FVector MyCamera = GetCameraComponent()->GetComponentLocation();
+				FVector MyPawn = GetRootComponent()->GetComponentLocation();
+				FVector MyObject = OutHit.ImpactPoint;
+
+				float Dist_Betw_ImpactPoint_and_MyCamera = sqrt(pow((MyCamera.X - MyObject.X), 2) + pow((MyCamera.Y - MyObject.Y), 2) + pow((MyCamera.Z - MyObject.Z), 2));
+				float Dist_Betw_ImpactPoint_and_MyPawn = sqrt(pow((MyPawn.X - MyObject.X), 2) + pow((MyPawn.Y - MyObject.Y), 2) + pow((MyPawn.Z - MyObject.Z), 2));
+
+				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
+				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
+
+				if (Dist_Betw_ImpactPoint_and_MyCamera <= SphereCollisionComponent->GetScaledSphereRadius()) {
+					isDistSmallerThenRadiusCollision = true;
+				}
+
+			}
+		}
+	}
+
+	return isDistSmallerThenRadiusCollision;
 }
 
 EEyeType AVirtualRealityPawn::GetNodeEyeType() {

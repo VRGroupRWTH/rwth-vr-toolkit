@@ -126,4 +126,7 @@ private:
 	float dist_Betw_Collision_And_ClossestPointOnSurface;
 
 	bool HasContact;
+
+	bool CreateLineTrace(float Value, FVector Forward_OR_Right_Vector);
+   
 };
