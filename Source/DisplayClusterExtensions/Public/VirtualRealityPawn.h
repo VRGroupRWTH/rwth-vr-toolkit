@@ -127,6 +127,6 @@ private:
 
 	bool HasContact;
 
-	bool CreateLineTrace(float Value, FVector Forward_OR_Right_Vector);
-   
+	bool CreateLineTrace(FVector Forward_OR_Right_Vector);
+
 };

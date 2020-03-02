@@ -402,7 +402,7 @@ void AVirtualRealityPawn::InitComponentReferences()
 	}
 }
 
-bool AVirtualRealityPawn::CreateLineTrace(float Value, FVector Forward_OR_Right_Vector)
+bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector)
 {
 	bool isDistSmallerThenRadiusCollision = false;
 	{ //LineTrace 
@@ -413,7 +413,7 @@ bool AVirtualRealityPawn::CreateLineTrace(float Value, FVector Forward_OR_Right_
 		FVector End = ((Forward_OR_Right_Vector * 1000.f) + Start);
 		FCollisionQueryParams CollisionParams;
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
 		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 		{
