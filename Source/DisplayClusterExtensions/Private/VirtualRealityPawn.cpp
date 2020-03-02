@@ -15,6 +15,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h" // include draw debug helpers header file
+#include "Math/Vector.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -51,15 +52,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetVisibility(false);
 
 
-	/* Zum Löschen
-
-	USphereComponent* SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
-    RootComponent = SphereComponent;
-    SphereComponent->InitSphereRadius(40.0f);
-    SphereComponent->SetCollisionProfileName(TEXT("Pawn"));
-	
-	*/
-	// Create the root CapsuleComponent to handle the pickup's collision
 	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("BaseCapsuleComponent"));
 	SphereCollisionComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -72,29 +64,12 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	if(Value !=0)
-	OnForwardClicked = true;
-	else
-	OnForwardClicked = false;
-
-	// Check if this function triggers correctly on ROLV.
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
-	{
-		AddMovementInput(RightHand->GetForwardVector(), Value);
-	}
-	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) {
-	//	if(RightHand->RelativeLocation.Z==0)
-		AddMovementInput(RightHand->GetForwardVector(), Value);
-	}
-
-
+	bool isDistSmallerThenRadiusCollision = false;
 	{ //LineTrace
-
+	
 		FHitResult OutHit;
 		FVector Start = GetCameraComponent()->GetComponentLocation();
 
-		// alternatively you can get the camera location
-		// FVector Start = FirstPersonCameraComponent->GetComponentLocation();
 
 		FVector ForwardVector = GetCameraComponent()->GetForwardVector();
 		FVector End = ((ForwardVector * 1000.f) + Start);
@@ -112,10 +87,47 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
 					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
 
+					UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
+					UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
+					UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
 				}
+
+
+				FVector MyCamera = GetCameraComponent()->GetComponentLocation();
+				FVector MyPawn = GetRootComponent()->GetComponentLocation();
+				FVector MyWall = OutHit.ImpactPoint;
+				float Dist_Betw_ImpactPoint_and_MyCamera = sqrt(pow((MyCamera.X - MyWall.X), 2) + pow((MyCamera.Y - MyWall.Y), 2) + pow((MyCamera.Z - MyWall.Z), 2));
+				float Dist_Betw_ImpactPoint_and_MyPawn = sqrt(pow((MyPawn.X - MyWall.X), 2) + pow((MyPawn.Y - MyWall.Y), 2) + pow((MyPawn.Z - MyWall.Z), 2));
+
+				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
+				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
+
+				if (Dist_Betw_ImpactPoint_and_MyCamera < SphereCollisionComponent->GetScaledSphereRadius()) {
+					isDistSmallerThenRadiusCollision = true;
+				}
+
 			}
 		}
-	
+	}
+
+
+
+	if(Value !=0)
+	OnForwardClicked = true;
+	else
+	OnForwardClicked = false;
+
+	// Check if this function triggers correctly on ROLV.
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
+	{
+		AddMovementInput(RightHand->GetForwardVector(), Value);
+	}
+	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) 
+	{
+		if (isDistSmallerThenRadiusCollision && Value > 0.0f) {
+			Value = 0;
+		}
+		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 
 }
@@ -279,20 +291,19 @@ void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, A
 	   Point = SphereCollisionComponent->GetComponentLocation(); //World 3D vector
 	   dist_Betw_Collision_And_ClossestPointOnSurface = OtherComp->GetDistanceToCollision(Point, closestPointOnSurface);//Gibt die Entfernung zur nächstgelegenen Körperinstanzoberfläche zurück.
 	
-																													 
 	 }   
 	
 }
 
 void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
-	
+
 	if (OtherActor && (OtherActor != this) && OtherComp) {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlap End"));
 	    UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
 		HasContact = false;
 	}
-		
+
 }
 
 void AVirtualRealityPawn::BeginPlay()
@@ -314,7 +325,7 @@ void AVirtualRealityPawn::BeginPlay()
 		BaseTurnRate = Settings->RotationSpeed;
 	}
 
-	if (IsRoomMountedMode())
+	if (IsRoomMountedMode()) //Cave
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
@@ -323,7 +334,7 @@ void AVirtualRealityPawn::BeginPlay()
 
 		RootComponent->SetWorldLocation(FVector(0, 2, 0), false, nullptr, ETeleportType::None);
 	}
-	else if (IsHeadMountedMode())
+	else if (IsHeadMountedMode()) //HMD
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
@@ -377,7 +388,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk) {
-	   UE_LOG(LogTemp, Warning, TEXT(" ####################################_BeginnOverlap_##########################################"));
+	   UE_LOG(LogTemp, Warning, TEXT(" ##########################################_BeginnOverlap_##########################################"));
        UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_Collision_And_ClossestPointOnSurface:                            %f "), dist_Betw_Collision_And_ClossestPointOnSurface);
 	   UE_LOG(LogTemp, Warning, TEXT(" Point on the surface of collision closest to Point:                        %s "), *closestPointOnSurface.ToString());
 	   UE_LOG(LogTemp, Warning, TEXT(" Camera's Position:                                                         %s "), *GetCameraComponent()->GetComponentLocation().ToString());
