@@ -66,9 +66,12 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
 	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(GetCameraComponent()->GetForwardVector());
+	FVector ForwardVector_45GradRechts { static_cast<float>(GetCameraComponent()->GetForwardVector().X*cos(45.0f)), static_cast<float>(GetCameraComponent()->GetForwardVector().Y*sin(45.0f)),static_cast<float>(GetCameraComponent()->GetForwardVector().Z *0.0f)};
+	bool isDistSmallerThenRadiusCollision_ForwardVector_45GradRechts = CreateLineTrace(ForwardVector_45GradRechts);
 	bool isDistSmallerThenRadiusCollision_RightVector = CreateLineTrace(GetCameraComponent()->GetRightVector());
 	bool isDistSmallerThenRadiusCollision_LeftVector = CreateLineTrace(-GetCameraComponent()->GetRightVector());
-
+	UE_LOG(LogTemp, Warning, TEXT(" ForwardVector_45GradRechts:                        %s "), *ForwardVector_45GradRechts.ToString());
+	UE_LOG(LogTemp, Warning, TEXT(" GetCameraComponent()->GetForwardVector():          %s "), *GetCameraComponent()->GetForwardVector().ToString());
 
 	if(Value !=0)
 	OnForwardClicked = true;
@@ -82,7 +85,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	}
 	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) 
 	{
-		if ((isDistSmallerThenRadiusCollision_ForwardVector || isDistSmallerThenRadiusCollision_RightVector || isDistSmallerThenRadiusCollision_LeftVector)  && Value > 0.0f ) {
+		if ((isDistSmallerThenRadiusCollision_ForwardVector || isDistSmallerThenRadiusCollision_RightVector ||isDistSmallerThenRadiusCollision_ForwardVector_45GradRechts|| isDistSmallerThenRadiusCollision_LeftVector)  && Value > 0.0f ) {
 			Value = 0;
 		}
 		AddMovementInput(RightHand->GetForwardVector(), Value);
@@ -248,7 +251,6 @@ void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 
 	// Display cluster settings apply to all setups (PC, HMD, CAVE/ROLV) despite the unfortunate name due to being an UE4 internal.
 	TArray<AActor*> SettingsActors;
@@ -309,25 +311,28 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
+	{
+      FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
+	  const FVector LocalMove = FVector(100 * DeltaSeconds, 0.f, 0.f) + GravityAcc;
+	  RootComponent->AddLocalOffset(LocalMove, true);
+	}
 	
 
-
-
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk) {
-	   UE_LOG(LogTemp, Warning, TEXT(" ##########################################_BeginnOverlap_##########################################"));
-       UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_Collision_And_ClossestPointOnSurface:                            %f "), dist_Betw_Collision_And_ClossestPointOnSurface);
-	   UE_LOG(LogTemp, Warning, TEXT(" Point on the surface of collision closest to Point:                        %s "), *closestPointOnSurface.ToString());
-	   UE_LOG(LogTemp, Warning, TEXT(" Camera's Position:                                                         %s "), *GetCameraComponent()->GetComponentLocation().ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" ##########################################_BeginnOverlap_##########################################"));
+       //UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_Collision_And_ClossestPointOnSurface:                            %f "), dist_Betw_Collision_And_ClossestPointOnSurface);
+	   //UE_LOG(LogTemp, Warning, TEXT(" Point on the surface of collision closest to Point:                        %s "), *closestPointOnSurface.ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" Camera's Position:                                                         %s "), *GetCameraComponent()->GetComponentLocation().ToString());
 	  	   
 	   
 	   FVector Diff_Camera_and_ClosestPointOnSurface = Point - closestPointOnSurface;
-	   UE_LOG(LogTemp, Warning, TEXT(" The Difference between SphereCollisionComponent and closestPointOnSurface: %s "), *Diff_Camera_and_ClosestPointOnSurface.ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" The Difference between SphereCollisionComponent and closestPointOnSurface: %s "), *Diff_Camera_and_ClosestPointOnSurface.ToString());
 	   float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - dist_Betw_Collision_And_ClossestPointOnSurface;
-	   UE_LOG(LogTemp, Warning, TEXT(" Inside_Distance:                                                           %f "), Inside_Distance);
-	   UE_LOG(LogTemp, Warning, TEXT(" DeltaSeconds:                                                              %f "), DeltaSeconds);
-	   UE_LOG(LogTemp, Warning, TEXT(" Pawn's Position:                                                           %s "), *GetRootComponent()->GetComponentLocation().ToString());
-	   UE_LOG(LogTemp, Warning, TEXT(" Normalisation (Diff_Camera_and_ClosestPointOnSurface):                     %s "), *Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal().ToString());
-	   UE_LOG(LogTemp, Warning, TEXT(" Set The Pawn of this Point:                                                %s "), *(RootComponent->GetComponentLocation() + Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance).ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" Inside_Distance:                                                           %f "), Inside_Distance);
+	   //UE_LOG(LogTemp, Warning, TEXT(" DeltaSeconds:                                                              %f "), DeltaSeconds);
+	   //UE_LOG(LogTemp, Warning, TEXT(" Pawn's Position:                                                           %s "), *GetRootComponent()->GetComponentLocation().ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" Normalisation (Diff_Camera_and_ClosestPointOnSurface):                     %s "), *Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal().ToString());
+	   //UE_LOG(LogTemp, Warning, TEXT(" Set The Pawn of this Point:                                                %s "), *(RootComponent->GetComponentLocation() + Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance).ToString());
 	   RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, false);
 	}
 	
@@ -389,13 +394,13 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector)
 			{
 				if (GEngine) {
 
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
+					//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
+					//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
+					//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
 
-					UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
-					UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
-					UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
+					//UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
+					//UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
 				}
 
 
@@ -406,8 +411,8 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector)
 				float Dist_Betw_ImpactPoint_and_MyCamera = sqrt(pow((MyCamera.X - MyObject.X), 2) + pow((MyCamera.Y - MyObject.Y), 2) + pow((MyCamera.Z - MyObject.Z), 2));
 				float Dist_Betw_ImpactPoint_and_MyPawn = sqrt(pow((MyPawn.X - MyObject.X), 2) + pow((MyPawn.Y - MyObject.Y), 2) + pow((MyPawn.Z - MyObject.Z), 2));
 
-				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
-				UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
+				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
+				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
 
 				if (Dist_Betw_ImpactPoint_and_MyCamera <= SphereCollisionComponent->GetScaledSphereRadius()) {
 					isDistSmallerThenRadiusCollision = true;
