@@ -65,9 +65,9 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(Value, GetCameraComponent()->GetForwardVector());
-	bool isDistSmallerThenRadiusCollision_RightVector = CreateLineTrace(Value, GetCameraComponent()->GetRightVector());
-	bool isDistSmallerThenRadiusCollision_LeftVector = CreateLineTrace(Value, -GetCameraComponent()->GetRightVector());
+	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(GetCameraComponent()->GetForwardVector());
+	bool isDistSmallerThenRadiusCollision_RightVector = CreateLineTrace(GetCameraComponent()->GetRightVector());
+	bool isDistSmallerThenRadiusCollision_LeftVector = CreateLineTrace(-GetCameraComponent()->GetRightVector());
 
 
 	if(Value !=0)
@@ -106,34 +106,14 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
-	//if (IsRoomMountedMode())
-	//{
-	//	//const FVector CameraLocation = IDisplayCluster::Get().GetGameMgr()->GetActiveCamera()->GetComponentLocation();
-	//	//RotatingMovement->PivotTranslation = RotatingMovement
-	//	//                                     ->UpdatedComponent->GetComponentTransform().
-	//	//                                     InverseTransformPositionNoScale(CameraLocation);
-	//	//RotatingMovement->RotationRate = FRotator(RotatingMovement->RotationRate.Pitch, Rate * BaseTurnRate, 0.0f);
-
-	//}
-	//else
-	//{
-	//	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-	//}
+	
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 }
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
-	//if (IsHeadMountedMode() && NavigationMode == EVRNavigationModes::nav_mode_walk)
-	//{
-	//
-	//}
-	//else
-	//{
+	AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 
-
-		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-	//}
 }
 
 void AVirtualRealityPawn::OnFire_Implementation(bool Pressed)
@@ -320,13 +300,7 @@ void AVirtualRealityPawn::BeginPlay()
 		CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
 		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	//CollisionComponent->SetCollisionProfileName(FName("BlockAll"));
-	//CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	//BaseCollisionComponent->SetCollisionProfileName(FName("BlockAll"));
-	//BaseCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -336,12 +310,6 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
 	
-	//if (NavigationMode == EVRNavigationModes::nav_mode_walk)
-	//    UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Walk"));
-	//if (NavigationMode == EVRNavigationModes::nav_mode_fly)
-	//	UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Fly"));
-	//if (NavigationMode == EVRNavigationModes::nav_mode_none)
-	//	UE_LOG(LogTemp, Warning, TEXT("Your Navigation Mode is Non"));
 
 
 
