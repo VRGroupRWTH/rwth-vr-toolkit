@@ -66,11 +66,9 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 	
 	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(GetCameraComponent()->GetForwardVector(), static_cast<USceneComponent *>(GetCameraComponent()));
-	FVector ForwardVector_45GradRechts { static_cast<float>(GetCameraComponent()->GetForwardVector().X*cos(45.0f)), static_cast<float>(GetCameraComponent()->GetForwardVector().Y*sin(45.0f)),static_cast<float>(GetCameraComponent()->GetForwardVector().Z *0.0f)};
-	bool isDist_RightHand_ForwardVector = CreateLineTrace(RightHand->GetForwardVector(), RightHand);
 
-	UE_LOG(LogTemp, Warning, TEXT(" ForwardVector_45GradRechts:                        %s "), *ForwardVector_45GradRechts.ToString());
-	UE_LOG(LogTemp, Warning, TEXT(" GetCameraComponent()->GetForwardVector():          %s "), *GetCameraComponent()->GetForwardVector().ToString());
+	bool isDist_RightHand_ForwardVector = CreateLineTrace(RightHand->GetForwardVector(), RightHand);
+	
 
 	if(Value !=0)
 	OnForwardClicked = true;
@@ -231,7 +229,7 @@ void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, A
 	   Point = SphereCollisionComponent->GetComponentLocation(); //World 3D vector
 	   dist_Betw_Collision_And_ClossestPointOnSurface = OtherComp->GetDistanceToCollision(Point, closestPointOnSurface);//Gibt die Entfernung zur nächstgelegenen Körperinstanzoberfläche zurück.
 	
-	 }   
+	 }
 	
 }
 
@@ -292,15 +290,8 @@ void AVirtualRealityPawn::BeginPlay()
 		Head = GetCameraComponent();
 	}
 
-	if (NavigationMode == EVRNavigationModes::nav_mode_walk || NavigationMode == EVRNavigationModes::nav_mode_none) {
-	   CollisionComponent->SetCollisionProfileName(FName("BlockAll"));
-	   CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	}
-	
-	if (NavigationMode == EVRNavigationModes::nav_mode_fly) {
-		CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
-		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
+	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
@@ -310,12 +301,42 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
-	{
+
+	{//Gravity
+		FVector ImpactPoint = CreateLineTrace_Return_OutHit_ImpactPoint(FVector(0,0,-1), static_cast<USceneComponent *>(GetCameraComponent()));
+		float Dist_Betw_Camera_A_Ground_Z = abs(ImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
+		float Dist_Betw_Camera_A_Pawn_Z = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+		float Differnce_Distance = abs(Dist_Betw_Camera_A_Ground_Z - Dist_Betw_Camera_A_Pawn_Z);
+
+		//if you not have ImpactPoint, then you are falling.
+		if (ImpactPoint == FVector(0.f, 0.f, 0.f)) {
+			static float Gravity_Speed =0.0;
+			Gravity_Speed += 0.005;
+			UE_LOG(LogTemp, Warning, TEXT(" Gravity_Speed:                            %f "), Gravity_Speed);
+			FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
+			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
+			RootComponent->AddLocalOffset(LocalMove*Gravity_Speed, true);
+		}
+		else {
+			if (Dist_Betw_Camera_A_Ground_Z < Dist_Betw_Camera_A_Pawn_Z) {
+				const FVector Local_UpMove{ 0.f, 0.f, +Differnce_Distance };
+				RootComponent->AddLocalOffset(Local_UpMove * DeltaSeconds*5.f, true);
+			}
+			else if (Dist_Betw_Camera_A_Ground_Z > Dist_Betw_Camera_A_Pawn_Z) {
+				const FVector Local_UpMove{ 0.f, 0.f, -Differnce_Distance };
+				RootComponent->AddLocalOffset(Local_UpMove * DeltaSeconds*5.f, true);
+			}
+		}
+	
+
+	}
+	/*
+	{//Gravity
       FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
 	  const FVector LocalMove = FVector(100 * DeltaSeconds, 0.f, 0.f) + GravityAcc;
 	  RootComponent->AddLocalOffset(LocalMove, true);
 	}
-
+	*/
 
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk) {
 	   //UE_LOG(LogTemp, Warning, TEXT(" ##########################################_BeginnOverlap_##########################################"));
@@ -374,7 +395,7 @@ void AVirtualRealityPawn::InitComponentReferences()
 	}
 }
 
-bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector, USceneComponent* MyObjekt)
+bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt)
 {
 	bool isDistSmallerThenRadiusCollision = false;
 	{ //LineTrace 
@@ -382,7 +403,7 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector, UScen
 		FHitResult OutHit;
 		FVector Start = MyObjekt->GetComponentLocation();
 
-		FVector End = ((Forward_OR_Right_Vector * 1000.f) + Start);
+		FVector End = ((Forward_Right_OR_Up_Vector * 1000.f) + Start);
 		FCollisionQueryParams CollisionParams;
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
@@ -404,11 +425,10 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector, UScen
 				}
 				*/
 				
-				
 				FVector MyObjekt_Vector = MyObjekt->GetComponentLocation();
 				FVector MyImpactPoint_Vector = OutHit.ImpactPoint;
 
-				float Dist_Betw_ImpactPoint_and_MyObjekt = sqrt(pow((MyObjekt_Vector.X - MyImpactPoint_Vector.X), 2) + pow((MyObjekt_Vector.Y - MyImpactPoint_Vector.Y), 2) + pow((MyObjekt_Vector.Z - MyImpactPoint_Vector.Z), 2));
+				float Dist_Betw_ImpactPoint_and_MyObjekt = FVector::Distance(MyObjekt_Vector, MyImpactPoint_Vector);
 
 				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
 				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
@@ -423,6 +443,33 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_OR_Right_Vector, UScen
 
 	return isDistSmallerThenRadiusCollision;
 }
+
+FVector AVirtualRealityPawn::CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, USceneComponent * MyObjekt)
+{
+	FVector MyImpactPoint{0.0f, 0.0f, 0.0f};
+	{ //LineTrace 
+
+		FHitResult OutHit;
+		FVector Start = MyObjekt->GetComponentLocation();
+
+		FVector End = ((Forward_Right_OR_Up_Vector * 1000.f) + Start);
+		FCollisionQueryParams CollisionParams;
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+		{
+			if (OutHit.bBlockingHit)
+			{
+				 MyImpactPoint = OutHit.ImpactPoint;
+			}
+
+		}
+	}
+	return MyImpactPoint;
+}
+
+
 
 EEyeType AVirtualRealityPawn::GetNodeEyeType() {
 	FDisplayClusterConfigClusterNode CurrentNodeConfig;

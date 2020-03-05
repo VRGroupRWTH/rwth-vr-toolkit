@@ -75,7 +75,8 @@ public:
 	
   // declare overlap end function
   UFUNCTION(Category = "Pawn")  void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	 
+
+
 protected:
 	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
 	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
@@ -127,6 +128,7 @@ private:
 
 	bool HasContact;
 
-	bool CreateLineTrace(FVector Forward_OR_Right_Vector, USceneComponent* MyObjekt);
+	bool CreateLineTrace(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt);
+	FVector CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt);
 
 };
