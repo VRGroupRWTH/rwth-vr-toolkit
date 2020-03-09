@@ -19,6 +19,7 @@
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
@@ -52,23 +53,24 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetVisibility(false);
 
 
-	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("BaseCapsuleComponent"));
+	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("BaseSphereComponent"));
 	SphereCollisionComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 
 	SphereCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapBegin);
 	SphereCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapEnd);
 	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	
+
 }
+
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 	
-	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(GetCameraComponent()->GetForwardVector(), static_cast<USceneComponent *>(GetCameraComponent()));
+	bool isDistSmallerThenRadiusCollision_ForwardVector = CreateLineTrace(GetCameraComponent()->GetForwardVector(), GetCameraComponent()->GetComponentLocation(), false);
 
-	bool isDist_RightHand_ForwardVector = CreateLineTrace(RightHand->GetForwardVector(), RightHand);
-	
+	bool isDist_RightHand_ForwardVector = CreateLineTrace(RightHand->GetForwardVector(), RightHand->GetComponentLocation(), false);
+	bool isDist_RightHand_BackVector = CreateLineTrace(-RightHand->GetForwardVector(), RightHand->GetComponentLocation(), false);
 
 	if(Value !=0)
 	OnForwardClicked = true;
@@ -82,11 +84,78 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	}
 	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) 
 	{
-		if ((isDistSmallerThenRadiusCollision_ForwardVector|| isDist_RightHand_ForwardVector)  && Value > 0.0f ) {
+		if (isDistSmallerThenRadiusCollision_ForwardVector|| (isDist_RightHand_ForwardVector  && Value > 0.0f )|| (isDist_RightHand_BackVector && Value < 0.0f)) {
 			Value = 0;
 		}
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
+
+	{//Gravity
+
+		//FVector ImpactPoint_Down12 = CreateLineTrace_Return_OutHit_ImpactPoint(FVector(GetCameraComponent()->GetForwardVector().X, GetCameraComponent()->GetForwardVector().Y,0.f), GetCameraComponent()->GetComponentLocation(), true);
+		//UE_LOG(LogTemp, Warning, TEXT(" *GetCameraComponent()->GetForwardVector().ToString():                            %s "), *GetCameraComponent()->GetForwardVector().ToString());
+		FVector ImpactPoint_Down = CreateLineTrace_Return_OutHit_ImpactPoint(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+		float Dist_Betw_Camera_A_Ground_Z = abs(ImpactPoint_Down.Z - GetCameraComponent()->GetComponentLocation().Z);
+		float Dist_Betw_Camera_A_Pawn_Z = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+		float Differnce_Distance = abs(Dist_Betw_Camera_A_Ground_Z - Dist_Betw_Camera_A_Pawn_Z);
+
+		{//Nicht den Hocker hochgehen.
+			float Stufenhoehe_cm = 30.f;
+			FVector Start_From_Knee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (Dist_Betw_Camera_A_Ground_Z - Stufenhoehe_cm));
+			//Frage: Warum ist ImpactPoint_Belly_Forward nach hinten zeigt?????????????????????????????????????? : FVector(1.f, 0.f, 0.f) ????
+			FVector Vector_Forward = FVector(GetCameraComponent()->GetForwardVector().X, GetCameraComponent()->GetForwardVector().Y, 0.f);
+			FVector Vector_Right = FVector(GetCameraComponent()->GetRightVector().X, GetCameraComponent()->GetRightVector().Y, 0.f);
+
+			FVector ImpactPoint_Belly_Forward = CreateLineTrace_Return_OutHit_ImpactPoint(Vector_Forward, Start_From_Knee, true);
+			FVector ImpactPoint_Belly_Backward = CreateLineTrace_Return_OutHit_ImpactPoint(-Vector_Forward, Start_From_Knee, true);
+			FVector ImpactPoint_Belly_Right = CreateLineTrace_Return_OutHit_ImpactPoint(Vector_Right, Start_From_Knee, true);
+			FVector ImpactPoint_Belly_Left = CreateLineTrace_Return_OutHit_ImpactPoint(-Vector_Right, Start_From_Knee, true);
+
+			if (FVector::Distance(ImpactPoint_Belly_Forward, Start_From_Knee) < SphereCollisionComponent->GetScaledSphereRadius() && !OnForwardClicked) {
+				
+				FVector Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee = ImpactPoint_Belly_Forward - Start_From_Knee;
+				float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPoint_Belly_Forward, Start_From_Knee);
+				RootComponent->AddLocalOffset(Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee.GetSafeNormal()*Inside_Distance, true);
+				UE_LOG(LogTemp, Warning, TEXT(" FVector::Distance(ImpactPoint_Belly_Backward, Start_From_Knee):                            %f "), FVector::Distance(ImpactPoint_Belly_Forward, Start_From_Knee));
+				UE_LOG(LogTemp, Warning, TEXT(" Inside_Distance:                            %f "), Inside_Distance);
+				UE_LOG(LogTemp, Warning, TEXT(" *Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee.GetSafeNormal().ToString():                            %s "), *Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee.GetSafeNormal().ToString());
+			
+			}
+			else if (FVector::Distance(ImpactPoint_Belly_Forward, Start_From_Knee) < 40.f && OnForwardClicked) {
+				AddMovementInput(RightHand->GetForwardVector(), 0.f);
+			}
+
+		}
+
+
+		//if you not have ImpactPoint, then you are falling.
+		if (ImpactPoint_Down == FVector(0.f, 0.f, 0.f)) {
+			static float Gravity_Speed = 0.0;
+			Gravity_Speed += 0.05;
+			UE_LOG(LogTemp, Warning, TEXT(" Gravity_Speed:                            %f "), Gravity_Speed);
+			FVector GravityAcc = FVector(0.f, 0.f, -1.f);
+			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
+			RootComponent->AddLocalOffset(LocalMove*Gravity_Speed, true);
+		}
+		//Treppe hochgehen/runtergehen.
+		else {
+            if (Dist_Betw_Camera_A_Ground_Z < Dist_Betw_Camera_A_Pawn_Z) {
+				const FVector Local_UpMove{ 0.f, 0.f, +Differnce_Distance };
+				RootComponent->AddLocalOffset(Local_UpMove, true);
+			}
+			else if (Dist_Betw_Camera_A_Ground_Z > Dist_Betw_Camera_A_Pawn_Z) {
+				const FVector Local_UpMove{ 0.f, 0.f, -Differnce_Distance };
+				RootComponent->AddLocalOffset(Local_UpMove, true);
+			}
+		}
+	}
+	/*
+	{//Gravity
+	  FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
+	  const FVector LocalMove = FVector(100 * DeltaSeconds, 0.f, 0.f) + GravityAcc;
+	  RootComponent->AddLocalOffset(LocalMove, true);
+	}
+	*/
 
 }
 
@@ -293,6 +362,7 @@ void AVirtualRealityPawn::BeginPlay()
 	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -302,58 +372,15 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	//Flystick might not be available at start, hence is checked every frame.
 	InitComponentReferences();
 
-	{//Gravity
-		FVector ImpactPoint = CreateLineTrace_Return_OutHit_ImpactPoint(FVector(0,0,-1), static_cast<USceneComponent *>(GetCameraComponent()));
-		float Dist_Betw_Camera_A_Ground_Z = abs(ImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
-		float Dist_Betw_Camera_A_Pawn_Z = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-		float Differnce_Distance = abs(Dist_Betw_Camera_A_Ground_Z - Dist_Betw_Camera_A_Pawn_Z);
-
-		//if you not have ImpactPoint, then you are falling.
-		if (ImpactPoint == FVector(0.f, 0.f, 0.f)) {
-			static float Gravity_Speed =0.0;
-			Gravity_Speed += 0.005;
-			UE_LOG(LogTemp, Warning, TEXT(" Gravity_Speed:                            %f "), Gravity_Speed);
-			FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
-			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
-			RootComponent->AddLocalOffset(LocalMove*Gravity_Speed, true);
-		}
-		else {
-			if (Dist_Betw_Camera_A_Ground_Z < Dist_Betw_Camera_A_Pawn_Z) {
-				const FVector Local_UpMove{ 0.f, 0.f, +Differnce_Distance };
-				RootComponent->AddLocalOffset(Local_UpMove * DeltaSeconds*5.f, true);
-			}
-			else if (Dist_Betw_Camera_A_Ground_Z > Dist_Betw_Camera_A_Pawn_Z) {
-				const FVector Local_UpMove{ 0.f, 0.f, -Differnce_Distance };
-				RootComponent->AddLocalOffset(Local_UpMove * DeltaSeconds*5.f, true);
-			}
-		}
 	
 
-	}
-	/*
-	{//Gravity
-      FVector GravityAcc = FVector(0.f, 0.f, -1.f) * 5.f;
-	  const FVector LocalMove = FVector(100 * DeltaSeconds, 0.f, 0.f) + GravityAcc;
-	  RootComponent->AddLocalOffset(LocalMove, true);
-	}
-	*/
-
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk) {
-	   //UE_LOG(LogTemp, Warning, TEXT(" ##########################################_BeginnOverlap_##########################################"));
-       //UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_Collision_And_ClossestPointOnSurface:                            %f "), dist_Betw_Collision_And_ClossestPointOnSurface);
-	   //UE_LOG(LogTemp, Warning, TEXT(" Point on the surface of collision closest to Point:                        %s "), *closestPointOnSurface.ToString());
-	   //UE_LOG(LogTemp, Warning, TEXT(" Camera's Position:                                                         %s "), *GetCameraComponent()->GetComponentLocation().ToString());
-	  	   
 	   
 	   FVector Diff_Camera_and_ClosestPointOnSurface = Point - closestPointOnSurface;
-	   //UE_LOG(LogTemp, Warning, TEXT(" The Difference between SphereCollisionComponent and closestPointOnSurface: %s "), *Diff_Camera_and_ClosestPointOnSurface.ToString());
+	   
 	   float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - dist_Betw_Collision_And_ClossestPointOnSurface;
-	   //UE_LOG(LogTemp, Warning, TEXT(" Inside_Distance:                                                           %f "), Inside_Distance);
-	   //UE_LOG(LogTemp, Warning, TEXT(" DeltaSeconds:                                                              %f "), DeltaSeconds);
-	   //UE_LOG(LogTemp, Warning, TEXT(" Pawn's Position:                                                           %s "), *GetRootComponent()->GetComponentLocation().ToString());
-	   //UE_LOG(LogTemp, Warning, TEXT(" Normalisation (Diff_Camera_and_ClosestPointOnSurface):                     %s "), *Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal().ToString());
-	   //UE_LOG(LogTemp, Warning, TEXT(" Set The Pawn of this Point:                                                %s "), *(RootComponent->GetComponentLocation() + Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance).ToString());
-	   RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, false);
+
+	   RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, true);
 	}
 	
 	
@@ -395,43 +422,29 @@ void AVirtualRealityPawn::InitComponentReferences()
 	}
 }
 
-bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt)
+bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility)
 {
 	bool isDistSmallerThenRadiusCollision = false;
 	{ //LineTrace 
 
 		FHitResult OutHit;
-		FVector Start = MyObjekt->GetComponentLocation();
+		FVector Start = MyObjekt_ComponentLocation;
 
 		FVector End = ((Forward_Right_OR_Up_Vector * 1000.f) + Start);
 		FCollisionQueryParams CollisionParams;
-
+		
+		if(Visibility)
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
 		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 		{
 			if (OutHit.bBlockingHit)
 			{
-				/*
-				if (GEngine) {
-
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Impact Point: %s"), *OutHit.ImpactPoint.ToString()));
-					GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Black, FString::Printf(TEXT("Normal Point: %s"), *OutHit.ImpactNormal.ToString()));
-
-					UE_LOG(LogTemp, Warning, TEXT(" You are hitting:       %s "), *OutHit.GetActor()->GetName());
-					UE_LOG(LogTemp, Warning, TEXT(" Impact Point:          %s "), *OutHit.ImpactPoint.ToString());
-					UE_LOG(LogTemp, Warning, TEXT(" Normal Point:          %s "), *OutHit.ImpactNormal.ToString());
-				}
-				*/
-				
-				FVector MyObjekt_Vector = MyObjekt->GetComponentLocation();
+			
+				FVector MyObjekt_Vector = Start;
 				FVector MyImpactPoint_Vector = OutHit.ImpactPoint;
 
 				float Dist_Betw_ImpactPoint_and_MyObjekt = FVector::Distance(MyObjekt_Vector, MyImpactPoint_Vector);
-
-				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyCamera:          %f "), Dist_Betw_ImpactPoint_and_MyCamera);
-				//UE_LOG(LogTemp, Warning, TEXT(" Dist_Betw_ImpactPoint_and_MyPawn:            %f "), Dist_Betw_ImpactPoint_and_MyPawn);
 
 				if (Dist_Betw_ImpactPoint_and_MyObjekt <= SphereCollisionComponent->GetScaledSphereRadius()) {
 					isDistSmallerThenRadiusCollision = true;
@@ -444,17 +457,18 @@ bool AVirtualRealityPawn::CreateLineTrace(FVector Forward_Right_OR_Up_Vector, US
 	return isDistSmallerThenRadiusCollision;
 }
 
-FVector AVirtualRealityPawn::CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, USceneComponent * MyObjekt)
+FVector AVirtualRealityPawn::CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility)
 {
 	FVector MyImpactPoint{0.0f, 0.0f, 0.0f};
 	{ //LineTrace 
 
 		FHitResult OutHit;
-		FVector Start = MyObjekt->GetComponentLocation();
+		FVector Start = MyObjekt_ComponentLocation;
 
 		FVector End = ((Forward_Right_OR_Up_Vector * 1000.f) + Start);
 		FCollisionQueryParams CollisionParams;
 
+		if(Visibility)
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
 		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))

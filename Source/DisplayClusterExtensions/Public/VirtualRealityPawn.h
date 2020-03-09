@@ -98,22 +98,23 @@ protected:
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent*    HmdRightMotionController = nullptr;
 
   // PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				Head						= nullptr;
-  // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				LeftHand					= nullptr;
-  // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*				RightHand					= nullptr;
-
-  // Holding the Cave Origin Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				CaveOrigin					= nullptr;
-  // Holding the Cave Center Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				CaveCenter					= nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*			   Head					     = nullptr;
+  // PC: RootComponent, HMD: HmdLeftMotionController , CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).									 
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*			   LeftHand				     = nullptr;
+  // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: Flystick. Useful for line trace (e.g. for holding objects).									 
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true"))  USceneComponent*		       RightHand				 = nullptr;
+																																								 
+  // Holding the Cave Origin Component that is attached to this Pawn																							 
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*			   CaveOrigin				 = nullptr;
+  // Holding the Cave Center Component that is attached to this Pawn																							 
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*			   CaveCenter				 = nullptr;
   // Holding the Shutter Glasses Component that is attached to this Pawn
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*				ShutterGlasses				= nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent*			   ShutterGlasses			 = nullptr;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent*             SphereCollisionComponent     = nullptr;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent*             SphereCollisionComponent  = nullptr; 
+  
+
 	  
-
 private:
 
 	void InitComponentReferences();
@@ -128,7 +129,7 @@ private:
 
 	bool HasContact;
 
-	bool CreateLineTrace(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt);
-	FVector CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, USceneComponent* MyObjekt);
+	bool CreateLineTrace(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility);
+	FVector CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility);
 
 };
