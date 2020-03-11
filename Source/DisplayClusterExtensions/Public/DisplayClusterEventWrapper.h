@@ -1,71 +1,100 @@
 #pragma once
 
-#include "ClusterSyncedMethodCaller.h"
+#include "IDisplayCluster.h"
 #include "Templates/IsInvocable.h"
 
-// A helper function to wrap the RegisterAutoTypedDelegate() call. This is necessary to extract the arguments types as a
-// parameter pack.
-template <typename ClassType, typename ReturnType, typename... ArgTypes>
-inline void RegisterImpl(UClusterSyncedMethodCaller* ClusterCaller, ClassType* Receiver, const FString& MethodName,
-	ReturnType (ClassType::*MethodPointer)(ArgTypes...))
-{
-}
-
-template <typename MemberFunctionType, MemberFunctionType MemberFunction>
+template <const char* EventTypeName, typename MemberFunctionType, MemberFunctionType MemberFunction>
 class ClusterEventWrapperEvent;
 
-template <typename OwnerType, typename ReturnType, typename... ArgTypes, ReturnType (OwnerType::*MemberFunction)(ArgTypes...)>
-class ClusterEventWrapperEvent<ReturnType (OwnerType::*)(ArgTypes...), MemberFunction>
+template <const char* EventTypeName, typename ObjectType, typename ReturnType, typename... ArgTypes,
+	ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
+class ClusterEventWrapperEvent<EventTypeName, ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
 {
+	static_assert(TIsDerivedFrom<ObjectType, AActor>::IsDerived, "Object needs to derive from AActor");
+
 public:
 	using MemberFunctionType = decltype(MemberFunction);
 
-	void Attach(OwnerType* Owner, UClusterSyncedMethodCaller* ClusterCaller)
+	void Attach(ObjectType* NewObject)
 	{
-		check(this->Owner == nullptr);
-		check(this->ClusterCaller == nullptr);
-		this->Owner = Owner;
-		this->ClusterCaller = ClusterCaller;
-		ClusterCaller->RegisterSyncedAutoTypedMethod(
-			Forward<const FString&>(MethodName), TBaseDelegate<ReturnType, ArgTypes...>::CreateUObject(Receiver, MemberFunction));
+		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+		check(ClusterManager != nullptr);
+
+		checkf(Object == nullptr, TEXT("The event is already attached."));
+		Object = NewObject;
+		ObjectName = AActor::GetDebugName(Object);
+
+		if (!ClusterManager->IsStandalone())
+		{
+			check(!ClusterEventListenerDelegate.IsBound());
+			ClusterEventListenerDelegate = FOnClusterEventListener::CreateLambda([this](const FDisplayClusterClusterEvent& Event) {
+				if (Event.Type == EventTypeName && Event.Name == ObjectName)
+				{
+					// Create a tuple that holds all arguments. This assumes that all
+					// argument types are default constructible. However, all
+					// types that overload the FArchive "<<" operator probably are.
+					TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+
+					// This call will parse the string map and fill all values in the tuple appropriately.
+					FillArgumentTuple<0>(&ArgumentTuple, Event.Parameters);
+
+					ArgumentTuple.ApplyBefore([this](const ArgTypes&... Arguments) {
+						(Object->*MemberFunction)(Forward<const ArgTypes&>(Arguments)...);
+					});
+				}
+			});
+			ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
+		}
+	}
+
+	void Detach()
+	{
+		checkf(Object != nullptr, TEXT("The event was never attached."));
+
+		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+		check(ClusterManager != nullptr);
+
+		if (!ClusterManager->IsStandalone())
+		{
+			// check(ClusterEventListenerDelegate.IsBound());
+			ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
+		}
 	}
 
 	void Send(ArgTypes&&... Arguments)
 	{
-		ClusterCaller->CallAutoTypedMethodSynced(Forward<const FString&>(MethodName), Forward<ArgTypes>(Arguments)...);
+		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+		check(ClusterManager != nullptr);
+
+		checkf(Object != nullptr, TEXT("The event was not attached."));
+
+		if (ClusterManager->IsStandalone())
+		{
+			(Object->*MemberFunction)(Forward<ArgTypes>(Arguments)...);
+		}
+		else
+		{
+			FDisplayClusterClusterEvent ClusterEvent;
+			ClusterEvent.Category = "DisplayClusterEventWrapper";
+			ClusterEvent.Type = EventTypeName;
+			ClusterEvent.Name = ObjectName;
+			ClusterEvent.Parameters = CreateParameterMap(Forward<ArgTypes>(Arguments)...);
+
+			ClusterManager->EmitClusterEvent(ClusterEvent, true);
+		}
 	}
 
 private:
-	OwnerType* Owner = nullptr;
-	UClusterSyncedMethodCaller* ClusterCaller = nullptr;
+	ObjectType* Object = nullptr;
+	FString ObjectName;
+	FOnClusterEventListener ClusterEventListenerDelegate;
 };
 
-#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier) \
-	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier> MethodIdentifier##Event
+#define DCEW_STRINGIFY(x) #x
+#define DCEW_TOSTRING(x) DCEW_STRINGIFY(x)
 
-// #define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                            \
-// 	class                                                                 \
-// 	{                                                                                                                          \
-// 	public:                                                                                                                    \
-// 		inline void Register(OwningType* Receiver)                                                                             \
-// 		{                                                                                                                      \
-// 			if (ClusterCaller.Num() == 0)                                                                                      \
-// 			{                                                                                                                  \
-// 				ClusterCaller.Add(NewObject<UClusterSyncedMethodCaller>());                                                    \
-// 				RegisterImpl(ClusterCaller[0], Receiver, #OwningType "_" #MethodIdentifier, &OwningType::MethodIdentifier);    \
-// 			}                                                                                                                  \
-// 			ClusterCaller[0]->RegisterListener();                                                                              \
-// 		}                                                                                                                      \
-// 		inline void Deregister()                                                                                               \
-// 		{                                                                                                                      \
-// 			ClusterCaller[0]->DeregisterListener();                                                                            \
-// 		}                                                                                                                      \
-// 		template <typename... ArgTypes>                                                                                        \
-// 		void Send(ArgTypes&&... Arguments)                                                                                     \
-// 		{                                                                                                                      \
-// 			static_assert(                                                                                                     \
-// 				TIsInvocable<decltype(&OwningType::MethodIdentifier), OwningType*, ArgTypes...>::Value, "Invalid Parameters"); \
-// 			SendImpl<decltype(&OwningType::MethodIdentifier)>::Invoke(                                                         \
-// 				ClusterCaller[0], #OwningType "_" #MethodIdentifier, Forward<ArgTypes>(Arguments)...);                         \
-// 		}                                                                                                                      \
-// 	} MethodIdentifier##Event;
+#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                        \
+	static constexpr char MethodIdentifier##EventIdentifier[] = DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier); \
+	ClusterEventWrapperEvent<MethodIdentifier##EventIdentifier, decltype(&OwningType::MethodIdentifier),                   \
+		&OwningType::MethodIdentifier>                                                                                     \
+		MethodIdentifier##Event
