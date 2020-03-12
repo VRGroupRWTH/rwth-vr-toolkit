@@ -2,6 +2,7 @@
 
 #include "IDisplayCluster.h"
 #include "IDisplayClusterClusterManager.h"
+#include "Cluster/DisplayClusterClusterEvent.h"
 #include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
 
