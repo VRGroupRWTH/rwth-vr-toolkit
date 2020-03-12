@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Serialization/MemoryReader.h"
+#include "Serialization/MemoryWriter.h"
+
 // Helper function to put the arguments into a string map. It uses template substitution to choose the correct specialization.
 template <typename... Values>
 struct FillParameterMapImpl;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IDisplayCluster.h"
+#include "IDisplayClusterClusterManager.h"
+#include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
 
 template <const char* EventTypeName, typename MemberFunctionType, MemberFunctionType MemberFunction>
