@@ -94,7 +94,7 @@ inline typename TEnableIf<(CurrentIndex < sizeof...(ArgTypes))>::Type FillArgume
 	FMemoryReader Reader(SerializedData);
 	// Read the "<<" as ">>" operator here. FArchive uses the same for both and decides based on an internal type on what to do. So
 	// this statement parses the bytes that were passed into reader and puts the parsed object into the tuple at index CurrentIndex.
-	Reader << ArgumentTuple->Get<CurrentIndex>();
+	Reader << ArgumentTuple->template Get<CurrentIndex>();
 
 	// Recursive call for the remaining attributes.
 	FillArgumentTuple<CurrentIndex + 1>(
