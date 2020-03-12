@@ -52,7 +52,7 @@ public:
 	{
 		// Register to the event using a lambda that will do the translation from the string map to the real values.
 		RegisterSyncedMethod(UniqueIdentifier, FSyncMethod::CreateLambda([Delegate](TMap<FString, FString> Parameters) {
-			CallDelegateWithParameterMap(Delegate, Paremeters);
+			CallDelegateWithParameterMap(Delegate, Parameters);
 		}));
 	}
 
