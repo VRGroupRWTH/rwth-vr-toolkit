@@ -70,7 +70,7 @@ inline TMap<FString, FString> CreateParameterMap(ArgTypes&&... Arguments)
 {
 	TMap<FString, FString> ParameterMap;
 	ParameterMap.Empty(sizeof...(ArgTypes));	// Preallocate to avoid allocations.
-	FillParameterMapImpl<ArgTypes...>::Invoke<0>(&ParameterMap, Forward<ArgTypes>(Arguments)...);
+	FillParameterMapImpl<ArgTypes...>::template Invoke<0>(&ParameterMap, Forward<ArgTypes>(Arguments)...);
 	return ParameterMap;
 }
 
