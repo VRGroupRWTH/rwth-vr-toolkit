@@ -7,6 +7,17 @@
 template <typename... Values>
 struct FillParameterMapImpl;
 
+// This specialization is chosen when there no argument left to serialize.
+template <>
+struct FillParameterMapImpl<>
+{
+	template <int ArgumentIndex>
+	static inline void Invoke(TMap<FString, FString>*)
+	{
+		// There is nothing left to do here.
+	}
+};
+
 // This specialization is chosen when there is at least one argument left to serialize.
 template <typename CurrentValueType, typename... RemainingValueTypes>
 struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
@@ -47,19 +58,8 @@ struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 		ParameterMap->Add(FString::FromInt(ArgumentIndex), SerializedDataString);
 
 		// Recursive call for the remaining values.
-		FillParameterMapImpl<RemainingValueTypes...>::Invoke<ArgumentIndex + 1>(
+		FillParameterMapImpl<RemainingValueTypes...>::template Invoke<ArgumentIndex + 1>(
 			ParameterMap, Forward<RemainingValueTypes>(RemainingValues)...);
-	}
-};
-
-// This specialization is chosen when there no argument left to serialize.
-template <>
-struct FillParameterMapImpl<>
-{
-	template <int ArgumentIndex>
-	static inline void Invoke(TMap<FString, FString>*)
-	{
-		// There is nothing left to do here.
 	}
 };
 
