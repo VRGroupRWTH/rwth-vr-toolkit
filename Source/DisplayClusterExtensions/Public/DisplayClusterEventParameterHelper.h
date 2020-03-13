@@ -48,7 +48,7 @@ struct FillParameterMapImpl<CurrentValueType, RemainingValueTypes...>
 
 		// Recursive call for the remaining values.
 		FillParameterMapImpl<RemainingValueTypes...>::Invoke<ArgumentIndex + 1>(
-			ParameterMap, RemainingValues...);
+			ParameterMap, Forward<RemainingValueTypes>(RemainingValues)...);
 	}
 };
 
@@ -70,7 +70,7 @@ inline TMap<FString, FString> CreateParameterMap(ArgTypes&&... Arguments)
 {
 	TMap<FString, FString> ParameterMap;
 	ParameterMap.Empty(sizeof...(ArgTypes));	// Preallocate to avoid allocations.
-	FillParameterMapImpl<ArgTypes...>::Invoke<0>(&ParameterMap, Arguments...);
+	FillParameterMapImpl<ArgTypes...>::Invoke<0>(&ParameterMap, Forward<ArgTypes>(Arguments)...);
 	return ParameterMap;
 }
 
