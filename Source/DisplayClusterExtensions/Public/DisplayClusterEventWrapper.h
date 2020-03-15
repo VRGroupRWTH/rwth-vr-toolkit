@@ -9,14 +9,17 @@
 template <const char* EventTypeName, typename MemberFunctionType, MemberFunctionType MemberFunction>
 class ClusterEventWrapperEvent;
 
-template <const char* EventTypeName, typename ObjectType, typename ReturnType, typename... ArgTypes,
-	ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
+template <typename ObjectType, typename ReturnType, typename... ArgTypes, ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
 class ClusterEventWrapperEvent<EventTypeName, ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
 {
 	static_assert(TIsDerivedFrom<ObjectType, AActor>::IsDerived, "Object needs to derive from AActor");
 
 public:
 	using MemberFunctionType = decltype(MemberFunction);
+
+	ClusterEventWrapperEvent(const TCHAR* EventTypeName) : EventTypeName{EventTypeName}
+	{
+	}
 
 	void Attach(ObjectType* NewObject)
 	{
@@ -38,7 +41,8 @@ public:
 					// types that overload the FArchive "<<" operator probably are.
 					TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
 
-					// This call will parse the string map and fill all values in the tuple appropriately.
+					// This call will parse the string map and fill all values in the
+					// tuple appropriately.
 					FillArgumentTuple<0>(&ArgumentTuple, Event.Parameters);
 
 					ArgumentTuple.ApplyBefore([this](const ArgTypes&... Arguments) {
@@ -88,6 +92,7 @@ public:
 	}
 
 private:
+	const TCHAR* EventTypeName;
 	ObjectType* Object = nullptr;
 	FString ObjectName;
 	FOnClusterEventListener ClusterEventListenerDelegate;
@@ -96,8 +101,8 @@ private:
 #define DCEW_STRINGIFY(x) #x
 #define DCEW_TOSTRING(x) DCEW_STRINGIFY(x)
 
-#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                        \
-	static constexpr char MethodIdentifier##EventIdentifier[] = DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier); \
-	ClusterEventWrapperEvent<MethodIdentifier##EventIdentifier, decltype(&OwningType::MethodIdentifier),                   \
-		&OwningType::MethodIdentifier>                                                                                     \
-		MethodIdentifier##Event
+#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                          \
+	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier> MethodIdentifier##Event \
+	{                                                                                                                        \
+		TEXT(DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier))                                                            \
+	}
