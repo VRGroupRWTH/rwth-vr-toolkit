@@ -6,11 +6,11 @@
 #include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
 
-template <const char* EventTypeName, typename MemberFunctionType, MemberFunctionType MemberFunction>
+template <typename MemberFunctionType, MemberFunctionType MemberFunction>
 class ClusterEventWrapperEvent;
 
 template <typename ObjectType, typename ReturnType, typename... ArgTypes, ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
-class ClusterEventWrapperEvent<EventTypeName, ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
+class ClusterEventWrapperEvent<ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
 {
 	static_assert(TIsDerivedFrom<ObjectType, AActor>::IsDerived, "Object needs to derive from AActor");
 
@@ -104,5 +104,5 @@ private:
 #define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                          \
 	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier> MethodIdentifier##Event \
 	{                                                                                                                        \
-		TEXT(DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier))                                                            \
+		TEXT(DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier))                                                      \
 	}
