@@ -131,5 +131,11 @@ private:
 
 	bool CreateLineTrace(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility);
 	FVector CreateLineTrace_Return_OutHit_ImpactPoint(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility);
+	FVector Start_From_Knee;
+	FVector Last_Camera_Position;
+	FVector Aktualy_Camera_Position;
+	FVector Last_Pawn_Position;
+	FVector Aktualy_Pawn_Position;
 
+	bool Dist_betw_Agent_and_Objects_smaller_RadiusfromSpere;
 };
