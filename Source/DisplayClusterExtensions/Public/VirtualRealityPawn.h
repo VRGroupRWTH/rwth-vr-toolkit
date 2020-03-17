@@ -136,6 +136,4 @@ private:
 	FVector Aktualy_Camera_Position;
 	FVector Last_Pawn_Position;
 	FVector Aktualy_Pawn_Position;
-
-	bool Dist_betw_Agent_and_Objects_smaller_RadiusfromSpere;
 };
