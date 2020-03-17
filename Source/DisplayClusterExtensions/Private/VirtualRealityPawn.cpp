@@ -108,8 +108,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 		if (isDistSmallerThenRadiusCollision_ForwardVector|| (isDist_RightHand_ForwardVector  && Value > 0.0f )|| (isDist_RightHand_BackVector && Value < 0.0f)) {
 			Value = 0.f;
 		}
-		if (Dist_betw_Agent_and_Objects_smaller_RadiusfromSpere)
-			Value = 0.f;
+		
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 
