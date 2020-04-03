@@ -71,19 +71,19 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	AktualyPawnPosition = GetRootComponent()->GetComponentLocation();
 	AktualyCameraPosition = GetCameraComponent()->GetComponentLocation();
 	FVector Richtungsvektor = AktualyCameraPosition - LastCameraPosition;
-	FVector ImpactPoint_WohinIchGehst = CreateLineTrace(FVector(Richtungsvektor.X, Richtungsvektor.Y, 0.f), StartFromKnee,false);
+	FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(Richtungsvektor.X, Richtungsvektor.Y, 0.f), StartFromKnee,false);
 
 	if (Richtungsvektor.Size() > SphereCollisionComponent->GetScaledSphereRadius())
 		UE_LOG(LogTemp, Warning, TEXT(" Richtungsvektor:                            %f "), Richtungsvektor.Size());
 
-	if (FVector::Distance(ImpactPoint_WohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius()) {
+	if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius()) {
 		if (OnForwardClicked) {//Verschieben des Pawns, wenn man mit der Jojstik/Flystik/Pawn in andere Gegenstaende reingeht.
 			RootComponent->SetWorldLocation(LastPawnPosition, true);
 		}
 		else {//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-			FVector Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee = ImpactPoint_WohinIchGehst - StartFromKnee;
-			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPoint_WohinIchGehst, StartFromKnee);
-			RootComponent->AddLocalOffset(Diff_ImpactPoint_Belly_Forward_And_Start_From_Knee.GetSafeNormal()*Inside_Distance, true);
+			FVector DiffImpactPointBellyForwardAndStartFromKnee = ImpactPointWohinIchGehst - StartFromKnee;
+			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee);
+			RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
 		}
 	}
 
@@ -108,34 +108,36 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 	{//Gravity
 		FVector ImpactPoint_Down = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-		float Dist_Betw_Camera_A_Ground_Z = abs(ImpactPoint_Down.Z - GetCameraComponent()->GetComponentLocation().Z);
-		float Dist_Betw_Camera_A_Pawn_Z = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-		float Differnce_Distance = abs(Dist_Betw_Camera_A_Ground_Z - Dist_Betw_Camera_A_Pawn_Z);
+		float DistBetwCameraAndGroundZ = abs(ImpactPoint_Down.Z - GetCameraComponent()->GetComponentLocation().Z);
+		float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+		float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
 		
 
 		{//Nicht den Hocker hochgehen.
 			float Stufenhoehe_cm =45.f;
-		    StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (Dist_Betw_Camera_A_Ground_Z - Stufenhoehe_cm));
+		    StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - Stufenhoehe_cm));
 		}
 		
 
 		//if you not have ImpactPoint, then you are falling.
 		if (ImpactPoint_Down.Size() == 0.f) {
-			static float Gravity_Speed = 0.0;
-			Gravity_Speed += 0.05;
+			static float GravitySpeed = 0.0;
+			GravitySpeed += 0.05;
 			FVector GravityAcc = FVector(0.f, 0.f, -1.f);
 			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
-			RootComponent->AddLocalOffset(LocalMove*Gravity_Speed, true);
+			RootComponent->AddLocalOffset(LocalMove*GravitySpeed, true);
 		}
 		//Treppe hochgehen/runtergehen.
 		else {
-            if (Dist_Betw_Camera_A_Ground_Z < Dist_Betw_Camera_A_Pawn_Z) {
-				const FVector Local_UpMove{ 0.f, 0.f, +Differnce_Distance };
-				RootComponent->AddLocalOffset(Local_UpMove, true);
+			const FVector LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
+
+            if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ) {
+				LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
+				RootComponent->AddLocalOffset(LocalUpMove, true);
 			}
-			else if (Dist_Betw_Camera_A_Ground_Z > Dist_Betw_Camera_A_Pawn_Z) {
-				const FVector Local_UpMove{ 0.f, 0.f, -Differnce_Distance };
-				RootComponent->AddLocalOffset(Local_UpMove, true);
+			else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ) {
+				LocalUpMove{ 0.f, 0.f, -DiffernceDistance };
+				RootComponent->AddLocalOffset(LocalUpMove, true);
 			}
 		}
 	}
