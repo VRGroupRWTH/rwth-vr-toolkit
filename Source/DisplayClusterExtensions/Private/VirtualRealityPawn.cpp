@@ -1,6 +1,8 @@
 #include "VirtualRealityPawn.h"
 
+#include "Camera/CameraComponent.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
+#include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Game/IDisplayClusterGameManager.h"
 #include "GameFramework/InputSettings.h"
@@ -8,26 +10,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "DisplayClusterSettings.h"
 #include "IDisplayCluster.h"
-
-#include "IDisplayClusterConfigManager.h"
-#include "IXRTrackingSystem.h"
-#include "Engine/Engine.h"
-#include "Camera/CameraComponent.h"
-#include "Components/SphereComponent.h"
-#include "DrawDebugHelpers.h" // include draw debug helpers header file
-#include "Math/Vector.h"
+#include "VirtualRealityUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
-
-	OnForwardClicked = false;
-	OnRightClicked = false;
-	
-	HasContact = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
@@ -40,6 +29,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->PivotTranslation = FVector::ZeroVector;
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
+	Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+	RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+	LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
 	HmdLeftMotionController->SetTrackingSource(EControllerHand::Left);
@@ -51,159 +44,53 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetTrackingSource(EControllerHand::Right);
 	HmdRightMotionController->SetShowDeviceModel(true);
 	HmdRightMotionController->SetVisibility(false);
-
-
-	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("BaseSphereComponent"));
-	SphereCollisionComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-
-
-	SphereCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapBegin);
-	SphereCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &AVirtualRealityPawn::OnOverlapEnd);
-	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
 }
-
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	
-	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-	AktualyPawnPosition = GetRootComponent()->GetComponentLocation();
-	AktualyCameraPosition = GetCameraComponent()->GetComponentLocation();
-	FVector Richtungsvektor = AktualyCameraPosition - LastCameraPosition;
-	FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(Richtungsvektor.X, Richtungsvektor.Y, 0.f), StartFromKnee,false);
-
-	if (Richtungsvektor.Size() > SphereCollisionComponent->GetScaledSphereRadius())
-		UE_LOG(LogTemp, Warning, TEXT(" Richtungsvektor:                            %f "), Richtungsvektor.Size());
-
-	if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius()) {
-		if (OnForwardClicked) {//Verschieben des Pawns, wenn man mit der Jojstik/Flystik/Pawn in andere Gegenstaende reingeht.
-			RootComponent->SetWorldLocation(LastPawnPosition, true);
-		}
-		else {//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-			FVector DiffImpactPointBellyForwardAndStartFromKnee = ImpactPointWohinIchGehst - StartFromKnee;
-			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee);
-			RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
-		}
-	}
-
-
-
-	if(Value !=0)
-	OnForwardClicked = true;
-	else
-	OnForwardClicked = false;
-
 	// Check if this function triggers correctly on ROLV.
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
-	else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || IsDesktopMode())) 
-	{
-		
-		AddMovementInput(RightHand->GetForwardVector(), Value);
-	}
-
-
-	{//Gravity
-		FVector ImpactPoint_Down = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-		float DistBetwCameraAndGroundZ = abs(ImpactPoint_Down.Z - GetCameraComponent()->GetComponentLocation().Z);
-		float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-		float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
-		
-
-		{//Nicht den Hocker hochgehen.
-			float Stufenhoehe_cm =45.f;
-		    StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - Stufenhoehe_cm));
-		}
-		
-
-		//if you not have ImpactPoint, then you are falling.
-		if (ImpactPoint_Down.Size() == 0.f) {
-			static float GravitySpeed = 0.0;
-			GravitySpeed += 0.05;
-			FVector GravityAcc = FVector(0.f, 0.f, -1.f);
-			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
-			RootComponent->AddLocalOffset(LocalMove*GravitySpeed, true);
-		}
-		//Treppe hochgehen/runtergehen.
-		else {
-			const FVector LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
-
-            if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ) {
-				LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
-				RootComponent->AddLocalOffset(LocalUpMove, true);
-			}
-			else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ) {
-				LocalUpMove{ 0.f, 0.f, -DiffernceDistance };
-				RootComponent->AddLocalOffset(LocalUpMove, true);
-			}
-		}
-	}
-
-	LastCameraPosition = GetCameraComponent()->GetComponentLocation();
-	LastPawnPosition = GetRootComponent()->GetComponentLocation();
-
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (Value != 0)
-		OnRightClicked = true;
-	else
-		OnRightClicked = false;
-	
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || IsDesktopMode()))
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
-
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
-	
+	//if (IsRoomMountedMode())
+	//{
+	//	//const FVector CameraLocation = IDisplayCluster::Get().GetGameMgr()->GetActiveCamera()->GetComponentLocation();
+	//	//RotatingMovement->PivotTranslation = RotatingMovement
+	//	//                                     ->UpdatedComponent->GetComponentTransform().
+	//	//                                     InverseTransformPositionNoScale(CameraLocation);
+	//	//RotatingMovement->RotationRate = FRotator(RotatingMovement->RotationRate.Pitch, Rate * BaseTurnRate, 0.0f);
+
+	//}
+	//else
+	//{
+	//	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+	//}
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 }
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
-	AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-
-}
-
-void AVirtualRealityPawn::OnFire_Implementation(bool Pressed)
-{
-}
-
-void AVirtualRealityPawn::OnAction_Implementation(bool Pressed, int32 Index)
-{
-}
-
-bool AVirtualRealityPawn::IsDesktopMode()
-{
-	return !IsRoomMountedMode() && !IsHeadMountedMode();
-}
-
-bool AVirtualRealityPawn::IsRoomMountedMode()
-{
-	return IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster;
-}
-
-bool AVirtualRealityPawn::IsHeadMountedMode()
-{
-	return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
-}
-
-FString AVirtualRealityPawn::GetNodeName()
-{
-	return IsRoomMountedMode() ? IDisplayCluster::Get().GetClusterMgr()->GetNodeId() : FString(TEXT("Localhost"));
-}
-
-float AVirtualRealityPawn::GetEyeDistance()
-{
-	return IDisplayCluster::Get().GetConfigMgr()->GetConfigStereo().EyeDist;
+	if (UVirtualRealityUtilities::IsRoomMountedMode())
+	{
+		// User-centered projection causes simulation sickness on look up interaction hence not implemented.
+	}
+	else
+	{
+		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+	}
 }
 
 float AVirtualRealityPawn::GetBaseTurnRate() const
@@ -231,6 +118,16 @@ UDisplayClusterSceneComponent* AVirtualRealityPawn::GetFlystickComponent()
 	return Flystick;
 }
 
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetRightHandtargetComponent()
+{
+	return RightHandTarget;
+}
+
+UDisplayClusterSceneComponent* AVirtualRealityPawn::GetLeftHandtargetComponent()
+{
+	return LeftHandTarget;
+}
+
 UMotionControllerComponent* AVirtualRealityPawn::GetHmdLeftMotionControllerComponent()
 {
 	return HmdLeftMotionController;
@@ -256,9 +153,9 @@ USceneComponent* AVirtualRealityPawn::GetRightHandComponent()
 	return RightHand;
 }
 
-USceneComponent* AVirtualRealityPawn::GetCaveOriginComponent()
+USceneComponent* AVirtualRealityPawn::GetTrackingOriginComponent()
 {
-	return CaveOrigin;
+	return TrackingOrigin;
 }
 
 USceneComponent* AVirtualRealityPawn::GetCaveCenterComponent()
@@ -271,36 +168,27 @@ USceneComponent* AVirtualRealityPawn::GetShutterGlassesComponent()
 	return ShutterGlasses;
 }
 
-UDisplayClusterSceneComponent* AVirtualRealityPawn::GetClusterComponent(const FString& Name)
+void AVirtualRealityPawn::ClusterExecute(const FString& Command)
 {
-	return IDisplayCluster::Get().GetGameMgr()->GetNodeById(Name);
+  FDisplayClusterClusterEvent event;
+  event.Name = "NDisplayCMD: " + Command;
+  event.Type = "NDisplayCMD";
+  event.Category = "VRPawn";
+  event.Parameters.Add("Command", Command);
+  IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
 }
 
-void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
 {
-
-	if (OtherActor && (OtherActor != this) && OtherComp) {
-       HasContact = true;
-	   Point = SphereCollisionComponent->GetComponentLocation(); //World 3D vector
-	   dist_Betw_Collision_And_ClossestPointOnSurface = OtherComp->GetDistanceToCollision(Point, closestPointOnSurface);//Gibt die Entfernung zur nächstgelegenen Körperinstanzoberfläche zurück.
-	
-	 }
-	
-}
-
-void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-
-	if (OtherActor && (OtherActor != this) && OtherComp) {
-		HasContact = false;
+	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
+	{
+		GEngine->Exec(GetWorld(), *Event.Parameters["Command"]);
 	}
-
 }
 
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 	// Display cluster settings apply to all setups (PC, HMD, CAVE/ROLV) despite the unfortunate name due to being an UE4 internal.
 	TArray<AActor*> SettingsActors;
@@ -315,39 +203,68 @@ void AVirtualRealityPawn::BeginPlay()
 		BaseTurnRate = Settings->RotationSpeed;
 	}
 
-	if (IsRoomMountedMode()) //Cave
+	if (UVirtualRealityUtilities::IsRoomMountedMode())
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		InitComponentReferences();
-
-		RootComponent->SetWorldLocation(FVector(0, 2, 0), false, nullptr, ETeleportType::None);
+		InitRoomMountedComponentReferences();
 	}
-	else if (IsHeadMountedMode()) //HMD
+	else if (UVirtualRealityUtilities::IsHeadMountedMode())
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
-		HmdLeftMotionController->SetVisibility(true);
-		HmdRightMotionController->SetVisibility(true);
+		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
+		HmdRightMotionController->SetVisibility(ShowHMDControllers);
 
-		LeftHand = HmdLeftMotionController;
-		RightHand = HmdRightMotionController;
-		Head = GetCameraComponent();
+		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	else //Desktop
 	{
-		LeftHand = RootComponent;
-		RightHand = RootComponent;
-		Head = GetCameraComponent();
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+		//also attach the hands to the camera component so we can use them for interaction
+		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+
+		//move to eyelevel
+		GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
-	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
-	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
+	//Therefore, we activate it again:
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			this->EnableInput(PlayerController);
+		}
+	}
 
-	LastCameraPosition = GetCameraComponent()->GetComponentLocation();
-	LastPawnPosition = GetRootComponent()->GetComponentLocation();
+	// Register cluster event listeners
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterEventListenerDelegate = FOnClusterEventListener::CreateUObject(this, &AVirtualRealityPawn::HandleClusterEvent);
+		ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
+	}
+}
+
+void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager && ClusterEventListenerDelegate.IsBound())
+	{
+		ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -355,21 +272,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//Flystick might not be available at start, hence is checked every frame.
-	InitComponentReferences();
-	
-
-	
-	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk) {
-
-	   FVector Diff_Camera_and_ClosestPointOnSurface = Point - closestPointOnSurface;
-	   
-	   float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - dist_Betw_Collision_And_ClossestPointOnSurface;
-
-	   RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, true);
-	}
-
-	
+	InitRoomMountedComponentReferences();
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -389,75 +292,37 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 	return Movement;
 }
 
-void AVirtualRealityPawn::InitComponentReferences()
+void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 {
-	if (!IsRoomMountedMode()) return;
-	if (!CaveOrigin) CaveOrigin = GetClusterComponent("cave_origin");
-	if (!CaveCenter) CaveCenter = GetClusterComponent("cave_center");
+	if (!UVirtualRealityUtilities::IsRoomMountedMode()) return;
+
+	//check whether the nodes already exist (otherwise GetClusterComponent() returns nullptr and prints a warning) and assign them
+	if (!TrackingOrigin) TrackingOrigin = UVirtualRealityUtilities::GetClusterComponent("cave_origin");
+	if (!TrackingOrigin) TrackingOrigin = UVirtualRealityUtilities::GetClusterComponent("rolv_origin");
+	if (!CaveCenter) CaveCenter = UVirtualRealityUtilities::GetClusterComponent("cave_center");
 	if (!ShutterGlasses)
 	{
-		ShutterGlasses = GetClusterComponent("shutter_glasses");
-		Head = ShutterGlasses;
+		ShutterGlasses = UVirtualRealityUtilities::GetClusterComponent("shutter_glasses");
+		Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	if (!Flystick)
 	{
-		Flystick = GetClusterComponent("flystick");
-
-		LeftHand = Flystick;
-		RightHand = Flystick;
+		Flystick = UVirtualRealityUtilities::GetClusterComponent("flystick");
+		if (AttachRightHandInCAVE == EAttachementType::AT_FLYSTICK)
+			RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+		if (AttachLeftHandInCAVE == EAttachementType::AT_FLYSTICK)
+			LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
 	}
-}
-
-
-FVector AVirtualRealityPawn::CreateLineTrace(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility)
-{
-	FVector MyImpactPoint{0.0f, 0.0f, 0.0f};
-	{ //LineTrace 
-
-		FHitResult OutHit;
-		FVector Start = MyObjekt_ComponentLocation;
-
-		FVector End = ((Forward_Right_OR_Up_Vector * 1000.f) + Start);
-		FCollisionQueryParams CollisionParams;
-
-		if(Visibility)
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-		{
-			if (OutHit.bBlockingHit)
-			{
-				 MyImpactPoint = OutHit.ImpactPoint;
-			}
-
-		}
+	if (!LeftHandTarget)
+	{
+		LeftHandTarget = UVirtualRealityUtilities::GetClusterComponent("left_hand_target");
+		if (AttachLeftHandInCAVE == EAttachementType::AT_HANDTARGET)
+			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
 	}
-	return MyImpactPoint;
-}
-
-
-
-EEyeType AVirtualRealityPawn::GetNodeEyeType() {
-	FDisplayClusterConfigClusterNode CurrentNodeConfig;
-	IDisplayCluster::Get().GetConfigMgr()->GetClusterNode(GetNodeName(), CurrentNodeConfig);
-
-	FString s = CurrentNodeConfig.ToString();
-
-	if (s.Contains("mono_eye")) {
-		TArray<FString> stringArray;
-		int32 count = s.ParseIntoArray(stringArray, TEXT(","));
-		for (int x = 0; x < count; x++) {
-			if (!stringArray[x].Contains("mono_eye")) continue;
-			if (stringArray[x].Contains("left")) {
-				return EEyeType::ET_STEREO_LEFT;
-			}
-			if (stringArray[x].Contains("right")) {
-				return EEyeType::ET_STEREO_RIGHT;
-			}
-		}
+	if (!RightHandTarget)
+	{
+		RightHandTarget = UVirtualRealityUtilities::GetClusterComponent("right_hand_target");
+		if (AttachRightHandInCAVE == EAttachementType::AT_HANDTARGET)
+			RightHand->AttachToComponent(RightHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
 	}
-	else {
-		return EEyeType::ET_MONO;
-	}
-	return EEyeType::ET_MONO;
 }
