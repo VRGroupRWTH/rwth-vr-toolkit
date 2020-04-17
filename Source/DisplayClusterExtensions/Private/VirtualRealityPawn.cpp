@@ -77,8 +77,8 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 		FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
 		FVector AktualyCameraPosition = GetCameraComponent()->GetComponentLocation();
-		FVector Richtungsvektor = AktualyCameraPosition - LastCameraPosition;
-		FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(Richtungsvektor.X, Richtungsvektor.Y, 0.f), StartFromKnee, false);
+		FVector DirectionVector = AktualyCameraPosition - LastCameraPosition;
+		FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
 
 		//Verschieben des Pawns, wenn man mit der Kollision-Sphere der Camera pyisikalisch in Objekte reingeht.
 		if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
