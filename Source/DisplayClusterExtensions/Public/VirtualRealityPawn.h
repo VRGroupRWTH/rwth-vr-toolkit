@@ -63,10 +63,9 @@ private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
 
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 45.f;//Stuffen, die kleiner als 45 cm sind, nicht hochgehen koennen.
   //Execute specified console command on all nDisplayCluster Nodes
   UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 
@@ -132,23 +131,14 @@ protected:
 	  
 private:
 
-
-
-	bool OnForwardClicked;
-	bool OnRightClicked;
-
-	FVector Point;
 	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
 	float dist_Betw_Collision_And_ClossestPointOnSurface;
 
 	bool HasContact;
-
-	FVector CreateLineTrace(FVector Forward_Right_OR_Up_Vector, const FVector MyObjekt_ComponentLocation, bool Visibility);
-	FVector StartFromKnee;
+    float GravitySpeed = 0.0f;
+	FVector CreateLineTrace(FVector DirectionVector, const FVector Start, bool Visibility);
 	FVector LastCameraPosition;
-	FVector AktualyCameraPosition;
 	FVector LastPawnPosition;
-	FVector AktualyPawnPosition;
 
 	void InitRoomMountedComponentReferences();
 };
