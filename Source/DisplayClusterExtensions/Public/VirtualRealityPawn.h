@@ -113,7 +113,7 @@ protected:
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* RightHand = nullptr;
   // PC: RootComponent, HMD: HmdRightMotionController, CAVE/ROLV: regarding to AttachLeftHandInCAVE. Useful for line trace (e.g. for holding objects).
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* LeftHand = nullptr;
-																																								 
+
   // Holding the Cave/rolv Origin Component that is attached to this Pawn
   UPROPERTY() USceneComponent* TrackingOrigin = nullptr;
   // Holding the Cave Center Component that is attached to this Pawn, it is needed for the internal transform of nDisplay
@@ -132,7 +132,7 @@ protected:
 private:
 
 	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
-	float dist_Betw_Collision_And_ClossestPointOnSurface;
+	float DistancBetwCollisionAndClossestPointOnSurface;
 
 	bool HasContact;
     float GravitySpeed = 0.0f;

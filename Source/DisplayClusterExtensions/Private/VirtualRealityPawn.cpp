@@ -70,55 +70,54 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-		FVector ImpactPoint_Down = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-		float DistBetwCameraAndGroundZ = abs(ImpactPoint_Down.Z - GetCameraComponent()->GetComponentLocation().Z);
-		float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-		float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
+	FVector ImpactPointDown = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+	float DistBetwCameraAndGroundZ = abs(ImpactPointDown.Z - GetCameraComponent()->GetComponentLocation().Z);
+	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
 
-		FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
-		FVector AktualyCameraPosition = GetCameraComponent()->GetComponentLocation();
-		FVector DirectionVector = AktualyCameraPosition - LastCameraPosition;
-		FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
+	FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
+	FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
+	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
+	FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
 
-		//Verschieben des Pawns, wenn man mit der Kollision-Sphere der Camera pyisikalisch in Objekte reingeht.
-		if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
-		{
-			if (Value != 0) {//Verschieben des Pawns, wenn man mit der Jojstik/Flystik/Pawn in andere Gegenstaende reingeht.
-				RootComponent->SetWorldLocation(LastPawnPosition, true);
-			}
-			else {//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-				FVector DiffImpactPointBellyForwardAndStartFromKnee = ImpactPointWohinIchGehst - StartFromKnee;
-				float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee);
-				RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
-			}
+	//Moving the Pawn.
+	if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
+	{
+		if (Value != 0) {//Moving the Pawn, if you go into other objects with joystick/flystik/pawn.
+			RootComponent->SetWorldLocation(LastPawnPosition, true);
 		}
+		else {//Moving the pawn, if you physically go into objects with the SphereCollisionComponent.
+			FVector DiffImpactPointBellyForwardAndStartFromKnee = ImpactPointWohinIchGehst - StartFromKnee;
+			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee);
+			RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
+		}
+	}
 
-		//if you not have ImpactPoint, then you are falling.
-		if (ImpactPoint_Down.Size() == 0.f)
+	//if you not have ImpactPoint, then you are falling.
+	if (ImpactPointDown.Size() == 0.f)
+	{
+		GravitySpeed += 0.05;
+		FVector GravityAcc = FVector(0.f, 0.f, -1.f*GravitySpeed);
+		RootComponent->AddLocalOffset(GravityAcc, true);
+	}
+	//stairs go up/down.
+	else
+	{
+		if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
 		{
-			GravitySpeed += 0.05;
-			FVector GravityAcc = FVector(0.f, 0.f, -1.f);
-			const FVector LocalMove = FVector(0.f, 0.f, 0.f) + GravityAcc;
-			RootComponent->AddLocalOffset(LocalMove*GravitySpeed, true);
+			const FVector LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
+			RootComponent->AddLocalOffset(LocalUpMove, true);
 		}
-		//Treppe hoch-/runtergehen.
-		else
+		else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ)
 		{
-			if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
-			{
-				const FVector LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
-				RootComponent->AddLocalOffset(LocalUpMove, true);
-			}
-			else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ)
-			{
-				const FVector LocalUpMove{ 0.f, 0.f, -DiffernceDistance };
-				RootComponent->AddLocalOffset(LocalUpMove, true);
-			}
-			else 
-			{
-				GravitySpeed = 0.0f;
-			}
+			const FVector LocalUpMove{ 0.f, 0.f, -DiffernceDistance };
+			RootComponent->AddLocalOffset(LocalUpMove, true);
 		}
+		else 
+		{
+			GravitySpeed = 0.0f;
+		}
+	}
 	
 
 
@@ -269,7 +268,7 @@ void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, A
 
 	if (OtherActor && (OtherActor != this) && OtherComp) {
        HasContact = true;
-	   dist_Betw_Collision_And_ClossestPointOnSurface = OtherComp->GetDistanceToCollision(SphereCollisionComponent->GetComponentLocation(), closestPointOnSurface);//Gibt die Entfernung zur nächstgelegenen Körperinstanzoberfläche zurück.
+	   DistancBetwCollisionAndClossestPointOnSurface = OtherComp->GetDistanceToCollision(SphereCollisionComponent->GetComponentLocation(), closestPointOnSurface);//Gibt die Entfernung zur nächstgelegenen Körperinstanzoberfläche zurück.
 	
 	 }
 	
@@ -385,7 +384,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	   FVector Diff_Camera_and_ClosestPointOnSurface = SphereCollisionComponent->GetComponentLocation() - closestPointOnSurface;
 	   
-	   float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - dist_Betw_Collision_And_ClossestPointOnSurface;
+	   float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - DistancBetwCollisionAndClossestPointOnSurface;
 
 	   RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, true);
 	}
