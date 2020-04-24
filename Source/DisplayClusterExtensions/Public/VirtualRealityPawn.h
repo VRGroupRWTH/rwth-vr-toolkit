@@ -136,7 +136,7 @@ private:
 
 	bool HasContact;
     float GravitySpeed = 0.0f;
-	FVector CreateLineTrace(FVector DirectionVector, const FVector Start, bool Visibility);
+	FVector CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	FVector LastCameraPosition;
 	FVector LastPawnPosition;
 

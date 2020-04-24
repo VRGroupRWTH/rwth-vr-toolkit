@@ -105,13 +105,11 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
 		{
-			const FVector LocalUpMove{ 0.f, 0.f, +DiffernceDistance };
-			RootComponent->AddLocalOffset(LocalUpMove, true);
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance), true);
 		}
 		else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ)
 		{
-			const FVector LocalUpMove{ 0.f, 0.f, -DiffernceDistance };
-			RootComponent->AddLocalOffset(LocalUpMove, true);
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
 		}
 		else 
 		{
@@ -447,14 +445,14 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 }
 
 
-FVector AVirtualRealityPawn::CreateLineTrace(FVector DirectionVector, const FVector Start, bool Visibility)
+FVector AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
 {
 	FVector MyImpactPoint{0.0f, 0.0f, 0.0f};
 	{ //LineTrace 
 
 		FHitResult OutHit;
 
-		FVector End = ((DirectionVector * 1000.f) + Start);
+		FVector End = ((Direction * 1000.f) + Start);
 		FCollisionQueryParams CollisionParams;
 
 		if(Visibility)
