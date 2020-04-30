@@ -58,7 +58,6 @@ public:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
 	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
-
 private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
