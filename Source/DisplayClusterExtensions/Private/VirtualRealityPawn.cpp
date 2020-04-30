@@ -70,31 +70,31 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-	FVector ImpactPointDown = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-	float DistBetwCameraAndGroundZ = abs(ImpactPointDown.Z - GetCameraComponent()->GetComponentLocation().Z);
+	AVirtualRealityPawn::LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+	float DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
 	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
 	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
 
 	FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
 	FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
 	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
-	FVector ImpactPointWohinIchGehst = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
+	AVirtualRealityPawn::LineTraceData LineTraceDataWhereYouGoing = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
 
 	//Moving the Pawn.
-	if (FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
+	if (FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
 	{
 		if (Value != 0) {//Moving the Pawn, if you go into other objects with joystick/flystik/pawn.
 			RootComponent->SetWorldLocation(LastPawnPosition, true);
 		}
 		else {//Moving the pawn, if you physically go into objects with the SphereCollisionComponent.
-			FVector DiffImpactPointBellyForwardAndStartFromKnee = ImpactPointWohinIchGehst - StartFromKnee;
-			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(ImpactPointWohinIchGehst, StartFromKnee);
+			FVector DiffImpactPointBellyForwardAndStartFromKnee = LineTraceDataWhereYouGoing.MyImpactPoint - StartFromKnee;
+			float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee);
 			RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
 		}
 	}
 
 	//if you not have ImpactPoint, then you are falling.
-	if (ImpactPointDown.Size() == 0.f)
+	if (LineTraceDataObjekt.IsHit)
 	{
 		GravitySpeed += 0.05;
 		FVector GravityAcc = FVector(0.f, 0.f, -1.f*GravitySpeed);
@@ -445,9 +445,9 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 }
 
 
-FVector AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
+ AVirtualRealityPawn::LineTraceData AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
 {
-	FVector MyImpactPoint{0.0f, 0.0f, 0.0f};
+	LineTraceData MyLineTraceData{ false, FVector(0,0,0) };
 	{ //LineTrace 
 
 		FHitResult OutHit;
@@ -462,12 +462,12 @@ FVector AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector St
 		{
 			if (OutHit.bBlockingHit)
 			{
-				 MyImpactPoint = OutHit.ImpactPoint;
+				MyLineTraceData.MyImpactPoint = OutHit.ImpactPoint;
+				MyLineTraceData.IsHit = true;
 			}
-
 		}
 	}
-	return MyImpactPoint;
+	return MyLineTraceData;
 }
 
 
