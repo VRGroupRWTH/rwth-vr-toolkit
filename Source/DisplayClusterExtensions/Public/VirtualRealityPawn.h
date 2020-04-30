@@ -136,5 +136,6 @@ private:
 	FVector LastPawnPosition;
 
 	void InitRoomMountedComponentReferences();
+
 };
 
