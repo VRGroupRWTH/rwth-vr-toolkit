@@ -17,8 +17,9 @@ UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8
 {
 	nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
-	nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly"),
-	nav_mode_walk UMETA(DisplayName = "Navigation Mode Walk")
+	nav_mode_walk UMETA(DisplayName = "Navigation Mode Walk"),
+	nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
+	
 };
 
 UENUM(BlueprintType)
