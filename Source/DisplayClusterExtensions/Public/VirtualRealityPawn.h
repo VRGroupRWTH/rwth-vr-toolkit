@@ -36,28 +36,28 @@ class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterP
 
 public:
 
-		UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward(float Value);
-		UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight(float Value);
-		UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate(float Rate);
-		UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward(float Value);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight(float Value);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate(float Rate);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate);
 
-		UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
-		UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
-		UFUNCTION(Category = "Pawn") UFloatingPawnMovement* GetFloatingPawnMovement();
-		UFUNCTION(Category = "Pawn") URotatingMovementComponent* GetRotatingMovementComponent();
+	UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
+	UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
+	UFUNCTION(Category = "Pawn") UFloatingPawnMovement* GetFloatingPawnMovement();
+	UFUNCTION(Category = "Pawn") URotatingMovementComponent* GetRotatingMovementComponent();
 
-		//Bunch of Getter Functions for components to avoid users having to know the names
-		UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent();
-		UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetRightHandtargetComponent();
-		UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
-		UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdLeftMotionControllerComponent();
-		UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdRightMotionControllerComponent();
+	//Bunch of Getter Functions for components to avoid users having to know the names
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetFlystickComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetRightHandtargetComponent();
+	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
+	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdLeftMotionControllerComponent();
+	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdRightMotionControllerComponent();
 
-		UFUNCTION(Category = "Pawn") USceneComponent* GetHeadComponent();
-		UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
-		UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
+	UFUNCTION(Category = "Pawn") USceneComponent* GetHeadComponent();
+	UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
+	UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
-		UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
+	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
 
 private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
