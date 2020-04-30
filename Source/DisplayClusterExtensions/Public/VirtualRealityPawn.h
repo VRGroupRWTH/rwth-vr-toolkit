@@ -36,7 +36,6 @@ class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterP
 	GENERATED_UCLASS_BODY()
 
 public:
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnForward(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate(float Rate);
