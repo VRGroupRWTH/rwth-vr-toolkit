@@ -151,7 +151,6 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
-	
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 }
 
@@ -165,7 +164,6 @@ void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 	}
-
 }
 
 float AVirtualRealityPawn::GetBaseTurnRate() const
@@ -299,15 +297,14 @@ void AVirtualRealityPawn::BeginPlay()
 		BaseTurnRate = Settings->RotationSpeed;
 	}
 
-
-	if (UVirtualRealityUtilities::IsRoomMountedMode()) //Cave
+	if (UVirtualRealityUtilities::IsRoomMountedMode())
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
 
 		InitRoomMountedComponentReferences();
 	}
-	else if (UVirtualRealityUtilities::IsHeadMountedMode()) //HMD
+	else if (UVirtualRealityUtilities::IsHeadMountedMode())
 	{
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("TurnRate", EKeys::MouseX));
 		UInputSettings::GetInputSettings()->RemoveAxisMapping(FInputAxisKeyMapping("LookUpRate", EKeys::MouseY));
