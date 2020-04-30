@@ -94,7 +94,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	}
 
 	//if you not have ImpactPoint, then you are falling.
-	if (LineTraceDataObjekt.IsHit)
+	if (!LineTraceDataObjekt.IsHit)
 	{
 		GravitySpeed += 0.05;
 		FVector GravityAcc = FVector(0.f, 0.f, -1.f*GravitySpeed);
