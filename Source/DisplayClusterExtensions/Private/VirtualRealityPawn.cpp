@@ -70,10 +70,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-	AVirtualRealityPawn::LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-	float DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
-	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
+
 
 	FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
 	FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
@@ -83,7 +80,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	//Moving the Pawn.
 	if (FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
 	{
-		if (Value != 0) {//Moving the Pawn, if you go into other objects with joystick/flystik/pawn.
+		if (Value!=0.0f) {//Moving the Pawn, if you go into other objects with joystick/flystik/pawn.
 			RootComponent->SetWorldLocation(LastPawnPosition, true);
 		}
 		else {//Moving the pawn, if you physically go into objects with the SphereCollisionComponent.
@@ -92,32 +89,6 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 			RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
 		}
 	}
-
-	//if you not have ImpactPoint, then you are falling.
-	if (!LineTraceDataObjekt.IsHit)
-	{
-		GravitySpeed += 0.05;
-		FVector GravityAcc = FVector(0.f, 0.f, -1.f*GravitySpeed);
-		RootComponent->AddLocalOffset(GravityAcc, true);
-	}
-	//stairs go up/down.
-	else
-	{
-		if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance), true);
-		}
-		else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ)
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
-		}
-		else 
-		{
-			GravitySpeed = 0.0f;
-		}
-	}
-	
-
 
 
 	// Check if this function triggers correctly on ROLV.
@@ -372,7 +343,38 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	
+	LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
+	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
+
+	if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ )
+	{
+		if (DeltaSeconds*DiffernceDistance*GravitySpeed < DiffernceDistance) {
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DeltaSeconds*DiffernceDistance*GravitySpeed), true);
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance), true);
+		}
+	}
+	else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ || !LineTraceDataObjekt.IsHit)
+	{
+		GravitySpeed += 10.0f;
+		if (DeltaSeconds*DiffernceDistance * GravitySpeed > -DiffernceDistance) {
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DeltaSeconds*DiffernceDistance*GravitySpeed), true);
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
+		}
+	}
+	else
+	{
+		GravitySpeed = 10.0f;
+	}
+
+
 	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk)
 	{

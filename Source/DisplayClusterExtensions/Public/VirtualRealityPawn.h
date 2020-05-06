@@ -124,9 +124,9 @@ protected:
 private:
 	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
 	float DistancBetwCollisionAndClossestPointOnSurface;
-
+	float DistBetwCameraAndGroundZ;
 	bool HasContact;
-    float GravitySpeed = 0.0f;
+    float GravitySpeed = 10.0f;
 	struct LineTraceData
 	{
 		bool IsHit;
@@ -135,6 +135,6 @@ private:
 	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	FVector LastCameraPosition;
 	FVector LastPawnPosition;
-
+	AVirtualRealityPawn::LineTraceData LineTraceDataObjekt;
 	void InitRoomMountedComponentReferences();
 };
