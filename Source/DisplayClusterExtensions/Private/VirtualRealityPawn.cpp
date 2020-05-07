@@ -66,16 +66,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 }
 
-
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-
-
-	FVector StartFromKnee = FVector(GetCameraComponent()->GetComponentLocation().X, GetCameraComponent()->GetComponentLocation().Y, GetCameraComponent()->GetComponentLocation().Z - (DistBetwCameraAndGroundZ - MaxStepHeight));
+	FVector StartFromKnee = GetCameraComponent()->GetComponentLocation;
+	StartFromKnee.Z -= (DistBetwCameraAndGroundZ - MaxStepHeight);
 	FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
 	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
-	AVirtualRealityPawn::LineTraceData LineTraceDataWhereYouGoing = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
+	LineTraceData LineTraceDataWhereYouGoing = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, false);
 
 	//Moving the Pawn.
 	if (FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
@@ -343,37 +341,31 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
 	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
 	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
 	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
 
-	if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ )
+	if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
 	{
-		if (DeltaSeconds*DiffernceDistance*GravitySpeed < DiffernceDistance) {
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DeltaSeconds*DiffernceDistance*GravitySpeed), true);
-		}
-		else
+		UpSteppingSpeed += 10.0f*DeltaSeconds;
+		if (UpSteppingSpeed < DiffernceDistance)
 		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance), true);
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +UpSteppingSpeed*DeltaSeconds), true);
 		}
 	}
 	else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ || !LineTraceDataObjekt.IsHit)
 	{
-		GravitySpeed += 10.0f;
-		if (DeltaSeconds*DiffernceDistance * GravitySpeed > -DiffernceDistance) {
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DeltaSeconds*DiffernceDistance*GravitySpeed), true);
-		}
-		else
+		GravitySpeed += 10.0f*DeltaSeconds;
+		if (GravitySpeed > -DiffernceDistance)
 		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -GravitySpeed*DeltaSeconds), true);
 		}
 	}
 	else
 	{
-		GravitySpeed = 10.0f;
+		GravitySpeed = 0.0f;
 	}
-
 
 	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk)
@@ -433,7 +425,6 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 		LeftHandTarget = UVirtualRealityUtilities::GetClusterComponent("left_hand_target");
 		if (AttachLeftHandInCAVE == EAttachementType::AT_HANDTARGET)
 			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
-
 	}
 	if (!RightHandTarget)
 	{

@@ -126,7 +126,8 @@ private:
 	float DistancBetwCollisionAndClossestPointOnSurface;
 	float DistBetwCameraAndGroundZ;
 	bool HasContact;
-    float GravitySpeed = 10.0f;
+    float GravitySpeed = 0.0f;
+	UPROPERTY() float UpSteppingSpeed = 10.0f;
 	struct LineTraceData
 	{
 		bool IsHit;
@@ -135,6 +136,6 @@ private:
 	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	FVector LastCameraPosition;
 	FVector LastPawnPosition;
-	AVirtualRealityPawn::LineTraceData LineTraceDataObjekt;
+
 	void InitRoomMountedComponentReferences();
 };
