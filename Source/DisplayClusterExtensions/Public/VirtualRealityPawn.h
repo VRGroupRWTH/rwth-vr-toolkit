@@ -127,7 +127,7 @@ private:
 	float DistBetwCameraAndGroundZ;
 	bool HasContact;
     float GravitySpeed = 0.0f;
-	UPROPERTY() float UpSteppingSpeed = 10.0f;
+	UPROPERTY() float UpSteppingSpeed = 80000.0f;
 	struct LineTraceData
 	{
 		bool IsHit;
