@@ -6,6 +6,7 @@
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
@@ -120,7 +121,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent* SphereCollisionComponent = nullptr; 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent* SphereCollisionComponent = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
+	UStaticMeshComponent* CapsuleMesh;
 private:
 	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
 	float DistancBetwCollisionAndClossestPointOnSurface;
