@@ -137,8 +137,7 @@ private:
 		FVector MyImpactPoint;
 	};
 	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	FVector LastCameraPosition;
-	FVector LastPawnPosition;
-
+	float NewRadius = 22.0f;
+	float NewHalfHight = 96.0f;
 	void InitRoomMountedComponentReferences();
 };

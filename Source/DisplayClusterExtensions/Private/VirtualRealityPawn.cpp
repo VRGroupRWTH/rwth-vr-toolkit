@@ -62,7 +62,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetupAttachment(RootComponent);
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionProfileName("Pawn");
-
+	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
+	CapsuleColliderComponent->AddRelativeLocation(FVector(0,0, NewHalfHight*2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
@@ -73,23 +74,29 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
+
+	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
+	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
+	FVector NewLocationForCapsuleCollider = CameraComponent->GetComponentLocation();
+	NewLocationForCapsuleCollider.Z = NewHalfHight;
+
 	FHitResult HitResults;
-	CapsuleColliderComponent->AddRelativeLocation(5.0f*RightHand->GetForwardVector()*Value, true, &HitResults);
+	CapsuleColliderComponent->SetRelativeLocation(NewLocationForCapsuleCollider, true, &HitResults);
 
 	if (HitResults.bBlockingHit) {
-		UE_LOG(LogTemp, Warning, TEXT("Hit something"));
+		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
+	}
+	
+	if (!HitResults.bBlockingHit && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
+	{
+		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 
 
 	//so kann ich prfen ob es eine overlap gibt, dafr mssen aber alle Objekte in der Szene overlap events generieren, was normalerweise aus ist.
 	TArray<AActor*> OverlappingActors;
 	CapsuleColliderComponent->GetOverlappingActors(OverlappingActors);
-	float NewRadius = 22.0f;
-	float NewHalfHeight = DistBetwCameraAndGroundZ / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHeight);
-	FVector NewLocationForCapsuleCollider = CapsuleColliderComponent->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z = NewHalfHeight;
-	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider,true);
+	
 	bool bOverlapping = false;
 	for(AActor* other : OverlappingActors)
 	{
@@ -103,7 +110,6 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not overlapping"));
 	}
-
 
 
 	//FVector StartFromKnee = GetCameraComponent()->GetComponentLocation();
@@ -142,7 +148,7 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
 	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
-		AddMovementInput(RightHand->GetRightVector(), Value);
+	//	AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
 
@@ -346,8 +352,8 @@ void AVirtualRealityPawn::BeginPlay()
 	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	LastCameraPosition = GetCameraComponent()->GetComponentLocation();
-	LastPawnPosition = GetRootComponent()->GetComponentLocation();
+	//LastCameraPosition = GetCameraComponent()->GetComponentLocation();
+	//LastPawnPosition = GetRootComponent()->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
