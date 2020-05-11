@@ -87,7 +87,9 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	float NewRadius = 22.0f;
 	float NewHalfHeight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHeight);
-	//CapsuleColliderComponent->
+	FVector NewLocationForCapsuleCollider = RootComponent->GetComponentLocation();
+	NewLocationForCapsuleCollider.Z += NewHalfHeight;
+	CapsuleColliderComponent->SetRelativeLocation(NewLocationForCapsuleCollider);
 	bool bOverlapping = false;
 	for(AActor* other : OverlappingActors)
 	{
