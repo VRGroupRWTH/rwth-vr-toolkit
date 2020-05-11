@@ -87,9 +87,9 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	float NewRadius = 22.0f;
 	float NewHalfHeight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHeight);
-	FVector NewLocationForCapsuleCollider = RootComponent->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z += NewHalfHeight;
-	CapsuleColliderComponent->SetRelativeLocation(NewLocationForCapsuleCollider);
+	FVector NewLocationForCapsuleCollider = CapsuleColliderComponent->GetComponentLocation();
+	NewLocationForCapsuleCollider.Z = NewHalfHeight;
+	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider,true);
 	bool bOverlapping = false;
 	for(AActor* other : OverlappingActors)
 	{
@@ -142,7 +142,7 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
 	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
-		//AddMovementInput(RightHand->GetRightVector(), Value);
+		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
 
