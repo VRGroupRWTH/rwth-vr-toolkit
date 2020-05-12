@@ -77,11 +77,11 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
-	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z = NewHalfHight;
+	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation(); //Capsul: Bounds = {Origin={X=654.000000 Y=2293.00000 Z=78.8720856 } BoxExtent={X=22.0000286 Y=22.0000286 Z=43.7122421 } ...}
+	NewLocationForCapsuleCollider.Z = NewHalfHight+5.0f; //NewLocationForCapsuleCollider = { X = 707.356201 Y = 2199.67334 Z = 48.7122421 } und Camera: X=707.356 Y=2199.673 Z=145.255
 
 	FHitResult HitResults;
-	CapsuleColliderComponent->SetRelativeLocation(NewLocationForCapsuleCollider, true, &HitResults);
+	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true, &HitResults);
 	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
 	FVector Camera = GetCameraComponent()->GetComponentLocation();
 	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
