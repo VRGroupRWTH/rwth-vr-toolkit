@@ -59,7 +59,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-	CapsuleColliderComponent->SetupAttachment(RootComponent);
+	CapsuleColliderComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionProfileName("Pawn");
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
@@ -75,17 +75,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
-	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation(); //Capsul: Bounds = {Origin={X=654.000000 Y=2293.00000 Z=78.8720856 } BoxExtent={X=22.0000286 Y=22.0000286 Z=43.7122421 } ...}
-	NewLocationForCapsuleCollider.Z = NewHalfHight+5.0f; //NewLocationForCapsuleCollider = { X = 707.356201 Y = 2199.67334 Z = 48.7122421 } und Camera: X=707.356 Y=2199.673 Z=145.255
 
-	FHitResult HitResults;
-	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true, &HitResults);
-	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
-	FVector Camera = GetCameraComponent()->GetComponentLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Camera %s"), *Camera.ToString());
 	if (HitResults.bBlockingHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
 	}
@@ -374,40 +364,50 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
+	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
+	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
+
+	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true, &HitResults);
+	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
+	FVector Camera = GetCameraComponent()->GetComponentLocation();
+	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Camera %s"), *Camera.ToString());
+
 	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
 	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
-	float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-	float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
-	static float SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
-	if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
-	{
-		SumUpSteppingSpeedWithDeltaSeconds += UpSteppingSpeed*DeltaSeconds;
-		if (SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds < DiffernceDistance)
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds), true);
-		}
-		else
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, DiffernceDistance), true);
-		}
-	}
-	else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ || !LineTraceDataObjekt.IsHit)
-	{
-		GravitySpeed -= 80000.0f*DeltaSeconds;
-		if (GravitySpeed*DeltaSeconds > -DiffernceDistance || !LineTraceDataObjekt.IsHit)
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
-		}
-		else
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
-		}
-	}
-	else
-	{
-		GravitySpeed = 0.0f;
-		SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
-	}
+	//float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+	//float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
+	//static float SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
+	//if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
+	//{
+	//	SumUpSteppingSpeedWithDeltaSeconds += UpSteppingSpeed*DeltaSeconds;
+	//	if (SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds < DiffernceDistance)
+	//	{
+	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds), true);
+	//	}
+	//	else
+	//	{
+	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, DiffernceDistance), true);
+	//	}
+	//}
+	//else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ || !LineTraceDataObjekt.IsHit)
+	//{
+	//	GravitySpeed -= 80000.0f*DeltaSeconds;
+	//	if (GravitySpeed*DeltaSeconds > -DiffernceDistance || !LineTraceDataObjekt.IsHit)
+	//	{
+	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
+	//	}
+	//	else
+	//	{
+	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
+	//	}
+	//}
+	//else
+	//{
+	//	GravitySpeed = 0.0f;
+	//	SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
+	//}
 
 	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
 	if (HasContact && NavigationMode== EVRNavigationModes::nav_mode_walk)
