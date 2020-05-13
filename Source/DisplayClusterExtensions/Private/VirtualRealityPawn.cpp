@@ -30,8 +30,11 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RotatingMovement->RotationRate = FRotator::ZeroRotator;
 
 	Head = CreateDefaultSubobject<USceneComponent>(TEXT("Head"));
+	Head->SetupAttachment(RootComponent);
 	RightHand = CreateDefaultSubobject<USceneComponent>(TEXT("RightHand"));
+	RightHand->SetupAttachment(RootComponent);
 	LeftHand = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHand"));
+	LeftHand->SetupAttachment(RootComponent);
 
 	HmdLeftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdLeftMotionController"));
 	HmdLeftMotionController->SetupAttachment(RootComponent);
@@ -218,17 +221,17 @@ void AVirtualRealityPawn::BeginPlay()
 		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
 		HmdRightMotionController->SetVisibility(ShowHMDControllers);
 
-		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::KeepRelativeTransform);
-		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::KeepRelativeTransform);
-		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 	else //Desktop
 	{
-		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 		//also attach the hands to the camera component so we can use them for interaction
-		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 
 		//move to eyelevel
@@ -303,26 +306,26 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 	if (!ShutterGlasses)
 	{
 		ShutterGlasses = UVirtualRealityUtilities::GetClusterComponent("shutter_glasses");
-		Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::KeepRelativeTransform);
+		Head->AttachToComponent(ShutterGlasses, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 	if (!Flystick)
 	{
 		Flystick = UVirtualRealityUtilities::GetClusterComponent("flystick");
 		if (AttachRightHandInCAVE == EAttachementType::AT_FLYSTICK)
-			RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+			RightHand->AttachToComponent(Flystick, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		if (AttachLeftHandInCAVE == EAttachementType::AT_FLYSTICK)
-			LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::KeepRelativeTransform);
+			LeftHand->AttachToComponent(Flystick, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 	if (!LeftHandTarget)
 	{
 		LeftHandTarget = UVirtualRealityUtilities::GetClusterComponent("left_hand_target");
 		if (AttachLeftHandInCAVE == EAttachementType::AT_HANDTARGET)
-			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
+			LeftHand->AttachToComponent(LeftHandTarget, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 	if (!RightHandTarget)
 	{
 		RightHandTarget = UVirtualRealityUtilities::GetClusterComponent("right_hand_target");
 		if (AttachRightHandInCAVE == EAttachementType::AT_HANDTARGET)
-			RightHand->AttachToComponent(RightHandTarget, FAttachmentTransformRules::KeepRelativeTransform);
+			RightHand->AttachToComponent(RightHandTarget, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 }
