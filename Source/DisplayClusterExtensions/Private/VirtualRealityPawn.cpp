@@ -59,7 +59,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-	CapsuleColliderComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionProfileName("Pawn");
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
@@ -87,7 +86,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 
 	//so kann ich prfen ob es eine overlap gibt, dafr mssen aber alle Objekte in der Szene overlap events generieren, was normalerweise aus ist.
-	TArray<AActor*> OverlappingActors;
+	/*TArray<AActor*> OverlappingActors;
 	CapsuleColliderComponent->GetOverlappingActors(OverlappingActors);
 	
 	bool bOverlapping = false;
@@ -95,14 +94,15 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		if (other == this)
 			continue;
-		UE_LOG(LogTemp, Warning, TEXT("Hallo Overlapping %s"), *other->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("have Overlapping %s"), *other->GetName());
 		bOverlapping = true;
 	}
 
 	if(!bOverlapping)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not overlapping"));
-	}
+
+	}*/
 
 
 	//FVector StartFromKnee = GetCameraComponent()->GetComponentLocation();
@@ -141,7 +141,7 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
 	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
-	//	AddMovementInput(RightHand->GetRightVector(), Value);
+		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
 
