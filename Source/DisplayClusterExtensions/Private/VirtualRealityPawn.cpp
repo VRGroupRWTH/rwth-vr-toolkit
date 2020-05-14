@@ -60,7 +60,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CapsuleColliderComponent->SetCollisionProfileName("Pawn");
+	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
 	CapsuleColliderComponent->AddRelativeLocation(FVector(0,0, NewHalfHight*2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
@@ -73,7 +74,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-
 
 	if (HitResults.bBlockingHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
@@ -139,7 +139,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
+	if (!HitResults.bBlockingHit &&RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
@@ -369,6 +369,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
 
 	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true, &HitResults);
+	CapsuleColliderComponent->AddLocalOffset(2*RightHand->GetForwardVector(), true, &HitResults);
 	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
 	FVector Camera = GetCameraComponent()->GetComponentLocation();
 	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
