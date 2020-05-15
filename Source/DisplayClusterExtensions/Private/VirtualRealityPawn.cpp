@@ -75,7 +75,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
-	RefereneValue = Value;
+	OnForwardRefereneValue = Value;
 	if (HitResults.bBlockingHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
 	}
@@ -140,9 +140,10 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (!HitResults.bBlockingHit &&RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
+	OnRightRefereneValue = Value;
+	if (FVector::Distance(HitResults.ImpactPoint, GetCameraComponent()->GetComponentLocation()) > 50.0f && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
-		//AddMovementInput(RightHand->GetRightVector(), Value);
+		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
 
@@ -423,8 +424,8 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
-	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-RefereneValue*DeltaSeconds, true, &HitResults);
-	
+	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-OnForwardRefereneValue*DeltaSeconds, true, &HitResults); 
+	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-OnRightRefereneValue * DeltaSeconds, true, &HitResults);
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
