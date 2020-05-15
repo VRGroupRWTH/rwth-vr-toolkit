@@ -75,11 +75,12 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 
+	RefereneValue = Value;
 	if (HitResults.bBlockingHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
 	}
 	
-	if (!HitResults.bBlockingHit && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
+	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
@@ -141,7 +142,7 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
 	if (!HitResults.bBlockingHit &&RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
-		AddMovementInput(RightHand->GetRightVector(), Value);
+		//AddMovementInput(RightHand->GetRightVector(), Value);
 	}
 }
 
@@ -363,13 +364,13 @@ void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	
 	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-
+	//NewLocationForCapsuleCollider.Z = NewHalfHight;
 	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true, &HitResults);
-	CapsuleColliderComponent->AddLocalOffset(2*RightHand->GetForwardVector(), true, &HitResults);
+	//CapsuleColliderComponent->AddRelativeLocation(RightHand->GetForwardVector(), true, &HitResults);
 	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
 	FVector Camera = GetCameraComponent()->GetComponentLocation();
 	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
@@ -422,6 +423,8 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
+	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-RefereneValue*DeltaSeconds, true, &HitResults);
+	
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
