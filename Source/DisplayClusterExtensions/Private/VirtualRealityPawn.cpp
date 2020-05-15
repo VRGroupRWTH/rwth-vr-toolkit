@@ -79,8 +79,8 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	if (HitResults.bBlockingHit) {
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
 	}
-	
-	if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
+
+	if (FVector::Distance(HitResults.ImpactPoint,GetCameraComponent()->GetComponentLocation())>50.0f && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
