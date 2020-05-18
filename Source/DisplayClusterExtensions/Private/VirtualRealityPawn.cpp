@@ -94,6 +94,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	}
 
 
+
 	//so kann ich prfen ob es eine overlap gibt, dafr mssen aber alle Objekte in der Szene overlap events generieren, was normalerweise aus ist.
 	/*TArray<AActor*> OverlappingActors;
 	CapsuleColliderComponent->GetOverlappingActors(OverlappingActors);
@@ -142,14 +143,12 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	//	AddMovementInput(RightHand->GetForwardVector(), Value);
 	//}
 
-	if (Value != 0)
-	{
-		CapsuleColliderComponent->AddLocalOffset(GetFloatingPawnMovement()->GetMaxSpeed()*RightHand->GetForwardVector()* MyDeltaSeconds, true, &HitResults);
-	}
+		CapsuleColliderComponent->AddLocalOffset(GetFloatingPawnMovement()->GetMaxSpeed()*RightHand->GetForwardVector()* MyDeltaSeconds*Value, true, &HitResults);
+
 	
 	
 	//LastCameraPosition = GetCameraComponent()->GetComponentLocation();
-	//LastPawnPosition = GetRootComponent()->GetComponentLocation();
+	LastPawnPosition = GetRootComponent()->GetComponentLocation();
 	
 }
 
@@ -165,10 +164,7 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	}
 
 
-	if (Value != 0)
-	{
-		CapsuleColliderComponent->AddLocalOffset(GetFloatingPawnMovement()->GetMaxSpeed()*RightHand->GetRightVector()* MyDeltaSeconds, true, &HitResults);
-	}
+		CapsuleColliderComponent->AddLocalOffset(GetFloatingPawnMovement()->GetMaxSpeed()*RightHand->GetRightVector()* MyDeltaSeconds*Value, true, &HitResults);
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -372,7 +368,7 @@ void AVirtualRealityPawn::BeginPlay()
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//LastCameraPosition = GetCameraComponent()->GetComponentLocation();
-	//LastPawnPosition = GetRootComponent()->GetComponentLocation();
+	LastPawnPosition = GetRootComponent()->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
