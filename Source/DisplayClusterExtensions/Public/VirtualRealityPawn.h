@@ -66,8 +66,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 45.f;
-  //Execute specified console command on all nDisplayCluster Nodes
-  UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
+	//Execute specified console command on all nDisplayCluster Nodes
+	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
@@ -99,9 +99,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* LeftHandTarget = nullptr;
 
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD left  motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdLeftMotionController = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdLeftMotionController = nullptr;
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD right motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdRightMotionController = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdRightMotionController = nullptr;
 
 	// PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* Head = nullptr;
@@ -125,11 +125,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UStaticMeshComponent* CapsuleMesh;
 private:
-	FVector closestPointOnSurface; //Punkt auf der Kollisionsfläche, die dem Punkt am naechsten liegt.
+	FVector closestPointOnSurface; //Punkt auf der Kollisionsflche, die dem Punkt am naechsten liegt.
 	float DistancBetwCollisionAndClossestPointOnSurface;
 	float DistBetwCameraAndGroundZ;
 	bool HasContact;
-    float GravitySpeed = 0.0f;
+	float GravitySpeed = 0.0f;
 	UPROPERTY() float UpSteppingSpeed = 80000.0f;
 	struct LineTraceData
 	{
@@ -138,6 +138,6 @@ private:
 	};
 	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	float NewRadius = 22.0f;
-	float NewHalfHight = 96.0f; FHitResult HitResults; float OnForwardRefereneValue = 0.0f; float OnRightRefereneValue = 0.0f;
+	float NewHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f;
 	void InitRoomMountedComponentReferences();
 };
