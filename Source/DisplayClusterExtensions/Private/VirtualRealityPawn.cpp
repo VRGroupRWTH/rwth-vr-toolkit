@@ -425,7 +425,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-OnForwardRefereneValue*DeltaSeconds, true, &HitResults); 
-	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetForwardVector()*-OnRightRefereneValue * DeltaSeconds, true, &HitResults);
+	CapsuleColliderComponent->AddLocalOffset(1000000.0f*RightHand->GetRightVector()*-OnRightRefereneValue * DeltaSeconds, true, &HitResults);
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
