@@ -64,12 +64,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
 	CapsuleColliderComponent->AddRelativeLocation(FVector(0, 0, NewHalfHight * 2));
+	
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
 	CapsuleMesh->SetStaticMesh(SphereMeshAsset.Object);
-	CapsuleMesh->SetRelativeScale3D(FVector(0.1f));
+	CapsuleMesh->SetRelativeScale3D(FVector(0.3f));
+	
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -82,11 +84,11 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
 	}
 
-	if (FVector::Distance(HitResults.ImpactPoint, GetCameraComponent()->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
+	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
-	if (FVector::Distance(HitResults.ImpactPoint, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
+	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
 		RootComponent->SetWorldLocation(LastPawnPosition, true);
 	}
 
@@ -161,11 +163,11 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	FVector End = (RightHand->GetRightVector() * GetFloatingPawnMovement()->GetMaxSpeed());
 	CapsuleColliderComponent->AddWorldOffset(End* MyDeltaSeconds*Value, true, &HitResults);
 
-	if (FVector::Distance(HitResults.ImpactPoint, GetCameraComponent()->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
+	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
-	if (FVector::Distance(HitResults.ImpactPoint, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
+	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
 		RootComponent->SetWorldLocation(LastPawnPosition, true);
 	}
 
@@ -395,12 +397,12 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	MyDeltaSeconds = DeltaSeconds;
+	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
+	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
+	
 	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
 	
-
-	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
 	//float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
 	//float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
 	//static float SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
