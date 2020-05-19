@@ -142,7 +142,8 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	//	AddMovementInput(RightHand->GetForwardVector(), Value);
 	//}
 	
-
+	FVector Capsul1 = CapsuleColliderComponent->GetComponentLocation();
+	UE_LOG(LogTemp, Warning, TEXT("Capsul vor Changed %s"), *Capsul1.ToString());
 
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
 	//NewLocationForCapsuleCollider.Z = NewHalfHight;
