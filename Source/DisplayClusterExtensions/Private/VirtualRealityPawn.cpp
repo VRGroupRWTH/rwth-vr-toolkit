@@ -88,9 +88,6 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
-	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
-		RootComponent->SetWorldLocation(LastPawnPosition, true);
-	}
 
 
 
@@ -167,9 +164,6 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
-	}
-	if (FVector::Distance(HitResults.Location, GetCameraComponent()->GetComponentLocation()) <= CapsuleColliderComponent->GetScaledCapsuleRadius()) {
-		RootComponent->SetWorldLocation(LastPawnPosition, true);
 	}
 
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();

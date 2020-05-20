@@ -137,7 +137,7 @@ private:
 		FVector MyImpactPoint;
 	};
 	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	float NewRadius = 22.0f;
+	float NewRadius = 32.0f;
 	float NewHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f; FVector LastPawnPosition;
 	void InitRoomMountedComponentReferences();
 };
