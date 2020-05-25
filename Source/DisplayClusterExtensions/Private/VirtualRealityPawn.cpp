@@ -64,14 +64,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
 	CapsuleColliderComponent->AddRelativeLocation(FVector(0, 0, NewHalfHight * 2));
-	
+
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
 	CapsuleMesh->SetStaticMesh(SphereMeshAsset.Object);
 	CapsuleMesh->SetRelativeScale3D(FVector(0.3f));
-	
+
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -89,56 +89,6 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
 
-
-
-	//so kann ich prfen ob es eine overlap gibt, dafr mssen aber alle Objekte in der Szene overlap events generieren, was normalerweise aus ist.
-	/*TArray<AActor*> OverlappingActors;
-	CapsuleColliderComponent->GetOverlappingActors(OverlappingActors);
-
-	bool bOverlapping = false;
-	for(AActor* other : OverlappingActors)
-	{
-		if (other == this)
-			continue;
-		UE_LOG(LogTemp, Warning, TEXT("have Overlapping %s"), *other->GetName());
-		bOverlapping = true;
-	}
-
-	if(!bOverlapping)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Not overlapping"));
-
-	}*/
-
-
-	//FVector StartFromKnee = GetCameraComponent()->GetComponentLocation();
-	//StartFromKnee.Z -= (DistBetwCameraAndGroundZ - MaxStepHeight);
-	//FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
-	//FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
-	//LineTraceData LineTraceDataWhereYouGoing = CreateLineTrace(FVector(DirectionVector.X, DirectionVector.Y, 0.f), StartFromKnee, true);
-	////Moving the Pawn.
-	//if (FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee) <= SphereCollisionComponent->GetScaledSphereRadius())
-	//{
-	//	if (Value!=0.0f) {//Moving the Pawn, if you go into other objects with joystick/flystik/pawn.
-	//		RootComponent->SetWorldLocation(LastPawnPosition, true);
-	//	}
-	//	else {//Moving the pawn, if you physically go into objects with the SphereCollisionComponent.
-	//		FVector DiffImpactPointBellyForwardAndStartFromKnee = LineTraceDataWhereYouGoing.MyImpactPoint - StartFromKnee;
-	//		float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - FVector::Distance(LineTraceDataWhereYouGoing.MyImpactPoint, StartFromKnee);
-	//		RootComponent->AddLocalOffset(DiffImpactPointBellyForwardAndStartFromKnee.GetSafeNormal()*Inside_Distance, true);
-	//	}
-	//}
-	// Check if this function triggers correctly on ROLV.
-	//if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_fly || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode()))
-	//{
-	//
-	//	AddMovementInput(RightHand->GetForwardVector(), Value);
-	//}
-	//else if (RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
-	//{
-	//	AddMovementInput(RightHand->GetForwardVector(), Value);
-	//}
-	
 	FVector Capsul1 = CapsuleColliderComponent->GetComponentLocation();
 	UE_LOG(LogTemp, Warning, TEXT("Capsul vor Changed %s"), *Capsul1.ToString());
 
@@ -151,7 +101,7 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Camera %s"), *Camera.ToString());
 
-	
+
 	//LastCameraPosition = GetCameraComponent()->GetComponentLocation();
 	LastPawnPosition = GetRootComponent()->GetComponentLocation();
 }
@@ -394,53 +344,10 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	MyDeltaSeconds = DeltaSeconds;
 	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
 	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
-	
+
 	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
-	
-	//float DistBetwCameraAndPawnZ = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
-	//float DiffernceDistance = abs(DistBetwCameraAndGroundZ - DistBetwCameraAndPawnZ);
-	//static float SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
-	//if (DistBetwCameraAndGroundZ < DistBetwCameraAndPawnZ)
-	//{
-	//	SumUpSteppingSpeedWithDeltaSeconds += UpSteppingSpeed*DeltaSeconds;
-	//	if (SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds < DiffernceDistance)
-	//	{
-	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, SumUpSteppingSpeedWithDeltaSeconds*DeltaSeconds), true);
-	//	}
-	//	else
-	//	{
-	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, DiffernceDistance), true);
-	//	}
-	//}
-	//else if (DistBetwCameraAndGroundZ > DistBetwCameraAndPawnZ || !LineTraceDataObjekt.IsHit)
-	//{
-	//	GravitySpeed -= 80000.0f*DeltaSeconds;
-	//	if (GravitySpeed*DeltaSeconds > -DiffernceDistance || !LineTraceDataObjekt.IsHit)
-	//	{
-	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
-	//	}
-	//	else
-	//	{
-	//		RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance), true);
-	//	}
-	//}
-	//else
-	//{
-	//	GravitySpeed = 0.0f;
-	//	SumUpSteppingSpeedWithDeltaSeconds = 0.0f;
-	//}
-	/*
-	//Verschieben des Pawns, wenn man pyisikalisch mit der Kollision-Spere der Camera reingeht.
-	if (HasContact && NavigationMode == EVRNavigationModes::nav_mode_walk)
-	{
-		FVector Diff_Camera_and_ClosestPointOnSurface = SphereCollisionComponent->GetComponentLocation() - closestPointOnSurface;
 
-		float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - DistancBetwCollisionAndClossestPointOnSurface;
-
-		RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, true);
-	}
-	*/
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 }
