@@ -133,7 +133,8 @@ private:
 	UPROPERTY() float UpSteppingSpeed = 80000.0f;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	float NewRadius = 32.0f;
-	float NewHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f; FVector LastPawnPosition;
+	float NewRadius = 32.0f; float MaxStep = 40.0f;
+	float ColliderHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f;
+	void SetCapsuleColliderCharacterSizeVR();
 	void InitRoomMountedComponentReferences();
 };
