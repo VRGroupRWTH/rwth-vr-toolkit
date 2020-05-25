@@ -342,12 +342,24 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	MyDeltaSeconds = DeltaSeconds;
-	LineTraceData LineTraceDataObjekt = CreateLineTrace(FVector(0, 0, -1), GetCameraComponent()->GetComponentLocation(), false);
-	DistBetwCameraAndGroundZ = abs(LineTraceDataObjekt.MyImpactPoint.Z - GetCameraComponent()->GetComponentLocation().Z);
 
-	NewHalfHight = DistBetwCameraAndGroundZ / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(NewRadius, NewHalfHight);
-
+	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z);
+	float MaxStep = 35.0f;
+	float ColliderHight = CharachterSize - MaxStep;
+	float ColliderHalfHight = ColliderHight / 2.0f;
+	CapsuleColliderComponent->SetCapsuleSize(NewRadius, ColliderHalfHight);
+	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
+	StartLineTraceUnderCollider.Z -= ColliderHalfHight;
+	FHitResult LineTraceUnderCollider = CreateLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, true);
+	//float LineTraceUnderColliderLength = abs(LineTraceUnderCollider.Location.Z - StartLineTraceUnderCollider.Z);
+	if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStep)
+	{
+		RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStep-LineTraceUnderCollider.Distance)), true);
+	}
+	else if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance > MaxStep)
+	{
+		RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStep-LineTraceUnderCollider.Distance)), true);
+	}
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 }
@@ -405,11 +417,8 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 }
 
 
-AVirtualRealityPawn::LineTraceData AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
+FHitResult AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
 {
-	LineTraceData MyLineTraceData{ false, FVector(0,0,0) };
-	{ //LineTrace 
-
 		FHitResult OutHit;
 
 		FVector End = ((Direction * 1000.f) + Start);
@@ -422,12 +431,9 @@ AVirtualRealityPawn::LineTraceData AVirtualRealityPawn::CreateLineTrace(FVector 
 		{
 			if (OutHit.bBlockingHit)
 			{
-				MyLineTraceData.MyImpactPoint = OutHit.ImpactPoint;
-				MyLineTraceData.IsHit = true;
 			}
 		}
-	}
-	return MyLineTraceData;
+	return OutHit;
 }
 
 

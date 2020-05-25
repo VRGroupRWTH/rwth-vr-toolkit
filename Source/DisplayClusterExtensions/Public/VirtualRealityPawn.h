@@ -131,12 +131,8 @@ private:
 	bool HasContact;
 	float GravitySpeed = 0.0f;
 	UPROPERTY() float UpSteppingSpeed = 80000.0f;
-	struct LineTraceData
-	{
-		bool IsHit;
-		FVector MyImpactPoint;
-	};
-	LineTraceData CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
+
+	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	float NewRadius = 32.0f;
 	float NewHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f; FVector LastPawnPosition;
 	void InitRoomMountedComponentReferences();
