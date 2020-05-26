@@ -71,7 +71,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
 	CapsuleMesh->SetStaticMesh(SphereMeshAsset.Object);
 	CapsuleMesh->SetRelativeScale3D(FVector(0.3f));
-
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -88,18 +87,6 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
 	}
-
-	FVector Capsul1 = CapsuleColliderComponent->GetComponentLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Capsul vor Changed %s"), *Capsul1.ToString());
-
-	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z -= ColliderHalfHight - 5.0f;
-	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider,true);
-	//CapsuleColliderComponent->AddRelativeLocation(RightHand->GetForwardVector(), true, &HitResults);
-	FVector Capsul = CapsuleColliderComponent->GetComponentLocation();
-	FVector Camera = GetCameraComponent()->GetComponentLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Capsul %s"), *Capsul.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Camera %s"), *Camera.ToString());
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
@@ -111,9 +98,6 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
 	}
-	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z -= ColliderHalfHight - 5.0f;
-	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -374,6 +358,9 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 
 void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 {
+	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
+	NewLocationForCapsuleCollider.Z -= ColliderHalfHight - 5.0f;
+	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
 	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
 	float ColliderHight = CharachterSize - MaxStep;
 	ColliderHalfHight = ColliderHight / 2.0f;
