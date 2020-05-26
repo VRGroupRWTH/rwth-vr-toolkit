@@ -59,12 +59,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	SphereCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	*/
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-	CapsuleColliderComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	//CapsuleColliderComponent->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	CapsuleColliderComponent->OnComponentHit.AddDynamic(this, &AVirtualRealityPawn::OnHit);
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, ColliderHalfHight);
-
+	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + ColliderHalfHight*2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
@@ -75,14 +76,16 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	FVector End = (RightHand->GetForwardVector() * GetFloatingPawnMovement()->GetMaxSpeed());
-	CapsuleColliderComponent->AddWorldOffset(End* MyDeltaSeconds*Value, true, &HitResults);
-
-	if (HitResults.bBlockingHit)
+	if (Value != 0.0f) {
+		IsPhysMoving = false;
+	}
+	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit something %s"), *HitResults.ToString());
+		IsPhysMoving = true;
 	}
 
+	FVector End = (RightHand->GetForwardVector() * GetFloatingPawnMovement()->GetMaxSpeed());
+	CapsuleColliderComponent->AddWorldOffset(End* MyDeltaSeconds*Value, true, &HitResults);
 	if (FVector::Distance(HitResults.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
@@ -91,6 +94,13 @@ void AVirtualRealityPawn::OnForward_Implementation(float Value)
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
+	if (Value != 0.0f) {
+		IsPhysMoving = false;
+	}
+	else
+	{
+		IsPhysMoving = true;
+	}
 	FVector End = (RightHand->GetRightVector() * GetFloatingPawnMovement()->GetMaxSpeed());
 	CapsuleColliderComponent->AddWorldOffset(End* MyDeltaSeconds*Value, true, &HitResults);
 
@@ -202,6 +212,17 @@ void AVirtualRealityPawn::ClusterExecute(const FString& Command)
 	IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
 }
 
+void AVirtualRealityPawn::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit)
+{
+	// Other Actor is the actor that triggered the event. Check that is not ourself. 
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComponent != nullptr))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("I collided with something!"));
+		UE_LOG(LogTemp, Warning, TEXT("Something is: %s"), *Hit.ToString());
+		HitResultsPhysicaly = Hit;
+	}
+}
+
 void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
 {
 	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
@@ -211,13 +232,12 @@ void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& 
 }
 
 void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{   /*
+{
 	if (OtherActor && (OtherActor != this) && OtherComp)
 	{
 		HasContact = true;
 		DistancBetwCollisionAndClossestPointOnSurface = OtherComp->GetDistanceToCollision(SphereCollisionComponent->GetComponentLocation(), closestPointOnSurface);//Gibt die Entfernung zur nchstgelegenen Krperinstanzoberflche zurck.
 	}
-	*/
 }
 
 void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -317,24 +337,23 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	MyDeltaSeconds = DeltaSeconds;
-
 	SetCapsuleColliderCharacterSizeVR();
+	
+	PhysMoving(DeltaSeconds);
+
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= ColliderHalfHight;
 	FHitResult LineTraceUnderCollider = CreateLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, true);
-	//float LineTraceUnderColliderLength = abs(LineTraceUnderCollider.Location.Z - StartLineTraceUnderCollider.Z);
-	UE_LOG(LogTemp, Warning, TEXT("LineTraceUnderCollider.Distance vor dem Verschieben: %f"), LineTraceUnderCollider.Distance);
-	UE_LOG(LogTemp, Warning, TEXT("ColliderHalfHight: %f"), ColliderHalfHight);
-	UE_LOG(LogTemp, Warning, TEXT("abs(CapsuleColliderComponent->GetComponentLocation().Z- GetCameraComponent()->GetComponentLocation().Z): %f"), abs(CapsuleColliderComponent->GetComponentLocation().Z- GetCameraComponent()->GetComponentLocation().Z));
 	
-	if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStep)
+	if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStepHeight)
 	{
-		RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStep-LineTraceUnderCollider.Distance)), true);
+		RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStepHeight-LineTraceUnderCollider.Distance)), true);
 	}
-	else if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance > MaxStep)
+	else if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance > MaxStepHeight)
 	{
-		RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStep-LineTraceUnderCollider.Distance)), true);
+		RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStepHeight-LineTraceUnderCollider.Distance)), true);
 	}
+
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 }
@@ -364,9 +383,28 @@ void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 	FRotator NewRotationForCapsuleCollider = FRotator(0,0, 1);
 	CapsuleColliderComponent->SetWorldRotation(NewRotationForCapsuleCollider, true);
 	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
-	float ColliderHight = CharachterSize - MaxStep;
+	float ColliderHight = CharachterSize - MaxStepHeight;
 	ColliderHalfHight = ColliderHight / 2.0f;
 	CapsuleColliderComponent->SetCapsuleSize(NewRadius, ColliderHalfHight);
+}
+
+void AVirtualRealityPawn::PhysMoving(float DeltaTime)
+{
+	if (HitResultsPhysicaly.bBlockingHit) {
+		//UE_LOG(LogTemp, Warning, TEXT("Hi hier is PhysMoving!"));
+		//bool IsHitOnGround = HitResultsPhysicaly.Actor.Get()->GetTargetLocation().Z == RootComponent->GetComponentLocation().Z;
+		//if (NavigationMode == EVRNavigationModes::nav_mode_walk && IsHitOnGround)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("HitResultsPhysicaly.Actor.Get()->GetTargetLocation(): %s"),*HitResultsPhysicaly.Actor.Get()->GetTargetLocation().ToString());
+		//	//CapsuleColliderComponent->SetWorldLocation(HitResultsPhysicaly.TraceStart, true);
+		//	//FVector Diff_Camera_and_ClosestPointOnSurface = SphereCollisionComponent->GetComponentLocation() - closestPointOnSurface;
+		//	//float Inside_Distance = SphereCollisionComponent->GetScaledSphereRadius() - DistancBetwCollisionAndClossestPointOnSurface;
+		//	//RootComponent->AddLocalOffset(Diff_Camera_and_ClosestPointOnSurface.GetSafeNormal()*Inside_Distance, true);
+		//	FVector Direction = HitResultsPhysicaly.TraceEnd - HitResultsPhysicaly.TraceStart;
+		//	RootComponent->AddWorldOffset(Direction, true);
+		//
+		//}
+	}
 }
 
 void AVirtualRealityPawn::InitRoomMountedComponentReferences()

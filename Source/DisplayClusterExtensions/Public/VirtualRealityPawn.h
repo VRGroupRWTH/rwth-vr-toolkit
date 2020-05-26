@@ -65,10 +65,10 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 45.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.f;
 	//Execute specified console command on all nDisplayCluster Nodes
 	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
-
+	UFUNCTION() void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
 	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
@@ -130,11 +130,10 @@ private:
 	float DistBetwCameraAndGroundZ;
 	bool HasContact;
 	float GravitySpeed = 0.0f;
-	UPROPERTY() float UpSteppingSpeed = 80000.0f;
-
+	bool IsPhysMoving = false;
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	float NewRadius = 32.0f; float MaxStep = 40.0f;
-	float ColliderHalfHight = 96.0f; FHitResult HitResults; float MyDeltaSeconds = 0.0f;
-	void SetCapsuleColliderCharacterSizeVR();
+	float NewRadius = 32.0f;
+	float ColliderHalfHight = 96.0f; FHitResult HitResults; FHitResult HitResultsPhysicaly; float MyDeltaSeconds = 0.0f;
+	void SetCapsuleColliderCharacterSizeVR(); void PhysMoving(float DeltaTime);
 	void InitRoomMountedComponentReferences();
 };
