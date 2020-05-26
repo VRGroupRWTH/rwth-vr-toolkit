@@ -361,6 +361,8 @@ void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
 	NewLocationForCapsuleCollider.Z -= ColliderHalfHight - 5.0f;
 	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
+	FRotator NewRotationForCapsuleCollider = FRotator(0,0, 1);
+	CapsuleColliderComponent->SetWorldRotation(NewRotationForCapsuleCollider, true);
 	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
 	float ColliderHight = CharachterSize - MaxStep;
 	ColliderHalfHight = ColliderHight / 2.0f;
