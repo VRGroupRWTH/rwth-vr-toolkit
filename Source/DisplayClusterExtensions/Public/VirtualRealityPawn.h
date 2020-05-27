@@ -132,8 +132,8 @@ private:
 	float GravitySpeed = 0.0f;
 	bool IsPhysMoving = false;
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	float NewRadius = 32.0f;
+	float NewRadius = 32.0f; FVector LastCameraPosition; FVector LastPawnPosition;
 	float ColliderHalfHight = 96.0f; FHitResult HitResults; FHitResult HitResultsPhysicaly; float MyDeltaSeconds = 0.0f;
-	void SetCapsuleColliderCharacterSizeVR(); void PhysMoving(float DeltaTime);
+	void SetCapsuleColliderCharacterSizeVR(); void PhysMoving(float DeltaTime); bool IsColliderOnGround(); void VRClimbStepUp(float DeltaTime);
 	void InitRoomMountedComponentReferences();
 };
