@@ -363,17 +363,22 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	MyDeltaSeconds = DeltaSeconds;
 	SetCapsuleColliderCharacterSizeVR();
-	//if (IsColliderOnGround()&&IsPhysMoving) {
-	//	FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
-	//	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
-	//	DirectionVector.Z = 0.0f;
-	//	FHitResult FHitResultPhys;
-	//	CapsuleColliderComponent->AddWorldOffset(DirectionVector, true, &FHitResultPhys);
-	//	if (FHitResultPhys.bBlockingHit) {
-	//		RootComponent->SetWorldLocation(LastPawnPosition, true);
-	//	}
-	//
-	//}
+
+	if (IsColliderOnGround()) {
+		FVector CurrentCameraPosition = GetCameraComponent()->GetComponentLocation();
+		FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
+		DirectionVector.Z = 0.0f;
+		FHitResult FHitResultPhys;
+		CapsuleColliderComponent->AddWorldOffset(DirectionVector, true, &FHitResultPhys);
+
+		if (FVector::Distance(FHitResultPhys.ImpactPoint, CapsuleColliderComponent->GetComponentLocation())<CapsuleColliderComponent->GetScaledCapsuleRadius()) {
+			FVector DiffFHitResultPhysLocationAndCapsuleCollider = FHitResultPhys.ImpactPoint - CapsuleColliderComponent->GetComponentLocation();
+			float InsideDistance = CapsuleColliderComponent->GetScaledCapsuleRadius() - FVector::Distance(FHitResultPhys.ImpactPoint, CapsuleColliderComponent->GetComponentLocation());
+			RootComponent->AddLocalOffset(DiffFHitResultPhysLocationAndCapsuleCollider.GetSafeNormal()*InsideDistance*DeltaSeconds, true);
+
+		}
+	
+	}
 
 	PhysMoving(DeltaSeconds);
 
