@@ -184,14 +184,14 @@ void AVirtualRealityPawn::OnHit(UPrimitiveComponent * HitComponent, AActor * Oth
 	// Other Actor is the actor that triggered the event. Check that is not ourself. 
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComponent != nullptr))
 	{
-		if (IsColliderOnGround()) {
-			UE_LOG(LogTemp, Warning, TEXT("I collided with something!"));
-			UE_LOG(LogTemp, Warning, TEXT("Something is: %s"), *Hit.ToString()); 
-			UE_LOG(LogTemp, Warning, TEXT("Hit.Actor.Get()->GetTargetLocation().Z: %f"), Hit.Actor.Get()->GetTargetLocation().Z);
-			UE_LOG(LogTemp, Warning, TEXT("Hit.Actor.Get()->GetActorLocation().Z: %f"), Hit.Actor.Get()->GetActorLocation().Z);
-			UE_LOG(LogTemp, Warning, TEXT("Distance(Pawn, Actor with TargetLocation) : %f"), FVector::Distance(RootComponent->GetComponentLocation(),Hit.Actor.Get()->GetTargetLocation()));
-			UE_LOG(LogTemp, Warning, TEXT("Distance(Pawn, Actor with ActorLocation) : %f"), FVector::Distance(RootComponent->GetComponentLocation(),Hit.Actor.Get()->GetActorLocation()));
-		}
+		//if (IsColliderOnGround()) {
+		//	UE_LOG(LogTemp, Warning, TEXT("I collided with something!"));
+		//	UE_LOG(LogTemp, Warning, TEXT("Something is: %s"), *Hit.ToString()); 
+		//	UE_LOG(LogTemp, Warning, TEXT("Hit.Actor.Get()->GetTargetLocation().Z: %f"), Hit.Actor.Get()->GetTargetLocation().Z);
+		//	UE_LOG(LogTemp, Warning, TEXT("Hit.Actor.Get()->GetActorLocation().Z: %f"), Hit.Actor.Get()->GetActorLocation().Z);
+		//	UE_LOG(LogTemp, Warning, TEXT("Distance(Pawn, Actor with TargetLocation) : %f"), FVector::Distance(RootComponent->GetComponentLocation(),Hit.Actor.Get()->GetTargetLocation()));
+		//	UE_LOG(LogTemp, Warning, TEXT("Distance(Pawn, Actor with ActorLocation) : %f"), FVector::Distance(RootComponent->GetComponentLocation(),Hit.Actor.Get()->GetActorLocation()));
+		//}
 	}
 }
 
@@ -362,12 +362,8 @@ void AVirtualRealityPawn::PhysWolkingMode(float DeltaTime)
 	DirectionVector.Z = 0;
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(DirectionVector, true, &FHitResultPhys);
-
-	if (FVector::Distance(FHitResultPhys.ImpactPoint, CapsuleColliderComponent->GetComponentLocation()) < CapsuleColliderComponent->GetScaledCapsuleRadius())
-	{
-		FVector DiffFHitResultPhysLocationAndCapsuleCollider = FHitResultPhys.ImpactPoint - CapsuleColliderComponent->GetComponentLocation();
-		float InsideDistance = CapsuleColliderComponent->GetScaledCapsuleRadius() - FVector::Distance(FHitResultPhys.ImpactPoint, CapsuleColliderComponent->GetComponentLocation());
-		RootComponent->AddLocalOffset(DiffFHitResultPhysLocationAndCapsuleCollider.GetSafeNormal()*InsideDistance*DeltaTime, true);
+	if (FHitResultPhys.bBlockingHit) {
+		RootComponent->AddLocalOffset(-FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth, true);
 	}
 }
 
