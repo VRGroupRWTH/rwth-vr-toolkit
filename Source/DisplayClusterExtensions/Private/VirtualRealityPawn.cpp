@@ -56,8 +56,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	CapsuleColliderComponent->SetCapsuleSize(NewRadius, ColliderHalfHight);
-	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + ColliderHalfHight*2));
+	CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
+	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + ColliderHalfHeight*2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
@@ -311,10 +311,10 @@ void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	MyDeltaSeconds = DeltaSeconds;
+	DeltaTime = DeltaSeconds;
 	SetCapsuleColliderCharacterSizeVR();
 
-	PhysWolkingMode(DeltaSeconds);
+	PhysWolkingMode();
 
 	VRClimbStepUp(DeltaSeconds);
 
@@ -345,17 +345,17 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 { 
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z -= ColliderHalfHight - 5.0f;
+	NewLocationForCapsuleCollider.Z -= ColliderHalfHeight - 5.0f;
 	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
 	FRotator NewRotationForCapsuleCollider = FRotator(0, 0, 1);
 	CapsuleColliderComponent->SetWorldRotation(NewRotationForCapsuleCollider, true);
 	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
 	float ColliderHight = CharachterSize - MaxStepHeight;
-	ColliderHalfHight = ColliderHight / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(NewRadius, ColliderHalfHight);
+	ColliderHalfHeight = ColliderHight / 2.0f;
+	CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
 }
 
-void AVirtualRealityPawn::PhysWolkingMode(float DeltaTime)
+void AVirtualRealityPawn::PhysWolkingMode()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
@@ -371,7 +371,7 @@ void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
 {
 	FVector End = (Direction * GetFloatingPawnMovement()->GetMaxSpeed());
 	FHitResult FHitResultVR;
-	CapsuleColliderComponent->AddWorldOffset(End* MyDeltaSeconds*Value, true, &FHitResultVR);
+	CapsuleColliderComponent->AddWorldOffset(End* DeltaTime*Value, true, &FHitResultVR);
 	
 	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{

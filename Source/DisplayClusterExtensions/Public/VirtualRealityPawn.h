@@ -124,14 +124,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UStaticMeshComponent* CapsuleMesh;
 private:
-	FVector closestPointOnSurface; //Punkt auf der Kollisionsflche, die dem Punkt am naechsten liegt.
-	float DistancBetwCollisionAndClossestPointOnSurface;
-	float DistBetwCameraAndGroundZ;
+	float DeltaTime = 0.0f;
 	float GravitySpeed = 0.0f;
+	float ColliderRadius = 40.0f;
+	float ColliderHalfHeight = 96.0f;
+	FVector LastCameraPosition;
+	FVector LastPawnPosition;
+
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	float NewRadius = 40.0f; FVector LastCameraPosition; FVector LastPawnPosition;
-	float ColliderHalfHight = 96.0f; float MyDeltaSeconds = 0.0f;
-	void SetCapsuleColliderCharacterSizeVR(); void PhysWolkingMode(float DeltaTime); void VRWolkingMode(float Value, FVector Direction);
-	bool IsColliderOnGround(); void VRClimbStepUp(float DeltaTime);
+	void SetCapsuleColliderCharacterSizeVR();
+	void PhysWolkingMode();
+	void VRWolkingMode(float Value, FVector Direction);
+	bool IsColliderOnGround();
+	void VRClimbStepUp(float DeltaTime);
 	void InitRoomMountedComponentReferences();
 };
