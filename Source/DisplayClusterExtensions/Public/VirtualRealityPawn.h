@@ -121,19 +121,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USphereComponent* SphereCollisionComponent = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UStaticMeshComponent* CapsuleMesh;
 private:
 	FVector closestPointOnSurface; //Punkt auf der Kollisionsflche, die dem Punkt am naechsten liegt.
 	float DistancBetwCollisionAndClossestPointOnSurface;
 	float DistBetwCameraAndGroundZ;
-	bool HasContact;
 	float GravitySpeed = 0.0f;
-	bool IsPhysMoving = false;
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	float NewRadius = 40.0f; FVector LastCameraPosition; FVector LastPawnPosition;
-	float ColliderHalfHight = 96.0f; FHitResult HitResults; FHitResult HitResultsPhysicaly; float MyDeltaSeconds = 0.0f;
-	void SetCapsuleColliderCharacterSizeVR(); void PhysMoving(float DeltaTime); bool IsColliderOnGround(); void VRClimbStepUp(float DeltaTime);
+	float ColliderHalfHight = 96.0f; float MyDeltaSeconds = 0.0f;
+	void SetCapsuleColliderCharacterSizeVR(); void PhysWolkingMode(float DeltaTime); void VRWolkingMode(float Value, FVector Direction);
+	bool IsColliderOnGround(); void VRClimbStepUp(float DeltaTime);
 	void InitRoomMountedComponentReferences();
 };
