@@ -56,8 +56,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
-	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + ColliderHalfHeight*2));
+	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
+	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + CapsuleColliderComponent->GetScaledCapsuleHalfHeight() *2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
@@ -294,7 +294,6 @@ void AVirtualRealityPawn::BeginPlay()
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	LastCameraPosition = CameraComponent->GetComponentLocation();
-	LastPawnPosition = RootComponent->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -322,7 +321,6 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	InitRoomMountedComponentReferences();
 
 	LastCameraPosition = CameraComponent->GetComponentLocation();
-	LastPawnPosition = RootComponent->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -345,23 +343,24 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 { 
 	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z -= ColliderHalfHeight - 5.0f;
+	NewLocationForCapsuleCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight() - 5.0f;
 	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
 	FRotator NewRotationForCapsuleCollider = FRotator(0, 0, 1);
 	CapsuleColliderComponent->SetWorldRotation(NewRotationForCapsuleCollider, true);
 	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
 	float ColliderHight = CharachterSize - MaxStepHeight;
-	ColliderHalfHeight = ColliderHight / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
+	float ColliderHalfHeight = ColliderHight / 2.0f;
+	CapsuleColliderComponent->SetCapsuleSize(CapsuleColliderComponent->GetScaledCapsuleRadius(), ColliderHalfHeight);
 }
 
 void AVirtualRealityPawn::PhysWolkingMode()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
-	FVector DirectionVector = CurrentCameraPosition - LastCameraPosition;
-	DirectionVector.Z = 0;
+	FVector Direction = CurrentCameraPosition - LastCameraPosition;
+	Direction.Z = 0;
 	FHitResult FHitResultPhys;
-	CapsuleColliderComponent->AddWorldOffset(DirectionVector, true, &FHitResultPhys);
+	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
+	CreateLineTrace(Direction, CapsuleColliderComponent->GetComponentLocation(), true);
 	if (FHitResultPhys.bBlockingHit) {
 		RootComponent->AddLocalOffset(-FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth, true);
 	}
@@ -388,19 +387,44 @@ bool AVirtualRealityPawn::IsColliderOnGround()
 	return false;
 }
 
-void AVirtualRealityPawn::VRClimbStepUp(float DeltaTime)
+void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 {
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
 	FHitResult LineTraceUnderCollider = CreateLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, true);
+	static float SumUpSteppingSpeed = 0.0f;
+	float DistancUnderColliderAndGround = abs(MaxStepHeight - LineTraceUnderCollider.Distance);
+	//Stepping up.
+	if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStepHeight && IsColliderOnGround())
+	{
+		SumUpSteppingSpeed += UpSteppingSpeed * DeltaSeconds;
 
-	if ((LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStepHeight) && IsColliderOnGround())
-	{
-		RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStepHeight - LineTraceUnderCollider.Distance)), true);
+		if (SumUpSteppingSpeed*DeltaSeconds < DistancUnderColliderAndGround)
+		{
+			RootComponent->AddLocalOffset(FVector(0, 0, +SumUpSteppingSpeed * DeltaSeconds), true);
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0, 0, +DistancUnderColliderAndGround), true);
+		}
 	}
-	else if ((LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance > MaxStepHeight) && IsColliderOnGround())
+	//Stepping down or Falling.
+	else if (!LineTraceUnderCollider.bBlockingHit || (LineTraceUnderCollider.Distance > MaxStepHeight && IsColliderOnGround()))
 	{
-		RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStepHeight - LineTraceUnderCollider.Distance)), true);
+		GravitySpeed -= 8000.0f*DeltaSeconds;
+		if (GravitySpeed*DeltaSeconds > -DistancUnderColliderAndGround || !LineTraceUnderCollider.bBlockingHit)
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0, 0, -DistancUnderColliderAndGround), true);
+		}
+	}
+	else
+	{
+		GravitySpeed = 0.0f;
+		SumUpSteppingSpeed = 0.0f;
 	}
 }
 

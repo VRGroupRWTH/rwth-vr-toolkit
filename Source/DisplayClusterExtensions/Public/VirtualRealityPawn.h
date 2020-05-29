@@ -126,16 +126,14 @@ protected:
 private:
 	float DeltaTime = 0.0f;
 	float GravitySpeed = 0.0f;
-	float ColliderRadius = 40.0f;
-	float ColliderHalfHeight = 96.0f;
+	UPROPERTY() float UpSteppingSpeed = 8000.0f;
 	FVector LastCameraPosition;
-	FVector LastPawnPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	void SetCapsuleColliderCharacterSizeVR();
 	void PhysWolkingMode();
 	void VRWolkingMode(float Value, FVector Direction);
+	void VRClimbStepUp(float DeltaSeconds);
 	bool IsColliderOnGround();
-	void VRClimbStepUp(float DeltaTime);
 	void InitRoomMountedComponentReferences();
 };
