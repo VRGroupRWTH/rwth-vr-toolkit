@@ -360,7 +360,6 @@ void AVirtualRealityPawn::PhysWolkingMode()
 	Direction.Z = 0;
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
-	CreateLineTrace(Direction, CapsuleColliderComponent->GetComponentLocation(), true);
 	if (FHitResultPhys.bBlockingHit) {
 		RootComponent->AddLocalOffset(-FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth, true);
 	}
@@ -411,7 +410,7 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 	//Stepping down or Falling.
 	else if (!LineTraceUnderCollider.bBlockingHit || (LineTraceUnderCollider.Distance > MaxStepHeight && IsColliderOnGround()))
 	{
-		GravitySpeed -= 8000.0f*DeltaSeconds;
+		GravitySpeed -= 1000.0f*DeltaSeconds;
 		if (GravitySpeed*DeltaSeconds > -DistancUnderColliderAndGround || !LineTraceUnderCollider.bBlockingHit)
 		{
 			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
