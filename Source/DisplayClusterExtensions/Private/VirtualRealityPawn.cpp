@@ -56,8 +56,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
-	CapsuleColliderComponent->AddWorldOffset(FVector(0,0, RootComponent->GetComponentLocation().Z + CapsuleColliderComponent->GetScaledCapsuleHalfHeight() *2));
 	// das hier ist nur da damit man sieht wo die Kapsel ist!
 	CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
@@ -223,8 +223,13 @@ void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AAc
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay(){            "));
+	
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
 
-
+	UE_LOG(LogTemp, Warning, TEXT("}			            "));
 	// Display cluster settings apply to all setups (PC, HMD, CAVE/ROLV) despite the unfortunate name due to being an UE4 internal.
 	TArray<AActor*> SettingsActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADisplayClusterSettings::StaticClass(), SettingsActors);
@@ -311,11 +316,21 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	DeltaTime = DeltaSeconds;
+	//UE_LOG(LogTemp, Warning, TEXT("Tick(float DeltaSeconds){            "));
+	//
+	//UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
+	//
+	//UE_LOG(LogTemp, Warning, TEXT("}			            "));
+
 	SetCapsuleColliderCharacterSizeVR();
+	if (IsColliderOnGround()) {
+		VRClimbStepUp(DeltaSeconds);
+		PhysWolkingMode();
+	}
 
-	PhysWolkingMode();
-
-	VRClimbStepUp(DeltaSeconds);
+	
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
@@ -341,29 +356,74 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 }
 
 void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
-{ 
-	FVector NewLocationForCapsuleCollider = GetCameraComponent()->GetComponentLocation();
-	NewLocationForCapsuleCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight() - 5.0f;
-	CapsuleColliderComponent->SetWorldLocation(NewLocationForCapsuleCollider, true);
-	FRotator NewRotationForCapsuleCollider = FRotator(0, 0, 1);
-	CapsuleColliderComponent->SetWorldRotation(NewRotationForCapsuleCollider, true);
-	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - GetCameraComponent()->GetComponentLocation().Z) + 10.0f;
-	float ColliderHight = CharachterSize - MaxStepHeight;
-	float ColliderHalfHeight = ColliderHight / 2.0f;
-	CapsuleColliderComponent->SetCapsuleSize(CapsuleColliderComponent->GetScaledCapsuleRadius(), ColliderHalfHeight);
+{
+	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
+	UE_LOG(LogTemp, Warning, TEXT("SetCapsuleColliderCharacterSizeVR(){"));
+	UE_LOG(LogTemp, Warning, TEXT("Befor Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("CharachterSize > MaxStepHeight, because CharachterSize =   %f"), CharachterSize);
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
+	if (CharachterSize > MaxStepHeight)
+	{
+		float ColliderHeight = CharachterSize - MaxStepHeight;
+		float ColliderHalfHeight = ColliderHeight / 2.0f;
+		UE_LOG(LogTemp, Warning, TEXT("ColliderHalfHeight is:                        %f"), ColliderHalfHeight);
+		UE_LOG(LogTemp, Warning, TEXT("CapsuleHalfHeight				   is:       %f"), CapsuleColliderComponent->GetScaledCapsuleHalfHeight());
+		UE_LOG(LogTemp, Warning, TEXT("CapsuleHalfHeight_WithoutHemisphere is:       %f"), CapsuleColliderComponent->GetScaledCapsuleHalfHeight_WithoutHemisphere());
+		if (ColliderHalfHeight < 40.0f) {
+			CapsuleColliderComponent->SetCapsuleSize(ColliderHalfHeight, ColliderHalfHeight);
+		}
+		else {
+			CapsuleColliderComponent->SetCapsuleSize(40.0f, ColliderHalfHeight);
+		}
+	
+		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		CapsuleColliderComponent->AddWorldOffset(FVector(0,0,-ColliderHalfHeight));
+		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CharachterSize <= MaxStepHeight, because CharachterSize =  %f"), CharachterSize);
+		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
+	}
+	UE_LOG(LogTemp, Warning, TEXT("After Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("}"));
 }
 
 void AVirtualRealityPawn::PhysWolkingMode()
 {
+	UE_LOG(LogTemp, Warning, TEXT("PhysWolkingMode(){"));
+	UE_LOG(LogTemp, Warning, TEXT("Befor Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
-	Direction.Z = 0;
+	Direction.Z = 0.0f;
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
-	CreateLineTrace(Direction, CapsuleColliderComponent->GetComponentLocation(), true);
-	if (FHitResultPhys.bBlockingHit) {
-		RootComponent->AddLocalOffset(-FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth, true);
+	UE_LOG(LogTemp, Warning, TEXT("Something is Vor IF: %s"), *FHitResultPhys.ToString());
+	FVector A = CameraComponent->GetComponentLocation() - CapsuleColliderComponent->GetComponentLocation();
+	FVector B = A.GetAbs();
+	A.Z = 0.0f;
+	
+	if (FHitResultPhys.bBlockingHit ) {
+		RootComponent->AddLocalOffset(FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth);
+		UE_LOG(LogTemp, Warning, TEXT("Something is Nach IF: %s"), *FHitResultPhys.ToString());
 	}
+	FVector Verschiebung = -Direction.GetSafeNormal()*A;
+	RootComponent->AddLocalOffset(Verschiebung);
+
+	UE_LOG(LogTemp, Warning, TEXT("After Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("}"));
 }
 
 void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
@@ -371,7 +431,7 @@ void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
 	FVector End = (Direction * GetFloatingPawnMovement()->GetMaxSpeed());
 	FHitResult FHitResultVR;
 	CapsuleColliderComponent->AddWorldOffset(End* DeltaTime*Value, true, &FHitResultVR);
-	
+
 	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
 	{
 		AddMovementInput(Direction, Value);
@@ -380,7 +440,8 @@ void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
 
 bool AVirtualRealityPawn::IsColliderOnGround()
 {
-	if (FVector::Distance(RootComponent->GetComponentLocation(), CapsuleColliderComponent->GetComponentLocation()) >CapsuleColliderComponent->GetScaledCapsuleHalfHeight())
+	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
+	if (CharachterSize > MaxStepHeight)
 	{
 		return true;
 	}
@@ -392,40 +453,33 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
 	FHitResult LineTraceUnderCollider = CreateLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, true);
-	static float SumUpSteppingSpeed = 0.0f;
-	float DistancUnderColliderAndGround = abs(MaxStepHeight - LineTraceUnderCollider.Distance);
-	//Stepping up.
-	if (LineTraceUnderCollider.bBlockingHit && LineTraceUnderCollider.Distance < MaxStepHeight && IsColliderOnGround())
-	{
-		SumUpSteppingSpeed += UpSteppingSpeed * DeltaSeconds;
+	UE_LOG(LogTemp, Warning, TEXT("VRClimbStepUp(float DeltaSeconds){"));
+	UE_LOG(LogTemp, Warning, TEXT("ScaledCapsuleHalfHeight:                %f"), CapsuleColliderComponent->GetScaledCapsuleHalfHeight());
+	UE_LOG(LogTemp, Warning, TEXT("StartLineTraceUnderCollider:            %s"), *StartLineTraceUnderCollider.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Befor Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
 
-		if (SumUpSteppingSpeed*DeltaSeconds < DistancUnderColliderAndGround)
+	UE_LOG(LogTemp, Warning, TEXT("FVector::Distance(LineTraceUnderCollider.Location.Z, StartLineTraceUnderCollider.Z): %f"), abs(LineTraceUnderCollider.Location.Z - StartLineTraceUnderCollider.Z));
+	UE_LOG(LogTemp, Warning, TEXT("LineTraceUnderCollider.Distance: %f"), LineTraceUnderCollider.Distance);
+	UE_LOG(LogTemp, Warning, TEXT("Something is: %s"), *LineTraceUnderCollider.ToString());
+	float DistanceUnderCollider = abs(LineTraceUnderCollider.Location.Z - StartLineTraceUnderCollider.Z);
+	if (LineTraceUnderCollider.bBlockingHit && DistanceUnderCollider != 0.0f) {
+		if ((DistanceUnderCollider < MaxStepHeight))
 		{
-			RootComponent->AddLocalOffset(FVector(0, 0, +SumUpSteppingSpeed * DeltaSeconds), true);
+			RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStepHeight - DistanceUnderCollider)));
 		}
-		else
+		else if ((DistanceUnderCollider > MaxStepHeight))
 		{
-			RootComponent->AddLocalOffset(FVector(0, 0, +DistancUnderColliderAndGround), true);
-		}
-	}
-	//Stepping down or Falling.
-	else if (!LineTraceUnderCollider.bBlockingHit || (LineTraceUnderCollider.Distance > MaxStepHeight && IsColliderOnGround()))
-	{
-		GravitySpeed -= 8000.0f*DeltaSeconds;
-		if (GravitySpeed*DeltaSeconds > -DistancUnderColliderAndGround || !LineTraceUnderCollider.bBlockingHit)
-		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds), true);
-		}
-		else
-		{
-			RootComponent->AddLocalOffset(FVector(0, 0, -DistancUnderColliderAndGround), true);
+			RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStepHeight - DistanceUnderCollider)));
 		}
 	}
-	else
-	{
-		GravitySpeed = 0.0f;
-		SumUpSteppingSpeed = 0.0f;
-	}
+	UE_LOG(LogTemp, Warning, TEXT("After Changed:"));
+	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CameraComponent is:          %s"), *CameraComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("CapsuleColliderComponent is: %s"), *CapsuleColliderComponent->GetComponentLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("}"));
 }
 
 void AVirtualRealityPawn::InitRoomMountedComponentReferences()
@@ -466,20 +520,20 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 
 FHitResult AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
 {
-		FHitResult OutHit;
+	FHitResult OutHit;
 
-		FVector End = ((Direction * 1000.f) + Start);
-		FCollisionQueryParams CollisionParams;
+	FVector End = ((Direction * 1000.f) + Start);
+	FCollisionQueryParams CollisionParams;
 
-		if (Visibility)
-			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+	if (Visibility)
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	{
+		if (OutHit.bBlockingHit)
 		{
-			if (OutHit.bBlockingHit)
-			{
-			}
 		}
+	}
 	return OutHit;
 }
 
