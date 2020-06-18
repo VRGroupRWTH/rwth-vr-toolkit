@@ -408,16 +408,12 @@ void AVirtualRealityPawn::PhysWolkingMode()
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
 	UE_LOG(LogTemp, Warning, TEXT("Something is Vor IF: %s"), *FHitResultPhys.ToString());
-	FVector A = CameraComponent->GetComponentLocation() - CapsuleColliderComponent->GetComponentLocation();
-	FVector B = A.GetAbs();
-	A.Z = 0.0f;
-	
+
 	if (FHitResultPhys.bBlockingHit ) {
 		RootComponent->AddLocalOffset(FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth);
 		UE_LOG(LogTemp, Warning, TEXT("Something is Nach IF: %s"), *FHitResultPhys.ToString());
 	}
-	FVector Verschiebung = -Direction.GetSafeNormal()*A;
-	RootComponent->AddLocalOffset(Verschiebung);
+
 
 	UE_LOG(LogTemp, Warning, TEXT("After Changed:"));
 	UE_LOG(LogTemp, Warning, TEXT("RootComponent is:            %s"), *RootComponent->GetComponentLocation().ToString());
