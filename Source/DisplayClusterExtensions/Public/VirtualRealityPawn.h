@@ -126,7 +126,7 @@ protected:
 private:
 	float DeltaTime = 0.0f;
 	float GravitySpeed = 0.0f;
-	UPROPERTY() float UpSteppingSpeed = 8000.0f;
+	UPROPERTY() float UpSteppingSpeed = 100.0f;
 	FVector LastCameraPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
