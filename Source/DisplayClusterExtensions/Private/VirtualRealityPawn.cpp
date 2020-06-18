@@ -12,6 +12,10 @@
 #include "IDisplayCluster.h"
 #include "VirtualRealityUtilities.h"
 
+#include "GrabbingBehaviorComponent.h"
+#include "Grabable.h"
+#include "Clickable.h"
+
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bUseControllerRotationYaw = true;
@@ -47,6 +51,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetTrackingSource(EControllerHand::Right);
 	HmdRightMotionController->SetShowDeviceModel(true);
 	HmdRightMotionController->SetVisibility(false);
+	
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -273,6 +278,22 @@ void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+		
+	// if an actor is grabbed and a behavior is defined move move him accordingly  
+	if (GrabbedActor != nullptr)
+	{
+		UGrabbingBehaviorComponent* Behavior = GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>();
+
+		// if our Grabable Actor is not constrained
+		if (Behavior != nullptr)
+		{	
+			// specifies the hand in space
+			FVector HandPos = this->RightHand->GetComponentLocation();	
+			FQuat HandQuat = this->RightHand->GetComponentQuat();
+
+			Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
+		}
+	}
 
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
@@ -287,8 +308,98 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
 		PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
 		PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
+
+		// function bindings for grabbing and releasing
+		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnBeginFire);
+		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
 	}
 }
+
+void AVirtualRealityPawn::OnBeginFire_Implementation()
+{
+	// start and end point for raytracing
+	FTwoVectors StartEnd = GetHandRay(MaxClickDistance);	
+	FVector Start = StartEnd.v1;
+	FVector End   = StartEnd.v2;	
+
+	// will be filled by the Line Trace Function
+	FHitResult Hit;
+	AActor* HitActor;
+
+	//if hit was not found return  
+	FCollisionObjectQueryParams Params;
+	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params))
+		return;
+
+//	UE_LOG(LogTemp, Warning, GetDisplayName(Hit.GetActor()));
+	HitActor = Hit.GetActor();
+	
+	// try to cast HitActor int a Grabable if not succeeded will become a nullptr
+	IGrabable*  GrabableActor  = Cast<IGrabable>(HitActor);
+	IClickable* ClickableActor = Cast<IClickable>(HitActor);
+
+	if (GrabableActor != nullptr && Hit.Distance < MaxGrabDistance)
+	{
+		// call grabable actors function so he reacts to our grab
+		GrabableActor->OnGrabbed_Implementation();
+		
+
+		UGrabbingBehaviorComponent* Behavior = HitActor->FindComponentByClass<UGrabbingBehaviorComponent>();
+		if ( Behavior == nullptr)
+			HandlePhysicsAndAttachActor(HitActor);
+
+		// we save the grabbedActor in a general form to access all of AActors functions easily later
+		GrabbedActor = HitActor;
+	}
+	else if (ClickableActor != nullptr && Hit.Distance < MaxClickDistance)
+	{
+		ClickableActor->OnClicked_Implementation();
+	}
+}
+
+void AVirtualRealityPawn::HandlePhysicsAndAttachActor(AActor* HitActor)
+{
+	UPrimitiveComponent* PhysicsComp = HitActor->FindComponentByClass<UPrimitiveComponent>();	
+	
+	bDidSimulatePhysics = PhysicsComp->IsSimulatingPhysics(); // remember if we need to tun physics back on or not	
+	PhysicsComp->SetSimulatePhysics(false);
+	FAttachmentTransformRules Rules = FAttachmentTransformRules::KeepWorldTransform;
+	Rules.bWeldSimulatedBodies = true;
+	HitActor->AttachToComponent(this->RightHand, Rules);
+}
+
+void AVirtualRealityPawn::OnEndFire_Implementation() {
+
+	// if we didnt grab anyone there is no need to release
+	if (GrabbedActor == nullptr)
+		return;
+
+	// let the grabbed object reacot to release
+	Cast<IGrabable>(GrabbedActor)->OnReleased_Implementation();
+
+	// Detach the Actor
+
+	UPrimitiveComponent* PhysicsComp = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
+	UGrabbingBehaviorComponent* Behavior = GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>();
+	if (Behavior == nullptr)
+	{
+		GrabbedActor->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		PhysicsComp->SetSimulatePhysics(bDidSimulatePhysics);
+	}
+
+	// forget about the actor
+	GrabbedActor = nullptr;
+}
+
+FTwoVectors AVirtualRealityPawn::GetHandRay(float Length)
+{
+	FVector Start = this->RightHand->GetComponentLocation();
+	FVector Direction = this->RightHand->GetForwardVector();
+	FVector End = Start + Length * Direction;
+
+	return FTwoVectors(Start, End);
+}
+
 
 UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 {

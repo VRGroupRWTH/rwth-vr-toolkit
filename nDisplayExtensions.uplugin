@@ -19,7 +19,15 @@
       "Name": "DisplayClusterExtensions",
       "Type": "Developer",
       "LoadingPhase": "Default"
-    }
+    },
+	
+	{	
+	  "Name": "DisplayClusterExtensionsEditor",
+	  "Type": "Editor",
+	  "LoadingPhase": "PostEngineInit"
+	}
+
+
   ],
   "Plugins": [
     {
