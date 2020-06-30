@@ -130,6 +130,7 @@ private:
 	FVector LastCameraPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
+	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float distance, bool Visibility);
 	void SetCapsuleColliderCharacterSizeVR();
 	void PhysWolkingMode();
 	void VRWolkingMode(float Value, FVector Direction);
