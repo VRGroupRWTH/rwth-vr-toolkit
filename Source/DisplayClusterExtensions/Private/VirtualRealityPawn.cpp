@@ -196,7 +196,7 @@ void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, A
 	//{
 	//	HasContact = true;
 	//	DistancBetwCollisionAndClossestPointOnSurface = OtherComp->GetDistanceToCollision(SphereCollisionComponent->GetComponentLocation(), closestPointOnSurface);//Gibt die Entfernung zur nchstgelegenen Krperinstanzoberflche zurck.
-	//}
+
 }
 
 void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -204,7 +204,7 @@ void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AAc
 	//if (OtherActor && (OtherActor != this) && OtherComp)
 	//{
 	//	HasContact = false;
-	//}
+
 }
 
 void AVirtualRealityPawn::BeginPlay()
