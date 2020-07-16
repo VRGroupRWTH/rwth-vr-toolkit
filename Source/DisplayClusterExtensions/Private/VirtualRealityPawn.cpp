@@ -195,7 +195,6 @@ void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, A
 	//if (OtherActor && (OtherActor != this) && OtherComp)
 	//{
 	//	HasContact = true;
-	//	DistancBetwCollisionAndClossestPointOnSurface = OtherComp->GetDistanceToCollision(SphereCollisionComponent->GetComponentLocation(), closestPointOnSurface);//Gibt die Entfernung zur nchstgelegenen Krperinstanzoberflche zurck.
 
 }
 
