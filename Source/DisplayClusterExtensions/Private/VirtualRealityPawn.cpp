@@ -58,7 +58,8 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
-	// das hier ist nur da damit man sieht wo die Kapsel ist!
+	//das hier ist nur da damit man sieht wo die Kapsel ist!
+	//Diese Zeilen einzukommentieren, kann zu Problemen fuehren.
 	//CapsuleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	//CapsuleMesh->SetupAttachment(CapsuleColliderComponent);
 	//static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
@@ -417,8 +418,7 @@ void AVirtualRealityPawn::PhysWolkingMode()
 
 void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
 {
-	if (Direction.Z < 0.0f && Value > 0.0f || Direction.Z > 0.0f && Value < 0.0f)
-		Direction.Z = 0.0f;//Not falling
+	Direction.Z = 0.0f;//Not falling
 	FVector End = (Direction * GetFloatingPawnMovement()->GetMaxSpeed());
 	FHitResult FHitResultVR;
 	CapsuleColliderComponent->AddWorldOffset(End* DeltaTime*Value, true, &FHitResultVR);
