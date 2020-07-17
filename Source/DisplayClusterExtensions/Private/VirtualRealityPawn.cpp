@@ -308,10 +308,12 @@ void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 	{
 		float ColliderHeight = CharachterSize - MaxStepHeight;
 		float ColliderHalfHeight = ColliderHeight / 2.0f;
-		if (ColliderHalfHeight < 40.0f) {
+		if (ColliderHalfHeight < 40.0f)
+		{//Collider is an Sphere
 			CapsuleColliderComponent->SetCapsuleSize(ColliderHalfHeight, ColliderHalfHeight);
 		}
-		else {
+		else
+		{
 			CapsuleColliderComponent->SetCapsuleSize(40.0f, ColliderHalfHeight);
 		}
 
@@ -334,7 +336,8 @@ void AVirtualRealityPawn::PhysWolkingMode()
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
 
-	if (FHitResultPhys.bBlockingHit) {
+	if (FHitResultPhys.bBlockingHit)
+	{
 		RootComponent->AddLocalOffset(FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth);
 	}
 }
@@ -370,7 +373,7 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 2.0f, false);
 	float DiffernceDistance = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
 	static float SumUpSteppingSpeed = 0.0f;
-
+	//Going up
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
 	{
 		SumUpSteppingSpeed += UpSteppingSpeed * DeltaSeconds;
@@ -383,6 +386,7 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance));
 		}
 	}
+	//Falling, Gravity, Going down
 	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)
 	{
 		GravitySpeed -= 1000.0f*DeltaSeconds;
@@ -395,6 +399,7 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance));
 		}
 	}
+	//Going on the ground
 	else
 	{
 		GravitySpeed = 0.0f;
@@ -464,7 +469,7 @@ FHitResult AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector
 FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FVector Start, float distance, bool Visibility)
 {
 	FHitResult HitDetailsMultiLineTrace;
-	HitDetailsMultiLineTrace.Distance = -1.0f;//-1 not exist, but to know if this Objekt not Initialized(when all Traces not compatible)
+	HitDetailsMultiLineTrace.Distance = -1.0f;//(Distance=-1) not existing, but to know if this Objekt not Initialized(when all Traces not compatible)
 
 	FHitResult HitDetailsFromLineTraceCenter = CreateLineTrace(Direction, Start, Visibility);
 	FHitResult HitDetailsFromLineTraceLeft = CreateLineTrace(Direction, Start + FVector(0, -distance, 0), Visibility);

@@ -116,7 +116,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
-	UStaticMeshComponent* CapsuleMesh;
 private:
 	float DeltaTime = 0.0f;
 	float GravitySpeed = 0.0f;
