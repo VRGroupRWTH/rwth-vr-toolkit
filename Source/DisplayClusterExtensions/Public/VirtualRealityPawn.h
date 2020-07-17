@@ -68,15 +68,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.f;
 	//Execute specified console command on all nDisplayCluster Nodes
 	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
-	UFUNCTION() void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
 	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
-
-	// declare overlap begin function
-	UFUNCTION(Category = "Pawn")  void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	// declare overlap end function
-	UFUNCTION(Category = "Pawn")  void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 protected:
 	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
 	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
@@ -126,7 +120,7 @@ protected:
 private:
 	float DeltaTime = 0.0f;
 	float GravitySpeed = 0.0f;
-	UPROPERTY() float UpSteppingSpeed = 100.0f;
+	UPROPERTY() float UpSteppingSpeed = 110.0f;
 	FVector LastCameraPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);

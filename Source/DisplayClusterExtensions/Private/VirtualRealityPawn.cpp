@@ -52,7 +52,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetVisibility(false);
 
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
-	CapsuleColliderComponent->OnComponentHit.AddDynamic(this, &AVirtualRealityPawn::OnHit);
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
@@ -173,35 +172,12 @@ void AVirtualRealityPawn::ClusterExecute(const FString& Command)
 	IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
 }
 
-void AVirtualRealityPawn::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit)
-{
-	// Other Actor is the actor that triggered the event. Check that is not ourself. 
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComponent != nullptr))
-	{
-	
-	}
-}
-
 void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
 {
 	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
 	{
 		GEngine->Exec(GetWorld(), *Event.Parameters["Command"]);
 	}
-}
-
-void AVirtualRealityPawn::OnOverlapBegin(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	//if (OtherActor && (OtherActor != this) && OtherComp)
-
-}
-
-void AVirtualRealityPawn::OnOverlapEnd(UPrimitiveComponent * OverlappedComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-	//if (OtherActor && (OtherActor != this) && OtherComp)
-	//{
-	//	HasContact = false;
-
 }
 
 void AVirtualRealityPawn::BeginPlay()
@@ -301,8 +277,6 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 		PhysWolkingMode();
 	}
 
-
-
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 
@@ -393,15 +367,38 @@ void AVirtualRealityPawn::VRClimbStepUp(float DeltaSeconds)
 {
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
-	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 2.0f, true);
+	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 2.0f, false);
+	float DiffernceDistance = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
+	static float SumUpSteppingSpeed = 0.0f;
 
-	if (HitDetailsMultiLineTrace.bBlockingHit && (HitDetailsMultiLineTrace.Distance < MaxStepHeight) && HitDetailsMultiLineTrace.Actor != RootComponent->GetAttachmentRootActor() && HitDetailsMultiLineTrace.Location != HitDetailsMultiLineTrace.TraceStart)
+	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
 	{
-		RootComponent->AddLocalOffset(FVector(0, 0, +abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance)));
+		SumUpSteppingSpeed += UpSteppingSpeed * DeltaSeconds;
+		if (SumUpSteppingSpeed*DeltaSeconds < DiffernceDistance)
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +SumUpSteppingSpeed * DeltaSeconds));
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance));
+		}
 	}
-	else if ((HitDetailsMultiLineTrace.Distance > MaxStepHeight))
+	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)
 	{
-		RootComponent->AddLocalOffset(FVector(0, 0, -abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance)));
+		GravitySpeed -= 1000.0f*DeltaSeconds;
+		if (GravitySpeed*DeltaSeconds > -DiffernceDistance)
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds));
+		}
+		else
+		{
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance));
+		}
+	}
+	else
+	{
+		GravitySpeed = 0.0f;
+		SumUpSteppingSpeed = 0.0f;
 	}
 }
 
@@ -464,22 +461,25 @@ FHitResult AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector
 	return HitDetails;
 }
 
-FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FVector Start, float distance, bool Visibility) {
+FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FVector Start, float distance, bool Visibility)
+{
 	FHitResult HitDetailsMultiLineTrace;
+	HitDetailsMultiLineTrace.Distance = -1.0f;//-1 not exist, but to know if this Objekt not Initialized(when all Traces not compatible)
 
 	FHitResult HitDetailsFromLineTraceCenter = CreateLineTrace(Direction, Start, Visibility);
 	FHitResult HitDetailsFromLineTraceLeft = CreateLineTrace(Direction, Start + FVector(0, -distance, 0), Visibility);
 	FHitResult HitDetailsFromLineTraceRight = CreateLineTrace(Direction, Start + FVector(0, distance, 0), Visibility);
 	FHitResult HitDetailsFromLineTraceFront = CreateLineTrace(Direction, Start + FVector(distance, 0, 0), Visibility);
 	FHitResult HitDetailsFromLineTraceBehind = CreateLineTrace(Direction, Start + FVector(-distance, 0, 0), Visibility);
-	bool bBlockingHitAndSameActor = (HitDetailsFromLineTraceCenter.bBlockingHit && HitDetailsFromLineTraceLeft.bBlockingHit
-		&& HitDetailsFromLineTraceRight.bBlockingHit && HitDetailsFromLineTraceFront.bBlockingHit
-		&& HitDetailsFromLineTraceBehind.bBlockingHit)
-		&& (HitDetailsFromLineTraceCenter.Actor == HitDetailsFromLineTraceLeft.Actor
-		&& HitDetailsFromLineTraceLeft.Actor == HitDetailsFromLineTraceRight.Actor
-		&& HitDetailsFromLineTraceRight.Actor == HitDetailsFromLineTraceFront.Actor
-		&& HitDetailsFromLineTraceFront.Actor == HitDetailsFromLineTraceBehind.Actor);
-	if (bBlockingHitAndSameActor)
+
+	bool BlockingHitAndSameActor = (HitDetailsFromLineTraceCenter.bBlockingHit)
+		&& (HitDetailsFromLineTraceCenter.Actor == HitDetailsFromLineTraceLeft.Actor&& HitDetailsFromLineTraceLeft.Actor == HitDetailsFromLineTraceRight.Actor
+			&& HitDetailsFromLineTraceRight.Actor == HitDetailsFromLineTraceFront.Actor&& HitDetailsFromLineTraceFront.Actor == HitDetailsFromLineTraceBehind.Actor);
+	//If you are falling
+	bool AllNothingHiting = HitDetailsFromLineTraceCenter.Actor == nullptr && HitDetailsFromLineTraceLeft.Actor == nullptr
+		&& HitDetailsFromLineTraceRight.Actor == nullptr && HitDetailsFromLineTraceFront.Actor == nullptr;
+
+	if (BlockingHitAndSameActor || AllNothingHiting)
 		HitDetailsMultiLineTrace = HitDetailsFromLineTraceCenter;
 
 	return HitDetailsMultiLineTrace;
