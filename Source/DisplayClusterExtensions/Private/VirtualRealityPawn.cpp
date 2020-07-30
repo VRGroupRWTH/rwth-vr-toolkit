@@ -68,13 +68,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	VRWolkingMode(Value, RightHand->GetForwardVector());
+	VRWalkingMode(Value, RightHand->GetForwardVector());
 
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	VRWolkingMode(Value, RightHand->GetRightVector());
+	VRWalkingMode(Value, RightHand->GetRightVector());
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -281,7 +281,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	SetCapsuleColliderCharacterSizeVR();
 	if (IsColliderOnGround()) {
 		VRClimbStepUp(DeltaSeconds);
-		PhysWolkingMode();
+		PhysWalkingMode();
 	}
 	// if an actor is grabbed and a behavior is defined move move him accordingly  
 	if (GrabbedActor != nullptr)
@@ -440,7 +440,7 @@ void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 	}
 }
 
-void AVirtualRealityPawn::PhysWolkingMode()
+void AVirtualRealityPawn::PhysWalkingMode()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
@@ -454,7 +454,7 @@ void AVirtualRealityPawn::PhysWolkingMode()
 	}
 }
 
-void AVirtualRealityPawn::VRWolkingMode(float Value, FVector Direction)
+void AVirtualRealityPawn::VRWalkingMode(float Value, FVector Direction)
 {
 	Direction.Z = 0.0f;//Not falling/flying
 	FVector End = (Direction * GetFloatingPawnMovement()->GetMaxSpeed());
