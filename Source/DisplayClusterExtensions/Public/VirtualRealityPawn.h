@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnRight(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnTurnRate(float Rate);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnLookUpRate(float Rate);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnBeginFire(); 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn") void OnEndFire();   	
 
 	UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
 	UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
@@ -57,10 +59,14 @@ public:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetRightHandComponent();
 
+
 	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
+
 private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
+	UFUNCTION(Category = "Pawn") FTwoVectors GetHandRay(float Distance);   
+	UFUNCTION(Category = "Pawn") void HandlePhysicsAndAttachActor(AActor* HitActor);   
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
@@ -110,6 +116,13 @@ protected:
 	UPROPERTY() USceneComponent* CaveCenter = nullptr;
 	// Holding the Shutter Glasses Component that is attached to this Pawn
 	UPROPERTY() USceneComponent* ShutterGlasses = nullptr;
+
+	// Holding a reference to the actor that is currently being grabbed
+	UPROPERTY() AActor* GrabbedActor; 
+	// indicates if the grabbed actor was simulating physics before we grabbed it
+	UPROPERTY() bool bDidSimulatePhysics;
+	UPROPERTY(EditAnywhere) float MaxGrabDistance = 50;
+	UPROPERTY(EditAnywhere) float MaxClickDistance = 500;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") bool ShowHMDControllers = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
