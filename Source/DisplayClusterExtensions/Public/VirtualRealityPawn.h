@@ -6,7 +6,6 @@
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
@@ -78,8 +77,6 @@ private:
 	FOnClusterEventListener ClusterEventListenerDelegate;
 	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
 protected:
-	DECLARE_DELEGATE_OneParam(FFireDelegate, bool);
-	DECLARE_DELEGATE_TwoParams(FActionDelegate, bool, int32);
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -131,16 +128,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 private:
 	float DeltaTime = 0.0f;
-	float GravitySpeed = 0.0f;
+	UPROPERTY() float GravityAcceleration = 0.0f;
 	UPROPERTY() float UpSteppingSpeed = 110.0f;
 	FVector LastCameraPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float distance, bool Visibility);
+	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
 	void SetCapsuleColliderCharacterSizeVR();
-	void PhysWalkingMode();
+	void CheckForPhysWalkingCollision();
 	void VRWalkingMode(float Value, FVector Direction);
-	void VRClimbStepUp(float DeltaSeconds);
+	void MoveByGravityOrStepUp(float DeltaSeconds);
 	bool IsColliderOnGround();
 	void InitRoomMountedComponentReferences();
 };
