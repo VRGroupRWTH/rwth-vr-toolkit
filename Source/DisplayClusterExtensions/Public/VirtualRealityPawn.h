@@ -70,7 +70,7 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.0f;
 	//Execute specified console command on all nDisplayCluster Nodes
 	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 private:

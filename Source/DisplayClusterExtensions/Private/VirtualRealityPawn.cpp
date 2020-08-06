@@ -11,7 +11,6 @@
 #include "DisplayClusterSettings.h"
 #include "IDisplayCluster.h"
 #include "Engine/Engine.h"
-#include "Camera/CameraComponent.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Math/Vector.h"
@@ -68,13 +67,18 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	HandleMovementInput(Value, RightHand->GetForwardVector());
-
+	if (RightHand)
+	{
+		HandleMovementInput(Value, RightHand->GetForwardVector());
+	}
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	HandleMovementInput(Value, RightHand->GetRightVector());
+	if (RightHand)
+	{
+		HandleMovementInput(Value, RightHand->GetRightVector());
+	}
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -456,15 +460,13 @@ void AVirtualRealityPawn::CheckForPhysWalkingCollision()
 
 void AVirtualRealityPawn::HandleMovementInput(float Value, FVector Direction)
 {
-	if (RightHand) {
-		if (NavigationMode == EVRNavigationModes::nav_mode_walk)
-		{
-			VRWalkingMode(Value, Direction);
-		}
-		else if (NavigationMode == EVRNavigationModes::nav_mode_fly)
-		{
-			VRFlyingMode(Value, Direction);
-		}
+	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
+	{
+		VRWalkingMode(Value, Direction);
+	}
+	else if (NavigationMode == EVRNavigationModes::nav_mode_fly)
+	{
+		VRFlyingMode(Value, Direction);
 	}
 }
 
