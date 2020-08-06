@@ -278,12 +278,15 @@ void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	DeltaTime = DeltaSeconds;
+	//if the walking-mode is activated
+	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
+	{
+		DeltaTime = DeltaSeconds;
+		SetCapsuleColliderCharacterSizeVR();
+		MoveByGravityOrStepUp(DeltaSeconds);
+		CheckForPhysWalkingCollision();
+	}
 
-	SetCapsuleColliderCharacterSizeVR();
-	MoveByGravityOrStepUp(DeltaSeconds);
-	CheckForPhysWalkingCollision();
-	
 	// if an actor is grabbed and a behavior is defined move move him accordingly  
 	if (GrabbedActor != nullptr)
 	{
