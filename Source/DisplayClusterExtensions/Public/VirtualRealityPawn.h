@@ -128,8 +128,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 private:
 	float DeltaTime = 0.0f;
-	UPROPERTY() float GravityAcceleration = 0.0f;
-	UPROPERTY() float UpSteppingSpeed = 110.0f;
+	UPROPERTY() float GravityAcceleration = 981.0f;
+	float GravitySpeed = 0.0f;
+	UPROPERTY() float UpSteppingAcceleration = 110.0f;
+	float UpSteppingSpeed = 0.0f;
 	FVector LastCameraPosition;
 
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
@@ -138,6 +140,5 @@ private:
 	void CheckForPhysWalkingCollision();
 	void VRWalkingMode(float Value, FVector Direction);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
-	bool IsColliderOnGround();
 	void InitRoomMountedComponentReferences();
 };
