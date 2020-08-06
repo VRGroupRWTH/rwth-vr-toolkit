@@ -1,7 +1,6 @@
 ﻿#include "VirtualRealityPawn.h"
 
 #include "Camera/CameraComponent.h"
-#include "Cluster/IDisplayClusterClusterManager.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Game/IDisplayClusterGameManager.h"
@@ -10,7 +9,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "DisplayClusterSettings.h"
 #include "IDisplayCluster.h"
-#include "Engine/Engine.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Math/Vector.h"
