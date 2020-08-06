@@ -138,7 +138,9 @@ private:
 	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
 	void SetCapsuleColliderCharacterSizeVR();
 	void CheckForPhysWalkingCollision();
+	void HandleMovementInput(float Value, FVector Direction);
 	void VRWalkingMode(float Value, FVector Direction);
+	void VRFlyingMode(float Value, FVector Direction);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
 	void InitRoomMountedComponentReferences();
 };

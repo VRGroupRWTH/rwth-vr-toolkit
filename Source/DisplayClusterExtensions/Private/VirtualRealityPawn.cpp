@@ -68,13 +68,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	VRWalkingMode(Value, RightHand->GetForwardVector());
+	HandleMovementInput(Value, RightHand->GetForwardVector());
 
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	VRWalkingMode(Value, RightHand->GetRightVector());
+	HandleMovementInput(Value, RightHand->GetRightVector());
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
@@ -454,6 +454,20 @@ void AVirtualRealityPawn::CheckForPhysWalkingCollision()
 	}
 }
 
+void AVirtualRealityPawn::HandleMovementInput(float Value, FVector Direction)
+{
+	if (RightHand) {
+		if (NavigationMode == EVRNavigationModes::nav_mode_walk)
+		{
+			VRWalkingMode(Value, Direction);
+		}
+		else if (NavigationMode == EVRNavigationModes::nav_mode_fly)
+		{
+			VRFlyingMode(Value, Direction);
+		}
+	}
+}
+
 void AVirtualRealityPawn::VRWalkingMode(float Value, FVector Direction)
 {
 	Direction.Z = 0.0f;//walking
@@ -461,7 +475,18 @@ void AVirtualRealityPawn::VRWalkingMode(float Value, FVector Direction)
 	FHitResult FHitResultVR;
 	CapsuleColliderComponent->AddWorldOffset(End* DeltaTime*Value, true, &FHitResultVR);
 
-	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius() && RightHand && (NavigationMode == EVRNavigationModes::nav_mode_walk || UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode()))
+	if (UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode())
+	{
+		if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius())
+		{
+			AddMovementInput(Direction, Value);
+		}
+	}
+}
+
+void AVirtualRealityPawn::VRFlyingMode(float Value, FVector Direction)
+{
+	if (UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode())
 	{
 		AddMovementInput(Direction, Value);
 	}
@@ -568,19 +593,19 @@ FHitResult AVirtualRealityPawn::CreateLineTrace(FVector Direction, const FVector
 
 FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility)
 {
-	TArray<FVector> Vectors;
+	TArray<FVector> StartVectors;
 	TArray<FHitResult> OutHits;
 	FHitResult HitDetailsMultiLineTrace;
 	HitDetailsMultiLineTrace.Distance = -1.0f;//(Distance=-1) not existing, but to know if this Variable not Initialized(when all Traces not compatible)
 
-	Vectors.Add(Start); //LineTraceCenter
-	Vectors.Add(Start + FVector(0, -Radius, 0)); //LineTraceLeft
-	Vectors.Add(Start + FVector(0, +Radius, 0)); //LineTraceRight
-	Vectors.Add(Start + FVector(+Radius, 0, 0)); //LineTraceFront
-	Vectors.Add(Start + FVector(-Radius, 0, 0)); //LineTraceBehind
+	StartVectors.Add(Start); //LineTraceCenter
+	StartVectors.Add(Start + FVector(0, -Radius, 0)); //LineTraceLeft
+	StartVectors.Add(Start + FVector(0, +Radius, 0)); //LineTraceRight
+	StartVectors.Add(Start + FVector(+Radius, 0, 0)); //LineTraceFront
+	StartVectors.Add(Start + FVector(-Radius, 0, 0)); //LineTraceBehind
 
 	// loop through TArray
-	for (FVector& Vector : Vectors)
+	for (FVector& Vector : StartVectors)
 	{
 		OutHits.Add(CreateLineTrace(Direction, Vector, Visibility));
 	}
