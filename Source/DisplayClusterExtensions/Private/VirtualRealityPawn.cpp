@@ -499,7 +499,7 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 {
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
-	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 2.0f, false);
+	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 4.0f, true);
 	float DiffernceDistance = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
 	//Going up
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
@@ -613,24 +613,19 @@ FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FV
 		OutHits.Add(CreateLineTrace(Direction, Vector, Visibility));
 	}
 
-	FHitResult HitDetailsWithSmallestDistance = OutHits[0];
-	bool IsBlockingHitAndSameActor = HitDetailsWithSmallestDistance.bBlockingHit;
-	TWeakObjectPtr<class AActor> HitFirstActor = HitDetailsWithSmallestDistance.Actor;
+	FHitResult FirstHitDetails = OutHits[0];
+	bool IsBlockingHitAndSameActor = FirstHitDetails.bBlockingHit;
+	bool IsAllNothingHiting = FirstHitDetails.Actor == nullptr;
 
+	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	for (FHitResult& Hit : OutHits)
 	{
-		IsBlockingHitAndSameActor &= (Hit.Actor != nullptr)&&(Hit.Actor == HitFirstActor);
-		if(IsBlockingHitAndSameActor)
-		{
-			if (Hit.Distance < HitDetailsWithSmallestDistance.Distance)
-			{
-				HitDetailsWithSmallestDistance = Hit;
-			}
-		}
+		IsBlockingHitAndSameActor &= (Hit.Actor == FirstHitDetails.Actor); //If all Hiting the same Object, then you are going up/down
+		IsAllNothingHiting &= (Hit.Actor == nullptr); //If all Hiting nothing, then you are falling
 	}
 
-	if (IsBlockingHitAndSameActor)
-		HitDetailsMultiLineTrace = HitDetailsWithSmallestDistance;
+	if (IsBlockingHitAndSameActor || IsAllNothingHiting)
+		HitDetailsMultiLineTrace = FirstHitDetails;
 
 	return HitDetailsMultiLineTrace;
 }
