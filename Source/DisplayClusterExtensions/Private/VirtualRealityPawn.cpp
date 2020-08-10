@@ -607,25 +607,19 @@ FHitResult AVirtualRealityPawn::CreateMultiLineTrace(FVector Direction, const FV
 	StartVectors.Add(Start + FVector(+Radius, 0, 0)); //LineTraceFront
 	StartVectors.Add(Start + FVector(-Radius, 0, 0)); //LineTraceBehind
 
+	bool IsBlockingHitAndSameActor = true;
+	bool IsAllNothingHiting = true;
 	// loop through TArray
 	for (FVector& Vector : StartVectors)
 	{
-		OutHits.Add(CreateLineTrace(Direction, Vector, Visibility));
-	}
-
-	FHitResult FirstHitDetails = OutHits[0];
-	bool IsBlockingHitAndSameActor = FirstHitDetails.bBlockingHit;
-	bool IsAllNothingHiting = FirstHitDetails.Actor == nullptr;
-
-	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
-	for (FHitResult& Hit : OutHits)
-	{
-		IsBlockingHitAndSameActor &= (Hit.Actor == FirstHitDetails.Actor); //If all Hiting the same Object, then you are going up/down
-		IsAllNothingHiting &= (Hit.Actor == nullptr); //If all Hiting nothing, then you are falling
+		FHitResult OutHit = CreateLineTrace(Direction, Vector, Visibility);
+		OutHits.Add(OutHit);
+		IsBlockingHitAndSameActor &= (OutHit.Actor == OutHits[0].Actor); //If all Hiting the same Object, then you are (going up/down) or (walking)
+		IsAllNothingHiting &= (OutHit.Actor == nullptr); //If all Hiting nothing, then you are falling
 	}
 
 	if (IsBlockingHitAndSameActor || IsAllNothingHiting)
-		HitDetailsMultiLineTrace = FirstHitDetails;
+		HitDetailsMultiLineTrace = OutHits[0];
 
 	return HitDetailsMultiLineTrace;
 }
