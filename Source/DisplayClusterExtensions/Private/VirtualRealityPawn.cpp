@@ -331,7 +331,6 @@ void AVirtualRealityPawn::OnBeginFire_Implementation()
 	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params))
 		return;
 
-//	UE_LOG(LogTemp, Warning, GetDisplayName(Hit.GetActor()));
 	HitActor = Hit.GetActor();
 	
 	// try to cast HitActor int a Grabable if not succeeded will become a nullptr
@@ -353,7 +352,7 @@ void AVirtualRealityPawn::OnBeginFire_Implementation()
 	}
 	else if (ClickableActor != nullptr && Hit.Distance < MaxClickDistance)
 	{
-		ClickableActor->OnClicked_Implementation();
+		ClickableActor->OnClicked_Implementation(Hit.Location);
 	}
 }
 

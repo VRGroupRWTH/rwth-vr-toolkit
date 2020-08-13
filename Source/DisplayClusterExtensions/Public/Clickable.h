@@ -20,9 +20,9 @@ class IClickable
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	// function that will be called when clickable actor got clicked
+	// function that will be called when clickable actor got clicked, and passed the world pos of the click
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
-	void OnClicked();
+	void OnClicked(FVector WorldPositionOfClick);
 	
 
 };
