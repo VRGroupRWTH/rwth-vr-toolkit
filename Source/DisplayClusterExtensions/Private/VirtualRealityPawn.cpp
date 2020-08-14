@@ -478,21 +478,15 @@ void AVirtualRealityPawn::VRWalkingMode(float Value, FVector Direction)
 	FHitResult FHitResultVR;
 	CapsuleColliderComponent->AddWorldOffset(End* DeltaTime*Value, true, &FHitResultVR);
 
-	if (UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode())
+	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius())
 	{
-		if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius())
-		{
-			AddMovementInput(Direction, Value);
-		}
+		AddMovementInput(Direction, Value);
 	}
 }
 
 void AVirtualRealityPawn::VRFlyingMode(float Value, FVector Direction)
 {
-	if (UVirtualRealityUtilities::IsDesktopMode() || UVirtualRealityUtilities::IsHeadMountedMode() || UVirtualRealityUtilities::IsRoomMountedMode())
-	{
-		AddMovementInput(Direction, Value);
-	}
+	AddMovementInput(Direction, Value);
 }
 
 void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
@@ -504,10 +498,10 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 	//Going up
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
 	{
-		UpSteppingSpeed += UpSteppingAcceleration * DeltaSeconds;
-		if (UpSteppingSpeed*DeltaSeconds < DiffernceDistance)
+		VerticalSpeed += UpSteppingAcceleration * DeltaSeconds;
+		if (VerticalSpeed*DeltaSeconds < DiffernceDistance)
 		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +UpSteppingSpeed * DeltaSeconds));
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +VerticalSpeed * DeltaSeconds));
 		}
 		else
 		{
@@ -517,10 +511,10 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 	//Falling, Gravity, Going down
 	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)
 	{
-		GravitySpeed -= GravityAcceleration *DeltaSeconds;
-		if (GravitySpeed*DeltaSeconds > -DiffernceDistance)
+		VerticalSpeed -= GravityAcceleration *DeltaSeconds;
+		if (VerticalSpeed*DeltaSeconds > -DiffernceDistance)
 		{
-			RootComponent->AddLocalOffset(FVector(0.f, 0.f, GravitySpeed*DeltaSeconds));
+			RootComponent->AddLocalOffset(FVector(0.f, 0.f, VerticalSpeed*DeltaSeconds));
 		}
 		else
 		{
@@ -530,8 +524,8 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 	//Going on the ground
 	else
 	{
-		GravitySpeed = 0.0f;
-		UpSteppingSpeed = 0.0f;
+		VerticalSpeed = 0.0f;
+		VerticalSpeed = 0.0f;
 	}
 }
 
