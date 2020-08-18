@@ -525,7 +525,6 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 	else
 	{
 		VerticalSpeed = 0.0f;
-		VerticalSpeed = 0.0f;
 	}
 }
 
