@@ -449,7 +449,7 @@ void AVirtualRealityPawn::CheckForPhysWalkingCollision()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
-	Direction.Z = 0.0f;//walking
+	//Direction.Z = 0.0f;//walking
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
 
