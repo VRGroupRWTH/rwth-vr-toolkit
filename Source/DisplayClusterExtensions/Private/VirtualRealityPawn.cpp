@@ -506,6 +506,7 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 		else
 		{
 			RootComponent->AddLocalOffset(FVector(0.f, 0.f, +DiffernceDistance));
+			VerticalSpeed = 0;
 		}
 	}
 	//Falling, Gravity, Going down
@@ -519,12 +520,8 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 		else
 		{
 			RootComponent->AddLocalOffset(FVector(0.f, 0.f, -DiffernceDistance));
+			VerticalSpeed = 0;
 		}
-	}
-	//Going on the ground
-	else
-	{
-		VerticalSpeed = 0.0f;
 	}
 }
 
