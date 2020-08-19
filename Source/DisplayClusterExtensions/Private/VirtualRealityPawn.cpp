@@ -498,16 +498,16 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 	//Going up
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
 	{
-		Shift(DiffernceDistance, UpSteppingAcceleration, DeltaSeconds, 1);
+		ShiftVertically(DiffernceDistance, UpSteppingAcceleration, DeltaSeconds, 1);
 	}
 	//Falling, Gravity, Going down
 	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)
 	{
-		Shift(DiffernceDistance, GravityAcceleration, DeltaSeconds, -1);
+		ShiftVertically(DiffernceDistance, GravityAcceleration, DeltaSeconds, -1);
 	}
 }
 
-void AVirtualRealityPawn::Shift(float DiffernceDistance, float Acceleration, float DeltaSeconds, int Direction)
+void AVirtualRealityPawn::ShiftVertically(float DiffernceDistance, float Acceleration, float DeltaSeconds, int Direction)
 {
 	VerticalSpeed += Acceleration * DeltaSeconds;
 	if (VerticalSpeed*DeltaSeconds < DiffernceDistance)
