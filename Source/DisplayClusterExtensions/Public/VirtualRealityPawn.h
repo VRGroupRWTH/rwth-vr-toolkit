@@ -141,5 +141,6 @@ private:
 	void VRWalkingMode(float Value, FVector Direction);
 	void VRFlyingMode(float Value, FVector Direction);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
+	void Shift(float DiffernceDistance, float Acceleration, float DeltaSeconds, int Direction);//(direction = Down = -1), (direction = Up = 1)
 	void InitRoomMountedComponentReferences();
 };
