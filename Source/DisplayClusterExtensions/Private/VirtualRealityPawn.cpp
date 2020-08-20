@@ -449,7 +449,6 @@ void AVirtualRealityPawn::CheckForPhysWalkingCollision()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
-	//Direction.Z = 0.0f;//walking
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
 
@@ -493,7 +492,7 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 {
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
-	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 4.0f, true);
+	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 4.0f, false);
 	float DiffernceDistance = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
 	//Going up
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
