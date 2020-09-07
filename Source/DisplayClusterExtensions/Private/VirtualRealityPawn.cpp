@@ -51,7 +51,18 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HmdRightMotionController->SetTrackingSource(EControllerHand::Right);
 	HmdRightMotionController->SetShowDeviceModel(true);
 	HmdRightMotionController->SetVisibility(false);
-	
+
+	HmdTracker1 = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdTracker1"));
+	HmdTracker1->SetupAttachment(RootComponent);
+	HmdTracker1->SetTrackingSource(EControllerHand::Special_1);
+	HmdTracker1->SetShowDeviceModel(true);
+	HmdTracker1->SetVisibility(false);
+
+	HmdTracker2 = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdTracker2"));
+	HmdTracker2->SetupAttachment(RootComponent);
+	HmdTracker2->SetTrackingSource(EControllerHand::Special_2);
+	HmdTracker2->SetShowDeviceModel(true);
+	HmdTracker2->SetVisibility(false);
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -146,6 +157,16 @@ UMotionControllerComponent* AVirtualRealityPawn::GetHmdRightMotionControllerComp
 	return HmdRightMotionController;
 }
 
+UMotionControllerComponent* AVirtualRealityPawn::GetHmdTracker1MotionControllerComponent()
+{
+	return HmdTracker1;
+}
+
+UMotionControllerComponent* AVirtualRealityPawn::GetHmdTracker2MotionControllerComponent()
+{
+	return HmdTracker2;
+}
+
 USceneComponent* AVirtualRealityPawn::GetHeadComponent()
 {
 	return Head;
@@ -225,6 +246,12 @@ void AVirtualRealityPawn::BeginPlay()
 
 		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
 		HmdRightMotionController->SetVisibility(ShowHMDControllers);
+		if (HmdTracker1->IsActive()) {
+			HmdTracker1->SetVisibility(ShowHMDControllers);
+		}
+		if (HmdTracker2->IsActive()) {
+			HmdTracker2->SetVisibility(ShowHMDControllers);
+		}
 
 		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
