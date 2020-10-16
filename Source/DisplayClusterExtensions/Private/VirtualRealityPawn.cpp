@@ -500,7 +500,7 @@ void AVirtualRealityPawn::MoveByGravityOrStepUp(float DeltaSeconds)
 		ShiftVertically(DiffernceDistance, UpSteppingAcceleration, DeltaSeconds, 1);
 	}
 	//Falling, Gravity, Going down
-	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)
+	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f))
 	{
 		ShiftVertically(DiffernceDistance, GravityAcceleration, DeltaSeconds, -1);
 	}
