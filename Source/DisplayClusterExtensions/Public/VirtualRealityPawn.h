@@ -53,6 +53,8 @@ public:
 	UFUNCTION(Category = "Pawn") UDisplayClusterSceneComponent* GetLeftHandtargetComponent();
 	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdLeftMotionControllerComponent();
 	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdRightMotionControllerComponent();
+	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdTracker1MotionControllerComponent();
+	UFUNCTION(Category = "Pawn") UMotionControllerComponent* GetHmdTracker2MotionControllerComponent();
 
 	UFUNCTION(Category = "Pawn") USceneComponent* GetHeadComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetLeftHandComponent();
@@ -96,9 +98,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UDisplayClusterSceneComponent* LeftHandTarget = nullptr;
 
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD left  motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdLeftMotionController = nullptr;
+	UPROPERTY() UMotionControllerComponent* HmdLeftMotionController = nullptr;
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. HMD right motion controller.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UMotionControllerComponent* HmdRightMotionController = nullptr;
+	UPROPERTY() UMotionControllerComponent* HmdRightMotionController = nullptr;
+
+	// used only for HMDs, tested with the additional Vive Trackers
+	UPROPERTY() UMotionControllerComponent* HmdTracker1 = nullptr;
+	UPROPERTY() UMotionControllerComponent* HmdTracker2 = nullptr;
 
 	// PC: Camera, HMD: Camera, CAVE/ROLV: Shutter glasses.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) USceneComponent* Head = nullptr;

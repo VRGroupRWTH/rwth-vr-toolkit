@@ -61,6 +61,18 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
+
+	HmdTracker1 = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdTracker1"));
+	HmdTracker1->SetupAttachment(RootComponent);
+	HmdTracker1->SetTrackingSource(EControllerHand::Special_1);
+	HmdTracker1->SetShowDeviceModel(true);
+	HmdTracker1->SetVisibility(false);
+
+	HmdTracker2 = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdTracker2"));
+	HmdTracker2->SetupAttachment(RootComponent);
+	HmdTracker2->SetTrackingSource(EControllerHand::Special_2);
+	HmdTracker2->SetShowDeviceModel(true);
+	HmdTracker2->SetVisibility(false);
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -139,6 +151,16 @@ UMotionControllerComponent* AVirtualRealityPawn::GetHmdLeftMotionControllerCompo
 UMotionControllerComponent* AVirtualRealityPawn::GetHmdRightMotionControllerComponent()
 {
 	return HmdRightMotionController;
+}
+
+UMotionControllerComponent* AVirtualRealityPawn::GetHmdTracker1MotionControllerComponent()
+{
+	return HmdTracker1;
+}
+
+UMotionControllerComponent* AVirtualRealityPawn::GetHmdTracker2MotionControllerComponent()
+{
+	return HmdTracker2;
 }
 
 USceneComponent* AVirtualRealityPawn::GetHeadComponent()
@@ -220,6 +242,12 @@ void AVirtualRealityPawn::BeginPlay()
 
 		HmdLeftMotionController->SetVisibility(ShowHMDControllers);
 		HmdRightMotionController->SetVisibility(ShowHMDControllers);
+		if (HmdTracker1->IsActive()) {
+			HmdTracker1->SetVisibility(ShowHMDControllers);
+		}
+		if (HmdTracker2->IsActive()) {
+			HmdTracker2->SetVisibility(ShowHMDControllers);
+		}
 
 		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
@@ -341,7 +369,6 @@ void AVirtualRealityPawn::OnBeginFire_Implementation()
 	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params))
 		return;
 
-//	UE_LOG(LogTemp, Warning, GetDisplayName(Hit.GetActor()));
 	HitActor = Hit.GetActor();
 	
 	// try to cast HitActor int a Grabable if not succeeded will become a nullptr
@@ -363,7 +390,7 @@ void AVirtualRealityPawn::OnBeginFire_Implementation()
 	}
 	else if (ClickableActor != nullptr && Hit.Distance < MaxClickDistance)
 	{
-		ClickableActor->OnClicked_Implementation();
+		ClickableActor->OnClicked_Implementation(Hit.Location);
 	}
 }
 
