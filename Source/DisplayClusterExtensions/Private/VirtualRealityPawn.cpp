@@ -7,7 +7,6 @@
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
-#include "DisplayClusterSettings.h"
 #include "IDisplayCluster.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
@@ -59,7 +58,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	CapsuleColliderComponent->SetupAttachment(CameraComponent);
+	//CapsuleColliderComponent->SetupAttachment(CameraComponent);
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
 
 	HmdTracker1 = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("HmdTracker1"));
@@ -193,40 +192,22 @@ USceneComponent* AVirtualRealityPawn::GetShutterGlassesComponent()
 	return ShutterGlasses;
 }
 
-void AVirtualRealityPawn::ClusterExecute(const FString& Command)
-{
-  FDisplayClusterClusterEvent event;
-  event.Name = "NDisplayCMD: " + Command;
-  event.Type = "NDisplayCMD";
-  event.Category = "VRPawn";
-  event.Parameters.Add("Command", Command);
-  IDisplayCluster::Get().GetClusterMgr()->EmitClusterEvent(event, false);
-}
-
-void AVirtualRealityPawn::HandleClusterEvent(const FDisplayClusterClusterEvent& Event)
-{
-	if (Event.Category.Equals("VRPawn") && Event.Type.Equals("NDisplayCMD") && Event.Parameters.Contains("Command"))
-	{
-		GEngine->Exec(GetWorld(), *Event.Parameters["Command"]);
-	}
-}
-
 void AVirtualRealityPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// Display cluster settings apply to all setups (PC, HMD, CAVE/ROLV) despite the unfortunate name due to being an UE4 internal.
-	TArray<AActor*> SettingsActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADisplayClusterSettings::StaticClass(), SettingsActors);
-	if (SettingsActors.Num() > 0)
-	{
-		ADisplayClusterSettings* Settings = Cast<ADisplayClusterSettings>(SettingsActors[0]);
-		Movement->MaxSpeed = Settings->MovementMaxSpeed;
-		Movement->Acceleration = Settings->MovementAcceleration;
-		Movement->Deceleration = Settings->MovementDeceleration;
-		Movement->TurningBoost = Settings->MovementTurningBoost;
-		BaseTurnRate = Settings->RotationSpeed;
-	}
+	//TArray<AActor*> SettingsActors;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADisplayClusterSettings::StaticClass(), SettingsActors);
+	//if (SettingsActors.Num() > 0)
+	//{
+	//	//ADisplayClusterSettings* Settings = Cast<ADisplayClusterSettings>(SettingsActors[0]);
+	//	//Movement->MaxSpeed = Settings->MovementMaxSpeed;
+	//	//Movement->Acceleration = Settings->MovementAcceleration;
+	//	//Movement->Deceleration = Settings->MovementDeceleration;
+	//	//Movement->TurningBoost = Settings->MovementTurningBoost;
+	//	//BaseTurnRate = Settings->RotationSpeed;
+	//}
 
 	if (UVirtualRealityUtilities::IsRoomMountedMode())
 	{
@@ -251,19 +232,19 @@ void AVirtualRealityPawn::BeginPlay()
 
 		LeftHand->AttachToComponent(HmdLeftMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		RightHand->AttachToComponent(HmdRightMotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//	Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 	else //Desktop
 	{
-		Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//	Head->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 		//also attach the hands to the camera component so we can use them for interaction
-		LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
-		RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//	LeftHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//	RightHand->AttachToComponent(GetCameraComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 
 		//move to eyelevel
-		GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
+	//	GetCameraComponent()->SetRelativeLocation(FVector(0, 0, 160));
 	}
 
 	//In ADisplayClusterPawn::BeginPlay() input is disabled on all slaves, so we cannot react to button presses, e.g. on the flystick correctly.
@@ -278,28 +259,14 @@ void AVirtualRealityPawn::BeginPlay()
 		}
 	}
 
-	// Register cluster event listeners
-	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
-	{
-		ClusterEventListenerDelegate = FOnClusterEventListener::CreateUObject(this, &AVirtualRealityPawn::HandleClusterEvent);
-		ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
-	}
+	//CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
+	//CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
-	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	LastCameraPosition = CameraComponent->GetComponentLocation();
+	//LastCameraPosition = CameraComponent->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-	if (ClusterManager && ClusterEventListenerDelegate.IsBound())
-	{
-		ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
-	}
-
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -334,7 +301,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 	//Flystick might not be available at start, hence is checked every frame.
 	InitRoomMountedComponentReferences();
 
-	LastCameraPosition = CameraComponent->GetComponentLocation();
+	//LastCameraPosition = CameraComponent->GetComponentLocation();
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -445,7 +412,7 @@ UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 
 void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 {
-	float CharachterSize = abs(RootComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
+	float CharachterSize = 0; //abs(RootComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
 
 	if (CharachterSize > MaxStepHeight)
 	{
@@ -461,20 +428,20 @@ void AVirtualRealityPawn::SetCapsuleColliderCharacterSizeVR()
 			CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
 		}
 
-		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		//CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
 		CapsuleColliderComponent->AddWorldOffset(FVector(0, 0, -ColliderHalfHeight));
 		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
 	else
 	{
-		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		//CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
 		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
 }
 
 void AVirtualRealityPawn::CheckForPhysWalkingCollision()
 {
-	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
+	FVector CurrentCameraPosition = FVector(0);//CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);

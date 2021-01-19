@@ -10,9 +10,7 @@ UGrabbingBehaviorOnPlaneComponent::UGrabbingBehaviorOnPlaneComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bAbsoluteLocation = true;
-	bAbsoluteRotation = true;
-	bAbsoluteScale    = true;
+	SetAbsolute(true, true, true);
 	// ...
 }
 
@@ -31,7 +29,7 @@ float UGrabbingBehaviorOnPlaneComponent::GetDistance() const
 
 void UGrabbingBehaviorOnPlaneComponent::HandleNewPositionAndDirection(FVector Position, FQuat Orientation)
 {
-	FVector AttachmentPoint = this->RelativeLocation;
+	FVector AttachmentPoint = this->GetRelativeLocation();
 	FVector PlaneNormal = this->GetComponentQuat().GetUpVector(); 
 	FVector Direction = Orientation.GetForwardVector();
 	

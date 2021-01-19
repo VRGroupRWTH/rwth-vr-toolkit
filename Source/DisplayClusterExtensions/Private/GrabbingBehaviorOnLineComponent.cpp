@@ -10,9 +10,7 @@ UGrabbingBehaviorOnLineComponent::UGrabbingBehaviorOnLineComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bAbsoluteLocation = true;
-	bAbsoluteRotation = true;
-	bAbsoluteScale    = true;
+	SetAbsolute(true, true, true);
 	
 	this->Distance = 0;
 }
@@ -32,7 +30,7 @@ float UGrabbingBehaviorOnLineComponent::GetDistance() const
 
 void UGrabbingBehaviorOnLineComponent::HandleNewPositionAndDirection(FVector Position, FQuat Orientation)
 {
-	FVector AttachmentPoint = this->RelativeLocation;
+	FVector AttachmentPoint = this->GetRelativeLocation();
 	FVector ConstraintAxis = this->GetComponentQuat().GetUpVector();
 	FVector Direction = Orientation.GetForwardVector();
 	FVector FromHandToMe = -Position + AttachmentPoint;

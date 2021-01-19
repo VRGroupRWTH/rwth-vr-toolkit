@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object.h"
+#include "UObject/Object.h"
 #include "UObject/Interface.h"
 #include "Grabable.generated.h"
 
