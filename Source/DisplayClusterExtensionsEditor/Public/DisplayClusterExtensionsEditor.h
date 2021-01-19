@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleInterface.h"
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 
 class FDisplayClusterExtensionsEditorModule : public IModuleInterface
 {

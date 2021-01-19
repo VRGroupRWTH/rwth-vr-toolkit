@@ -3,8 +3,7 @@
 #include "CoreMinimal.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
-#include "DisplayClusterPawn.h"
-#include "DisplayClusterSceneComponent.h"
+#include "Components/DisplayClusterSceneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -30,7 +29,7 @@ enum class EAttachementType : uint8
 };
 
 UCLASS()
-class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public ADisplayClusterPawn
+class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public APawn
 {
 	GENERATED_UCLASS_BODY()
 
@@ -73,11 +72,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.0f;
-	//Execute specified console command on all nDisplayCluster Nodes
-	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
-private:
-	FOnClusterEventListener ClusterEventListenerDelegate;
-	UFUNCTION() void HandleClusterEvent(const FDisplayClusterClusterEvent& Event);
 protected:
 
 	virtual void BeginPlay() override;
