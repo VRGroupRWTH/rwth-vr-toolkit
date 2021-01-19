@@ -4,11 +4,11 @@
 
 void FDisplayClusterExtensionsModule::StartupModule ()
 {
-
+	ClusterConsole.Register();
 }
 void FDisplayClusterExtensionsModule::ShutdownModule()
 {
-
+	ClusterConsole.Unregister();
 }
 
 #undef LOCTEXT_NAMESPACE
