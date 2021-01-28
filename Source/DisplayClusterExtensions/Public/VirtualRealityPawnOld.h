@@ -8,6 +8,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "UniversalTrackedComponent.h"
 
 #include "MotionControllerComponent.h"
 #include "VirtualRealityPawnOld.generated.h"
@@ -18,14 +19,6 @@ enum class EVRNavigationModes : uint8
 	nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
 	nav_mode_walk UMETA(DisplayName = "Navigation Mode Walk"),
 	nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
-};
-
-UENUM(BlueprintType)
-enum class EAttachementType : uint8
-{
-	AT_NONE UMETA(DisplayName = "not attached"),
-	AT_HANDTARGET UMETA(DisplayName = "to the right/left hand target"),
-	AT_FLYSTICK UMETA(DisplayName = "to the Flystick")
 };
 
 UCLASS()
