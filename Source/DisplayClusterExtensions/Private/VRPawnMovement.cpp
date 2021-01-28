@@ -1,8 +1,8 @@
 ﻿
-#include "WalkingPawnMovement.h"
+#include "VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
 
-UWalkingPawnMovement::UWalkingPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -11,54 +11,60 @@ UWalkingPawnMovement::UWalkingPawnMovement(const FObjectInitializer& ObjectIniti
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
 }
 
-void UWalkingPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction){
+void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction){
+
+	SetCapsuleColliderToUserSize();
+
+	FVector PositionChange = GetPendingInputVector();
+
+	if (NavigationMode == EVRNavigationModes::Walk)
+	{
+		PositionChange.Z = 0.0f;
+		ConsumeInputVector();
+		AddInputVector(PositionChange);
+	}
+	
+	if(NavigationMode == EVRNavigationModes::Fly || NavigationMode == EVRNavigationModes::Walk)
+	{
+		MoveByGravityOrStepUp(DeltaTime);
+		CheckForPhysWalkingCollision();
+
+		if(CheckForVirtualMovCollision(PositionChange, DeltaTime))
+		{
+			ConsumeInputVector();
+		}
+	}
+
+	if(NavigationMode == EVRNavigationModes::None)
+	{
+		ConsumeInputVector();
+	}
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
-	{
-		SetCapsuleColliderCharacterSizeVR();
-		MoveByGravityOrStepUp(DeltaTime);
-		CheckForPhysWalkingCollision();
-	}
-	
 	LastCameraPosition = CameraComponent->GetComponentLocation();
-	LastDeltaTime = DeltaTime;
 }
 
-void UWalkingPawnMovement::AddInputVector(FVector WorldVector, bool bForce /*= false*/)
+bool UVRPawnMovement::CheckForVirtualMovCollision(FVector PositionChange, float DeltaTime)
 {
-	if (NavigationMode == EVRNavigationModes::nav_mode_walk)
-	{
-		WalkingModeInput(WorldVector, bForce);
-	}
-	else if (NavigationMode == EVRNavigationModes::nav_mode_fly)
-	{
-		Super::AddInputVector(WorldVector, bForce);
-	}
-}
-
-void UWalkingPawnMovement::WalkingModeInput(FVector WorldDirection, bool bForce)
-{
-	WorldDirection.Z = 0.0f;//walking
-	FVector End = WorldDirection.GetSafeNormal() * GetMaxSpeed();
+	FVector ProbePosition = PositionChange.GetSafeNormal() * GetMaxSpeed() * DeltaTime;
 	FHitResult FHitResultVR;
-	CapsuleColliderComponent->AddWorldOffset(End* LastDeltaTime * WorldDirection.Size(), true, &FHitResultVR);
-
-	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) > CapsuleColliderComponent->GetScaledCapsuleRadius())
+	CapsuleColliderComponent->AddWorldOffset(ProbePosition, true, &FHitResultVR);
+	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) < CapsuleColliderComponent->GetScaledCapsuleRadius())
 	{
-		Super::AddInputVector(WorldDirection, bForce);
+		return true;
 	}
+	return false;
 }
 
-void UWalkingPawnMovement::SetCameraComponent(UCameraComponent* NewCameraComponent)
+void UVRPawnMovement::SetCameraComponent(UCameraComponent* NewCameraComponent)
 {
 	CameraComponent = NewCameraComponent;
 	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 }
 
 
-void UWalkingPawnMovement::SetCapsuleColliderCharacterSizeVR()
+void UVRPawnMovement::SetCapsuleColliderToUserSize()
 {
 	float CharachterSize = abs(UpdatedComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
 
@@ -87,7 +93,7 @@ void UWalkingPawnMovement::SetCapsuleColliderCharacterSizeVR()
 	}
 }
 
-void UWalkingPawnMovement::CheckForPhysWalkingCollision()
+void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
 	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
 	FVector Direction = CurrentCameraPosition - LastCameraPosition;
@@ -100,25 +106,25 @@ void UWalkingPawnMovement::CheckForPhysWalkingCollision()
 	}
 }
 
-void UWalkingPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
+void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 {
 	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
 	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
 	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 4.0f, false);
-	float DiffernceDistance = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
-	//Going up
+	float DistanceDifference = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
+	//Going up (in Fly and Walk Mode)
 	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
 	{
-		ShiftVertically(DiffernceDistance, UpSteppingAcceleration, DeltaSeconds, 1);
+		ShiftVertically(DistanceDifference, UpSteppingAcceleration, DeltaSeconds, 1);
 	}
-	//Falling, Gravity, Going down
-	else if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f))
+	//Gravity (only in Walk Mode)
+	else if (NavigationMode==EVRNavigationModes::Walk && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
 	{
-		ShiftVertically(DiffernceDistance, GravityAcceleration, DeltaSeconds, -1);
+		ShiftVertically(DistanceDifference, GravityAcceleration, DeltaSeconds, -1);
 	}
 }
 
-void UWalkingPawnMovement::ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction)
+void UVRPawnMovement::ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction)
 {
 	VerticalSpeed += VerticalAcceleration * DeltaSeconds;
 	if (VerticalSpeed*DeltaSeconds < DiffernceDistance)
@@ -132,7 +138,7 @@ void UWalkingPawnMovement::ShiftVertically(float DiffernceDistance, float Vertic
 	}
 }
 
-FHitResult UWalkingPawnMovement::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
+FHitResult UVRPawnMovement::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
 {
 	//Re-initialize hit info
 	FHitResult HitDetails = FHitResult(ForceInit);
@@ -155,7 +161,7 @@ FHitResult UWalkingPawnMovement::CreateLineTrace(FVector Direction, const FVecto
 	return HitDetails;
 }
 
-FHitResult UWalkingPawnMovement::CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility)
+FHitResult UVRPawnMovement::CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility)
 {
 	TArray<FVector> StartVectors;
 	TArray<FHitResult> OutHits;
