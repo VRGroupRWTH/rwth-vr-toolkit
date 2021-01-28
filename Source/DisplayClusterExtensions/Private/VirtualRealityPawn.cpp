@@ -27,9 +27,9 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
-	Movement = CreateDefaultSubobject<UWalkingPawnMovement>(TEXT("WalkingMovement"));
-	Movement->SetUpdatedComponent(RootComponent);
-	Movement->SetCameraComponent(CameraComponent);
+	WalkingMovement = CreateDefaultSubobject<UWalkingPawnMovement>(TEXT("WalkingMovement"));
+	WalkingMovement->SetUpdatedComponent(RootComponent);
+	WalkingMovement->SetCameraComponent(CameraComponent);
 
 	RotatingMovement = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovement"));
 	RotatingMovement->UpdatedComponent = RootComponent;
@@ -210,10 +210,10 @@ void AVirtualRealityPawn::BeginPlay()
 	if (SettingsActors.Num() > 0)
 	{
 		ADisplayClusterSettings* Settings = Cast<ADisplayClusterSettings>(SettingsActors[0]);
-		Movement->MaxSpeed = Settings->MovementMaxSpeed;
-		Movement->Acceleration = Settings->MovementAcceleration;
-		Movement->Deceleration = Settings->MovementDeceleration;
-		Movement->TurningBoost = Settings->MovementTurningBoost;
+		WalkingMovement->MaxSpeed = Settings->MovementMaxSpeed;
+		WalkingMovement->Acceleration = Settings->MovementAcceleration;
+		WalkingMovement->Deceleration = Settings->MovementDeceleration;
+		WalkingMovement->TurningBoost = Settings->MovementTurningBoost;
 		BaseTurnRate = Settings->RotationSpeed;
 	}
 
@@ -277,6 +277,9 @@ void AVirtualRealityPawn::BeginPlay()
 
 	CollisionComponent->SetCollisionProfileName(FName("NoCollision"));
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	//if the navigation mode was changed in the editor, it should be updated in the actual movement component
+	SetNavigationMode(NavigationMode);
 }
 
 void AVirtualRealityPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -417,7 +420,7 @@ FTwoVectors AVirtualRealityPawn::GetHandRay(float Length)
 
 UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
 {
-	return Movement;
+	return WalkingMovement;
 }
 
 void AVirtualRealityPawn::InitRoomMountedComponentReferences()
@@ -457,5 +460,6 @@ void AVirtualRealityPawn::InitRoomMountedComponentReferences()
 
 void AVirtualRealityPawn::SetNavigationMode(EVRNavigationModes Mode)
 {
-	Movement->NavigationMode = Mode;
+	NavigationMode = Mode;
+	WalkingMovement->NavigationMode = Mode;
 }

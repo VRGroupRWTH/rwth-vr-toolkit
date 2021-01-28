@@ -56,6 +56,8 @@ public:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
 
 	UFUNCTION(Category = "Pawn") void SetNavigationMode(EVRNavigationModes Mode);
+	//we also add this property so the navigation mode can be changed easier in the editor, will get forwarded to the movment comp on BeginPlay
+	UPROPERTY(Category = "Pawn", EditAnywhere, BlueprintReadOnly) EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
 
 private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
@@ -78,7 +80,7 @@ protected:
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn", meta = (AllowPrivateAccess = "true")) float BaseTurnRate = 45.0f;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UWalkingPawnMovement* Movement = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UWalkingPawnMovement* WalkingMovement = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingMovement = nullptr;
 
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
