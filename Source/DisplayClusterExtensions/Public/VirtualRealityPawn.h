@@ -6,20 +6,13 @@
 #include "DisplayClusterPawn.h"
 #include "DisplayClusterSceneComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "WalkingPawnMovement.h"
 #include "GameFramework/RotatingMovementComponent.h"
 
 #include "MotionControllerComponent.h"
 #include "VirtualRealityPawn.generated.h"
 
-UENUM(BlueprintType)
-enum class EVRNavigationModes : uint8
-{
-	nav_mode_none UMETA(DisplayName = "Navigation Mode None"),
-	nav_mode_walk UMETA(DisplayName = "Navigation Mode Walk"),
-	nav_mode_fly UMETA(DisplayName = "Navigation Mode Fly")
-};
+
 
 UENUM(BlueprintType)
 enum class EAttachementType : uint8
@@ -44,7 +37,6 @@ public:
 
 	UFUNCTION(Category = "Pawn") float GetBaseTurnRate() const;
 	UFUNCTION(Category = "Pawn") void SetBaseTurnRate(float Value);
-	UFUNCTION(Category = "Pawn") UFloatingPawnMovement* GetFloatingPawnMovement();
 	UFUNCTION(Category = "Pawn") URotatingMovementComponent* GetRotatingMovementComponent();
 
 	//Bunch of Getter Functions for components to avoid users having to know the names
@@ -63,6 +55,8 @@ public:
 
 	UFUNCTION(Category = "Pawn") USceneComponent* GetTrackingOriginComponent();
 
+	UFUNCTION(Category = "Pawn") void SetNavigationMode(EVRNavigationModes Mode);
+
 private:
 	UFUNCTION(Category = "Pawn") USceneComponent* GetCaveCenterComponent();
 	UFUNCTION(Category = "Pawn") USceneComponent* GetShutterGlassesComponent();
@@ -70,9 +64,6 @@ private:
 	UFUNCTION(Category = "Pawn") void HandlePhysicsAndAttachActor(AActor* HitActor);   
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EVRNavigationModes NavigationMode = EVRNavigationModes::nav_mode_fly;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") float MaxStepHeight = 40.0f;
 	//Execute specified console command on all nDisplayCluster Nodes
 	UFUNCTION(Exec, BlueprintCallable, Category = "DisplayCluster") static void ClusterExecute(const FString& Command);
 private:
@@ -87,7 +78,7 @@ protected:
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn", meta = (AllowPrivateAccess = "true")) float BaseTurnRate = 45.0f;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UFloatingPawnMovement* Movement = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UWalkingPawnMovement* Movement = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) URotatingMovementComponent* RotatingMovement = nullptr;
 
 	// Use only when handling cross-device (PC, HMD, CAVE/ROLV) compatibility manually. CAVE/ROLV flystick.
@@ -131,22 +122,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachRightHandInCAVE = EAttachementType::AT_FLYSTICK;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn") EAttachementType AttachLeftHandInCAVE = EAttachementType::AT_NONE;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn", meta = (AllowPrivateAccess = "true")) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 private:
-	float DeltaTime = 0.0f;
-	float VerticalSpeed = 0.0f;
-	UPROPERTY() float GravityAcceleration = 981.0f;
-	UPROPERTY() float UpSteppingAcceleration = 500.0f;
-	FVector LastCameraPosition;
-
-	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
-	void SetCapsuleColliderCharacterSizeVR();
-	void CheckForPhysWalkingCollision();
-	void HandleMovementInput(float Value, FVector Direction);
-	void VRWalkingMode(float Value, FVector Direction);
-	void VRFlyingMode(float Value, FVector Direction);
-	void MoveByGravityOrStepUp(float DeltaSeconds);
-	void ShiftVertically(float DiffernceDistance, float Acceleration, float DeltaSeconds, int Direction);//(direction = Down = -1), (direction = Up = 1)
 	void InitRoomMountedComponentReferences();
 };
