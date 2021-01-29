@@ -45,4 +45,7 @@ protected:
 	/* Interaction */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire(); 
+
+	/* APawn Interface to be able to use AddMovementInput() */ 
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
 };

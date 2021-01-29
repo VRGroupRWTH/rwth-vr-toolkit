@@ -22,7 +22,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
-	PawnMovement->UpdatedComponent = RootComponent;
+	PawnMovement->SetUpdatedComponent(RootComponent);
 
 	Head = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Head"));
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
@@ -113,4 +113,9 @@ void AVirtualRealityPawn::OnBeginFire_Implementation()
 void AVirtualRealityPawn::OnEndFire_Implementation()
 {
 	BasicVRInteraction->EndInteraction();
+}
+
+UPawnMovementComponent* AVirtualRealityPawn::GetMovementComponent() const
+{
+	return PawnMovement;
 }
