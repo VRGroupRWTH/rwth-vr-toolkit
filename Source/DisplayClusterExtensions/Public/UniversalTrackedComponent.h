@@ -41,9 +41,13 @@ public:
 	UUniversalTrackedComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking") ETrackedComponentType ProxyType = ETrackedComponentType::TCT_HEAD;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking") EAttachementType AttachementType = EAttachementType::AT_FLYSTICK;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|nDisplay") EAttachementType AttachementType = EAttachementType::AT_NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|HMD", BlueprintSetter=SetShowDeviceModel) bool ShowDeviceModelInHMD = true;
 
-	// Called every frame
+	UFUNCTION(BlueprintSetter)
+	void SetShowDeviceModel(const bool bShowControllerModel);
+
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:

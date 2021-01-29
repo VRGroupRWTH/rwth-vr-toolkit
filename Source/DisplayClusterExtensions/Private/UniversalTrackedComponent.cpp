@@ -13,15 +13,53 @@ UUniversalTrackedComponent::UUniversalTrackedComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
+
+void UUniversalTrackedComponent::SetShowDeviceModel(const bool bShowControllerModel)
+{
+	if (!UVirtualRealityUtilities::IsHeadMountedMode() || TrackedComponent == nullptr) return;
+
+	ShowDeviceModelInHMD = bShowControllerModel;
+	Cast<UMotionControllerComponent>(TrackedComponent)->SetShowDeviceModel(ShowDeviceModelInHMD);
+}
+
+void UUniversalTrackedComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	/* Spawn Motion Controller Components in HMD Mode */
+	if (UVirtualRealityUtilities::IsHeadMountedMode())
+	{
+		UMotionControllerComponent* MotionController = Cast<UMotionControllerComponent>(GetOwner()->AddComponentByClass(UMotionControllerComponent::StaticClass(), false, FTransform::Identity, false));
+
+		switch(ProxyType)
+		{
+			case ETrackedComponentType::TCT_TRACKER_1:
+				MotionController->SetTrackingMotionSource(FName("Special_1"));
+				break;
+			case ETrackedComponentType::TCT_TRACKER_2:
+				MotionController->SetTrackingMotionSource(FName("Special_2"));
+				break;
+			case ETrackedComponentType::TCT_RIGHT_HAND:
+				MotionController->SetTrackingMotionSource(FName("Right"));
+				break;
+			case ETrackedComponentType::TCT_LEFT_HAND:
+				MotionController->SetTrackingMotionSource(FName("Left"));
+				break;
+			default: break;
+		}
+		MotionController->SetShowDeviceModel(ShowDeviceModelInHMD);
+
+		TrackedComponent = MotionController;
+		AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	}
+}
 
 void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if(TrackedComponent) return; //Already attached
 	
 	if (UVirtualRealityUtilities::IsRoomMountedMode())
