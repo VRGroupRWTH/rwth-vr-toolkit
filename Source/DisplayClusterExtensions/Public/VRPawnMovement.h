@@ -38,6 +38,8 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SetCameraComponent(UCameraComponent* NewCameraComponent);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRNavigationModes NavigationMode = EVRNavigationModes::Walk;
 

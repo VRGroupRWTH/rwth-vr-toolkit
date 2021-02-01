@@ -1,17 +1,16 @@
-
+﻿
 #include "VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	
+	
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
-
-	CameraComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
-	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 }
 
 void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction){
@@ -59,6 +58,13 @@ bool UVRPawnMovement::CheckForVirtualMovCollision(FVector PositionChange, float 
 	}
 	return false;
 }
+
+void UVRPawnMovement::SetCameraComponent(UCameraComponent* NewCameraComponent)
+{
+	CameraComponent = NewCameraComponent;
+	CapsuleColliderComponent->SetupAttachment(CameraComponent);
+}
+
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()
 {

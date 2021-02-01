@@ -20,20 +20,24 @@ class DISPLAYCLUSTEREXTENSIONS_API AVirtualRealityPawn : public APawn
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
-	/* Proxy Components */
-	UPROPERTY() UUniversalTrackedComponent* Head;
-	UPROPERTY() UUniversalTrackedComponent* RightHand;
-	UPROPERTY() UUniversalTrackedComponent* LeftHand;
-	UPROPERTY() UUniversalTrackedComponent* Tracker1;
-	UPROPERTY() UUniversalTrackedComponent* Tracker2;
-	UPROPERTY() UBasicVRInteractionComponent* BasicVRInteraction;
+	/* Proxy */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Head;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* RightHand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* LeftHand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Tracker1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Tracker2;
+
+	/* Interaction */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction") UBasicVRInteractionComponent* BasicVRInteraction;
 
 	/* Movement */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement") UVRPawnMovement* PawnMovement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") float BaseTurnRate = 45.0f;
 
+	/* CameraComponent */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera") UCameraComponent* CameraComponent;
+	
 protected:
-	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	/* Movement */
@@ -45,7 +49,4 @@ protected:
 	/* Interaction */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire(); 
-
-	/* APawn Interface to be able to use AddMovementInput() */ 
-	virtual UPawnMovementComponent* GetMovementComponent() const override;
 };
