@@ -42,7 +42,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking") ETrackedComponentType ProxyType = ETrackedComponentType::TCT_HEAD;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|nDisplay") EAttachementType AttachementType = EAttachementType::AT_NONE;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|HMD", BlueprintSetter=SetShowDeviceModel) bool ShowDeviceModelInHMD = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|HMD", BlueprintSetter=SetShowDeviceModel) bool bShowDeviceModelInHMD = true;
 
 	UFUNCTION(BlueprintSetter)
 	void SetShowDeviceModel(const bool bShowControllerModel);

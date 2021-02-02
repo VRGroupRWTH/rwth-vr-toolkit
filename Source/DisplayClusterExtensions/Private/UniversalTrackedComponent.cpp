@@ -20,8 +20,8 @@ void UUniversalTrackedComponent::SetShowDeviceModel(const bool bShowControllerMo
 {
 	if (!UVirtualRealityUtilities::IsHeadMountedMode() || TrackedComponent == nullptr) return;
 
-	ShowDeviceModelInHMD = bShowControllerModel;
-	Cast<UMotionControllerComponent>(TrackedComponent)->SetShowDeviceModel(ShowDeviceModelInHMD);
+	bShowDeviceModelInHMD = bShowControllerModel;
+	Cast<UMotionControllerComponent>(TrackedComponent)->SetShowDeviceModel(bShowDeviceModelInHMD);
 }
 
 void UUniversalTrackedComponent::BeginPlay()
@@ -49,7 +49,7 @@ void UUniversalTrackedComponent::BeginPlay()
 				break;
 			default: break;
 		}
-		MotionController->SetShowDeviceModel(ShowDeviceModelInHMD);
+		MotionController->SetShowDeviceModel(bShowDeviceModelInHMD);
 
 		TrackedComponent = MotionController;
 		AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
