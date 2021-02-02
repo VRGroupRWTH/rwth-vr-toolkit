@@ -22,10 +22,10 @@
 UENUM(BlueprintType)
 enum class EVRNavigationModes : uint8
 {
-	None UMETA(DisplayName = "None (no controller movement)"),
-	Ghost UMETA(DisplayName = "Ghost (flying, also through walls)"),
-	Fly UMETA(DisplayName = "Fly (prohibiting collisions)"),
-	Walk UMETA(DisplayName = "Walk (gravity and prohibiting collisions)")
+	NAV_NONE UMETA(DisplayName = "None (no controller movement)"),
+	NAV_GHOST UMETA(DisplayName = "Ghost (flying, also through walls)"),
+	NAV_FLY UMETA(DisplayName = "Fly (prohibiting collisions)"),
+	NAV_WALK UMETA(DisplayName = "Walk (gravity and prohibiting collisions)")
 };
 
 UCLASS()
@@ -41,7 +41,7 @@ public:
 	void SetCameraComponent(UCameraComponent* NewCameraComponent);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	EVRNavigationModes NavigationMode = EVRNavigationModes::Walk;
+	EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_WALK;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	float MaxStepHeight = 40.0f;

@@ -4,8 +4,6 @@
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	
-	
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -19,14 +17,14 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 	FVector PositionChange = GetPendingInputVector();
 
-	if (NavigationMode == EVRNavigationModes::Walk)
+	if (NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
 		PositionChange.Z = 0.0f;
 		ConsumeInputVector();
 		AddInputVector(PositionChange);
 	}
 	
-	if(NavigationMode == EVRNavigationModes::Fly || NavigationMode == EVRNavigationModes::Walk)
+	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
 		MoveByGravityOrStepUp(DeltaTime);
 		CheckForPhysWalkingCollision();
@@ -37,7 +35,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		}
 	}
 
-	if(NavigationMode == EVRNavigationModes::None)
+	if(NavigationMode == EVRNavigationModes::NAV_NONE)
 	{
 		ConsumeInputVector();
 	}
@@ -64,7 +62,6 @@ void UVRPawnMovement::SetCameraComponent(UCameraComponent* NewCameraComponent)
 	CameraComponent = NewCameraComponent;
 	CapsuleColliderComponent->SetupAttachment(CameraComponent);
 }
-
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()
 {
@@ -120,7 +117,7 @@ void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 		ShiftVertically(DistanceDifference, UpSteppingAcceleration, DeltaSeconds, 1);
 	}
 	//Gravity (only in Walk Mode)
-	else if (NavigationMode==EVRNavigationModes::Walk && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
+	else if (NavigationMode==EVRNavigationModes::NAV_WALK && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
 	{
 		ShiftVertically(DistanceDifference, GravityAcceleration, DeltaSeconds, -1);
 	}
