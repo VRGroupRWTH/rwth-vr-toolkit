@@ -28,40 +28,61 @@ void UUniversalTrackedComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Spawn Motion Controller Components in HMD Mode */
 	if (UVirtualRealityUtilities::IsHeadMountedMode())
 	{
-		UMotionControllerComponent* MotionController = Cast<UMotionControllerComponent>(GetOwner()->AddComponentByClass(UMotionControllerComponent::StaticClass(), false, FTransform::Identity, false));
+		if(ProxyType == ETrackedComponentType::TCT_HEAD)
+		{
+			TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
+		}else
+		{
+			/* Spawn Motion Controller Components in HMD Mode*/
+			UMotionControllerComponent* MotionController = Cast<UMotionControllerComponent>(GetOwner()->AddComponentByClass(UMotionControllerComponent::StaticClass(), false, FTransform::Identity, false));
 
+			switch(ProxyType)
+			{
+				case ETrackedComponentType::TCT_TRACKER_1:
+					MotionController->SetTrackingMotionSource(FName("Special_1"));
+					break;
+				case ETrackedComponentType::TCT_TRACKER_2:
+					MotionController->SetTrackingMotionSource(FName("Special_2"));
+					break;
+				case ETrackedComponentType::TCT_RIGHT_HAND:
+					MotionController->SetTrackingMotionSource(FName("Right"));
+					break;
+				case ETrackedComponentType::TCT_LEFT_HAND:
+					MotionController->SetTrackingMotionSource(FName("Left"));
+					break;
+				default: break;
+			}
+			MotionController->SetShowDeviceModel(bShowDeviceModelInHMD);
+
+			TrackedComponent = MotionController;
+		}
+	}else if(UVirtualRealityUtilities::IsDesktopMode()){
 		switch(ProxyType)
 		{
-			case ETrackedComponentType::TCT_TRACKER_1:
-				MotionController->SetTrackingMotionSource(FName("Special_1"));
-				break;
-			case ETrackedComponentType::TCT_TRACKER_2:
-				MotionController->SetTrackingMotionSource(FName("Special_2"));
-				break;
 			case ETrackedComponentType::TCT_RIGHT_HAND:
-				MotionController->SetTrackingMotionSource(FName("Right"));
-				break;
 			case ETrackedComponentType::TCT_LEFT_HAND:
-				MotionController->SetTrackingMotionSource(FName("Left"));
+			case ETrackedComponentType::TCT_HEAD:
+				TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>(); //All are attached to camera
 				break;
-			default: break;
+			case ETrackedComponentType::TCT_TRACKER_1:
+			case ETrackedComponentType::TCT_TRACKER_2:
+				TrackedComponent = GetOwner()->GetRootComponent();
+				break;
 		}
-		MotionController->SetShowDeviceModel(bShowDeviceModelInHMD);
-
-		TrackedComponent = MotionController;
-		AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
+	
+	if(TrackedComponent) AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 
 void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if(TrackedComponent) return; //Already attached
-	
+	if(TrackedComponent) return; /* Already attached */
+
+	/* Test for presence every frame and add as soon as they are there */
 	if (UVirtualRealityUtilities::IsRoomMountedMode())
 	{
 		switch(ProxyType)
@@ -78,45 +99,9 @@ void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickT
 				TrackedComponent = GetOwner()->GetRootComponent();
 				break;
 		}
+
+		if(TrackedComponent) AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
-	else if (UVirtualRealityUtilities::IsHeadMountedMode())
-	{
-		switch(ProxyType)
-		{
-			case ETrackedComponentType::TCT_RIGHT_HAND:
-				TrackedComponent = GetMotionControllerComponentByMotionSource(EControllerHand::Right);
-				break;
-			case ETrackedComponentType::TCT_LEFT_HAND:
-				TrackedComponent = GetMotionControllerComponentByMotionSource(EControllerHand::Left);
-				break;
-			case ETrackedComponentType::TCT_HEAD:
-				TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
-				break;
-			case ETrackedComponentType::TCT_TRACKER_1:
-				TrackedComponent = GetMotionControllerComponentByMotionSource(EControllerHand::Special_1);
-				break;
-			case ETrackedComponentType::TCT_TRACKER_2:
-				TrackedComponent = GetMotionControllerComponentByMotionSource(EControllerHand::Special_2);
-				break;
-		}
-	}
-	else //Desktop
-	{
-		switch(ProxyType)
-		{
-			case ETrackedComponentType::TCT_RIGHT_HAND:
-			case ETrackedComponentType::TCT_LEFT_HAND:
-			case ETrackedComponentType::TCT_HEAD:
-				TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>(); //All are attached to camera
-				break;
-			case ETrackedComponentType::TCT_TRACKER_1:
-			case ETrackedComponentType::TCT_TRACKER_2:
-				TrackedComponent = GetOwner()->GetRootComponent();
-				break;
-		}
-	}
-	
-	if(TrackedComponent) AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 
 UMotionControllerComponent* UUniversalTrackedComponent::GetMotionControllerComponentByMotionSource(EControllerHand MotionSource)
