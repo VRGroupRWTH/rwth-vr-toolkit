@@ -38,6 +38,7 @@ void UBasicVRInteractionComponent::BeginInteraction()
 	AActor* HitActor = Hit.GetActor();
 	
 	// try to cast HitActor int a Grabable if not succeeded will become a nullptr
+	
 	IGrabable*  GrabableActor  = Cast<IGrabable>(HitActor);
 	IClickable* ClickableActor = Cast<IClickable>(HitActor);
 
@@ -73,13 +74,10 @@ void UBasicVRInteractionComponent::EndInteraction()
 	Cast<IGrabable>(GrabbedActor)->OnReleased_Implementation();
 
 	// Detach the Actor
-
-	UPrimitiveComponent* PhysicsComp = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();
-	UGrabbingBehaviorComponent* Behavior = GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>();
-	if (Behavior == nullptr)
+	if (GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>() == nullptr)
 	{
 		GrabbedActor->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		PhysicsComp->SetSimulatePhysics(bDidSimulatePhysics);
+		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(bDidSimulatePhysics);
 	}
 
 	// forget about the actor
