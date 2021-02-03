@@ -37,8 +37,7 @@ void UBasicVRInteractionComponent::BeginInteraction()
 
 	AActor* HitActor = Hit.GetActor();
 	
-	// try to cast HitActor int a Grabable if not succeeded will become a nullptr
-	
+	// try to cast HitActor into a Grabable if not succeeded will become a nullptr
 	IGrabable*  GrabableActor  = Cast<IGrabable>(HitActor);
 	IClickable* ClickableActor = Cast<IClickable>(HitActor);
 
@@ -93,8 +92,6 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	// if an actor is grabbed and a behavior is defined move move him accordingly  
 	if (GrabbedActor == nullptr || 	InteractionRayEmitter == nullptr) return;
 	
-	//UGrabbingBehaviorComponent* Behavior = GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>();
-
 	// if our Grabable Actor is not constrained
 	if (Behavior != nullptr)
 	{	
