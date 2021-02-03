@@ -20,14 +20,11 @@
       "Type": "Runtime",
       "LoadingPhase": "Default"
     },
-	
 	{	
 	  "Name": "DisplayClusterExtensionsEditor",
 	  "Type": "Editor",
 	  "LoadingPhase": "PostEngineInit"
 	}
-
-
   ],
   "Plugins": [
     {
