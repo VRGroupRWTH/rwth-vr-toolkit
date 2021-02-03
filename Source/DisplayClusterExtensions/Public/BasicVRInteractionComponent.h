@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "BasicVRInteractionComponent.generated.h"
 
+class UGrabbingBehaviorComponent;
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DISPLAYCLUSTEREXTENSIONS_API UBasicVRInteractionComponent : public UActorComponent
@@ -34,6 +36,7 @@ private:
 	UPROPERTY() bool bDidSimulatePhysics;	
 	/* Holding a reference to the actor that is currently being grabbed */
 	UPROPERTY() AActor* GrabbedActor;
+	UPROPERTY() UGrabbingBehaviorComponent* Behavior = nullptr;
 	UPROPERTY() USceneComponent* InteractionRayEmitter = nullptr;
 	
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
