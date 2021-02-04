@@ -3,6 +3,5 @@
 
 AVirtualRealityGameMode::AVirtualRealityGameMode() : Super()
 {
-//	if (!bIsDisplayClusterActive) return;
 	DefaultPawnClass = AVirtualRealityPawn::StaticClass();
 }
