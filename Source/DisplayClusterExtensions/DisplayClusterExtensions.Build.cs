@@ -30,7 +30,11 @@ public class DisplayClusterExtensions : ModuleRules
         "DisplayCluster",
         "Engine",
         "HeadMountedDisplay",
-        "InputCore"
+        "InputCore",
+		"UMG",
+		"Slate",
+		"SlateCore",
+		"DeveloperSettings"
       }
       );
 

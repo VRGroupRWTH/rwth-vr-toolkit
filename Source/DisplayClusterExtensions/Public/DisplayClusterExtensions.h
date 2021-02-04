@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CAVEOverlay/CAVEOverlay.h"
 #include "FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
 
@@ -13,4 +14,5 @@ public:
 
 private:
 	FFixNDisplayStereoDevice StereoDeviceFix;
+	FCAVEOverlay CAVEOverlay;
 };

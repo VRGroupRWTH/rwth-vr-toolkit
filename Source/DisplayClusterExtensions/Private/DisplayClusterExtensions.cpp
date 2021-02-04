@@ -5,10 +5,12 @@
 void FDisplayClusterExtensionsModule::StartupModule ()
 {
 	StereoDeviceFix.Register();
+	CAVEOverlay.Register();
 }
 void FDisplayClusterExtensionsModule::ShutdownModule()
 {
 	StereoDeviceFix.Unregister();
+	CAVEOverlay.Unregister();
 }
 
 #undef LOCTEXT_NAMESPACE

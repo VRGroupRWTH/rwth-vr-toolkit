@@ -33,9 +33,12 @@ class DISPLAYCLUSTEREXTENSIONS_API UVirtualRealityUtilities : public UBlueprintF
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsDesktopMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsRoomMountedMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsHeadMountedMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsDesktopMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsRoomMountedMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsHeadMountedMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsCave();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsTdw();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsRolv();
 
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsMaster();
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsSlave();
