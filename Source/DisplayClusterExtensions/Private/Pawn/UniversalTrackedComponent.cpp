@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UniversalTrackedComponent.h"
+#include "Pawn/UniversalTrackedComponent.h"
 
 
 #include "Camera/CameraComponent.h"
-#include "VirtualRealityUtilities.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UUniversalTrackedComponent::UUniversalTrackedComponent()

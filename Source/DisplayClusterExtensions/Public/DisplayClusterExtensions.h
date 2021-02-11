@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "CAVEOverlay/CAVEOverlay.h"
-#include "FixNDisplayStereoDevice.h"
+#include "Fixes/FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
 
 

@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "VirtualRealityPawn.h"
+#include "Pawn/VirtualRealityPawn.h"
 
 
 
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/PlayerInput.h"
-#include "UniversalTrackedComponent.h"
-#include "VirtualRealityUtilities.h"
-#include "VRPawnMovement.h"
+#include "Pawn/UniversalTrackedComponent.h"
+#include "Utility/VirtualRealityUtilities.h"
+#include "Pawn/VRPawnMovement.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
