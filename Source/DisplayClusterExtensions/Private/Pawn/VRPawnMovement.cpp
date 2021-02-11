@@ -1,5 +1,5 @@
 ﻿
-#include "VRPawnMovement.h"
+#include "Pawn/VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

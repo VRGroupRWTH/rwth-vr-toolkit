@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FixNDisplayStereoDevice.h"
+#include "Fixes/FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
 
 
