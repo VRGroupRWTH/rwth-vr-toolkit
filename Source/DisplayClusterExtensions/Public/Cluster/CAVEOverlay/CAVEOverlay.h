@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/World.h"
-#include "CAVEOverlay/CAVEOverlaySettings.h"
-#include "CAVEOverlay/CAVEOverlayController.h"
+#include "Cluster/CAVEOverlay/CAVEOverlaySettings.h"
+#include "Cluster/CAVEOverlay/CAVEOverlayController.h"
 #include "Kismet/GameplayStatics.h"
 #include "CAVEOverlay.generated.h"
 

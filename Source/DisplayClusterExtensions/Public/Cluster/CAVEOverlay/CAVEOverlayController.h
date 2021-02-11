@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CAVEOverlay/DoorOverlayData.h"
-#include "VirtualRealityPawn.h"
+#include "Cluster/CAVEOverlay/DoorOverlayData.h"
+#include "Pawn/VirtualRealityPawn.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "CAVEOverlayController.generated.h"

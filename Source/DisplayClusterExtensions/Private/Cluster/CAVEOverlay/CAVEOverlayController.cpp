@@ -1,6 +1,6 @@
-#include "CAVEOverlay/CAVEOverlayController.h"
+#include "Cluster/CAVEOverlay/CAVEOverlayController.h"
 #include "CoreMinimal.h"
-#include "CAVEOverlay/DoorOverlayData.h"
+#include "Cluster/CAVEOverlay/DoorOverlayData.h"
 #include "IDisplayCluster.h"
 #include "IXRTrackingSystem.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
@@ -9,9 +9,9 @@
 #include <array>
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "DisplayClusterExtensions/Public/VirtualRealityPawn.h"
+#include "Pawn/VirtualRealityPawn.h"
 #include "Components/DisplayClusterSceneComponent.h"
-#include "VirtualRealityUtilities.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
 

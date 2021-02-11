@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CAVEOverlay/CAVEOverlay.h"
+#include "Cluster/CAVEOverlay/CAVEOverlay.h"
 #include "Fixes/FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
 
