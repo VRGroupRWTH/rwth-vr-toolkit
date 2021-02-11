@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Fixes/FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
-#include "ClusterConsole.h"
+#include "Cluster/ClusterConsole.h"
 
 
 class FDisplayClusterExtensionsModule : public IModuleInterface

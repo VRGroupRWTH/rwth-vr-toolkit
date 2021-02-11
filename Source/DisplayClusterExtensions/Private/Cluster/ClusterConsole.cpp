@@ -1,4 +1,4 @@
-#include "ClusterConsole.h"
+#include "Cluster/ClusterConsole.h"
 #include "IDisplayCluster.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 
