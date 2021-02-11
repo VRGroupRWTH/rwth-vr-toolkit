@@ -1,11 +1,11 @@
 #include "DisplayClusterExtensionsEditor.h"
 
 #include "ComponentVisualizers.h"
-#include "GrabbingBehaviorOnLineVisualizer.h"
-#include "GrabbingBehaviorPlaneVisualizer.h"
+#include "Interaction/GrabbingBehaviorOnLineVisualizer.h"
+#include "Interaction/GrabbingBehaviorPlaneVisualizer.h"
 
-#include "GrabbingBehaviorOnPlaneComponent.h"
-#include "GrabbingBehaviorOnLineComponent.h"
+#include "Interaction/GrabbingBehaviorOnPlaneComponent.h"
+#include "Interaction/GrabbingBehaviorOnLineComponent.h"
 
 #include "UnrealEdGlobals.h"
 #include "Editor/UnrealEdEngine.h"

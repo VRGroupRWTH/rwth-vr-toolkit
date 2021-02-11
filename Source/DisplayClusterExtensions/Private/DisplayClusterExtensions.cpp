@@ -5,10 +5,12 @@
 void FDisplayClusterExtensionsModule::StartupModule ()
 {
 	ClusterConsole.Register();
+	StereoDeviceFix.Register();
 }
 void FDisplayClusterExtensionsModule::ShutdownModule()
 {
 	ClusterConsole.Unregister();
+	StereoDeviceFix.Unregister();
 }
 
 #undef LOCTEXT_NAMESPACE
