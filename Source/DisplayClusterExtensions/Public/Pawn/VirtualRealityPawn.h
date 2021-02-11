@@ -5,7 +5,6 @@
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
-#include "GameFramework/RotatingMovementComponent.h"
 #include "UniversalTrackedComponent.h"
 #include "VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"

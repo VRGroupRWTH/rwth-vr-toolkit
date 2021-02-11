@@ -1,4 +1,4 @@
-#include "FixNDisplayStereoDevice.h"
+#include "Fixes/FixNDisplayStereoDevice.h"
 
 void FFixNDisplayStereoDevice::Register()
 {

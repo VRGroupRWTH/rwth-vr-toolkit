@@ -1,12 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BasicVRInteractionComponent.h"
+#include "Pawn/BasicVRInteractionComponent.h"
 
 
-#include "Clickable.h"
-#include "Grabable.h"
-#include "GrabbingBehaviorComponent.h"
+#include "Interaction/Clickable.h"
+#include "Interaction/Grabable.h"
+#include "Interaction/GrabbingBehaviorComponent.h"
 
 // Sets default values for this component's properties
 UBasicVRInteractionComponent::UBasicVRInteractionComponent()

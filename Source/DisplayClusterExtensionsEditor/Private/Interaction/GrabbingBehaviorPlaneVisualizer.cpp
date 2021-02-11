@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GrabbingBehaviorPlaneVisualizer.h"
-#include "GrabbingBehaviorOnPlaneComponent.h"
+#include "Interaction/GrabbingBehaviorPlaneVisualizer.h"
+#include "Interaction/GrabbingBehaviorOnPlaneComponent.h"
 #include "SceneManagement.h"
 
 FGrabbingBehaviorPlaneVisualizer::FGrabbingBehaviorPlaneVisualizer()

@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GrabbingBehaviorOnLineVisualizer.h"
-#include "GrabbingBehaviorOnLineComponent.h"
+#include "Interaction/GrabbingBehaviorOnLineVisualizer.h"
+#include "Interaction/GrabbingBehaviorOnLineComponent.h"
 
 #include "SceneManagement.h"
 
