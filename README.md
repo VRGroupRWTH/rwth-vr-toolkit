@@ -15,7 +15,11 @@ This folder contains fixes for problems that exist in the Unreal Engine, which c
 
 ## :open_file_folder:  Interaction
 This folder contains interaction related components, which can be attached to actors in your application to reflect a specific feature. Some of these components require the corresponding component on your pawn.
-*Todo*
+
+By simply inheriting from the `IGrabable` or `IClickable` interface, your actor will respond to the pawn's clicks. A grabable actor (an actor who inherited from `IGrabable`) is automatically attached to the controller when grabbed and can be dragged around. If you wish to alter this behavior you can give a `GrabbingBehaviorComponent` to the actor, which will constraint his movement on a line or circle. For details on the customization you can make, take a look at the header files of these GrabbingBeaviorComponents.
+Aditionally, you can override the `OnGrabbed` and `OnReleased` functions which will be called by the pawn through delegates. 
+
+A clickable actor should override the `OnClicked` function for interaction to take place. If the pawn clicks on an actor who inherited from `IClickable`, he calls the actor's `OnClicked` function.
 
 ## :open_file_folder: Pawn
 This folder consists of our pawn implementation and some components that are attached to it.
