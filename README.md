@@ -7,7 +7,7 @@ In the following the main features are explained:
 ## :open_file_folder:  Cluster
 This folder contains cluster specific helpers or components
 
-### :arrow_forward::open_file_folder: Events
+### :arrow_forward: :open_file_folder: Events
 This folder contains some cluster-event helpers. *TODO*
 
 ## :open_file_folder: Fixes
