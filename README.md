@@ -47,3 +47,6 @@ To use this component attach it to your pawn and make sure to call
 PawnMovement->SetUpdatedComponent(RootComponent);
 PawnMovement->SetCameraComponent(CameraComponent);
 ```
+
+## :open_file_folder: Utility
+This folder contains the VirtualRealityUtilities.h, which is a collection of static functions which can be helpful in every application
