@@ -105,7 +105,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance, float InMaxClickDistance)
 {
-	if(InteractionRayEmitter!= nullptr) return; /* Return if already initialized */
+	if(InteractionRayEmitter) return; /* Return if already initialized */
 
 	InteractionRayEmitter = RayEmitter;
 	MaxGrabDistance = InMaxGrabDistance;
