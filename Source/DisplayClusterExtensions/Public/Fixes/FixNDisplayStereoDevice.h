@@ -25,8 +25,8 @@ private:
 
 	TSharedPtr< class IStereoRendering, ESPMode::ThreadSafe > StoredRenderingDevice;
 
-	TBaseDelegate<void, UWorld*, const UWorld::InitializationValues> On_Post_World_Initialization_Delegate;
-	TBaseDelegate<void, UWorld*> On_Pre_World_Finish_Destroy_Delegate;
+	TDelegate<void (UWorld*, const UWorld::InitializationValues)> On_Post_World_Initialization_Delegate;
+	TDelegate<void (UWorld*)> On_Pre_World_Finish_Destroy_Delegate;
 
 	FDelegateHandle StartHandle;
 	FDelegateHandle EndHandle;
