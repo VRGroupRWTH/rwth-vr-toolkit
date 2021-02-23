@@ -92,7 +92,7 @@ void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickT
 				TrackedComponent = GetComponentForSelectedAttachment(AttachementType);
 				break;
 			case ETrackedComponentType::TCT_HEAD:
-				TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
+				TrackedComponent = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
 				break;
 			case ETrackedComponentType::TCT_TRACKER_1:
 			case ETrackedComponentType::TCT_TRACKER_2:
