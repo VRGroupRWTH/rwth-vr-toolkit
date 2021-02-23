@@ -230,7 +230,6 @@ void ACAVEOverlayController::BeginPlay()
 	Overlay->CornerText->SetText(FText::FromString("")); //Set Text to "" until someone presses the key for the first time
 
 	Player_Pawn = Cast<AVirtualRealityPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	RefreshPawnComponents();
 
 	if (!bAttached && Cave_Origin)
 	{
