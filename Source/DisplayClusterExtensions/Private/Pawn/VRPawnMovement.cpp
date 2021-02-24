@@ -42,7 +42,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	LastCameraPosition = CameraComponent->GetComponentLocation();
+	LastHeadPosition = HeadComponent->GetComponentLocation();
 }
 
 bool UVRPawnMovement::CheckForVirtualMovCollision(FVector PositionChange, float DeltaTime)
@@ -57,15 +57,15 @@ bool UVRPawnMovement::CheckForVirtualMovCollision(FVector PositionChange, float 
 	return false;
 }
 
-void UVRPawnMovement::SetCameraComponent(UCameraComponent* NewCameraComponent)
+void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 {
-	CameraComponent = NewCameraComponent;
-	CapsuleColliderComponent->SetupAttachment(CameraComponent);
+	HeadComponent = NewHeadComponent;
+	CapsuleColliderComponent->SetupAttachment(HeadComponent);
 }
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()
 {
-	float CharachterSize = abs(UpdatedComponent->GetComponentLocation().Z - CameraComponent->GetComponentLocation().Z);
+	float CharachterSize = abs(UpdatedComponent->GetComponentLocation().Z - HeadComponent->GetComponentLocation().Z);
 
 	if (CharachterSize > MaxStepHeight)
 	{
@@ -81,21 +81,21 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 			CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
 		}
 
-		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation());
 		CapsuleColliderComponent->AddWorldOffset(FVector(0, 0, -ColliderHalfHeight));
 		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
 	else
 	{
-		CapsuleColliderComponent->SetWorldLocation(CameraComponent->GetComponentLocation());
+		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation());
 		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
 }
 
 void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
-	FVector CurrentCameraPosition = CameraComponent->GetComponentLocation();
-	FVector Direction = CurrentCameraPosition - LastCameraPosition;
+	FVector CurrentHeadPosition = HeadComponent->GetComponentLocation();
+	FVector Direction = CurrentHeadPosition - LastHeadPosition;
 	FHitResult FHitResultPhys;
 	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
 
