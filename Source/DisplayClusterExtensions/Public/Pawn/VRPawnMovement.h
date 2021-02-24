@@ -38,7 +38,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetCameraComponent(UCameraComponent* NewCameraComponent);
+	void SetHeadComponent(USceneComponent* NewHeadComponent);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_WALK;
@@ -63,8 +63,8 @@ private:
 	//(direction = Down = -1), (direction = Up = 1)
 
 	UPROPERTY() UCapsuleComponent* CapsuleColliderComponent = nullptr;
-	UPROPERTY() UCameraComponent* CameraComponent = nullptr;
+	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	FVector LastCameraPosition;
+	FVector LastHeadPosition;
 };

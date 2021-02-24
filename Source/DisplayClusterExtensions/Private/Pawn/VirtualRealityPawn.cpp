@@ -26,14 +26,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
 	CameraComponent->SetAbsolute();
-	
-	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
-	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetCameraComponent(CameraComponent);
 
 	Head = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Head"));
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
 	Head->SetupAttachment(RootComponent);
+
+	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
+	PawnMovement->SetUpdatedComponent(RootComponent);
+	PawnMovement->SetHeadComponent(Head);
 	
 	RightHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Right Hand"));
 	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
