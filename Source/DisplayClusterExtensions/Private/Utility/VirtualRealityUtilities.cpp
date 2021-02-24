@@ -2,6 +2,7 @@
 
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Components/DisplayClusterCameraComponent.h"
+#include "Config/IDisplayClusterConfigManager.h"
 #include "DisplayClusterRootActor.h"
 #include "DisplayClusterConfigurationTypes.h"
 #include "Engine/Engine.h"
@@ -20,6 +21,33 @@ bool UVirtualRealityUtilities::IsRoomMountedMode()
 bool UVirtualRealityUtilities::IsHeadMountedMode()
 {
 	return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
+}
+
+bool UVirtualRealityUtilities::IsCave()
+{
+	if(!IsRoomMountedMode()) return false;
+	
+	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
+	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
+		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
+}
+
+bool UVirtualRealityUtilities::IsTdw()
+{
+	if(!IsRoomMountedMode()) return false;
+	
+	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
+	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
+		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("TiledDisplayWall", ESearchCase::IgnoreCase);
+}
+
+bool UVirtualRealityUtilities::IsRolv()
+{
+	if(!IsRoomMountedMode()) return false;
+	
+	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
+	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
+		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
 }
 
 /* Return true on the Master in cluster mode and in a normal desktop session. Otherwise false */
