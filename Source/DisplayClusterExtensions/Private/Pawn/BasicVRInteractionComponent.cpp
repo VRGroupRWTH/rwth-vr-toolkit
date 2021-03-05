@@ -69,7 +69,7 @@ void UBasicVRInteractionComponent::EndInteraction()
 		return;
 
 	// let the grabbed object react to release
-	Cast<IGrabable>(GrabbedActor)->OnReleased_Implementation();
+	IGrabable::Execute_OnEndGrab(GrabbedActor);
 
 	// Detach the Actor
 	if (GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>() == nullptr)
