@@ -21,10 +21,9 @@ class IGrabable
 public:
 	// function that will be called when grabbed by a pawn
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
-	void OnGrabbed();
+	void OnBeginGrab();
 	
 	// called when pawn released the object
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
-	void OnReleased();
-
+	void OnEndGrab();
 };

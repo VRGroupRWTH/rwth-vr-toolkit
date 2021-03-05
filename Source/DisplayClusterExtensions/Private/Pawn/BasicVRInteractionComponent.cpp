@@ -30,21 +30,20 @@ void UBasicVRInteractionComponent::BeginInteraction()
 	// will be filled by the Line Trace Function
 	FHitResult Hit;
 
+	const FCollisionObjectQueryParams Params;	
+	FCollisionQueryParams Params2; 
+	Params2.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
+
 	//if hit was not found return  
-	const FCollisionObjectQueryParams Params;
-	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params))
+	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
 		return;
 
 	AActor* HitActor = Hit.GetActor();
 	
-	// try to cast HitActor into a Grabable if not succeeded will become a nullptr
-	IGrabable*  GrabableActor  = Cast<IGrabable>(HitActor);
-	IClickable* ClickableActor = Cast<IClickable>(HitActor);
-
-	if (GrabableActor != nullptr && Hit.Distance < MaxGrabDistance)
+	if (HitActor->Implements<UGrabable>() && Hit.Distance < MaxGrabDistance)
 	{
 		// call grabable actors function so he reacts to our grab
-		GrabableActor->OnGrabbed_Implementation();
+		IGrabable::Execute_OnBeginGrab(HitActor);
 		
 		// save it for later, is needed every tick
 		Behavior = HitActor->FindComponentByClass<UGrabbingBehaviorComponent>();
@@ -54,9 +53,9 @@ void UBasicVRInteractionComponent::BeginInteraction()
 		// we save the grabbedActor in a general form to access all of AActors functions easily later
 		GrabbedActor = HitActor;
 	}
-	else if (ClickableActor != nullptr && Hit.Distance < MaxClickDistance)
+	else if (HitActor->Implements<UClickable>() && Hit.Distance < MaxClickDistance)
 	{
-		ClickableActor->OnClicked_Implementation(Hit.Location);
+		IClickable::Execute_OnClick(HitActor, Hit.Location);
 	}
 }
 
