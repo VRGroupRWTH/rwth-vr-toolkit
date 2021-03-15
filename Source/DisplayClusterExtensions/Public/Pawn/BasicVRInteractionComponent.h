@@ -26,6 +26,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite) float MaxGrabDistance = 50;
 	UPROPERTY(BlueprintReadWrite) float MaxClickDistance = 500;
+	// Enable this if you want to interact with Targetable classes
+	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = false;
 
 	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance = 50, float InMaxClickDistance = 500);
 	
@@ -41,4 +43,5 @@ private:
 	
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
+	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
 };

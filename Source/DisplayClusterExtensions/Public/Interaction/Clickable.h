@@ -7,7 +7,6 @@
 #include "UObject/Interface.h"
 #include "Clickable.generated.h"
 
-
 UINTERFACE(BlueprintType)
 class DISPLAYCLUSTEREXTENSIONS_API UClickable : public UInterface
 {

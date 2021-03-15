@@ -7,7 +7,6 @@
 #include "UObject/Interface.h"
 #include "Targetable.generated.h"
 
-
 UINTERFACE(BlueprintType)
 class DISPLAYCLUSTEREXTENSIONS_API UTargetable: public UInterface
 {
