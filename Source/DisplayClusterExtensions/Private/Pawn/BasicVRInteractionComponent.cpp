@@ -9,6 +9,7 @@
 #include "Interaction/Targetable.h"
 #include "Interaction/GrabbingBehaviorComponent.h"
 #include "Misc/Optional.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values for this component's properties
 UBasicVRInteractionComponent::UBasicVRInteractionComponent()
@@ -66,8 +67,9 @@ void UBasicVRInteractionComponent::EndInteraction()
 	// Detach the Actor
 	if (GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>() == nullptr)
 	{
-		GrabbedActor->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(bDidSimulatePhysics);
+		UPrimitiveComponent* PhysicsComp = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();	
+		PhysicsComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(bDidSimulatePhysics); // do components higher up in the hierarchy move?
 	}
 
 	// forget about the actor
@@ -120,14 +122,12 @@ void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float
 
 void UBasicVRInteractionComponent::HandlePhysicsAndAttachActor(AActor* HitActor)
 {
-	UPrimitiveComponent* PhysicsComp = HitActor->FindComponentByClass<UStaticMeshComponent>();	
+	UPrimitiveComponent* PhysicsComp = HitActor->FindComponentByClass<UPrimitiveComponent>();	
 	
 	bDidSimulatePhysics = PhysicsComp->IsSimulatingPhysics(); // remember if we need to tun physics back on or not	
 	PhysicsComp->SetSimulatePhysics(false);
-	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
-	HitActor->AttachToComponent(InteractionRayEmitter, Rules);
-
-	// AttachRootComponentToActor
+	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
+	PhysicsComp->AttachToComponent(InteractionRayEmitter, Rules);
 }
 
 FTwoVectors UBasicVRInteractionComponent::GetHandRay(const float Length) const
@@ -144,6 +144,8 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 	const FVector Start = Ray.v1;
 	const FVector End   = Ray.v2;	
 
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, true, 2, 1, 1);
+	
 	// will be filled by the Line Trace Function
 	FHitResult Hit;
 
@@ -151,8 +153,9 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 	FCollisionQueryParams Params2; 
 	Params2.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
 
-	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
-		return {};
+	//if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
+	if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params2))
+		return {Hit};
 	else
-		return { Hit };
+		return {};
 }
