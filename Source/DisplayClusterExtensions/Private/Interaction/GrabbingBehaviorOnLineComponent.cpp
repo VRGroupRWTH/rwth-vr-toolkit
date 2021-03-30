@@ -37,7 +37,6 @@ void UGrabbingBehaviorOnLineComponent::SetDiscreteNumberOfPoints(int Num)
 
 void UGrabbingBehaviorOnLineComponent::HandleNewPositionAndDirection(FVector Position, FQuat Orientation)
 {
-
 	FVector AttachmentPoint = this->GetRelativeLocation();
 	FVector ConstraintAxis = this->GetComponentQuat().GetUpVector();
 	FVector Direction = Orientation.GetForwardVector();

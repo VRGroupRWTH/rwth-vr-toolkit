@@ -31,7 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance = 50, float InMaxClickDistance = 500);
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure) AActor* GetGrabbedActor() const { return GrabbedActor;	}
+	UFUNCTION(BlueprintCallable, BlueprintPure) AActor* GetGrabbedActor() const { return GrabbedActor;}
 	UFUNCTION(BlueprintCallable, BlueprintPure) USceneComponent* GetInteractionRayEmitter() const { return InteractionRayEmitter;	}
 private:
 	/* indicates if the grabbed actor was simulating physics before we grabbed it */
@@ -44,4 +44,5 @@ private:
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
+	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor) const;
 };

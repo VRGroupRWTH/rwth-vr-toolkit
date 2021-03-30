@@ -9,9 +9,6 @@ UGrabbingBehaviorOnPlaneComponent::UGrabbingBehaviorOnPlaneComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	SetAbsolute(true, true, true);
-	// ...
 }
 
 
@@ -42,7 +39,6 @@ void UGrabbingBehaviorOnPlaneComponent::HandleNewPositionAndDirection(FVector Po
 	
 	// after this NewPoint is in world position
 	NewPosition += AttachmentPoint;
-
 
 	// set new position and orientation using calculated quaternion and position
 	// here rotation is not changed

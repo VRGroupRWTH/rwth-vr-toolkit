@@ -52,7 +52,6 @@ void UBasicVRInteractionComponent::BeginInteraction()
 	}
 }
 
-
 void UBasicVRInteractionComponent::EndInteraction()
 {
 	if(!InteractionRayEmitter) return;
@@ -67,14 +66,20 @@ void UBasicVRInteractionComponent::EndInteraction()
 	// Detach the Actor
 	if (GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>() == nullptr)
 	{
-		UPrimitiveComponent* PhysicsComp = GrabbedActor->FindComponentByClass<UPrimitiveComponent>();	
-		PhysicsComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		GrabbedActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(bDidSimulatePhysics); // do components higher up in the hierarchy move?
+		if (bDidSimulatePhysics) {
+			UPrimitiveComponent* PhysicsComp = GetFirstComponentSimulatingPhysics(GrabbedActor);
+			PhysicsComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			PhysicsComp->SetSimulatePhysics(true);
+		}
+		else {
+			GrabbedActor->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		}
 	}
 
 	// forget about the actor
 	GrabbedActor = nullptr;
 	Behavior = nullptr;
+	bDidSimulatePhysics = false;
 }
 
 // Called every frame
@@ -122,12 +127,18 @@ void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float
 
 void UBasicVRInteractionComponent::HandlePhysicsAndAttachActor(AActor* HitActor)
 {
-	UPrimitiveComponent* PhysicsComp = HitActor->FindComponentByClass<UPrimitiveComponent>();	
+	UPrimitiveComponent* PhysicsSimulatingComp = GetFirstComponentSimulatingPhysics(HitActor);
+	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 	
-	bDidSimulatePhysics = PhysicsComp->IsSimulatingPhysics(); // remember if we need to tun physics back on or not	
-	PhysicsComp->SetSimulatePhysics(false);
-	FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
-	PhysicsComp->AttachToComponent(InteractionRayEmitter, Rules);
+	if (PhysicsSimulatingComp) {
+		bDidSimulatePhysics = true; // remember if we need to tun physics back on or not	
+		PhysicsSimulatingComp->SetSimulatePhysics(false);
+		PhysicsSimulatingComp->AttachToComponent(InteractionRayEmitter, Rules);	
+	}
+	else {
+		bDidSimulatePhysics = false;
+		HitActor->GetRootComponent()->AttachToComponent(InteractionRayEmitter, Rules);
+	}
 }
 
 FTwoVectors UBasicVRInteractionComponent::GetHandRay(const float Length) const
@@ -152,10 +163,23 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 	const FCollisionObjectQueryParams Params;	
 	FCollisionQueryParams Params2; 
 	Params2.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
-
-	//if (!GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
-	if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params2))
+	if (GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
+	//if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params2))
 		return {Hit};
 	else
 		return {};
+}
+
+UPrimitiveComponent* UBasicVRInteractionComponent::GetFirstComponentSimulatingPhysics(const AActor* TargetActor) const 
+{
+	TArray<UPrimitiveComponent*> PrimitiveComponents;
+	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);	
+
+	// find the component that simulates physics
+	for (const auto& Component : PrimitiveComponents) {
+		if (Component->IsSimulatingPhysics()) {
+			return Component;
+		}	
+	}
+	return nullptr;
 }
