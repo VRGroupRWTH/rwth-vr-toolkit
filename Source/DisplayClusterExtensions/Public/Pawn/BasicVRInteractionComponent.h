@@ -38,11 +38,19 @@ private:
 	UPROPERTY() bool bDidSimulatePhysics;	
 	/* Holding a reference to the actor that is currently being grabbed */
 	UPROPERTY() AActor* GrabbedActor;
+	/* Holds a reference to the grabbed actors physics simulating component if there was one*/
+	UPROPERTY() UPrimitiveComponent* ComponentSimulatingPhysics = nullptr;
 	UPROPERTY() UGrabbingBehaviorComponent* Behavior = nullptr;
 	UPROPERTY() USceneComponent* InteractionRayEmitter = nullptr;
 	
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
-	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor) const;
 };
+
+// Free utility functions
+UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
+UPrimitiveComponent* GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp);
+
+
+
