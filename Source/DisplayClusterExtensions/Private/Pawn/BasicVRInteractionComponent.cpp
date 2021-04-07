@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Pawn/BasicVRInteractionComponent.h"
@@ -135,7 +135,6 @@ void UBasicVRInteractionComponent::HandlePhysicsAndAttachActor(AActor* HitActor)
 		ComponentSimulatingPhysics = PhysicsSimulatingComp;
 	}
 	else {
-		bDidSimulatePhysics = false;
 		HitActor->GetRootComponent()->AttachToComponent(InteractionRayEmitter, Rules);
 	}
 }
