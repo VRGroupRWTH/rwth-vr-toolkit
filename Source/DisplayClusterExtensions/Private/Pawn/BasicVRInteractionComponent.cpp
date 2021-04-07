@@ -79,7 +79,6 @@ void UBasicVRInteractionComponent::EndInteraction()
 	GrabbedActor = nullptr;
 	ComponentSimulatingPhysics = nullptr;
 	Behavior = nullptr;
-	bDidSimulatePhysics = false;
 }
 
 // Called every frame
@@ -154,8 +153,6 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 {
 	const FVector Start = Ray.v1;
 	const FVector End   = Ray.v2;	
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, true, 2, 1, 1);
 	
 	// will be filled by the Line Trace Function
 	FHitResult Hit;
@@ -163,7 +160,6 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 	const FCollisionObjectQueryParams Params;	
 	FCollisionQueryParams Params2; 
 	Params2.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
-	//if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params2))
 	if (GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
 		return {Hit};
 	else
@@ -175,7 +171,7 @@ UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActo
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
 	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);	
 
-	// find the component that simulates physics
+	// find any component that simulates physics, then traverse the hierarchy
 	for (const auto& Component : PrimitiveComponents) {
 		if (Component->IsSimulatingPhysics()) {
 			return GetHighestParentSimulatingPhysics(Component);

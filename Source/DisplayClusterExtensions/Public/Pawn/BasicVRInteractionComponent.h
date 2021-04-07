@@ -34,8 +34,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure) AActor* GetGrabbedActor() const { return GrabbedActor;}
 	UFUNCTION(BlueprintCallable, BlueprintPure) USceneComponent* GetInteractionRayEmitter() const { return InteractionRayEmitter;	}
 private:
-	/* indicates if the grabbed actor was simulating physics before we grabbed it */
-	UPROPERTY() bool bDidSimulatePhysics;	
 	/* Holding a reference to the actor that is currently being grabbed */
 	UPROPERTY() AActor* GrabbedActor;
 	/* Holds a reference to the grabbed actors physics simulating component if there was one*/
@@ -48,8 +46,16 @@ private:
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
 };
 
-// Free utility functions
+// Free utility functions 
+/*
+	Returns the UPrimitiveComponent simulating physics that is highest in the hierarchy
+*/
 UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
+/*
+	Recursive Function
+	If parent component simulates physics returns GetHighestParentSimulatingPhysics(Parent)
+	else returns Comp itself
+*/
 UPrimitiveComponent* GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp);
 
 
