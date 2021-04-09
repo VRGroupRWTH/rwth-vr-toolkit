@@ -25,8 +25,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
-	CameraComponent->SetAbsolute();
-
+	
 	Head = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Head"));
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
 	Head->SetupAttachment(RootComponent);
@@ -64,6 +63,16 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
 }
 
+void AVirtualRealityPawn::SetCameraOffset() const
+{
+	// this also incorporates the BaseEyeHeight, if set as static offset,
+	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
+	FVector Location;
+	FRotator Rotation;
+	GetActorEyesViewPoint(Location, Rotation);
+	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
+}
+
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 	if (RightHand)
@@ -95,6 +104,7 @@ void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+		SetCameraOffset();;
 	}
 }
 
