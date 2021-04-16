@@ -14,7 +14,7 @@ class ClusterEventWrapperEvent;
 template <typename ObjectType, typename ReturnType, typename... ArgTypes, ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
 class ClusterEventWrapperEvent<ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
 {
-	static_assert(TIsDerivedFrom<ObjectType, AActor>::IsDerived, "Object needs to derive from AActor");
+	static_assert(TIsDerivedFrom<ObjectType, UObject>::IsDerived, "Object needs to derive from UObject");
 
 public:
 	using MemberFunctionType = decltype(MemberFunction);
