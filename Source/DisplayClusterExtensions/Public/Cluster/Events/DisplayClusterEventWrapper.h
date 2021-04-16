@@ -6,6 +6,8 @@
 #include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
 
+static constexpr int32 CLUSTER_EVENT_WRAPPER_EVENT_ID = 1337420;
+
 template <typename MemberFunctionType, MemberFunctionType MemberFunction>
 class ClusterEventWrapperEvent;
 
@@ -17,7 +19,7 @@ class ClusterEventWrapperEvent<ReturnType (ObjectType::*)(ArgTypes...), MemberFu
 public:
 	using MemberFunctionType = decltype(MemberFunction);
 
-	ClusterEventWrapperEvent(const TCHAR* EventTypeName) : EventTypeName{EventTypeName}
+	ClusterEventWrapperEvent(const TCHAR* MethodName) : MethodName{ MethodName }
 	{
 	}
 
@@ -28,29 +30,46 @@ public:
 
 		checkf(Object == nullptr, TEXT("The event is already attached."));
 		Object = NewObject;
-		ObjectName = AActor::GetDebugName(Object);
+		ObjectId = Object->GetUniqueID();
 
 		if (!ClusterManager->IsStandalone())
 		{
 			check(!ClusterEventListenerDelegate.IsBound());
-			ClusterEventListenerDelegate = FOnClusterEventListener::CreateLambda([this](const FDisplayClusterClusterEvent& Event) {
-				if (Event.Type == EventTypeName && Event.Name == ObjectName)
+			ClusterEventListenerDelegate = FOnClusterEventBinaryListener::CreateLambda([this](const FDisplayClusterClusterEventBinary& Event) {
+				if (Event.EventId != CLUSTER_EVENT_WRAPPER_EVENT_ID)
 				{
-					// Create a tuple that holds all arguments. This assumes that all
-					// argument types are default constructible. However, all
-					// types that overload the FArchive "<<" operator probably are.
-					TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
-
-					// This call will parse the string map and fill all values in the
-					// tuple appropriately.
-					FillArgumentTuple<0>(&ArgumentTuple, Event.Parameters);
-
-					ArgumentTuple.ApplyBefore([this](const ArgTypes&... Arguments) {
-						(Object->*MemberFunction)(Forward<const ArgTypes&>(Arguments)...);
-					});
+					return;
 				}
+
+				FMemoryReader MemoryReader(Event.EventData);
+
+				uint32 EventObjectId;
+				MemoryReader << EventObjectId; // This is reads the value!
+				if (EventObjectId != ObjectId) {
+					// Event does not belong to this object.
+					return;
+				}
+
+				FString EventMethodName;
+				MemoryReader << EventMethodName; // This is reads the value!
+				if (EventMethodName != MethodName) {
+					// This event does not belong to this method.
+					return;
+				}
+
+				// Create a tuple that holds all arguments. This assumes that all
+				// argument types are default constructible. However, all
+				// types that overload the FArchive "<<" operator probably are.
+				TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+
+				// This call will deserialze the values and fill all values in the tuple appropriately.
+				FillArgumentTuple<0>(&MemoryReader, &ArgumentTuple);
+
+				ArgumentTuple.ApplyBefore([this](const ArgTypes&... Arguments) {
+					(Object->*MemberFunction)(Forward<const ArgTypes&>(Arguments)...);
+				});
 			});
-			ClusterManager->AddClusterEventListener(ClusterEventListenerDelegate);
+			ClusterManager->AddClusterEventBinaryListener(ClusterEventListenerDelegate);
 		}
 	}
 
@@ -64,7 +83,7 @@ public:
 		if (!ClusterManager->IsStandalone())
 		{
 			// check(ClusterEventListenerDelegate.IsBound());
-			ClusterManager->RemoveClusterEventListener(ClusterEventListenerDelegate);
+			ClusterManager->RemoveClusterEventBinaryListener(ClusterEventListenerDelegate);
 		}
 	}
 
@@ -81,21 +100,24 @@ public:
 		}
 		else
 		{
-			FDisplayClusterClusterEvent ClusterEvent;
-			ClusterEvent.Category = "DisplayClusterEventWrapper";
-			ClusterEvent.Type = EventTypeName;
-			ClusterEvent.Name = ObjectName;
-			ClusterEvent.Parameters = CreateParameterMap(Forward<ArgTypes>(Arguments)...);
+			FDisplayClusterClusterEventBinary ClusterEvent;
+			ClusterEvent.EventId = CLUSTER_EVENT_WRAPPER_EVENT_ID;
+			ClusterEvent.bShouldDiscardOnRepeat = false;
 
-			ClusterManager->EmitClusterEvent(ClusterEvent, true);
+			FMemoryWriter MemoryWriter(ClusterEvent.EventData);
+			MemoryWriter << ObjectId;
+			MemoryWriter << const_cast<FString&>(MethodName); // const_cast... thanks unreal!
+			SerializeParameters(&MemoryWriter, Forward<ArgTypes>(Arguments)...);
+
+			ClusterManager->EmitClusterEventBinary(ClusterEvent, true);
 		}
 	}
 
 private:
-	const TCHAR* EventTypeName;
+	const FString MethodName;
+	uint32 ObjectId;
 	ObjectType* Object = nullptr;
-	FString ObjectName;
-	FOnClusterEventListener ClusterEventListenerDelegate;
+	FOnClusterEventBinaryListener ClusterEventListenerDelegate;
 };
 
 #define DCEW_STRINGIFY(x) #x
