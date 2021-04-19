@@ -19,6 +19,7 @@ public:
 	// defining a constraint line with these 3 parameters
 	UFUNCTION(BlueprintCallable) void SetDistance(float Dist);
 	UFUNCTION(BlueprintCallable) float GetDistance() const;
+	UFUNCTION(BlueprintCallable) void SetDiscreteNumberOfPoints(int Num);
 
 	virtual void HandleNewPositionAndDirection(FVector position, FQuat orientation) override;
 
@@ -26,12 +27,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 private:
-	UPROPERTY(EditAnywhere)	float Distance; // distance the object can be moved from the center 
-
+	UPROPERTY(EditAnywhere)	float Distance = 100; // distance the object can be moved from the center 
+	UPROPERTY(EditAnywhere) bool bIsDiscrete = false;
+	UPROPERTY(EditAnywhere) int NumPoints = 1;
 };
