@@ -8,7 +8,7 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	CapsuleColliderComponent->SetCapsuleSize(40.0f, 96.0f);
+	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, 80.0f);
 }
 
 void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction){
@@ -61,6 +61,9 @@ void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 {
 	HeadComponent = NewHeadComponent;
 	CapsuleColliderComponent->SetupAttachment(HeadComponent);
+	const float HalfHeight = 80.0f; //this is just an initial value to look good in editor
+	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, HalfHeight);
+	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f,HalfHeight));
 }
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()
@@ -71,14 +74,13 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 	{
 		float ColliderHeight = CharachterSize - MaxStepHeight;
 		float ColliderHalfHeight = ColliderHeight / 2.0f;
-		float ColliderRadius = 40.0f;
-		if (ColliderHalfHeight <= ColliderRadius)
+		if (ColliderHalfHeight <= CapsuleRadius)
 		{//Make the collider to a Sphere
 			CapsuleColliderComponent->SetCapsuleSize(ColliderHalfHeight, ColliderHalfHeight);
 		}
 		else
 		{//Make the collider to a Capsule
-			CapsuleColliderComponent->SetCapsuleSize(ColliderRadius, ColliderHalfHeight);
+			CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, ColliderHalfHeight);
 		}
 
 		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation());

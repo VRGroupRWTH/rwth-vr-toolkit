@@ -25,6 +25,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
+	CameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
 	
 	Head = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Head"));
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;

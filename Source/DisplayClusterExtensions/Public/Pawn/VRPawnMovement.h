@@ -52,6 +52,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	float UpSteppingAcceleration = 500.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	float CapsuleRadius = 40.0f;
+
 private:
 	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
 	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
