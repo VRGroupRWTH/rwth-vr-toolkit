@@ -105,7 +105,7 @@ void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-		SetCameraOffset();;
+		SetCameraOffset();
 	}
 }
 
