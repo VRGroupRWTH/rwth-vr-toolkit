@@ -23,8 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Head;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* RightHand;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* LeftHand;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Tracker1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Tracker2;
 
 	/* Interaction */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction") UBasicVRInteractionComponent* BasicVRInteraction;
@@ -47,5 +45,7 @@ protected:
 
 	/* Interaction */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire(); 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire();
+
+	void SetCameraOffset() const;
 };
