@@ -7,8 +7,8 @@ In the following the main features are explained:
 ## :open_file_folder:  Cluster
 This folder contains cluster specific helpers or components
 
-### :arrow_forward: :open_file_folder: Events
-This folder contains some cluster-event helpers. *TODO*
+### :open_file_folder: Events
+This folder contains a wrapper around the Cluster Events that enables calling a method from an object on all nodes in the cluster by exposing a `DECLARE_DISPLAY_CLUSTER_EVENT` macro. This can be used to react to events that only occur on one node, e.g., input events on the master node. An example and more explanation on how to use the wrapper can be found [here](https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unrealprojecttemplate/-/snippets/44).
 
 ## :open_file_folder: Fixes
 This folder contains fixes for problems that exist in the Unreal Engine, which can be fixed at runtime. The description of every single fix can be found in the specific file.
