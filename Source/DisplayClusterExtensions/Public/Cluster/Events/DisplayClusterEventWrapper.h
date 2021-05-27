@@ -25,15 +25,17 @@ public:
 
 	void Attach(ObjectType* NewObject)
 	{
-		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-		check(ClusterManager != nullptr);
 
 		checkf(Object == nullptr, TEXT("The event is already attached."));
 		Object = NewObject;
 		ObjectId = Object->GetUniqueID();
 
-		if (!ClusterManager->IsStandalone())
+		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
+		if (OperationMode == EDisplayClusterOperationMode::Cluster)
 		{
+			IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+			check(ClusterManager != nullptr);
+
 			check(!ClusterEventListenerDelegate.IsBound());
 			ClusterEventListenerDelegate = FOnClusterEventBinaryListener::CreateLambda([this](const FDisplayClusterClusterEventBinary& Event) {
 				if (Event.EventId != CLUSTER_EVENT_WRAPPER_EVENT_ID)
@@ -77,11 +79,13 @@ public:
 	{
 		checkf(Object != nullptr, TEXT("The event was never attached."));
 
-		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-		check(ClusterManager != nullptr);
-
-		if (!ClusterManager->IsStandalone())
+		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
+		if (OperationMode == EDisplayClusterOperationMode::Cluster)
 		{
+
+			IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+			check(ClusterManager != nullptr);
+
 			// check(ClusterEventListenerDelegate.IsBound());
 			ClusterManager->RemoveClusterEventBinaryListener(ClusterEventListenerDelegate);
 		}
@@ -89,17 +93,18 @@ public:
 
 	void Send(ArgTypes&&... Arguments)
 	{
-		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-		check(ClusterManager != nullptr);
-
 		checkf(Object != nullptr, TEXT("The event was not attached."));
 
-		if (ClusterManager->IsStandalone())
+		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
+		if (OperationMode != EDisplayClusterOperationMode::Cluster)
 		{
 			(Object->*MemberFunction)(Forward<ArgTypes>(Arguments)...);
 		}
 		else
 		{
+			IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+			check(ClusterManager != nullptr);
+
 			FDisplayClusterClusterEventBinary ClusterEvent;
 			ClusterEvent.EventId = CLUSTER_EVENT_WRAPPER_EVENT_ID;
 			ClusterEvent.bShouldDiscardOnRepeat = false;
