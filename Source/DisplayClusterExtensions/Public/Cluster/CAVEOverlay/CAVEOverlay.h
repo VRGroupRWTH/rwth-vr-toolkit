@@ -18,7 +18,7 @@ struct DISPLAYCLUSTEREXTENSIONS_API FCAVEOverlay
 	void Register();
 	void Unregister() const;
 private:
-	TBaseDelegate<void, UWorld*, const UWorld::InitializationValues> On_Post_World_Initialization_Delegate;
+	TDelegate<void(UWorld*, const UWorld::InitializationValues)> On_Post_World_Initialization_Delegate;
 	void OnSessionStart(UWorld* World, UWorld::InitializationValues);
 	FDelegateHandle SessionStartDelegate;
 };
