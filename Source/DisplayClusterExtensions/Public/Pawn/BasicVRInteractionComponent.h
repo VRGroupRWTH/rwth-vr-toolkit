@@ -13,9 +13,9 @@ class UGrabbingBehaviorComponent;
 UENUM()
 enum EInteractionRayVisibility
 {
-	Visible,
-	VisibleOnHoverOnly,
-	Invisible
+	Visible UMETA(DisplayName = "Interaction ray visible"),
+	VisibleOnHoverOnly UMETA(DisplayName = "Interaction ray only visible when hovering over Clickable or Targetable objects, or interactable widgets"),
+	Invisible UMETA(DisplayName = "Interaction ray invisible")
 };
 
 
@@ -39,8 +39,8 @@ public:
 	UPROPERTY(BlueprintReadWrite) float MaxGrabDistance = 50;
 	UPROPERTY(BlueprintReadWrite) float MaxClickDistance = 500;
 	// Enable this if you want to interact with Targetable classes or use EInteractionRayVisibility::VisibleOnHoverOnly
-	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = true;
-	UPROPERTY(EditAnywhere) TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::VisibleOnHoverOnly;
+	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = false;
+	UPROPERTY(EditAnywhere) TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
 
 	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance = 50, float InMaxClickDistance = 500);
 	
