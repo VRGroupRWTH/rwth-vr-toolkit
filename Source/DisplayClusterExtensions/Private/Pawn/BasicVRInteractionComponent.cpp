@@ -177,6 +177,7 @@ void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float
 	MaxClickDistance = InMaxClickDistance;
 
 	InteractionRay->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
+	InteractionRay->SetRelativeScale3D(FVector(MaxClickDistance/100.0f, 1.0f, 1.0f)); //the ray model has a length of 100cm
 	this->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
