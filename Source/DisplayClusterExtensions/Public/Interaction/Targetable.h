@@ -19,7 +19,7 @@ class ITargetable
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	// function that will be called when clickable actor got clicked, and passed the world pos of the click
+	// function that will be called when targetable actor is targeted, the world pos of the target is returned
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnTargeted(FVector WorldPositionOfTarget);
 };
