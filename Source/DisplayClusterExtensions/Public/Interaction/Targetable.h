@@ -22,4 +22,12 @@ public:
 	// function that will be called when clickable actor got clicked, and passed the world pos of the click
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnTargeted(FVector WorldPositionOfTarget);
+	
+	//function that will be called when a targetable actor gets focused
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
+	void OnTargetedEnter();
+
+	//function that will be called when a targetable actor loses focused
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
+	void OnTargetedLeave();
 };
