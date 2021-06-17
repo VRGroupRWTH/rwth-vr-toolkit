@@ -40,7 +40,8 @@ private:
 	UPROPERTY() UPrimitiveComponent* ComponentSimulatingPhysics = nullptr;
 	UPROPERTY() UGrabbingBehaviorComponent* Behavior = nullptr;
 	UPROPERTY() USceneComponent* InteractionRayEmitter = nullptr;
-	
+	/* Stores the reference of the Actor that was hit in the last frame*/
+	UPROPERTY() AActor* LastActorHit = nullptr;
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
