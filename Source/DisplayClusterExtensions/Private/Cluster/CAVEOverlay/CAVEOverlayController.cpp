@@ -6,10 +6,8 @@
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Game/IDisplayClusterGameManager.h"
 #include "UObject/ConstructorHelpers.h"
-#include <array>
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Pawn/VirtualRealityPawn.h"
 #include "Components/DisplayClusterSceneComponent.h"
 #include "Utility/VirtualRealityUtilities.h"
 
@@ -53,7 +51,7 @@ ACAVEOverlayController::ACAVEOverlayController()
 	ConstructorHelpers::FClassFinder<UDoorOverlayData> WidgetClassFinder(TEXT("Blueprint'/nDisplayExtensions/CAVEOverlay/DoorOverlay'"));
 	if (WidgetClassFinder.Succeeded())
 	{
-		Overlay_Class = WidgetClassFinder.Class;
+		OverlayClass = WidgetClassFinder.Class;
 	}
 	else
 	{
@@ -63,47 +61,47 @@ ACAVEOverlayController::ACAVEOverlayController()
 	//Creation of sub-components
 	Root = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
 	SetRootComponent(Root);
-	Tape_Root = CreateDefaultSubobject<USceneComponent>("TapeRoot");
-	Sign_Root = CreateDefaultSubobject<USceneComponent>("SignRoot");
-	Tape_Root->SetupAttachment(Root);
-	Sign_Root->SetupAttachment(Root);
+	TapeRoot = CreateDefaultSubobject<USceneComponent>("TapeRoot");
+	SignRoot = CreateDefaultSubobject<USceneComponent>("SignRoot");
+	TapeRoot->SetupAttachment(Root);
+	SignRoot->SetupAttachment(Root);
 
 	//Loading of Materials and Meshes
-	LoadAsset("/nDisplayExtensions/CAVEOverlay/Stripes", Tape_Material);
-	LoadAsset("/nDisplayExtensions/CAVEOverlay/StopMaterial", Sign_Material);
-	LoadAsset("/nDisplayExtensions/CAVEOverlay/Plane", Plane_Mesh_);
+	LoadAsset("/nDisplayExtensions/CAVEOverlay/Stripes", TapeMaterial);
+	LoadAsset("/nDisplayExtensions/CAVEOverlay/StopMaterial", SignMaterial);
+	LoadAsset("/nDisplayExtensions/CAVEOverlay/Plane", PlaneMesh);
 
-	Tape_Negative_Y = CreateMeshComponent("TapeNegY", Plane_Mesh_, Tape_Root);
-	Tape_Negative_X = CreateMeshComponent("TapeNegX", Plane_Mesh_, Tape_Root);
-	Tape_Positive_Y = CreateMeshComponent("TapePosY", Plane_Mesh_, Tape_Root);
-	Tape_Positive_X = CreateMeshComponent("TapePosX", Plane_Mesh_, Tape_Root);
+	TapeNegativeY = CreateMeshComponent("TapeNegY", PlaneMesh, TapeRoot);
+	TapeNegativeX = CreateMeshComponent("TapeNegX", PlaneMesh, TapeRoot);
+	TapePositiveY = CreateMeshComponent("TapePosY", PlaneMesh, TapeRoot);
+	TapePositiveX = CreateMeshComponent("TapePosX", PlaneMesh, TapeRoot);
 
-	Sign_Negative_Y = CreateMeshComponent("SignNegY", Plane_Mesh_, Sign_Root);
-	Sign_Negative_X = CreateMeshComponent("SignNegX", Plane_Mesh_, Sign_Root);
-	Sign_Positive_Y = CreateMeshComponent("SignPosY", Plane_Mesh_, Sign_Root);
-	Sign_Positive_X = CreateMeshComponent("SignPosX", Plane_Mesh_, Sign_Root);
+	SignNegativeY = CreateMeshComponent("SignNegY", PlaneMesh, SignRoot);
+	SignNegativeX = CreateMeshComponent("SignNegX", PlaneMesh, SignRoot);
+	SignPositiveY = CreateMeshComponent("SignPosY", PlaneMesh, SignRoot);
+	SignPositiveX = CreateMeshComponent("SignPosX", PlaneMesh, SignRoot);
 
 	//Set initial Position, Rotation and Scale of Tape
-	Tape_Negative_Y->SetRelativeLocationAndRotation(FVector(0, -Wall_Distance, 0), FRotator(0, 0, 90));
-	Tape_Positive_Y->SetRelativeLocationAndRotation(FVector(0, +Wall_Distance, 0), FRotator(0, 180, 90));
-	Tape_Negative_X->SetRelativeLocationAndRotation(FVector(-Wall_Distance, 0, 0), FRotator(0, -90, 90));
-	Tape_Positive_X->SetRelativeLocationAndRotation(FVector(+Wall_Distance, 0, 0), FRotator(0, 90, 90));
+	TapeNegativeY->SetRelativeLocationAndRotation(FVector(0, -WallDistance, 0), FRotator(0, 0, 90));
+	TapePositiveY->SetRelativeLocationAndRotation(FVector(0, +WallDistance, 0), FRotator(0, 180, 90));
+	TapeNegativeX->SetRelativeLocationAndRotation(FVector(-WallDistance, 0, 0), FRotator(0, -90, 90));
+	TapePositiveX->SetRelativeLocationAndRotation(FVector(+WallDistance, 0, 0), FRotator(0, 90, 90));
 
-	Tape_Negative_Y->SetRelativeScale3D(FVector(Wall_Distance / 100 * 2, 0.15, 1));
-	Tape_Positive_Y->SetRelativeScale3D(FVector(Wall_Distance / 100 * 2, 0.15, 1));
-	Tape_Negative_X->SetRelativeScale3D(FVector(Wall_Distance / 100 * 2, 0.15, 1));
-	Tape_Positive_X->SetRelativeScale3D(FVector(Wall_Distance / 100 * 2, 0.15, 1));
+	TapeNegativeY->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
+	TapePositiveY->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
+	TapeNegativeX->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
+	TapePositiveX->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
 
 	//Set initial Position, Rotation and Scale of Signs
-	Sign_Negative_Y->SetRelativeLocationAndRotation(FVector(0, -Wall_Distance, 0), FRotator(0, 0, 90));
-	Sign_Positive_Y->SetRelativeLocationAndRotation(FVector(0, +Wall_Distance, 0), FRotator(0, 180, 90));
-	Sign_Negative_X->SetRelativeLocationAndRotation(FVector(-Wall_Distance, 0, 0), FRotator(0, -90, 90));
-	Sign_Positive_X->SetRelativeLocationAndRotation(FVector(+Wall_Distance, 0, 0), FRotator(0, 90, 90));
+	SignNegativeY->SetRelativeLocationAndRotation(FVector(0, -WallDistance, 0), FRotator(0, 0, 90));
+	SignPositiveY->SetRelativeLocationAndRotation(FVector(0, +WallDistance, 0), FRotator(0, 180, 90));
+	SignNegativeX->SetRelativeLocationAndRotation(FVector(-WallDistance, 0, 0), FRotator(0, -90, 90));
+	SignPositiveX->SetRelativeLocationAndRotation(FVector(+WallDistance, 0, 0), FRotator(0, 90, 90));
 
-	Sign_Negative_Y->SetRelativeScale3D(FVector(0.5f));
-	Sign_Positive_Y->SetRelativeScale3D(FVector(0.5f));
-	Sign_Negative_X->SetRelativeScale3D(FVector(0.5f));
-	Sign_Positive_X->SetRelativeScale3D(FVector(0.5f));
+	SignNegativeY->SetRelativeScale3D(FVector(0.5f));
+	SignPositiveY->SetRelativeScale3D(FVector(0.5f));
+	SignNegativeX->SetRelativeScale3D(FVector(0.5f));
+	SignPositiveX->SetRelativeScale3D(FVector(0.5f));
 }
 
 void ACAVEOverlayController::PostInitializeComponents()
@@ -111,32 +109,32 @@ void ACAVEOverlayController::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	//Create dynamic materials in runtime
-	Tape_Material_Dynamic_ = UMaterialInstanceDynamic::Create(Tape_Material, Tape_Root);
-	Sign_Material_Dynamic_ = UMaterialInstanceDynamic::Create(Sign_Material, Sign_Root);
+	TapeMaterialDynamic = UMaterialInstanceDynamic::Create(TapeMaterial, TapeRoot);
+	SignMaterialDynamic = UMaterialInstanceDynamic::Create(SignMaterial, SignRoot);
 
-	Tape_Negative_Y->SetMaterial(0, Tape_Material_Dynamic_);
-	Tape_Negative_X->SetMaterial(0, Tape_Material_Dynamic_);
-	Tape_Positive_Y->SetMaterial(0, Tape_Material_Dynamic_);
-	Tape_Positive_X->SetMaterial(0, Tape_Material_Dynamic_);
+	TapeNegativeY->SetMaterial(0, TapeMaterialDynamic);
+	TapeNegativeX->SetMaterial(0, TapeMaterialDynamic);
+	TapePositiveY->SetMaterial(0, TapeMaterialDynamic);
+	TapePositiveX->SetMaterial(0, TapeMaterialDynamic);
 
-	Sign_Negative_Y->SetMaterial(0, Sign_Material_Dynamic_);
-	Sign_Negative_X->SetMaterial(0, Sign_Material_Dynamic_);
-	Sign_Positive_Y->SetMaterial(0, Sign_Material_Dynamic_);
-	Sign_Positive_X->SetMaterial(0, Sign_Material_Dynamic_);
+	SignNegativeY->SetMaterial(0, SignMaterialDynamic);
+	SignNegativeX->SetMaterial(0, SignMaterialDynamic);
+	SignPositiveY->SetMaterial(0, SignMaterialDynamic);
+	SignPositiveX->SetMaterial(0, SignMaterialDynamic);
 }
 
 void ACAVEOverlayController::CycleDoorType()
 {
-	Door_Current_Mode = static_cast<EDoor_Mode>((Door_Current_Mode + 1) % DOOR_NUM_MODES);
+	DoorCurrentMode = static_cast<EDoorMode>((DoorCurrentMode + 1) % DOOR_NUM_MODES);
 
 	IDisplayClusterClusterManager* const Manager = IDisplayCluster::Get().GetClusterMgr();
 	if (Manager)
 	{
 		FDisplayClusterClusterEventJson cluster_event;
-		cluster_event.Name = "CAVEOverlay Change Door to " + Door_Mode_Names[Door_Current_Mode];
+		cluster_event.Name = "CAVEOverlay Change Door to " + DoorModeNames[DoorCurrentMode];
 		cluster_event.Type = "DoorChange";
 		cluster_event.Category = "CAVEOverlay";
-		cluster_event.Parameters.Add("NewDoorState", FString::FromInt(Door_Current_Mode));
+		cluster_event.Parameters.Add("NewDoorState", FString::FromInt(DoorCurrentMode));
 		Manager->EmitClusterEventJson(cluster_event, true);
 	}
 }
@@ -145,46 +143,46 @@ void ACAVEOverlayController::HandleClusterEvent(const FDisplayClusterClusterEven
 {
 	if (Event.Category.Equals("CAVEOverlay") && Event.Type.Equals("DoorChange") && Event.Parameters.Contains("NewDoorState"))
 	{
-		SetDoorMode(static_cast<EDoor_Mode>(FCString::Atoi(*Event.Parameters["NewDoorState"])));
+		SetDoorMode(static_cast<EDoorMode>(FCString::Atoi(*Event.Parameters["NewDoorState"])));
 	}
 }
 
-void ACAVEOverlayController::SetDoorMode(EDoor_Mode NewMode)
+void ACAVEOverlayController::SetDoorMode(EDoorMode NewMode)
 {
-	Door_Current_Mode = NewMode;
-	switch (Door_Current_Mode)
+	DoorCurrentMode = NewMode;
+	switch (DoorCurrentMode)
 	{
-	case EDoor_Mode::DOOR_DEBUG:
-	case EDoor_Mode::DOOR_PARTIALLY_OPEN:
-		Door_Current_Opening_Width_Absolute = Door_Opening_Width_Absolute;
-		if (Screen_Type == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (Screen_Type == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(Door_Opening_Width_Relative, 1));
-		if (Screen_Type == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+	case EDoorMode::DOOR_DEBUG:
+	case EDoorMode::DOOR_PARTIALLY_OPEN:
+		DoorCurrentOpeningWidthAbsolute = DoorOpeningWidthAbsolute;
+		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
+		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
-	case EDoor_Mode::DOOR_OPEN:
-		Door_Current_Opening_Width_Absolute = Wall_Distance * 2;
-		if (Screen_Type == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
-		if (Screen_Type == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
-		if (Screen_Type == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+	case EDoorMode::DOOR_OPEN:
+		DoorCurrentOpeningWidthAbsolute = WallDistance * 2;
+		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
+		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
-	case EDoor_Mode::DOOR_CLOSED:
-		Door_Current_Opening_Width_Absolute = 0;
-		if (Screen_Type == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (Screen_Type == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (Screen_Type == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+	case EDoorMode::DOOR_CLOSED:
+		DoorCurrentOpeningWidthAbsolute = 0;
+		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Hidden);
 		break;
 	default: ;
 	}
-	if (Screen_Type == SCREEN_NORMAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
+	if (ScreenType == SCREEN_NORMAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
 
-	UE_LOG(LogCAVEOverlay, Log, TEXT("Switched door state to '%s'. New opening width is %f."), *Door_Mode_Names[Door_Current_Mode], Door_Current_Opening_Width_Absolute);
+	UE_LOG(LogCAVEOverlay, Log, TEXT("Switched door state to '%s'. New opening width is %f."), *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
-	if (Screen_Type == SCREEN_MASTER)
+	if (ScreenType == SCREEN_MASTER)
 	{
-		Overlay->CornerText->SetText(FText::FromString(Door_Mode_Names[Door_Current_Mode]));
+		Overlay->CornerText->SetText(FText::FromString(DoorModeNames[DoorCurrentMode]));
 	}
 }
 
@@ -193,9 +191,9 @@ void ACAVEOverlayController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bCAVE_Mode = UVirtualRealityUtilities::IsCave(); /* Store current situation */
+	bCAVEMode = UVirtualRealityUtilities::IsCave(); /* Store current situation */
 
-	if (!bCAVE_Mode) return; // Not our business
+	if (!bCAVEMode) return; // Not our business
 
 	//Input config
 	InputComponent->BindKey(EKeys::F10, EInputEvent::IE_Pressed, this, &ACAVEOverlayController::CycleDoorType);
@@ -207,34 +205,32 @@ void ACAVEOverlayController::BeginPlay()
 	}
 
 	//Determine the screen-type for later usage
-	if (IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(Screen_Main, ESearchCase::IgnoreCase))
+	if (IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(ScreenMain, ESearchCase::IgnoreCase))
 	{
-		Screen_Type = SCREEN_MASTER;
+		ScreenType = SCREEN_MASTER;
 	}
-	else if (ContainsFString(Screens_Door, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
+	else if (ContainsFString(ScreensDoor, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
 	{
-		Screen_Type = SCREEN_DOOR;
+		ScreenType = SCREEN_DOOR;
 	}
-	else if (ContainsFString(Screens_Door_Partial, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
+	else if (ContainsFString(ScreensDoorPartial, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
 	{
-		Screen_Type = SCREEN_DOOR_PARTIAL;
+		ScreenType = SCREEN_DOOR_PARTIAL;
 	}
 	else
 	{
-		Screen_Type = SCREEN_NORMAL;
+		ScreenType = SCREEN_NORMAL;
 	}
 
-	Overlay = CreateWidget<UDoorOverlayData>(GetWorld()->GetFirstPlayerController(), Overlay_Class);
+	Overlay = CreateWidget<UDoorOverlayData>(GetWorld()->GetFirstPlayerController(), OverlayClass);
 	Overlay->AddToViewport(0);
-	SetDoorMode(Door_Current_Mode);
+	SetDoorMode(DoorCurrentMode);
 	Overlay->CornerText->SetText(FText::FromString("")); //Set Text to "" until someone presses the key for the first time
 
-	Player_Pawn = Cast<AVirtualRealityPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-	if (!bAttached && Cave_Origin)
+	if (!bAttachedToCAVEOrigin && CaveOrigin)
 	{
-		AttachToComponent(Cave_Origin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		bAttached = true;
+		AttachToComponent(CaveOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		bAttachedToCAVEOrigin = true;
 	}
 }
 
@@ -249,24 +245,18 @@ void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-float ACAVEOverlayController::CalculateOpacityFromPosition(FVector Position)
+float ACAVEOverlayController::CalculateOpacityFromPosition(FVector Position) const
 {
 	return FMath::Max(
-		FMath::Clamp((FMath::Abs(Position.X) - (Wall_Distance - Wall_Close_Distance)) / Wall_Fade_Distance, 0.0f, 1.0f),
-		FMath::Clamp((FMath::Abs(Position.Y) - (Wall_Distance - Wall_Close_Distance)) / Wall_Fade_Distance, 0.0f, 1.0f)
+		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0f, 1.0f),
+		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0f, 1.0f)
 	);
 }
 
-bool ACAVEOverlayController::PositionInDoorOpening(FVector Position)
+bool ACAVEOverlayController::PositionInDoorOpening(FVector Position) const
 {
-	return FMath::IsWithinInclusive(-Position.X, Wall_Distance + 10 - 20 - Wall_Close_Distance, Wall_Distance + 10) //Overlap both sides 10cm
-		&& FMath::IsWithinInclusive(-Position.Y, Wall_Distance + 10 - Door_Current_Opening_Width_Absolute, Wall_Distance + 10); //Overlap one side 10cm
-}
-
-void ACAVEOverlayController::RefreshPawnComponents()
-{
-	Cave_Origin = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_CAVE_ORIGIN);
-	Head = Player_Pawn->Head;
+	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10) //Overlap both sides 10cm
+		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute, WallDistance + 10); //Overlap one side 10cm
 }
 
 // Called every frame
@@ -274,23 +264,23 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bCAVE_Mode) return; // Not our business
+	if (!bCAVEMode) return; // Not our business
 
-	if (!Cave_Origin || !Head)
+	if (!CaveOrigin)
 	{
-		RefreshPawnComponents();
+		CaveOrigin = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_CAVE_ORIGIN);
 	}
 
-	if (!bAttached && Cave_Origin)
+	if (!bAttachedToCAVEOrigin && CaveOrigin)
 	{
-		AttachToComponent(Cave_Origin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		bAttached = true;
+		AttachToComponent(CaveOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		bAttachedToCAVEOrigin = true;
 	}
 
 	//FPS Counter
 	if (Overlay)
 	{
-		if (Door_Current_Mode == EDoor_Mode::DOOR_DEBUG && ContainsFString(Screens_FPS, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
+		if (DoorCurrentMode == EDoorMode::DOOR_DEBUG && ContainsFString(ScreensFPS, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
 		{
 			Overlay->FPS->SetText(FText::FromString(FString::Printf(TEXT("FPS: %.1f"), 1.0f / DeltaTime)));
 		}
@@ -300,60 +290,66 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 		}
 	}
 
-	if (!Head || !Cave_Origin) return; //Display Cluster not initialized
-
-	//Tape Logic
-	FVector Shutter_Position = Head->GetComponentLocation() - Cave_Origin->GetComponentLocation();
-	bool bOverlay_Visible = FMath::IsWithinInclusive(Shutter_Position.GetAbsMax(), Wall_Distance - Wall_Close_Distance, Wall_Distance);
-
-	if (bOverlay_Visible && !PositionInDoorOpening(Shutter_Position))
+	if (!Head)
 	{
-		Tape_Root->SetVisibility(true, true);
-		Tape_Root->SetRelativeLocation(Shutter_Position * FVector(0, 0, 1)); //Only apply Z
+	    Head = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
+	}
 
-		float Tape_Opacity = CalculateOpacityFromPosition(Shutter_Position);
-		Tape_Material_Dynamic_->SetScalarParameterValue("BarrierOpacity", Tape_Opacity);
+	if (!Head || !CaveOrigin) return; //Display Cluster not fully initialized
 
-		if (FMath::IsWithin(FVector2D(Shutter_Position).GetAbsMax(), Wall_Distance - Wall_Warning_Distance, Wall_Distance))
+	//Head/Tape Logic
+    const FVector ShutterPosition = Head->GetComponentLocation() - CaveOrigin->GetComponentLocation();
+    const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(ShutterPosition.GetAbsMax(), WallDistance - WallCloseDistance, WallDistance);
+
+	if (bHeadIsCloseToWall && !PositionInDoorOpening(ShutterPosition))
+	{
+		TapeRoot->SetVisibility(true, true);
+		TapeRoot->SetRelativeLocation(ShutterPosition * FVector(0, 0, 1)); //Only apply Z
+
+		TapeMaterialDynamic->SetScalarParameterValue("BarrierOpacity", CalculateOpacityFromPosition(ShutterPosition));
+
+		if (FMath::IsWithin(FVector2D(ShutterPosition).GetAbsMax(), WallDistance - WallWarningDistance, WallDistance))
 		{
 			//in warning distance == red tape
-			Tape_Material_Dynamic_->SetVectorParameterValue("StripeColor", FVector(1, 0, 0));
+			TapeMaterialDynamic->SetVectorParameterValue("StripeColor", FVector(1, 0, 0));
 		}
 		else
 		{
-			Tape_Material_Dynamic_->SetVectorParameterValue("StripeColor", FVector(1, 1, 0));
+			TapeMaterialDynamic->SetVectorParameterValue("StripeColor", FVector(1, 1, 0));
 		}
 	}
 	else
 	{
-		Tape_Root->SetVisibility(false, true);
+		TapeRoot->SetVisibility(false, true);
 	}
 
-	//Sign Logic
-	UDisplayClusterSceneComponent* Flystick = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
+	// Flystick/Sign Logic
+    if(!Flystick)
+	{
+	    Flystick = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
+	}
 	if (Flystick)
 	{
-		FVector Flystick_Position = Flystick->GetRelativeTransform().GetLocation();
-		bool bFlystick_In_Door = PositionInDoorOpening(Flystick_Position);
-		float Sign_Opacity = CalculateOpacityFromPosition(Flystick_Position);
+        const FVector FlystickPosition = Flystick->GetRelativeTransform().GetLocation();
+        const bool bFlystickInDoor = PositionInDoorOpening(FlystickPosition);
 
-		Sign_Negative_X->SetRelativeLocation(FVector(-Wall_Distance, Flystick_Position.Y, Flystick_Position.Z));
-		Sign_Negative_Y->SetRelativeLocation(FVector(Flystick_Position.X, -Wall_Distance, Flystick_Position.Z));
-		Sign_Positive_X->SetRelativeLocation(FVector(+Wall_Distance, Flystick_Position.Y, Flystick_Position.Z));
-		Sign_Positive_Y->SetRelativeLocation(FVector(Flystick_Position.X, +Wall_Distance, Flystick_Position.Z));
+		SignNegativeX->SetRelativeLocation(FVector(-WallDistance, FlystickPosition.Y, FlystickPosition.Z));
+		SignNegativeY->SetRelativeLocation(FVector(FlystickPosition.X, -WallDistance, FlystickPosition.Z));
+		SignPositiveX->SetRelativeLocation(FVector(+WallDistance, FlystickPosition.Y, FlystickPosition.Z));
+		SignPositiveY->SetRelativeLocation(FVector(FlystickPosition.X, +WallDistance, FlystickPosition.Z));
 
-		Sign_Negative_X->SetVisibility(FMath::IsWithin(-Flystick_Position.X, Wall_Distance - Wall_Close_Distance, Wall_Distance) && !bFlystick_In_Door);
-		Sign_Negative_Y->SetVisibility(FMath::IsWithin(-Flystick_Position.Y, Wall_Distance - Wall_Close_Distance, Wall_Distance) && !bFlystick_In_Door);
-		Sign_Positive_X->SetVisibility(FMath::IsWithin(+Flystick_Position.X, Wall_Distance - Wall_Close_Distance, Wall_Distance) && !bFlystick_In_Door);
-		Sign_Positive_Y->SetVisibility(FMath::IsWithin(+Flystick_Position.Y, Wall_Distance - Wall_Close_Distance, Wall_Distance) && !bFlystick_In_Door);
+		SignNegativeX->SetVisibility(FMath::IsWithin(-FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignNegativeY->SetVisibility(FMath::IsWithin(-FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignPositiveX->SetVisibility(FMath::IsWithin(+FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignPositiveY->SetVisibility(FMath::IsWithin(+FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
 
-		Sign_Material_Dynamic_->SetScalarParameterValue("SignOpacity", Sign_Opacity);
+		SignMaterialDynamic->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(FlystickPosition));
 	}
 	else
 	{
-		Sign_Negative_X->SetVisibility(false);
-		Sign_Negative_Y->SetVisibility(false);
-		Sign_Positive_X->SetVisibility(false);
-		Sign_Positive_Y->SetVisibility(false);
+		SignNegativeX->SetVisibility(false);
+		SignNegativeY->SetVisibility(false);
+		SignPositiveX->SetVisibility(false);
+		SignPositiveY->SetVisibility(false);
 	}
 }
