@@ -9,6 +9,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/DisplayClusterSceneComponent.h"
+#include "Engine/CollisionProfile.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
@@ -28,6 +29,7 @@ UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& N
 	Result->SetStaticMesh(Mesh);
 	Result->SetupAttachment(Parent);
 	Result->SetVisibility(false);
+	Result->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	return Result;
 }
 
