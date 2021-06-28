@@ -57,6 +57,8 @@ private:
 	UPROPERTY() USceneComponent* InteractionRayEmitter = nullptr;
 	UPROPERTY() UStaticMeshComponent* InteractionRay = nullptr;
 	
+	/* Stores the reference of the Actor that was hit in the last frame*/
+	UPROPERTY() AActor* LastActorHit = nullptr;
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;

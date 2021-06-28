@@ -1,0 +1,93 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2020 RWTH Aachen University, Germany,
+# Virtual Reality & Immersive Visualisation Group.
+#-------------------------------------------------------------------------------
+
+# The include file can be change to either be removed or reference a specific commit.
+
+include:
+  - project: 'vr-group/unreal-development/unreal-ci'
+    ref: master 
+    file: '/shared_scripts.yml'
+    
+# In this file you are able to configure your plugins pipeline.
+# If you want to customize something, either overwrite things that are defined in the shared_scripts repository,
+# or remove the "extends" and write your own scripts
+# 
+# If you want your pipeline to run on every commit, just remove the "only" blocks. Keep in mind, that a build
+# can take some time.
+# 
+# If you want to alter the unreal-building process two variables are defined for either changing the CLIENT_CONFIG or
+# for adding EXTRA_ARGS to the building process
+# 
+# For the generate stage, you can specify needed dependencies in GEN_DEPENDENCIES with [Branch@PluginFolder] as key
+# Example:
+#
+# Generate_Project:
+#    only: ['web', 'schedules']
+#    extends: .Generate_Project_
+#    variables:
+#        GEN_TEMPLATE_REPO: "https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unrealprojecttemplate.git"
+#        GEN_TEMPLATE_BRANCH: "develop"
+#        GEN_DEPENDENCIES: "(
+#            [master@nDisplayExtensions]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/ndisplayextensions.git'
+#            [master@UniversalLogging]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/universallogging.git'
+#        )"
+#
+# You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
+# with a generated project.
+
+stages:
+  - generate
+  - build
+  - deploy
+
+Generate_Project:
+    only: ['web', 'schedules']
+    extends: .Generate_Project_
+    variables:
+        RUN_SETUP: "false"
+
+Build_Windows:
+    only: ['web', 'schedules']
+    extends: .Build_Windows_
+    tags:
+        - windows
+        - unreal-4.26
+    variables:
+        GIT_STRATEGY: none   
+        GIT_CHECKOUT: "false"
+        # CLIENT_CONFIG: "Shipping"
+        CLIENT_CONFIG: "DebugGame"
+    needs:
+        - job: "Generate_Project"
+          artifacts: true
+    
+Build_CentOS:
+    only: ['web', 'schedules']
+    extends: .Build_CentOS_
+    tags:
+        - centos
+        - unreal-4.26
+    variables:
+        GIT_STRATEGY: none   
+        GIT_CHECKOUT: "false"
+        # CLIENT_CONFIG: "Shipping"
+        CLIENT_CONFIG: "DebugGame"
+    needs:
+        - job: "Generate_Project"
+          artifacts: true
+          
+Deploy_CAVE:
+    only: ['web', 'schedules']
+    extends: .Deploy_CAVE_
+    needs:
+        - job: "Build_CentOS"
+          artifacts: true
+
+Deploy_Windows:
+    only: ['web', 'schedules']
+    extends: .Deploy_VRDev_
+    needs:
+        - job: "Build_Windows"
+          artifacts: true

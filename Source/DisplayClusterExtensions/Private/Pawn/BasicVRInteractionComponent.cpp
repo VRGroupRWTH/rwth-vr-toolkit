@@ -137,6 +137,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 	const FTwoVectors StartEnd = GetHandRay(MaxClickDistance);
 	TOptional<FHitResult> Hit = RaytraceForFirstHit(StartEnd);
+
 	if (!Hit.IsSet())
 	{
 		if(InteractionRayVisibility==EInteractionRayVisibility::VisibleOnHoverOnly)
@@ -144,8 +145,34 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 			InteractionRay->SetVisibility(false);
 		}
 		return;
+
+		// Execute leave event on the actor that lost the focus if there was one
+		if (LastActorHit && LastActorHit->Implements<UTargetable>())
+		{
+				ITargetable::Execute_OnTargetedLeave(LastActorHit);
+		}
+
+		LastActorHit = nullptr;
+		return;
 	}
+	
 	AActor* HitActor = Hit->GetActor();
+
+	// Execute Leave and enter events when the focused actor changed
+	if (HitActor != LastActorHit)
+	{
+		//We can always execute the enter event as we are sure that a hit occured
+		if (HitActor->Implements<UTargetable>())
+		{
+			ITargetable::Execute_OnTargetedEnter(HitActor);
+		}
+
+		//Only execute the Leave Event if there was an actor that was focused previously
+		if (LastActorHit != nullptr && LastActorHit->Implements<UTargetable>())
+		{
+			ITargetable::Execute_OnTargetedLeave(LastActorHit);
+		}
+	}
 
 	// for now uses the same distance as clicking
 	if (HitActor->Implements<UTargetable>() && Hit->Distance < MaxClickDistance)
@@ -166,6 +193,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 			InteractionRay->SetVisibility(false);
 		}
 	}
+	LastActorHit = HitActor; // Store the actor that was hit to have access to it in the next frame as well
 }
 
 void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance, float InMaxClickDistance)
