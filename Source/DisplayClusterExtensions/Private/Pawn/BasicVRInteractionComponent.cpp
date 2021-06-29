@@ -144,7 +144,6 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 		{
 			InteractionRay->SetVisibility(false);
 		}
-		return;
 
 		// Execute leave event on the actor that lost the focus if there was one
 		if (LastActorHit && LastActorHit->Implements<UTargetable>())
