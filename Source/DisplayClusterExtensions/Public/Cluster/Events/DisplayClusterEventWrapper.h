@@ -91,7 +91,7 @@ public:
 		}
 	}
 
-	void Send(ArgTypes&&... Arguments)
+	void Send(ArgTypes... Arguments)
 	{
 		checkf(Object != nullptr, TEXT("The event was not attached."));
 
