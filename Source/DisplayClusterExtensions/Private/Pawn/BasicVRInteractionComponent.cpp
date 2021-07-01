@@ -10,6 +10,9 @@
 #include "Interaction/GrabbingBehaviorComponent.h"
 #include "Misc/Optional.h"
 #include "DrawDebugHelpers.h"
+#include "Components/WidgetComponent.h"
+
+DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
 
 // Sets default values for this component's properties
 UBasicVRInteractionComponent::UBasicVRInteractionComponent()
@@ -18,7 +21,28 @@ UBasicVRInteractionComponent::UBasicVRInteractionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	// Setup the interaction ray.
+	InteractionRay = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Interaction Ray"));
+	//this ray model has an inlayed cross with flipped normals so it can be seen as a cross in desktop mode where the right hand is attached to the head
+	ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/nDisplayExtensions/PointingRay/Ray_Mesh"));
+	if (MeshAsset.Object != nullptr)
+	{
+		InteractionRay->SetStaticMesh(MeshAsset.Object);
+	}
+	// turns off collisions as the InteractionRay is only meant to visualize the ray
+	InteractionRay->SetCollisionProfileName(TEXT("NoCollision"));
+	bShowDebug = false; //otherwise the WidgetInteractionComponent debug vis is shown
+	InteractionSource = EWidgetInteractionSource::Custom; //can also be kept at default (World), this way, however, we efficiently reuse the line traces
+	
+}
+
+void UBasicVRInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	//WidgetInteractionComponent
+	InteractionDistance = MaxClickDistance;
+	SetInteractionRayVisibility(InteractionRayVisibility);
 }
 
 void UBasicVRInteractionComponent::BeginInteraction()
@@ -32,6 +56,12 @@ void UBasicVRInteractionComponent::BeginInteraction()
 		return;
 
 	AActor* HitActor = Hit->GetActor();
+
+	//trigger interaction of WidgetInteractionComponent
+	SetCustomHitResult(Hit.GetValue());
+	//if !bCanRaytraceEveryTick, you have to click twice, since the first tick it only highlights and can't directly click
+	PressPointerKey(EKeys::LeftMouseButton);
+	
 	
 	if (HitActor->Implements<UGrabable>() && Hit->Distance < MaxGrabDistance)
 	{
@@ -55,6 +85,9 @@ void UBasicVRInteractionComponent::BeginInteraction()
 void UBasicVRInteractionComponent::EndInteraction()
 {
 	if(!InteractionRayEmitter) return;
+
+	//end interaction of WidgetInteractionComponent
+	ReleasePointerKey(EKeys::LeftMouseButton);
 	
 	// if we didnt grab anyone there is no need to release
 	if (GrabbedActor == nullptr)
@@ -107,6 +140,10 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 	if (!Hit.IsSet())
 	{
+		if(InteractionRayVisibility==EInteractionRayVisibility::VisibleOnHoverOnly)
+		{
+			InteractionRay->SetVisibility(false);
+		}
 
 		// Execute leave event on the actor that lost the focus if there was one
 		if (LastActorHit && LastActorHit->Implements<UTargetable>())
@@ -141,6 +178,20 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	{
 		ITargetable::Execute_OnTargeted(HitActor, Hit->Location);
 	}
+
+	// widget interaction
+	SetCustomHitResult(Hit.GetValue());
+	if(InteractionRayVisibility==EInteractionRayVisibility::VisibleOnHoverOnly)
+	{
+		if(HitActor->Implements<UTargetable>() || HitActor->Implements<UClickable>() || IsOverInteractableWidget())
+		{
+			InteractionRay->SetVisibility(true);
+		}
+		else
+		{
+			InteractionRay->SetVisibility(false);
+		}
+	}
 	LastActorHit = HitActor; // Store the actor that was hit to have access to it in the next frame as well
 }
 
@@ -151,6 +202,38 @@ void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float
 	InteractionRayEmitter = RayEmitter;
 	MaxGrabDistance = InMaxGrabDistance;
 	MaxClickDistance = InMaxClickDistance;
+
+	InteractionRay->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
+	InteractionRay->SetRelativeScale3D(FVector(MaxClickDistance/100.0f, 1.0f, 1.0f)); //the ray model has a length of 100cm
+	this->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
+}
+
+void UBasicVRInteractionComponent::SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility)
+{
+	InteractionRayVisibility = NewVisibility;
+	if(InteractionRay)
+	{
+		switch (InteractionRayVisibility)
+		{
+		case Visible:
+			InteractionRay->SetVisibility(true);
+			break;
+		case VisibleOnHoverOnly:
+		case Invisible:
+			InteractionRay->SetVisibility(false);
+			break;
+		}
+	}
+
+	if(InteractionRayVisibility==EInteractionRayVisibility::VisibleOnHoverOnly && !bCanRaytraceEveryTick)
+	{
+		UE_LOG(LogVRInteractionComponent, Warning, TEXT("VisibleOnHoverOnly needs bCanRaytraceEveryTick=true, so this is set!"));
+		bCanRaytraceEveryTick=true;
+	}
+	if(InteractionRayVisibility==EInteractionRayVisibility::Visible && !bCanRaytraceEveryTick)
+	{
+		UE_LOG(LogVRInteractionComponent, Warning, TEXT("VisibleOnHoverOnly will need two clicks to interact with widgets if bCanRaytraceEveryTick is not set!"));
+	}
 }
 
 void UBasicVRInteractionComponent::HandlePhysicsAndAttachActor(AActor* HitActor)
@@ -185,10 +268,9 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 	// will be filled by the Line Trace Function
 	FHitResult Hit;
 
-	const FCollisionObjectQueryParams Params;	
-	FCollisionQueryParams Params2; 
-	Params2.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
-	if (GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, Params, Params2))
+	FCollisionQueryParams Params; 
+	Params.AddIgnoredActor(GetOwner()->GetUniqueID()); // prevents actor hitting itself
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility,Params))
 		return {Hit};
 	else
 		return {};

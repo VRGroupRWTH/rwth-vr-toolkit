@@ -3,20 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "BasicVRInteractionComponent.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogVRInteractionComponent, Log, All);
 
 class UGrabbingBehaviorComponent;
 
+UENUM()
+enum EInteractionRayVisibility
+{
+	Visible UMETA(DisplayName = "Interaction ray visible"),
+	VisibleOnHoverOnly UMETA(DisplayName = "Interaction ray only visible when hovering over Clickable or Targetable objects, or interactable widgets"),
+	Invisible UMETA(DisplayName = "Interaction ray invisible")
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class DISPLAYCLUSTEREXTENSIONS_API UBasicVRInteractionComponent : public UActorComponent
+class DISPLAYCLUSTEREXTENSIONS_API UBasicVRInteractionComponent : public UWidgetInteractionComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
 	UBasicVRInteractionComponent();
+
+	void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable) void BeginInteraction(); 
 	UFUNCTION(BlueprintCallable) void EndInteraction();   	
@@ -26,13 +38,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite) float MaxGrabDistance = 50;
 	UPROPERTY(BlueprintReadWrite) float MaxClickDistance = 500;
-	// Enable this if you want to interact with Targetable classes
+	// Enable this if you want to interact with Targetable classes or use EInteractionRayVisibility::VisibleOnHoverOnly
 	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = false;
+	UPROPERTY(EditAnywhere) TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
 
 	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance = 50, float InMaxClickDistance = 500);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure) AActor* GetGrabbedActor() const { return GrabbedActor;}
 	UFUNCTION(BlueprintCallable, BlueprintPure) USceneComponent* GetInteractionRayEmitter() const { return InteractionRayEmitter;	}
+
+	UFUNCTION(BlueprintCallable) void SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility);
 private:
 	/* Holding a reference to the actor that is currently being grabbed */
 	UPROPERTY() AActor* GrabbedActor;
@@ -40,6 +55,8 @@ private:
 	UPROPERTY() UPrimitiveComponent* ComponentSimulatingPhysics = nullptr;
 	UPROPERTY() UGrabbingBehaviorComponent* Behavior = nullptr;
 	UPROPERTY() USceneComponent* InteractionRayEmitter = nullptr;
+	UPROPERTY() UStaticMeshComponent* InteractionRay = nullptr;
+	
 	/* Stores the reference of the Actor that was hit in the last frame*/
 	UPROPERTY() AActor* LastActorHit = nullptr;
 	void HandlePhysicsAndAttachActor(AActor* HitActor);
