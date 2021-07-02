@@ -1,0 +1,35 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "RWTH VR Toolkit",
+  "Description": "",
+  "Category": "Other",
+  "CreatedBy": "",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": false,
+  "EnabledByDefault": true,
+  "Modules": [
+    {
+      "Name": "RWTHVRToolkit",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+	{	
+	  "Name": "RWTHVRToolkitEditor",
+	  "Type": "Editor",
+	  "LoadingPhase": "PostEngineInit"
+	}
+  ],
+  "Plugins": [
+    {
+      "Name": "nDisplay",
+      "Enabled": true
+    }
+  ]
+}
