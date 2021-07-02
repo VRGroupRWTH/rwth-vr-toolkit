@@ -53,4 +53,10 @@ PawnMovement->SetCameraComponent(CameraComponent);
 ```
 
 ## :open_file_folder: Utility
-This folder contains the VirtualRealityUtilities.h, which is a collection of static functions which can be helpful in every application
+This folder contains a collection of functions/classes which can be helpful in every application
+
+### :diamond_shape_with_a_dot_inside: VirtualRealityUtilities
+The VirtualRealityUtilities.h is a collection of static functions which are specifically useful for all nDisplay related applications
+
+### :diamond_shape_with_a_dot_inside: DemoConfig
+The DemoConfig is an extension to the normally used `UDeveloperSettings`, which enable the storing and altering of ini file as usual within the project, but extends this functionality to generate these ini file in the shipped project on startup, if they are not there.
