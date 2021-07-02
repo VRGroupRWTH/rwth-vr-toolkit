@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,7 +13,7 @@
  * 5. Settings can be accessed from everywhere via `GetDefault<UYourSubClass>()->PropertyName`
  */
 UCLASS(Abstract, config = Demo, defaultconfig)
-class DISPLAYCLUSTEREXTENSIONS_API UDemoConfig : public UDeveloperSettings
+class RWTHVRTOOLKIT_API UDemoConfig : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
