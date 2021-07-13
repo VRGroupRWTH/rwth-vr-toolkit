@@ -34,7 +34,8 @@ public class RWTHVRToolkit : ModuleRules
         "UMG",
         "Slate",
         "SlateCore",
-        "DeveloperSettings"
+        "DeveloperSettings",
+        "Http"
       }
       );
 
