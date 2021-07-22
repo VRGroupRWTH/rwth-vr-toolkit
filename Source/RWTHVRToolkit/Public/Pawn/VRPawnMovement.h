@@ -65,7 +65,7 @@ private:
 	void ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction);
 	//(direction = Down = -1), (direction = Up = 1)
 
-	UPROPERTY() UCapsuleComponent* CapsuleColliderComponent = nullptr;
+	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
