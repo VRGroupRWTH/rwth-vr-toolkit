@@ -5,6 +5,7 @@
 #include "Fixes/FixNDisplayStereoDevice.h"
 #include "Modules/ModuleManager.h"
 #include "Cluster/ClusterConsole.h"
+#include "Fixes/ActivateConsoleInShipping.h"
 
 
 class FRWTHVRToolkitModule : public IModuleInterface
@@ -17,4 +18,5 @@ private:
 	FClusterConsole ClusterConsole;
 	FFixNDisplayStereoDevice StereoDeviceFix;
 	FCAVEOverlay CAVEOverlay;
+	FActivateConsoleInShipping ConsoleActivation;
 };
