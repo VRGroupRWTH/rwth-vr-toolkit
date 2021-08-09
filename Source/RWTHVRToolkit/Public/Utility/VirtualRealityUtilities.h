@@ -22,6 +22,7 @@ enum class ENamedClusterComponent : uint8
 	NCC_TDW_CENTER UMETA(DisplayName = "TDW Center"),
 
 	/* Non Specific */
+	NCC_CALIBRATIO UMETA(DisplayName = "Calibratio Motion to Photon Measurement Device"),
 	NCC_SHUTTERGLASSES UMETA(DisplayName = "CAVE/ROLV/TDW Shutter Glasses"),
 	NCC_FLYSTICK UMETA(DisplayName = "CAVE/ROLV/TDW Flystick"),
 	NCC_TRACKING_ORIGIN UMETA(DisplayName = "CAVE/ROLV/TDW Origin")
@@ -50,5 +51,13 @@ public:
 
 	//Get Compenent of Display Cluster by it's name, which is specified in the nDisplay config
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static UDisplayClusterSceneComponent* GetClusterComponent(const FString& Name);
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static UDisplayClusterSceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
+    UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static UDisplayClusterSceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
+
+	/* Load and create an Object from an asset path. This only works in the constructor */
+    template <class T>
+    static bool LoadAsset(const FString& Path, T*& Result);
+
+    /* Finds and returns a class of an asset. This only works in the constructor */
+    template <class T>
+    static bool LoadClass(const FString& Path, TSubclassOf<T>& Result);
 };

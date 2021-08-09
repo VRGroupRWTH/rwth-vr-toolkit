@@ -112,3 +112,20 @@ UDisplayClusterSceneComponent* UVirtualRealityUtilities::GetNamedClusterComponen
 	}
 }
 
+template <typename T>
+bool UVirtualRealityUtilities::LoadAsset(const FString& Path, T* & Result)
+{
+	ConstructorHelpers::FObjectFinder<T> Loader(*Path);
+	Result = Loader.Object;
+	if (!Loader.Succeeded()) UE_LOG(LogTemp, Error, TEXT("Could not find %s. Have you renamed it?"), *Path);
+	return Loader.Succeeded();
+}
+
+template <typename T>
+bool UVirtualRealityUtilities::LoadClass(const FString& Path, TSubclassOf<T> & Result)
+{
+    ConstructorHelpers::FClassFinder<T> Loader(*Path);
+	Result = Loader.Class;
+	if (!Loader.Succeeded()) UE_LOG(LogTemp, Error, TEXT("Could not find %s. Have you renamed it?"), *Path);
+	return Loader.Succeeded();
+}
