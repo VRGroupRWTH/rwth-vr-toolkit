@@ -8,7 +8,7 @@ void FClusterConsole::Register()
 	ClusterConsoleCommand = IConsoleManager::Get().RegisterConsoleCommand(TEXT("ClusterExecute"), TEXT("<Your Command> - Execute commands on every node of the nDisplay cluster by prepending ClusterExecute"),
 		FConsoleCommandWithArgsDelegate::CreateLambda([](const TArray< FString >& Args)
 	{
-		if(IDisplayCluster::Get().GetClusterMgr() == nullptr) return;
+		if(IDisplayCluster::Get().GetClusterMgr() == nullptr || Args.Num() == 0) return;
 		
 		/* Emitting cluster event */
 		FDisplayClusterClusterEventJson ClusterEvent;
