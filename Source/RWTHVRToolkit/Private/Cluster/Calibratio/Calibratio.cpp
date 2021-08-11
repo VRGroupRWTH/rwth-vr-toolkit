@@ -18,35 +18,34 @@ void FCalibratio::Register()
 			ClusterEvent.Category = "CalibratioSpawner";
 			IDisplayCluster::Get().GetClusterMgr()->EmitClusterEventJson(ClusterEvent, false);
 		} else {
-			FCalibratio::SpawnCalibratio();
+			SpawnCalibratio();
 		}
 	}));
 
-	if(UVirtualRealityUtilities::IsRoomMountedMode()){
-		/* Register cluster event listening */
-		IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-		if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	
+	/* Register cluster event listening */
+	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
+	if (ClusterManager)
+	{
+		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateLambda([](const FDisplayClusterClusterEventJson& Event)
 		{
-			ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateLambda([](const FDisplayClusterClusterEventJson& Event)
+			if (Event.Category.Equals("CalibratioSpawner") && Event.Name.Equals("CalibratioSpawn"))
 			{
-				if (Event.Category.Equals("CalibratioSpawner") && Event.Name.Equals("CalibratioSpawn"))
-				{
-					FCalibratio::SpawnCalibratio();
-				}
-			});
-			ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
-		}
+				SpawnCalibratio();
+			}
+		});
+		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
 	}
 }
 
 void FCalibratio::Unregister() const
 {
 	IConsoleManager::Get().UnregisterConsoleObject(CalibratioConsoleCommand);
-	if(UVirtualRealityUtilities::IsRoomMountedMode()) IDisplayCluster::Get().GetClusterMgr()->RemoveClusterEventJsonListener(ClusterEventListenerDelegate);
+	IDisplayCluster::Get().GetClusterMgr()->RemoveClusterEventJsonListener(ClusterEventListenerDelegate);
 }
 
 void FCalibratio::SpawnCalibratio()
-{
+{ 
 	if (UGameplayStatics::GetActorOfClass(GEngine->GetCurrentPlayWorld(), ACalibratioActor::StaticClass()) != nullptr) return;
 	GEngine->GetCurrentPlayWorld()->SpawnActor<ACalibratioActor>();
 }
