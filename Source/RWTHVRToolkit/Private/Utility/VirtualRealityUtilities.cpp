@@ -76,17 +76,20 @@ FString UVirtualRealityUtilities::GetNodeName()
 }
 float UVirtualRealityUtilities::GetEyeDistance()
 {
-	return IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetDefaultCamera()->GetInterpupillaryDistance();
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0;
 }
 
 EDisplayClusterEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 {
-	return IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetDefaultCamera()->GetStereoOffset();
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset() : EDisplayClusterEyeStereoOffset::None;
 }
 
 UDisplayClusterSceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Name)
 {
-	return IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetComponentById(Name);
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetComponentById(Name) : nullptr;
 }
 
 UDisplayClusterSceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamedClusterComponent& Component)
