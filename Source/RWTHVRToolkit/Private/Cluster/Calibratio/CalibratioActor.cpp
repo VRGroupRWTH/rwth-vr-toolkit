@@ -179,7 +179,7 @@ void ACalibratioActor::ClusterArmAndSetCalibration(float MinAngle, float MaxAngl
 		if (!Manager) return;
 
 		FDisplayClusterClusterEventJson ClusterEvent;
-		ClusterEvent.Name = "CalibratioDespawn";
+		ClusterEvent.Name = "CalibratioArmAndSetCalibration";
 		ClusterEvent.Category = "Calibratio";
 		ClusterEvent.Parameters.Add("NewMin",FString::SanitizeFloat(MinAngle));
 		ClusterEvent.Parameters.Add("NewMax",FString::SanitizeFloat(MaxAngle));
