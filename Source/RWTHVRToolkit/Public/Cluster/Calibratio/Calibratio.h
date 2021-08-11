@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "CalibratioActor.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
 
 #include "Calibratio.generated.h"
 
@@ -15,6 +15,10 @@ struct RWTHVRTOOLKIT_API FCalibratio
 	void Register();
 	void Unregister() const;
 
+public:
+	static void SpawnCalibratio();
+
 private:
 	IConsoleCommand* CalibratioConsoleCommand = nullptr;
+	FOnClusterEventJsonListener ClusterEventListenerDelegate;
 };

@@ -100,6 +100,10 @@ void ACalibratioActor::HandleClusterEvent(const FDisplayClusterClusterEventJson&
 	{
 		LocalArmAndSetCalibration(FCString::Atof(*Event.Parameters["NewMin"]), FCString::Atof(*Event.Parameters["NewMax"]));
 	}
+	else if (Event.Name == "CalibratioDespawn")
+	{
+		LocalDespawn();
+	}
 }
 
 void ACalibratioActor::ClusterReset()
@@ -175,7 +179,7 @@ void ACalibratioActor::ClusterArmAndSetCalibration(float MinAngle, float MaxAngl
 		if (!Manager) return;
 
 		FDisplayClusterClusterEventJson ClusterEvent;
-		ClusterEvent.Name = "CalibratioArmAndSetCalibration";
+		ClusterEvent.Name = "CalibratioDespawn";
 		ClusterEvent.Category = "Calibratio";
 		ClusterEvent.Parameters.Add("NewMin",FString::SanitizeFloat(MinAngle));
 		ClusterEvent.Parameters.Add("NewMax",FString::SanitizeFloat(MaxAngle));
@@ -194,6 +198,28 @@ void ACalibratioActor::LocalArmAndSetCalibration(float NewMin, float NewMax)
 	Overlay->SetStatus(Waiting);
 	DynamicMaterial->SetVectorParameterValue("Color", FColor::Black);
 	CurrentCalibrationRuns = MaxCalibrationRuns + 1; //Arm
+}
+
+void ACalibratioActor::ClusterDespawn()
+{
+	if (UVirtualRealityUtilities::IsRoomMountedMode())
+	{
+		IDisplayClusterClusterManager* const Manager = IDisplayCluster::Get().GetClusterMgr();
+		if (!Manager) return;
+
+		FDisplayClusterClusterEventJson ClusterEvent;
+		ClusterEvent.Name = "CalibratioDespawn";
+		ClusterEvent.Category = "Calibratio";
+		Manager->EmitClusterEventJson(ClusterEvent, true);
+	}
+	else if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		LocalDespawn();
+	}
+}
+void ACalibratioActor::LocalDespawn()
+{
+	GetWorld()->DestroyActor(this); // Destroy ourself
 }
 
 void ACalibratioActor::Tick(const float DeltaSeconds)

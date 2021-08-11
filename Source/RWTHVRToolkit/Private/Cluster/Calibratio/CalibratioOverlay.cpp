@@ -56,6 +56,5 @@ void UCalibratioOverlay::SetPhysicalStatus(const ECalibratioPhysicalStatus Statu
 
 void UCalibratioOverlay::Dismiss()
 {
-	GetWorld()->DestroyActor(Owner);
-	RemoveFromViewport();
+	Owner->ClusterDespawn();
 }

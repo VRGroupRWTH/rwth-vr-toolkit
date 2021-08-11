@@ -27,6 +27,7 @@ public:
 	UPROPERTY(EditAnywhere) UMaterialInterface* BaseMaterial;
 	UPROPERTY(BlueprintReadWrite) float Threshold = FMath::DegreesToRadians(1.7f);
 	UPROPERTY(BlueprintReadWrite) float ResetTime = 0.5f;
+	UFUNCTION(Blueprintcallable) void ClusterDespawn();
 
 private:
 	DECLARE_DELEGATE_OneParam(FThresholdDelegate, float);
@@ -36,6 +37,7 @@ private:
 	bool IsTrackerCurrentlyVisible();
 	void LocalSetThreshold(float NewValue);
 	void LocalArmAndSetCalibration(float NewMin, float NewMax);
+	void LocalDespawn();
 	bool IsDeviceMoving(float Angle);
 	void LocalReset();
 
