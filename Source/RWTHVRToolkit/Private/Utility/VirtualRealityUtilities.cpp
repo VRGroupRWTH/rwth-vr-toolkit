@@ -102,6 +102,7 @@ UDisplayClusterSceneComponent* UVirtualRealityUtilities::GetNamedClusterComponen
 	case ENamedClusterComponent::NCC_FLYSTICK: return GetClusterComponent("flystick");
 	case ENamedClusterComponent::NCC_TDW_ORIGIN: return GetClusterComponent("tdw_origin_floor");
 	case ENamedClusterComponent::NCC_TDW_CENTER: return GetClusterComponent("tdw_center");
+	case ENamedClusterComponent::NCC_CALIBRATIO: return GetClusterComponent("calibratio");
 	case ENamedClusterComponent::NCC_TRACKING_ORIGIN:
 		UDisplayClusterSceneComponent* Result;
 		if((Result = GetClusterComponent("cave_origin"))) return Result;
