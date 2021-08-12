@@ -25,7 +25,7 @@ void FCalibratio::Register()
 	
 	/* Register cluster event listening */
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-	if (ClusterManager)
+	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
 	{
 		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateLambda([](const FDisplayClusterClusterEventJson& Event)
 		{
