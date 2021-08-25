@@ -1,10 +1,10 @@
-#include "Cluster/Calibratio/CalibratioActor.h"
+#include "CalibratioActor.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "IDisplayCluster.h"
 #include "TimerManager.h"
-#include "Cluster/Calibratio/CalibratioOverlay.h"
+#include "CalibratioOverlay.h"
 #include "GameFramework/InputSettings.h"
 #include "Utility/VirtualRealityUtilities.h"
 

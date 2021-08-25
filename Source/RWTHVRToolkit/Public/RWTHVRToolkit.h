@@ -4,7 +4,6 @@
 #include "Cluster/CAVEOverlay/CAVEOverlay.h"
 #include "Modules/ModuleManager.h"
 #include "Cluster/ClusterConsole.h"
-#include "Cluster/Calibratio/Calibratio.h"
 #include "Fixes/ActivateConsoleInShipping.h"
 
 
@@ -18,5 +17,4 @@ private:
 	FClusterConsole ClusterConsole;
 	FCAVEOverlay CAVEOverlay;
 	FActivateConsoleInShipping ConsoleActivation;
-	FCalibratio Calibratio;
 };

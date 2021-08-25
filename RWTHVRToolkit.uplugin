@@ -15,6 +15,11 @@
   "Installed": false,
   "EnabledByDefault": true,
   "Modules": [
+	{
+      "Name": "Calibratio",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
     {
       "Name": "RWTHVRToolkit",
       "Type": "Runtime",

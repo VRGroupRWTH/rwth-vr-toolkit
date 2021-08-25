@@ -9,7 +9,7 @@
 #include "CalibratioActor.generated.h"
 
 UCLASS()
-class RWTHVRTOOLKIT_API ACalibratioActor : public AActor
+class CALIBRATIO_API ACalibratioActor : public AActor
 {
 	GENERATED_BODY()
 

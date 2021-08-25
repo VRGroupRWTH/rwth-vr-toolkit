@@ -32,7 +32,7 @@ enum ECalibratioPhysicalStatus
  * All declarations in it are magically bound to the UMG child class if they are named the same (see "meta = (BindWidget)")
  */
 UCLASS()
-class UCalibratioOverlay : public UUserWidget
+class CALIBRATIO_API UCalibratioOverlay : public UUserWidget
 {
 	GENERATED_BODY()
 
