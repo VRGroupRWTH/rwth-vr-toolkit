@@ -11,7 +11,6 @@ public class RWTHVRToolkitEditor : ModuleRules
             { 
                 "Core",
 			    "CoreUObject",
-			    "DisplayCluster",
 				"Engine",
 				"UnrealEd",
 				"ComponentVisualizers",
