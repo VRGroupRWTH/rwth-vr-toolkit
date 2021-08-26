@@ -52,6 +52,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsSlave();
 
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static FString GetNodeName();
+	/* Distance in meters */
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static float GetEyeDistance();
 
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static EEyeStereoOffset GetNodeEyeType();

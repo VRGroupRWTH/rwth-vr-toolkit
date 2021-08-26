@@ -12,11 +12,13 @@
 
 #include "Engine/Engine.h"
 #include "IXRTrackingSystem.h"
+#include "IHeadMountedDisplay.h"
 
 bool UVirtualRealityUtilities::IsDesktopMode()
 {
 	return !IsRoomMountedMode() && !IsHeadMountedMode();
 }
+
 bool UVirtualRealityUtilities::IsRoomMountedMode()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
@@ -25,6 +27,7 @@ bool UVirtualRealityUtilities::IsRoomMountedMode()
 	return false;
 #endif
 }
+
 bool UVirtualRealityUtilities::IsHeadMountedMode()
 {
 	return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
@@ -101,14 +104,22 @@ FString UVirtualRealityUtilities::GetNodeName()
 	return FString(TEXT("Localhost"));
 #endif
 }
+
 float UVirtualRealityUtilities::GetEyeDistance()
 {
+	if(IsHeadMountedMode())
+	{
+	    return GEngine->XRSystem->GetHMDDevice()->GetInterpupillaryDistance();
+	}
+    else
+	{
 #if PLATFORM_SUPPORTS_NDISPLAY
-	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0;
+	    ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	    return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0.0f;
 #else
-	return 0;
+	    return 0.0f;
 #endif
+	}
 }
 
 EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
