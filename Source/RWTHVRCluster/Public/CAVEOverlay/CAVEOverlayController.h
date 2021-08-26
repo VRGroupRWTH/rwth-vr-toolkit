@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Cluster/CAVEOverlay/DoorOverlayData.h"
+#include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "CAVEOverlayController.generated.h"
@@ -10,7 +10,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogCAVEOverlay, Log, All);
 
 UCLASS()
-class RWTHVRTOOLKIT_API ACAVEOverlayController : public AActor
+class RWTHVRCLUSTER_API ACAVEOverlayController : public AActor
 {
 	GENERATED_BODY()
 	

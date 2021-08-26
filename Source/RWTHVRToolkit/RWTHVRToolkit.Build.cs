@@ -40,8 +40,8 @@ public class RWTHVRToolkit : ModuleRules
 		
 		if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			//PublicDependencyModuleNames.Add("DisplayCluster");
-			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=0");
+			PublicDependencyModuleNames.Add("DisplayCluster");
+			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=1");
 		}
 		else
 		{

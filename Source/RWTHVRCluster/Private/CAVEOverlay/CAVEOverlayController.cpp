@@ -1,6 +1,6 @@
-#include "Cluster/CAVEOverlay/CAVEOverlayController.h"
+#include "CAVEOverlay/CAVEOverlayController.h"
 #include "CoreMinimal.h"
-#include "Cluster/CAVEOverlay/DoorOverlayData.h"
+#include "CAVEOverlay/DoorOverlayData.h"
 #include "IDisplayCluster.h"
 #include "IXRTrackingSystem.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
