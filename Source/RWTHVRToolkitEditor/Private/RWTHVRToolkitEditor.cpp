@@ -12,7 +12,7 @@
 
 IMPLEMENT_GAME_MODULE(FRWTHVRToolkitEditorModule, RWTHVRToolkitEditor);
 
-#define LOCTEXT_NAMESPACE "RWTHVRToolkitEdito"
+#define LOCTEXT_NAMESPACE "RWTHVRToolkitEditor"
 
 void FRWTHVRToolkitEditorModule::StartupModule()
 {
