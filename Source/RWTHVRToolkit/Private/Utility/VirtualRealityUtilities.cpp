@@ -104,7 +104,8 @@ FString UVirtualRealityUtilities::GetNodeName()
 float UVirtualRealityUtilities::GetEyeDistance()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	return IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetDefaultCamera()->GetInterpupillaryDistance();
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0;
 #else
 	return 0;
 #endif
@@ -113,7 +114,8 @@ float UVirtualRealityUtilities::GetEyeDistance()
 EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	return static_cast<EEyeStereoOffset>(IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetDefaultCamera()->GetStereoOffset());
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset() : EDisplayClusterEyeStereoOffset::None;
 #else
 	return None;
 #endif
@@ -122,7 +124,8 @@ EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Name)
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	return IDisplayCluster::Get().GetGameMgr()->GetRootActor()->GetComponentById(Name);
+	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	return (RootActor) ? RootActor->GetComponentById(Name) : nullptr;
 #else
 	return nullptr;
 #endif
@@ -141,6 +144,7 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	case ENamedClusterComponent::NCC_FLYSTICK: return GetClusterComponent("flystick");
 	case ENamedClusterComponent::NCC_TDW_ORIGIN: return GetClusterComponent("tdw_origin_floor");
 	case ENamedClusterComponent::NCC_TDW_CENTER: return GetClusterComponent("tdw_center");
+	case ENamedClusterComponent::NCC_CALIBRATIO: return GetClusterComponent("calibratio");
 	case ENamedClusterComponent::NCC_TRACKING_ORIGIN:
 		USceneComponent* Result;
 		if((Result = GetClusterComponent("cave_origin"))) return Result;
@@ -150,4 +154,3 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	default: return nullptr;
 	}
 }
-

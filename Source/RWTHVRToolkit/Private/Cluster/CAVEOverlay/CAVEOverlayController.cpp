@@ -33,15 +33,6 @@ UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& N
 	return Result;
 }
 
-template <typename T>
-bool LoadAsset(const FString& Path, T* & Result)
-{
-	ConstructorHelpers::FObjectFinder<T> Loader(*Path);
-	Result = Loader.Object;
-	if (!Loader.Succeeded()) UE_LOG(LogCAVEOverlay, Error, TEXT("Could not find %s. Have you renamed it?"), *Path);
-	return Loader.Succeeded();
-}
-
 // Sets default values
 ACAVEOverlayController::ACAVEOverlayController()
 {
@@ -69,9 +60,9 @@ ACAVEOverlayController::ACAVEOverlayController()
 	SignRoot->SetupAttachment(Root);
 
 	//Loading of Materials and Meshes
-	LoadAsset("/RWTHVRToolkit/CAVEOverlay/Stripes", TapeMaterial);
-	LoadAsset("/RWTHVRToolkit/CAVEOverlay/StopMaterial", SignMaterial);
-	LoadAsset("/RWTHVRToolkit/CAVEOverlay/Plane", PlaneMesh);
+	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/Stripes", TapeMaterial);
+	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/StopMaterial", SignMaterial);
+	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/Plane", PlaneMesh);
 
 	TapeNegativeY = CreateMeshComponent("TapeNegY", PlaneMesh, TapeRoot);
 	TapeNegativeX = CreateMeshComponent("TapeNegX", PlaneMesh, TapeRoot);
