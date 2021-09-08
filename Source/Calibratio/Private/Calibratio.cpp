@@ -25,8 +25,8 @@ void FCalibratioModule::StartupModule ()
 
 	
 	/* Register cluster event listening */
-	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
-	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
+	IDisplayCluster* DisplayCluster = FModuleManager::LoadModulePtr<IDisplayCluster>(IDisplayCluster::ModuleName);
+	if (DisplayCluster && !ClusterEventListenerDelegate.IsBound())
 	{
 		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateLambda([](const FDisplayClusterClusterEventJson& Event)
 		{
@@ -35,7 +35,7 @@ void FCalibratioModule::StartupModule ()
 				SpawnCalibratio();
 			}
 		});
-		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
+		DisplayCluster->GetClusterMgr()->AddClusterEventJsonListener(ClusterEventListenerDelegate);
 	}
 }
 void FCalibratioModule::ShutdownModule()
