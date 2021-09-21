@@ -28,7 +28,7 @@ enum class ENamedClusterComponent : uint8
 };
 
 UENUM()
-enum EEyeStereoOffset
+enum class EEyeStereoOffset
 {
 	None,
 	Left,
