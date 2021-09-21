@@ -12,7 +12,7 @@
  * Used as a parent-class in the overlay widget. Like this we can access the UMG properties in C++
  */
 UCLASS()
-class RWTHVRTOOLKIT_API UDoorOverlayData : public UUserWidget
+class RWTHVRCLUSTER_API UDoorOverlayData : public UUserWidget
 {
 	GENERATED_BODY()
 	

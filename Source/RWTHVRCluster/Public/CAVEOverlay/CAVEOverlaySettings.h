@@ -11,7 +11,7 @@ enum DefaultActivationType
 };
 
 UCLASS(config=Game, defaultconfig, meta=(DisplayName="CAVE Overlay"))
-class RWTHVRTOOLKIT_API UCAVEOverlaySettings : public UDeveloperSettings
+class RWTHVRCLUSTER_API UCAVEOverlaySettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

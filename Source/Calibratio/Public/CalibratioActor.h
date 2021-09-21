@@ -62,7 +62,7 @@ private:
 	FVector LastVisiblePosition = FVector(NAN, NAN, NAN);
 	bool FirstPositionSet = false;
 	uint32 AcceptedAbscenceTime = 500u; // in Milliseconds
-	UPROPERTY() UDisplayClusterSceneComponent* TrackedClusterComponent = nullptr;
+	UPROPERTY() USceneComponent* TrackedClusterComponent = nullptr;
 
 	//Overlay
 	TSubclassOf<class UCalibratioOverlay> Overlay_Class;

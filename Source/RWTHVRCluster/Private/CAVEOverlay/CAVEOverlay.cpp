@@ -1,6 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
-#include "Cluster/CAVEOverlay/CAVEOverlay.h"
+#include "CAVEOverlay/CAVEOverlay.h"
 
 void FCAVEOverlay::Register()
 {

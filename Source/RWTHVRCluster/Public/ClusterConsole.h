@@ -12,7 +12,7 @@
  * This class has to be registered and unregistered. This can easily be done in every StartupModule/ShutdownModule functions.
  */
 USTRUCT()
-struct RWTHVRTOOLKIT_API FClusterConsole
+struct RWTHVRCLUSTER_API FClusterConsole
 {
 	GENERATED_BODY()
 private:
