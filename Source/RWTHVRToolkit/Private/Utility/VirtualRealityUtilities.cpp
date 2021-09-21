@@ -128,7 +128,7 @@ EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 	return static_cast<EEyeStereoOffset>((RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset() : EDisplayClusterEyeStereoOffset::None);
 #else
-	return None;
+	return EDisplayClusterEyeStereoOffset::None;
 #endif
 }
 
