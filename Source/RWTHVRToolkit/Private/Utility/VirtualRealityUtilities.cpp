@@ -136,7 +136,7 @@ USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Na
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	return (RootActor) ? RootActor->GetComponentById(Name) : nullptr;
+	return (RootActor) ? RootActor->GetComponentByName<USceneComponent>(Name) : nullptr;
 #else
 	return nullptr;
 #endif

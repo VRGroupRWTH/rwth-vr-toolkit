@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
-#include "Components/DisplayClusterSceneComponent.h"
 
 #include "GameFramework/Actor.h"
 #include "CalibratioActor.generated.h"

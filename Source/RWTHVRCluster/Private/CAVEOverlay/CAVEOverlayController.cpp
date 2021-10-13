@@ -8,7 +8,6 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Components/DisplayClusterSceneComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "Utility/VirtualRealityUtilities.h"
 
