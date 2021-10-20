@@ -2,6 +2,7 @@
 
 #include "Interfaces/IHttpResponse.h"
 #include "HttpModule.h"
+#include "Misc/FileHelper.h"
 #include "Runtime/ImageWrapper/Public/IImageWrapperModule.h"
 
 UExternalImage::UExternalImage(){}

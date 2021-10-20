@@ -11,6 +11,7 @@
 #include "Misc/Optional.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
 

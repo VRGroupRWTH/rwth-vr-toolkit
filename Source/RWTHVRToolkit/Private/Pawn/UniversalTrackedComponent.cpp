@@ -3,18 +3,19 @@
 
 #include "Pawn/UniversalTrackedComponent.h"
 
-
 #include "Camera/CameraComponent.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "Roles/LiveLinkTransformTypes.h"
+#include "ILiveLinkClient.h"
+
+DEFINE_LOG_CATEGORY(LogUniversalTrackedComponent);
 
 // Sets default values for this component's properties
 UUniversalTrackedComponent::UUniversalTrackedComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PrePhysics;
 }
-
 
 void UUniversalTrackedComponent::SetShowDeviceModel(const bool bShowControllerModel)
 {
@@ -30,14 +31,16 @@ void UUniversalTrackedComponent::BeginPlay()
 
 	if (UVirtualRealityUtilities::IsHeadMountedMode())
 	{
-		if(ProxyType == ETrackedComponentType::TCT_HEAD)
+		if (ProxyType == ETrackedComponentType::TCT_HEAD)
 		{
 			TrackedComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
-		}else
+		}
+		else
 		{
 			/* Spawn Motion Controller Components in HMD Mode*/
 			UMotionControllerComponent* MotionController = Cast<UMotionControllerComponent>(GetOwner()->AddComponentByClass(UMotionControllerComponent::StaticClass(), false, FTransform::Identity, false));
 
+			// Todo: If bAlwaysUseLiveLinkTracking is true, those should be sourced by LiveLink
 			switch(ProxyType)
 			{
 				case ETrackedComponentType::TCT_TRACKER_1:
@@ -47,6 +50,7 @@ void UUniversalTrackedComponent::BeginPlay()
 					MotionController->SetTrackingMotionSource(FName("Special_2"));
 					break;
 				case ETrackedComponentType::TCT_RIGHT_HAND:
+					MotionController->SetTrackingMotionSource(FName("Right"));
 					MotionController->SetTrackingMotionSource(FName("Right"));
 					break;
 				case ETrackedComponentType::TCT_LEFT_HAND:
@@ -58,7 +62,13 @@ void UUniversalTrackedComponent::BeginPlay()
 
 			TrackedComponent = MotionController;
 		}
-	}else if(UVirtualRealityUtilities::IsDesktopMode()){
+		if (TrackedComponent)
+			AttachToComponent(Cast<USceneComponent>(TrackedComponent), FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	}
+	// Check for bAlwaysUseLiveLinkTracking here too in case we want to use LiveLink in Editor/Desktop mode.
+	else if (UVirtualRealityUtilities::IsDesktopMode() && !bAlwaysUseLiveLinkTracking)
+	{
 		switch(ProxyType)
 		{
 			case ETrackedComponentType::TCT_RIGHT_HAND:
@@ -71,40 +81,84 @@ void UUniversalTrackedComponent::BeginPlay()
 				TrackedComponent = GetOwner()->GetRootComponent();
 				break;
 		}
+		if (TrackedComponent) AttachToComponent(Cast<USceneComponent>(TrackedComponent), FAttachmentTransformRules::SnapToTargetIncludingScale);
+
 	}
-	
-	if(TrackedComponent) AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	// If we're either in the cave or using LiveLink, set it up here. Might want to differentiate between the two cases later on,
+	// for now both should be equivalent. Maybe set up some additional stuff automatically like presets etc.
+	else if (UVirtualRealityUtilities::IsRoomMountedMode() || bAlwaysUseLiveLinkTracking)
+	{
+		// Instead of using the clumsy LiveLinkComponentController, we just directly check the LiveLink Data in Tick later on.
+		// Set up this Component to Tick, and check weather Subject and Role is set.
+		TrackedComponent = this;
+		bUseLiveLinkTracking = true; // override this in case someone forgot to set it.
+		if (SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)
+		{
+			UE_LOG(LogUniversalTrackedComponent, Error, TEXT("UUniversalTrackedComponent::BeginPlay(): No LiveLink Subject or Role is set! Tracking will not work"));
+		}
+		SetComponentTickEnabled(true);
+	}
 }
+
+void UUniversalTrackedComponent::PostLoad()
+{
+	Super::PostLoad();
+
+	// This is required in PostLoad (and theoretically in OnComponentCreated too) because just setting this in
+	// the constructor or PostInitializeProperties will load the CDO's property values.
+	// Just calling it in BeginPlay() won't let us see the LiveLink preview in the editor. 
+	bTickInEditor = bAlwaysUseLiveLinkTracking;	
+	PrimaryComponentTick.bStartWithTickEnabled =  bAlwaysUseLiveLinkTracking;	
+}
+
+#if WITH_EDITOR
+void UUniversalTrackedComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	// Catch the change to bAlwaysUseLiveLinkTracking, and disable/enable tick respectively for in-editor tracking.
+	const FName PropertyName(PropertyChangedEvent.GetPropertyName());
+	if(PropertyName == GET_MEMBER_NAME_CHECKED(UUniversalTrackedComponent, bAlwaysUseLiveLinkTracking))
+	{
+		bTickInEditor = bAlwaysUseLiveLinkTracking;
+		SetComponentTickEnabled(bAlwaysUseLiveLinkTracking);
+	}
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif
+
 
 void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	if(TrackedComponent) return; /* Already attached */
 
-	/* Test for presence every frame and add as soon as they are there */
-	if (UVirtualRealityUtilities::IsRoomMountedMode())
+	// Check whether we need to update the component with new LiveLink data. This is either the case if
+	// nDisplay uses bUseLiveLinkTracking (Play Mode), or if bAlwaysUseLiveLinkTracking is true, then we tick both in Play Mode and Editor.
+	const bool bEvaluateLiveLink = bUseLiveLinkTracking || bAlwaysUseLiveLinkTracking;
+
+	if(!bEvaluateLiveLink || SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)
 	{
-		switch(ProxyType)
-		{
-			case ETrackedComponentType::TCT_RIGHT_HAND:
-			case ETrackedComponentType::TCT_LEFT_HAND:
-				TrackedComponent = GetComponentForSelectedAttachment(AttachementType);
-				break;
-			case ETrackedComponentType::TCT_HEAD:
-				TrackedComponent = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
-				break;
-			case ETrackedComponentType::TCT_TRACKER_1:
-			case ETrackedComponentType::TCT_TRACKER_2:
-				TrackedComponent = GetOwner()->GetRootComponent();
-				break;
-		}
-
-		if(TrackedComponent) AttachToComponent(TrackedComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		return;
 	}
+
+	// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
+	ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
+	FLiveLinkSubjectFrameData SubjectData;
+	const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(SubjectRepresentation.Subject, SubjectRepresentation.Role, SubjectData);
+
+	if(!bHasValidData)
+		return;
+
+	// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and could be further improved.
+	const FLiveLinkTransformStaticData* StaticData = SubjectData.StaticData.Cast<FLiveLinkTransformStaticData>();
+	const FLiveLinkTransformFrameData* FrameData = SubjectData.FrameData.Cast<FLiveLinkTransformFrameData>();
+
+	if (StaticData && FrameData)
+	{
+		// Finally, apply the transform to this component according to the static data.
+		ApplyLiveLinkTransform(FrameData->Transform, *StaticData);
+	}	
 }
 
-UMotionControllerComponent* UUniversalTrackedComponent::GetMotionControllerComponentByMotionSource(EControllerHand MotionSource)
+UMotionControllerComponent* UUniversalTrackedComponent::GetMotionControllerComponentByMotionSource(EControllerHand MotionSource) const
 {
 	TArray<UActorComponent*> Components;
 	GetOwner()->GetComponents(UMotionControllerComponent::StaticClass(),Components);
@@ -123,19 +177,41 @@ UMotionControllerComponent* UUniversalTrackedComponent::GetMotionControllerCompo
 	);
 }
 
-USceneComponent* UUniversalTrackedComponent::GetComponentForSelectedAttachment(EAttachementType AttachmentType) const
+void UUniversalTrackedComponent::ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData)
 {
-	switch (AttachmentType)
+	if (bUseLocation && StaticData.bIsLocationSupported)
 	{
-	case EAttachementType::AT_NONE: return nullptr;
-	case EAttachementType::AT_HANDTARGET:
-		if(ProxyType == ETrackedComponentType::TCT_RIGHT_HAND) return UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_CAVE_RHT);
-		if(ProxyType == ETrackedComponentType::TCT_LEFT_HAND) return UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_CAVE_LHT);
-		break;
-	case EAttachementType::AT_FLYSTICK:
-		return UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
-		break;
+		if (bWorldTransform)
+		{
+			this->SetWorldLocation(Transform.GetLocation(), bSweep, nullptr, bTeleport ? ETeleportType::TeleportPhysics : ETeleportType::ResetPhysics);
+		}
+		else
+		{
+			this->SetRelativeLocation(Transform.GetLocation(), bSweep, nullptr, bTeleport ? ETeleportType::TeleportPhysics : ETeleportType::ResetPhysics);
+		}
 	}
-	return nullptr;
-}
 
+	if (bUseRotation && StaticData.bIsRotationSupported)
+	{
+		if (bWorldTransform)
+		{
+			this->SetWorldRotation(Transform.GetRotation(), bSweep, nullptr, bTeleport ? ETeleportType::TeleportPhysics : ETeleportType::ResetPhysics);
+		}
+		else
+		{
+			this->SetRelativeRotation(Transform.GetRotation(), bSweep, nullptr, bTeleport ? ETeleportType::TeleportPhysics : ETeleportType::ResetPhysics);
+		}
+	}
+
+	if (bUseScale && StaticData.bIsScaleSupported)
+	{
+		if (bWorldTransform)
+		{
+			this->SetWorldScale3D(Transform.GetScale3D());
+		}
+		else
+		{
+			this->SetRelativeScale3D(Transform.GetScale3D());
+		}
+	}	
+}

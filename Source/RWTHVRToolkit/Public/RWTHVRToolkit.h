@@ -1,15 +1,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 #include "Fixes/ActivateConsoleInShipping.h"
+
+class ULiveLinkPreset;
 
 class FRWTHVRToolkitModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule () override;
 	virtual void ShutdownModule() override;
+	
+	void SetLiveLinkPreset(ULiveLinkPreset* Preset);
 
 private:
-	FActivateConsoleInShipping ConsoleActivation;
+
+	void OnEngineLoopInitComplete();
+	bool HandleSettingsSaved();
+	void ApplyDefaultPreset();
+	
+	FActivateConsoleInShipping ConsoleActivation;	
+	ULiveLinkPreset* LiveLinkPreset = nullptr;
 };

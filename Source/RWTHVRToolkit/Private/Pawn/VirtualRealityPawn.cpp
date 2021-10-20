@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pawn/VirtualRealityPawn.h"
-
-
 
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/PlayerInput.h"
@@ -21,7 +18,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
-	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root")));
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
@@ -31,9 +28,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
 	Head->SetupAttachment(RootComponent);
 
+	CapsuleRotationFix = CreateDefaultSubobject<USceneComponent>(TEXT("CapsuleRotationFix"));
+	CapsuleRotationFix->SetUsingAbsoluteRotation(true);
+	CapsuleRotationFix->SetupAttachment(Head);
+	
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(Head);
+	PawnMovement->SetHeadComponent(CapsuleRotationFix);
 	
 	RightHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Right Hand"));
 	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
