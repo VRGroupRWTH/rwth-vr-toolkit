@@ -88,7 +88,9 @@ void UUniversalTrackedComponent::BeginPlay()
 	else if (UVirtualRealityUtilities::IsRoomMountedMode() || bAlwaysUseLiveLinkTracking)
 	{
 		// Instead of using the clumsy LiveLinkComponentController, we just directly check the LiveLink Data in Tick later on.
-		// Set up this Component to Tick, and check weather Subject and Role is set.
+		// Set up this Component to Tick, and check whether Subject and Role is set.
+
+		// TODO: Check for AttachementType and automatically get the respective Subject/Role. Need to investigate how those are called by DTrack.
 		TrackedComponent = this;
 		bUseLiveLinkTracking = true; // override this in case someone forgot to set it.
 		if (SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)

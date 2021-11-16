@@ -25,9 +25,10 @@ enum class ETrackedComponentType : uint8
 UENUM(BlueprintType)
 enum class EAttachementType : uint8
 {
-	AT_NONE UMETA(DisplayName = "not attached"),
-	AT_HANDTARGET UMETA(DisplayName = "to the right/left hand target"),
-	AT_FLYSTICK UMETA(DisplayName = "to the Flystick")
+	AT_NONE UMETA(DisplayName = "Not attached"),
+	AT_HANDTARGET UMETA(DisplayName = "To the right/left hand target"),
+	AT_FLYSTICK UMETA(DisplayName = "To the Flystick"),
+	AT_CUSTOM_SUBJECT UMETA(DisplayName = "Custom LiveLink Subject|Role")
 };
 
 /*
@@ -49,7 +50,7 @@ public:
 	ETrackedComponentType ProxyType = ETrackedComponentType::TCT_HEAD;
 
 	/** Set whether LiveLink should always be enabled, even in the editor or desktop mode. Overrides bUseLiveLinkTracking.*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking", meta = (DisplayName = "Override all tracking with LiveLink"))
 	bool bAlwaysUseLiveLinkTracking;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|nDisplay")
@@ -60,30 +61,30 @@ public:
 	bool bUseLiveLinkTracking = true;
 
 	/** Set the LiveLink Subject Representation to be used by this component. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Tracking|nDisplay|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	FLiveLinkSubjectRepresentation SubjectRepresentation;
 
 	/** Set the transform of the component in world space of in its local reference frame. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bWorldTransform = false;
 
 	/** Whether we should set the owning actor's location with the value coming from live link. */
-	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bUseLocation = true;
 
 	/** Whether we should set the owning actor's rotation with the value coming from live link. */
-	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bUseRotation = true;
 	
 	/** Whether we should set the owning actor's scale with the value coming from live link. */
-	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(EditAnywhere, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bUseScale = true;
 
 	/**
 	 * Whether we sweep to the destination location, triggering overlaps along the way and stopping short of the target if blocked by something.
 	 * Only the root component is swept and checked for blocking collision, child components move without sweeping. If collision is off, this has no effect.
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bSweep = false;
 
 	/**
@@ -92,7 +93,7 @@ public:
 	 * If false, physics velocity is updated based on the change in position (affecting ragdoll parts).
 	 * If CCD is on and not teleporting, this will affect objects along the entire sweep volume.
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tracking|nDisplay|LiveLink")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tracking|nDisplay|LiveLink", meta = (EditCondition = "AttachementType==EAttachementType::AT_CUSTOM_SUBJECT"))
 	bool bTeleport = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tracking|HMD", BlueprintSetter=SetShowDeviceModel)
