@@ -16,7 +16,7 @@ public:
 private:
 
 	void OnEngineLoopInitComplete();
-	bool HandleSettingsSaved();
+	void HandleSettingsSaved(UObject* Settings, FPropertyChangedEvent& PropertyChangedEvent);
 	void ApplyDefaultPreset();
 	
 	FActivateConsoleInShipping ConsoleActivation;	

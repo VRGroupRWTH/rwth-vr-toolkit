@@ -4,11 +4,6 @@
 #include "LiveLinkClient.h"
 #include "RWTHVRToolkitSettings.h"
 
-#if WITH_EDITOR
-	#include "ISettingsModule.h"
-	#include "ISettingsSection.h"
-#endif
-
 #define LOCTEXT_NAMESPACE "FRWTHVRToolkitModule"
 
 void FRWTHVRToolkitModule::StartupModule ()
@@ -18,32 +13,13 @@ void FRWTHVRToolkitModule::StartupModule ()
 	FCoreDelegates::OnFEngineLoopInitComplete.AddRaw(this, &FRWTHVRToolkitModule::OnEngineLoopInitComplete);
 
 #if WITH_EDITOR
-	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
-	{
-		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings(
-			"Project", "Plugins", "RWTH VR Toolkit",
-			LOCTEXT("RWTHVRToolkitSettingsName", "RWTH VR Toolkit"),
-			LOCTEXT("RWTHVRToolkitSettingsDescription", "Configure the RWTH VR Toolkit."),
-			GetMutableDefault<URWTHVRToolkitSettings>()
-		);
-		if (SettingsSection.IsValid())
-		{
-			SettingsSection->OnModified().BindRaw(this, &FRWTHVRToolkitModule::HandleSettingsSaved);
-		}
-	}
+	GetMutableDefault<URWTHVRToolkitSettings>()->OnSettingChanged().AddRaw(this, &FRWTHVRToolkitModule::HandleSettingsSaved);
 #endif
 }
 
 void FRWTHVRToolkitModule::ShutdownModule()
 {
-	ConsoleActivation.Unregister();
-	
-#if WITH_EDITOR
-	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
-	{
-		SettingsModule->UnregisterSettings("Project", "Plugins", "RWTH VR Toolkit");
-	}
-#endif
+	ConsoleActivation.Unregister();	
 }
 
 void FRWTHVRToolkitModule::OnEngineLoopInitComplete()
@@ -51,10 +27,9 @@ void FRWTHVRToolkitModule::OnEngineLoopInitComplete()
 	ApplyDefaultPreset();
 }
 
-bool FRWTHVRToolkitModule::HandleSettingsSaved()
+void FRWTHVRToolkitModule::HandleSettingsSaved(UObject* Settings, FPropertyChangedEvent& PropertyChangedEvent)
 {
 	ApplyDefaultPreset();
-	return true;
 }
 
 void FRWTHVRToolkitModule::ApplyDefaultPreset()
