@@ -51,7 +51,6 @@ void UUniversalTrackedComponent::BeginPlay()
 					break;
 				case ETrackedComponentType::TCT_RIGHT_HAND:
 					MotionController->SetTrackingMotionSource(FName("Right"));
-					MotionController->SetTrackingMotionSource(FName("Right"));
 					break;
 				case ETrackedComponentType::TCT_LEFT_HAND:
 					MotionController->SetTrackingMotionSource(FName("Left"));
