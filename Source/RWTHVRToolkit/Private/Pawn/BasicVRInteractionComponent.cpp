@@ -63,7 +63,7 @@ void UBasicVRInteractionComponent::BeginInteraction()
 	PressPointerKey(EKeys::LeftMouseButton);
 	
 	
-	if (HitActor->Implements<UGrabable>() && Hit->Distance < MaxGrabDistance)
+	if (HitActor && HitActor->Implements<UGrabable>() && Hit->Distance < MaxGrabDistance)
 	{
 		// call grabable actors function so he reacts to our grab
 		IGrabable::Execute_OnBeginGrab(HitActor);
@@ -76,7 +76,7 @@ void UBasicVRInteractionComponent::BeginInteraction()
 		// we save the grabbedActor in a general form to access all of AActors functions easily later
 		GrabbedActor = HitActor;
 	}
-	else if (HitActor->Implements<UClickable>() && Hit->Distance < MaxClickDistance)
+	else if (HitActor && HitActor->Implements<UClickable>() && Hit->Distance < MaxClickDistance)
 	{
 		IClickable::Execute_OnClick(HitActor, Hit->Location);
 	}
