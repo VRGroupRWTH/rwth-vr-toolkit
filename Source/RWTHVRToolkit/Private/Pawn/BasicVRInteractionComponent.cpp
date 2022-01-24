@@ -138,7 +138,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	const FTwoVectors StartEnd = GetHandRay(MaxClickDistance);
 	TOptional<FHitResult> Hit = RaytraceForFirstHit(StartEnd);
 
-	if (!Hit.IsSet())
+	if (!Hit.IsSet() || !Hit->GetActor())
 	{
 		if(InteractionRayVisibility==EInteractionRayVisibility::VisibleOnHoverOnly)
 		{
