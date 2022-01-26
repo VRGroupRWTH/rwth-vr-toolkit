@@ -5,6 +5,8 @@
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	// the capsule is used to store the players size and position, e.g., for other interactions and as starting point
+	// for the capsule trace (which however not use the capsule component directly)
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
@@ -131,18 +133,19 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 	if(LastCapsulePosition.IsNearlyZero())
 	{
 		//probably not yet set, so do nothing than setting it
-		LastCapsulePosition = GetCapsuleLocationFromHead();
+		LastCapsulePosition = CapsuleColliderComponent->GetComponentLocation();
 		return;
 	}
 
-	const FVector CapsuleLocation = GetCapsuleLocationFromHead();
+	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 	const FHitResult HitResult = CreateCapsuleTrace(LastCapsulePosition, CapsuleLocation);
 
 	//if this was not possible move the entire pawn away to avoid the head collision
 	if (HitResult.bBlockingHit)
 	{
 		const FVector MoveOutVector = HitResult.Location-CapsuleLocation;
-		UpdatedComponent->AddWorldOffset(MoveOutVector);
+		//move it out twice as far, to avoid getting stuck situations
+		UpdatedComponent->AddWorldOffset(2*MoveOutVector);
 	}
 	else
 	{
@@ -158,7 +161,7 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 {
 
 	const float SafetyFactor = 3.0f; //so we detect collision a bit earlier
-	const FVector CapsuleLocation = GetCapsuleLocationFromHead();
+	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 	FVector ProbePosition = SafetyFactor * InputVector.GetSafeNormal() * GetMaxSpeed() * DeltaTime + CapsuleLocation;
 	const FHitResult TraceResult = CreateCapsuleTrace(CapsuleLocation, ProbePosition);
 	if (!TraceResult.bBlockingHit)
@@ -242,11 +245,6 @@ void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration
 		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f,  Distance));
 		VerticalSpeed = 0;
 	}
-}
-
-FVector UVRPawnMovement::GetCapsuleLocationFromHead()
-{
-	return HeadComponent->GetComponentLocation() - FVector(0, 0, CapsuleColliderComponent->GetScaledCapsuleHalfHeight());
 }
 
 FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug) const

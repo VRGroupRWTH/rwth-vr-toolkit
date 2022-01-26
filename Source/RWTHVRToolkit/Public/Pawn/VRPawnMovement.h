@@ -71,8 +71,6 @@ private:
 	void MoveByGravityOrStepUp(float DeltaSeconds);
 	void ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds);
 
-	FVector GetCapsuleLocationFromHead();
-
 	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
