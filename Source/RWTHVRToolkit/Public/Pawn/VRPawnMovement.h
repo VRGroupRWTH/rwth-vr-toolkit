@@ -35,6 +35,8 @@ class RWTHVRTOOLKIT_API UVRPawnMovement : public UFloatingPawnMovement
 
 public:
 
+	virtual void BeginPlay() override;
+
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -43,30 +45,38 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_WALK;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
 	float MaxStepHeight = 40.0f;
 
+	// if the height that the pawn would fall (in walking mode) is higher
+	// it is not falling, set to <0.0f if you want to fall infinitely
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	float MaxFallingDepth = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMax="0.0"))
 	float GravityAcceleration = -981.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	float UpSteppingAcceleration = 500.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
+	float UpSteppingAcceleration = 981.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
 	float CapsuleRadius = 40.0f;
 
 private:
 	//check for
-	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug) const;
+	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false) const;
 	void SetCapsuleColliderToUserSize();
 	void CheckForPhysWalkingCollision();
-	bool CheckForVirtualSteerCollision(FVector PositionChange, float DeltaTime);
+	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
 	void ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds);
+
+	FVector GetCapsuleLocationFromHead();
 
 	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	FVector LastHeadPosition;
+	FVector LastCapsulePosition;
+	FVector LastSteeringCollisionVector;
 };
