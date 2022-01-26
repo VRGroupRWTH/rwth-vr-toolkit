@@ -47,7 +47,7 @@ public:
 	float MaxStepHeight = 40.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	float GravityAcceleration = 981.0f;
+	float GravityAcceleration = -981.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	float UpSteppingAcceleration = 500.0f;
@@ -56,14 +56,13 @@ public:
 	float CapsuleRadius = 40.0f;
 
 private:
-	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
+	//check for
+	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug) const;
 	void SetCapsuleColliderToUserSize();
 	void CheckForPhysWalkingCollision();
-	bool CheckForVirtualMovCollision(FVector PositionChange, float DeltaTime);
+	bool CheckForVirtualSteerCollision(FVector PositionChange, float DeltaTime);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
-	void ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction);
-	//(direction = Down = -1), (direction = Up = 1)
+	void ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds);
 
 	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
