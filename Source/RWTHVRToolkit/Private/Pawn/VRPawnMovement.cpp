@@ -1,6 +1,7 @@
 ﻿
 #include "Pawn/VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -19,6 +20,9 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 	if (NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
+		// you are only allowed to move horizontally in NAV_WALK
+		// everything else will be handled by stepping-up/gravity
+		// so remove Z component for the input vector of the UFloatingPawnMovement
 		PositionChange.Z = 0.0f;
 		ConsumeInputVector();
 		AddInputVector(PositionChange);
@@ -26,35 +30,28 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 	
 	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
-		MoveByGravityOrStepUp(DeltaTime);
 		CheckForPhysWalkingCollision();
-
-		if(CheckForVirtualMovCollision(PositionChange, DeltaTime))
+		if(CheckForVirtualSteerCollision(PositionChange, DeltaTime))
 		{
+			// if we would move into something if we apply this input (estimating distance by max speed)
+			// we consume the input so it is not applied
 			ConsumeInputVector();
 		}
+
+		// so we add stepping-up (for both walk and fly)
+		// and gravity for walking only
+		MoveByGravityOrStepUp(DeltaTime);
 	}
 
 	if(NavigationMode == EVRNavigationModes::NAV_NONE)
 	{
+		//just remove whatever input is there
 		ConsumeInputVector();
 	}
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	LastHeadPosition = HeadComponent->GetComponentLocation();
-}
-
-bool UVRPawnMovement::CheckForVirtualMovCollision(FVector PositionChange, float DeltaTime)
-{
-	FVector ProbePosition = PositionChange.GetSafeNormal() * GetMaxSpeed() * DeltaTime;
-	FHitResult FHitResultVR;
-	CapsuleColliderComponent->AddWorldOffset(ProbePosition, true, &FHitResultVR);
-	if (FVector::Distance(FHitResultVR.Location, CapsuleColliderComponent->GetComponentLocation()) < CapsuleColliderComponent->GetScaledCapsuleRadius())
-	{
-		return true;
-	}
-	return false;
 }
 
 void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
@@ -68,12 +65,30 @@ void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()
 {
-	float CharachterSize = abs(UpdatedComponent->GetComponentLocation().Z - HeadComponent->GetComponentLocation().Z);
 
-	if (CharachterSize > MaxStepHeight)
+	// the collider should be placed
+	//	between head and floor + MaxStepHeight
+	//             head
+	//            /    \
+	//           /      \
+	//          |        |
+	//          |        |
+	//          |collider|
+	//          |        |
+	//          |        |
+	//           \      /
+	//            \ __ /
+	//              |
+	//         MaxStepHeight
+	//              |
+	// floor: ______________
+
+	const float UserSize = HeadComponent->GetComponentLocation().Z - UpdatedComponent->GetComponentLocation().Z;
+
+	if (UserSize > MaxStepHeight)
 	{
-		float ColliderHeight = CharachterSize - MaxStepHeight;
-		float ColliderHalfHeight = ColliderHeight / 2.0f;
+		const float ColliderHeight = UserSize - MaxStepHeight;
+		const float ColliderHalfHeight = ColliderHeight / 2.0f;
 		if (ColliderHalfHeight <= CapsuleRadius)
 		{//Make the collider to a Sphere
 			CapsuleColliderComponent->SetCapsuleSize(ColliderHalfHeight, ColliderHalfHeight);
@@ -85,109 +100,88 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 
 		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation());
 		CapsuleColliderComponent->AddWorldOffset(FVector(0, 0, -ColliderHalfHeight));
-		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
 	else
 	{
 		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation());
-		CapsuleColliderComponent->SetWorldRotation(FRotator(0, 0, 1));
 	}
+	CapsuleColliderComponent->SetWorldRotation(FRotator::ZeroRotator);
 }
 
 void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
-	FVector CurrentHeadPosition = HeadComponent->GetComponentLocation();
-	FVector Direction = CurrentHeadPosition - LastHeadPosition;
-	FHitResult FHitResultPhys;
-	CapsuleColliderComponent->AddWorldOffset(Direction, true, &FHitResultPhys);
+	const FHitResult HitResult = CreateCapsuleTrace(LastHeadPosition, HeadComponent->GetComponentLocation(), false);
 
-	if (FHitResultPhys.bBlockingHit)
+	//if this was not possible move it the entire pawn to avoid the head collision
+	if (HitResult.bBlockingHit)
 	{
-		UpdatedComponent->AddLocalOffset(FHitResultPhys.Normal*FHitResultPhys.PenetrationDepth);
+		UpdatedComponent->AddLocalOffset(HitResult.Normal*HitResult.PenetrationDepth);
 	}
+}
+
+bool UVRPawnMovement::CheckForVirtualSteerCollision(FVector PositionChange, float DeltaTime)
+{
+	FVector ProbePosition = PositionChange.GetSafeNormal() * GetMaxSpeed() * DeltaTime;
+	const FHitResult HitResult = CreateCapsuleTrace(HeadComponent->GetComponentLocation(), ProbePosition, false);
+	if (HitResult.bBlockingHit)
+	{
+		return true;
+	}
+	return false;
 }
 
 void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 {
-	FVector StartLineTraceUnderCollider = CapsuleColliderComponent->GetComponentLocation();
-	StartLineTraceUnderCollider.Z -= CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
-	FHitResult HitDetailsMultiLineTrace = CreateMultiLineTrace(FVector(0, 0, -1), StartLineTraceUnderCollider, CapsuleColliderComponent->GetScaledCapsuleRadius() / 4.0f, false);
-	float DistanceDifference = abs(MaxStepHeight - HitDetailsMultiLineTrace.Distance);
-	//Going up (in Fly and Walk Mode)
-	if ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance < MaxStepHeight))
+	const FVector DownTraceStart = CapsuleColliderComponent->GetComponentLocation();
+	const float DownTraceDist = 1000.0f;
+	const FVector DownTraceDir = FVector(0,0,-1);
+	const FVector DownTraceEnd = DownTraceStart + DownTraceDist * DownTraceDir;
+
+	const FHitResult DownTraceHitResult = CreateCapsuleTrace(DownTraceStart, DownTraceEnd, true);
+	float HeightDifference = 0.0f;
+
+	if(DownTraceHitResult.bBlockingHit)
 	{
-		ShiftVertically(DistanceDifference, UpSteppingAcceleration, DeltaSeconds, 1);
+		HeightDifference = DownTraceHitResult.ImpactPoint.Z - UpdatedComponent->GetComponentLocation().Z;
+		//so for HeightDifference>0, we have to move the pawn up; for HeightDifference<0 we have to move it down
 	}
-	//Gravity (only in Walk Mode)
-	else if (NavigationMode==EVRNavigationModes::NAV_WALK && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
+	//Going up (in Fly and Walk Mode)
+	if (HeightDifference>0.0f && HeightDifference<=MaxStepHeight)
 	{
-		ShiftVertically(DistanceDifference, GravityAcceleration, DeltaSeconds, -1);
+		ShiftVertically(HeightDifference, UpSteppingAcceleration, DeltaSeconds);
+	}
+
+	if(NavigationMode!=EVRNavigationModes::NAV_WALK)
+	{
+		return;
+	}
+
+	//Gravity (only in Walk Mode)
+	if (!DownTraceHitResult.bBlockingHit || HeightDifference<0.0f)
+	{
+		ShiftVertically(HeightDifference, GravityAcceleration, DeltaSeconds);
 	}
 }
 
-void UVRPawnMovement::ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction)
+void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds)
 {
 	VerticalSpeed += VerticalAcceleration * DeltaSeconds;
-	if (VerticalSpeed*DeltaSeconds < DiffernceDistance)
+	if (abs(VerticalSpeed*DeltaSeconds) < abs(Distance))
 	{
-		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f, Direction * VerticalSpeed * DeltaSeconds));
+		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f,  VerticalSpeed * DeltaSeconds));
 	}
 	else
 	{
-		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f, Direction * DiffernceDistance));
+		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f,  Distance));
 		VerticalSpeed = 0;
 	}
 }
 
-FHitResult UVRPawnMovement::CreateLineTrace(FVector Direction, const FVector Start, bool Visibility)
+FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug) const
 {
-	//Re-initialize hit info
-	FHitResult HitDetails = FHitResult(ForceInit);
+	const EDrawDebugTrace::Type DrawType = DrawDebug ? EDrawDebugTrace::Type::ForDuration : EDrawDebugTrace::Type::None;
 
-	FVector End = ((Direction * 1000.f) + Start);
-	// additional trace parameters
-	FCollisionQueryParams TraceParams(FName(TEXT("InteractTrace")), true, NULL);
-	TraceParams.bTraceComplex = true; //to use complex collision on whatever we interact with to provide better precision.
-	TraceParams.bReturnPhysicalMaterial = true; //to provide details about the physical material, if one exists on the thing we hit, to come back in our hit result.
-
-	if (Visibility)
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-	if (GetWorld()->LineTraceSingleByChannel(HitDetails, Start, End, ECC_Visibility, TraceParams))
-	{
-		if (HitDetails.bBlockingHit)
-		{
-		}
-	}
-	return HitDetails;
-}
-
-FHitResult UVRPawnMovement::CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility)
-{
-	TArray<FVector> StartVectors;
-	TArray<FHitResult> OutHits;
-	FHitResult HitDetailsMultiLineTrace;
-	HitDetailsMultiLineTrace.Distance = -1.0f;//(Distance=-1) not existing, but to know if this Variable not Initialized(when all Traces not compatible)
-
-	StartVectors.Add(Start); //LineTraceCenter
-	StartVectors.Add(Start + FVector(0, -Radius, 0)); //LineTraceLeft
-	StartVectors.Add(Start + FVector(0, +Radius, 0)); //LineTraceRight
-	StartVectors.Add(Start + FVector(+Radius, 0, 0)); //LineTraceFront
-	StartVectors.Add(Start + FVector(-Radius, 0, 0)); //LineTraceBehind
-
-	bool IsBlockingHitAndSameActor = true;
-	bool IsAllNothingHiting = true;
-	// loop through TArray
-	for (FVector& Vector : StartVectors)
-	{
-		FHitResult OutHit = CreateLineTrace(Direction, Vector, Visibility);
-		OutHits.Add(OutHit);
-		IsBlockingHitAndSameActor &= (OutHit.Actor == OutHits[0].Actor); //If all Hiting the same Object, then you are (going up/down) or (walking)
-		IsAllNothingHiting &= (OutHit.Actor == nullptr); //If all Hiting nothing, then you are falling
-	}
-
-	if (IsBlockingHitAndSameActor || IsAllNothingHiting)
-		HitDetailsMultiLineTrace = OutHits[0];
-
-	return HitDetailsMultiLineTrace;
+	FHitResult Hit;
+	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight() ,UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, {}, DrawType, Hit, true);
+	return Hit;
 }
