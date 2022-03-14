@@ -47,13 +47,14 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
+        GEN_TEMPLATE_BRANCH: "4.27"
 
 Build_Windows:
     only: ['web', 'schedules']
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-4.26
+        - unreal-4.27
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -68,7 +69,7 @@ Build_CentOS:
     extends: .Build_CentOS_
     tags:
         - centos
-        - unreal-4.26
+        - unreal-4.27
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
