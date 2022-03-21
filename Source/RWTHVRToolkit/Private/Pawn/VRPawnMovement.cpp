@@ -22,7 +22,7 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 void UVRPawnMovement::BeginPlay()
 {
 	Super::BeginPlay();
-	LastCapsulePosition=FVector(0,0,0);
+	LastCapsulePosition = FVector(0,0,0);
 	LastSteeringCollisionVector = FVector(0,0,0);
 }
 
@@ -45,7 +45,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 	
 	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
-		if(InputVector.Size()>0.001){
+		if(InputVector.Size() > 0.001){
 			const FVector SafeSteeringInput = GetCollisionSafeVirtualSteeringVec(InputVector, DeltaTime);
 			if(SafeSteeringInput != InputVector)
 			{
@@ -256,6 +256,6 @@ FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End,
 	//UE_LOG(LogTemp, Warning, TEXT("Capsule from %s to %s"), *Start.ToString(), *End.ToString())
 
 	FHitResult Hit;
-	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight() ,UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, DrawType, Hit, true);
+	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight(), UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, DrawType, Hit, true);
 	return Hit;
 }
