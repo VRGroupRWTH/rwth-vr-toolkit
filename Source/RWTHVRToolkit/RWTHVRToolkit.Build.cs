@@ -33,10 +33,12 @@ public class RWTHVRToolkit : ModuleRules
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[]{
-			"UnrealEd"
-			}
+			new string[]{}
 		);
+		if (Target.bBuildEditor == true)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]{}
