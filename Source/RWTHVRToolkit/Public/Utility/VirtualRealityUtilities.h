@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "UObject/ConstructorHelpers.h"
 #include "VirtualRealityUtilities.generated.h"
 
 UENUM(BlueprintType)
