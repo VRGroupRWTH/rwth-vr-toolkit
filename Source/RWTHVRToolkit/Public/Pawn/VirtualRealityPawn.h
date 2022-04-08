@@ -40,6 +40,7 @@ protected:
 	/* Movement */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnForward(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnRight(float Value);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnUp(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnTurnRate(float Rate);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnLookUpRate(float Rate);
 

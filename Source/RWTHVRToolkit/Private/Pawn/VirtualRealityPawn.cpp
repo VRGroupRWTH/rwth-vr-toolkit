@@ -56,6 +56,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+	PlayerInputComponent->BindAxis("MoveUp", this, &AVirtualRealityPawn::OnUp);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
 
@@ -87,6 +88,14 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	if (RightHand)
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
+	}
+}
+
+void AVirtualRealityPawn::OnUp_Implementation(float Value)
+{
+	if (RightHand)
+	{
+		AddMovementInput(RightHand->GetUpVector(), Value);
 	}
 }
 
