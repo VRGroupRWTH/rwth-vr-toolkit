@@ -55,4 +55,5 @@ protected:
 	bool bApplyDesktopRotation = false;
 
 	void SetCameraOffset() const;
+	void UpdateRightHandForDesktopInteraction();
 };

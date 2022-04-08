@@ -99,6 +99,18 @@ void AVirtualRealityPawn::SetCameraOffset() const
 	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
+void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		FVector MouseLocation, MouseDirection;
+		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
+		RightHand->SetWorldRotation(HandOrientation);
+	}
+}
+
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
 	if (RightHand)
@@ -129,6 +141,10 @@ void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+	}
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		UpdateRightHandForDesktopInteraction();
 	}
 }
 
