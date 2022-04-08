@@ -63,6 +63,30 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// function bindings for grabbing and releasing
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnBeginFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
+
+	// bind functions for desktop rotations only on holding down right mouse
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			PC->bShowMouseCursor = true; 
+			PC->bEnableClickEvents = true; 
+			PC->bEnableMouseOverEvents = true;
+		}
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Pressed, this, &AVirtualRealityPawn::StartDesktopRotation);
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Released, this, &AVirtualRealityPawn::EndDesktopRotation);
+	}
+}
+
+void AVirtualRealityPawn::StartDesktopRotation()
+{
+	bApplyDesktopRotation = true;
+}
+
+void AVirtualRealityPawn::EndDesktopRotation()
+{
+	bApplyDesktopRotation = false;
 }
 
 void AVirtualRealityPawn::SetCameraOffset() const
@@ -102,7 +126,7 @@ void AVirtualRealityPawn::OnUp_Implementation(float Value)
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 	}
@@ -111,7 +135,7 @@ void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 		SetCameraOffset();

@@ -48,5 +48,11 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire();
 
+	/*Desktop Testing*/
+	// the idea is that you have to hold the right mouse button to do rotations
+	UFUNCTION() void StartDesktopRotation();
+	UFUNCTION() void EndDesktopRotation();
+	bool bApplyDesktopRotation = false;
+
 	void SetCameraOffset() const;
 };
