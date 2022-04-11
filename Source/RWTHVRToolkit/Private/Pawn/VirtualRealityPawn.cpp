@@ -56,12 +56,37 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+	PlayerInputComponent->BindAxis("MoveUp", this, &AVirtualRealityPawn::OnUp);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
 
 	// function bindings for grabbing and releasing
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnBeginFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
+
+	// bind functions for desktop rotations only on holding down right mouse
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			PC->bShowMouseCursor = true; 
+			PC->bEnableClickEvents = true; 
+			PC->bEnableMouseOverEvents = true;
+		}
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Pressed, this, &AVirtualRealityPawn::StartDesktopRotation);
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Released, this, &AVirtualRealityPawn::EndDesktopRotation);
+	}
+}
+
+void AVirtualRealityPawn::StartDesktopRotation()
+{
+	bApplyDesktopRotation = true;
+}
+
+void AVirtualRealityPawn::EndDesktopRotation()
+{
+	bApplyDesktopRotation = false;
 }
 
 void AVirtualRealityPawn::SetCameraOffset() const
@@ -72,6 +97,18 @@ void AVirtualRealityPawn::SetCameraOffset() const
 	FRotator Rotation;
 	GetActorEyesViewPoint(Location, Rotation);
 	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
+}
+
+void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		FVector MouseLocation, MouseDirection;
+		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
+		RightHand->SetWorldRotation(HandOrientation);
+	}
 }
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
@@ -90,19 +127,31 @@ void AVirtualRealityPawn::OnRight_Implementation(float Value)
 	}
 }
 
+void AVirtualRealityPawn::OnUp_Implementation(float Value)
+{
+	if (RightHand)
+	{
+		AddMovementInput(RightHand->GetUpVector(), Value);
+	}
+}
+
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+	}
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		UpdateRightHandForDesktopInteraction();
 	}
 }
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 		SetCameraOffset();

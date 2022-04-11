@@ -40,6 +40,7 @@ protected:
 	/* Movement */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnForward(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnRight(float Value);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnUp(float Value);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnTurnRate(float Rate);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnLookUpRate(float Rate);
 
@@ -47,5 +48,12 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire();
 
+	/*Desktop Testing*/
+	// the idea is that you have to hold the right mouse button to do rotations
+	UFUNCTION() void StartDesktopRotation();
+	UFUNCTION() void EndDesktopRotation();
+	bool bApplyDesktopRotation = false;
+
 	void SetCameraOffset() const;
+	void UpdateRightHandForDesktopInteraction();
 };
