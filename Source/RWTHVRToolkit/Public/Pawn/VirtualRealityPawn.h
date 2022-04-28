@@ -28,7 +28,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction") UBasicVRInteractionComponent* BasicVRInteraction;
 
 	/* Movement */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement") UVRPawnMovement* PawnMovement;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") UVRPawnMovement* PawnMovement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") float BaseTurnRate = 45.0f;
 
 	/* CameraComponent */
