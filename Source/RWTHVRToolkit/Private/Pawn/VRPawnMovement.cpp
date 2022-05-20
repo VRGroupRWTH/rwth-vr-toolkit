@@ -247,11 +247,12 @@ void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration
 	}
 }
 
-FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug) const
+FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug)
 {
 	const EDrawDebugTrace::Type DrawType = DrawDebug ? EDrawDebugTrace::Type::ForDuration : EDrawDebugTrace::Type::None;
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
+	if(ActorsToIgnore.Num()==0){
+		ActorsToIgnore.Add(GetOwner());
+	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("Capsule from %s to %s"), *Start.ToString(), *End.ToString())
 

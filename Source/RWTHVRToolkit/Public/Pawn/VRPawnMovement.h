@@ -4,6 +4,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Actor.h"
 
 #include "VRPawnMovement.generated.h"
 
@@ -64,7 +65,7 @@ public:
 
 private:
 	//check for
-	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false) const;
+	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false);
 	void SetCapsuleColliderToUserSize();
 	void CheckForPhysWalkingCollision();
 	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
@@ -77,4 +78,7 @@ private:
 	float VerticalSpeed = 0.0f;
 	FVector LastCapsulePosition;
 	FVector LastSteeringCollisionVector;
+
+	//just stored for performance gains;
+	TArray<AActor*> ActorsToIgnore;
 };
