@@ -113,25 +113,40 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
 
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	if (RightHand)
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetForwardVector(), Value);
 	}
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (RightHand)
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetRightVector(), Value);
 	}
 }
 
 void AVirtualRealityPawn::OnUp_Implementation(float Value)
 {
-	if (RightHand)
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddMovementInput(RightHand->GetUpVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetUpVector(), Value);
 	}
 }
 
