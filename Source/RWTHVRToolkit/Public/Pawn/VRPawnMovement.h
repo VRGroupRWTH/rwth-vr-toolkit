@@ -76,8 +76,11 @@ private:
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	FVector LastCapsulePosition;
+	TOptional<FVector> LastCapsulePosition;
 	FVector LastSteeringCollisionVector;
+
+	//this will deactivate all collision avoidance, so we can move out of a collision, e.g. if movements of the scene provoked a collision
+	bool bDeactivatedWhileInCollision = false;
 
 	//just stored for performance gains;
 	TArray<AActor*> ActorsToIgnore;

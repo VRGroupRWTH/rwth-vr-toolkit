@@ -22,7 +22,7 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 void UVRPawnMovement::BeginPlay()
 {
 	Super::BeginPlay();
-	LastCapsulePosition = FVector(0,0,0);
+	LastCapsulePosition.Reset();
 	LastSteeringCollisionVector = FVector(0,0,0);
 }
 
@@ -41,6 +41,12 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		InputVector.Z = 0.0f;
 		ConsumeInputVector();
 		AddInputVector(InputVector);
+	}
+
+	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
+	if(bDeactivatedWhileInCollision && !CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
+	{
+		bDeactivatedWhileInCollision=false;
 	}
 	
 	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
@@ -61,7 +67,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		MoveByGravityOrStepUp(DeltaTime);
 
 		//if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
-		CheckForPhysWalkingCollision();
+		if(!bDeactivatedWhileInCollision) CheckForPhysWalkingCollision();
 	}
 
 	if(NavigationMode == EVRNavigationModes::NAV_NONE)
@@ -130,15 +136,15 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 
 void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
-	if(LastCapsulePosition.IsNearlyZero())
+	if(!LastCapsulePosition.IsSet())
 	{
-		//probably not yet set, so do nothing than setting it
+		//not yet set, so do nothing than setting it
 		LastCapsulePosition = CapsuleColliderComponent->GetComponentLocation();
 		return;
 	}
 
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
-	const FHitResult HitResult = CreateCapsuleTrace(LastCapsulePosition, CapsuleLocation);
+	const FHitResult HitResult = CreateCapsuleTrace(LastCapsulePosition.GetValue(), CapsuleLocation);
 
 	//if this was not possible move the entire pawn away to avoid the head collision
 	if (HitResult.bBlockingHit)
@@ -147,13 +153,17 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 		//move it out twice as far, to avoid getting stuck situations
 		UpdatedComponent->AddWorldOffset(2*MoveOutVector);
 	}
-	else
+
+
+	//only update if not in collision
+	if(!CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
 	{
-		//only update if not in collision
-		if(!CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
-		{
-			LastCapsulePosition = CapsuleLocation;
-		}
+		LastCapsulePosition = CapsuleColliderComponent->GetComponentLocation();;
+	}
+	else{
+		//we are still in collision, so deactivate collision handling until this stopped
+		bDeactivatedWhileInCollision=true;
+		LastCapsulePosition.Reset();
 	}
 }
 
