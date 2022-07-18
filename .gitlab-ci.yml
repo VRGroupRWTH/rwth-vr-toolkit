@@ -1,12 +1,12 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020 RWTH Aachen University, Germany,
+# Copyright (c) 2022 RWTH Aachen University, Germany,
 # Virtual Reality & Immersive Visualisation Group.
 #-------------------------------------------------------------------------------
 
 # The include file can be change to either be removed or reference a specific commit.
 
 include:
-  - project: 'vr-group/unreal-development/unreal-ci'
+  - project: '${UNREAL_CI_PROJECT}'
     ref: master 
     file: '/shared_scripts.yml'
     
@@ -27,11 +27,11 @@ include:
 #    only: ['web', 'schedules']
 #    extends: .Generate_Project_
 #    variables:
-#        GEN_TEMPLATE_REPO: "https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unrealprojecttemplate.git"
+#        GEN_TEMPLATE_REPO: "https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/unrealprojecttemplate.git"
 #        GEN_TEMPLATE_BRANCH: "4.26"
 #        GEN_DEPENDENCIES: "(
-#            [4.26@RWTHVRToolkit]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/Plugins/rwth-vr-toolkit.git'
-#            [4.26@UniversalLogging]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/Plugins/universallogging.git'
+#            [4.26@RWTHVRToolkit]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/rwth-vr-toolkit.git'
+#            [4.26@UniversalLogging]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/universallogging.git'
 #        )"
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
