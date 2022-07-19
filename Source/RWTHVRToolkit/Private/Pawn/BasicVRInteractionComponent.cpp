@@ -41,7 +41,7 @@ void UBasicVRInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	//WidgetInteractionComponent
-	InteractionDistance = MaxClickDistance;
+	// InteractionDistance = MaxClickDistance;
 	SetInteractionRayVisibility(InteractionRayVisibility);
 }
 

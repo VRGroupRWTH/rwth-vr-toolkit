@@ -36,8 +36,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(BlueprintReadWrite) float MaxGrabDistance = 50;
-	UPROPERTY(BlueprintReadWrite) float MaxClickDistance = 500;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite) float MaxGrabDistance = 50;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite) float MaxClickDistance = 500;
 	// Enable this if you want to interact with Targetable classes or use EInteractionRayVisibility::VisibleOnHoverOnly
 	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = false;
 	UPROPERTY(EditAnywhere) TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
