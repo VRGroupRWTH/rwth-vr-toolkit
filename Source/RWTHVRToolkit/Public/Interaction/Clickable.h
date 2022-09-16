@@ -14,7 +14,7 @@ class RWTHVRTOOLKIT_API UClickable : public UInterface
 	GENERATED_UINTERFACE_BODY()
 };
 
-class IClickable
+class RWTHVRTOOLKIT_API IClickable
 {
 	GENERATED_IINTERFACE_BODY()
 

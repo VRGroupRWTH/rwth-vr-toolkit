@@ -7,24 +7,43 @@
 #include "GrabbingBehaviorComponent.generated.h"
 
 
-UCLASS(Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBeginGrabSignature, AActor*, GrabbedBy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndGrabSignature);
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabbingBehaviorComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
-public:	
+protected:
+	UPROPERTY()
+		UPrimitiveComponent* MyPhysicsComponent;
+public:
+	UPROPERTY(BlueprintAssignable)
+		FOnBeginGrabSignature OnBeginGrab;
+	UPROPERTY(BlueprintAssignable)
+		FOnEndGrabSignature OnEndGrab;
+
 	// Sets default values for this component's properties
 	UGrabbingBehaviorComponent();
 
-
+public:
 	// takes the hand ray and moves the parent actor to a new possible position, also might change rotation
-	virtual void HandleNewPositionAndDirection(FVector position, FQuat orientation) PURE_VIRTUAL(UGrabbingBehaviorComponent::GeneratePossiblePosition,);
+	virtual void HandleNewPositionAndDirection(FVector Position, FQuat Orientation);
+	
+	virtual void HandleBeginGrab(AActor* GrabbedBy);
+
+	virtual void HandleEndGrab();
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
+	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
+
+	// recursively goes up the hierarchy and returns the highest parent simulating physics
+	UPrimitiveComponent* GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp);
 };
