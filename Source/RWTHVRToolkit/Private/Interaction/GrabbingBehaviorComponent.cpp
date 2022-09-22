@@ -49,6 +49,7 @@ void UGrabbingBehaviorComponent::HandleBeginGrab(AActor* GrabbedBy)
 	
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 	
+	//GetOwner()->GetRootComponent()->AttachToComponent(RightHand, Rules);
 	GetOwner()->GetRootComponent()->AttachToComponent(RightHand, Rules);
 
 	OnBeginGrab.Broadcast(GrabbedBy);
@@ -56,6 +57,7 @@ void UGrabbingBehaviorComponent::HandleBeginGrab(AActor* GrabbedBy)
 
 void UGrabbingBehaviorComponent::HandleEndGrab()
 {
+	//GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 
 	OnEndGrab.Broadcast();
