@@ -45,9 +45,6 @@ stages:
 Generate_Project:
     only: ['web', 'schedules']
     extends: .Generate_Project_
-    variables:
-        RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "4.27"
 
 Build_Windows:
     only: ['web', 'schedules']
@@ -64,11 +61,11 @@ Build_Windows:
         - job: "Generate_Project"
           artifacts: true
     
-Build_CentOS:
+Build_Linux:
     only: ['web', 'schedules']
-    extends: .Build_CentOS_
+    extends: .Build_Linux_
     tags:
-        - centos
+        - linux
         - unreal-4.27
     variables:
         GIT_STRATEGY: none   
@@ -78,17 +75,17 @@ Build_CentOS:
     needs:
         - job: "Generate_Project"
           artifacts: true
-          
-Deploy_CAVE:
-    only: ['web', 'schedules']
-    extends: .Deploy_CAVE_
-    needs:
-        - job: "Build_CentOS"
-          artifacts: true
 
 Deploy_Windows:
     only: ['web', 'schedules']
     extends: .Deploy_VRDev_
     needs:
         - job: "Build_Windows"
+          artifacts: true          
+
+Deploy_CAVE:
+    only: ['web', 'schedules']
+    extends: .Deploy_CAVE_
+    needs:
+        - job: "Build_Linux"
           artifacts: true
