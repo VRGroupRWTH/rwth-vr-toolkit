@@ -47,7 +47,7 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "4.27"
+        GEN_TEMPLATE_BRANCH: "4.26"
 
 Build_Windows:
     only: ['web', 'schedules']
