@@ -65,9 +65,9 @@ bool UExternalImage::LoadCompressedDataIntoTexture2D(const TArray<uint8>& InComp
     OutTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
     if (OutTexture)
     {
-        void* TextureData = OutTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+        void* TextureData = OutTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
         FMemory::Memcpy(TextureData, UncompressedRGBA.GetData(), UncompressedRGBA.Num());
-        OutTexture->PlatformData->Mips[0].BulkData.Unlock();
+        OutTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
         OutTexture->UpdateResource();
     }
     return true;

@@ -53,7 +53,7 @@ Build_Windows:
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-4.26
+        - unreal-5.0
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -68,7 +68,7 @@ Build_CentOS:
     extends: .Build_CentOS_
     tags:
         - centos
-        - unreal-4.26
+        - unreal-5.0
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"

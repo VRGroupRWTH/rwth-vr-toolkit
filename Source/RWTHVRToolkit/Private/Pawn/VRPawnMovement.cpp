@@ -119,7 +119,7 @@ void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 		ShiftVertically(DistanceDifference, UpSteppingAcceleration, DeltaSeconds, 1);
 	}
 	//Gravity (only in Walk Mode)
-	else if (NavigationMode==EVRNavigationModes::NAV_WALK && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.Actor == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
+	else if (NavigationMode==EVRNavigationModes::NAV_WALK && ((HitDetailsMultiLineTrace.bBlockingHit && HitDetailsMultiLineTrace.Distance > MaxStepHeight) || (HitDetailsMultiLineTrace.GetActor() == nullptr && HitDetailsMultiLineTrace.Distance != -1.0f)))
 	{
 		ShiftVertically(DistanceDifference, GravityAcceleration, DeltaSeconds, -1);
 	}
@@ -182,8 +182,8 @@ FHitResult UVRPawnMovement::CreateMultiLineTrace(FVector Direction, const FVecto
 	{
 		FHitResult OutHit = CreateLineTrace(Direction, Vector, Visibility);
 		OutHits.Add(OutHit);
-		IsBlockingHitAndSameActor &= (OutHit.Actor == OutHits[0].Actor); //If all Hiting the same Object, then you are (going up/down) or (walking)
-		IsAllNothingHiting &= (OutHit.Actor == nullptr); //If all Hiting nothing, then you are falling
+		IsBlockingHitAndSameActor &= (OutHit.GetActor() == OutHits[0].GetActor()); //If all Hiting the same Object, then you are (going up/down) or (walking)
+		IsAllNothingHiting &= (OutHit.GetActor() == nullptr); //If all Hiting nothing, then you are falling
 	}
 
 	if (IsBlockingHitAndSameActor || IsAllNothingHiting)

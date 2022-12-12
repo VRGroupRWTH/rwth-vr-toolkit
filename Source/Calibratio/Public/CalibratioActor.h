@@ -25,7 +25,7 @@ public:
 	UPROPERTY(VisibleAnywhere) UStaticMeshComponent* Mesh;
 	UPROPERTY(EditAnywhere) UMaterialInterface* BaseMaterial;
 	UPROPERTY(BlueprintReadWrite) float Threshold = FMath::DegreesToRadians(1.7f);
-	UPROPERTY(BlueprintReadWrite) float ResetTime = 0.5f;
+	UPROPERTY(BlueprintReadWrite) float ResetTime = 1.5f;
 	UFUNCTION(Blueprintcallable) void ClusterDespawn();
 
 private:

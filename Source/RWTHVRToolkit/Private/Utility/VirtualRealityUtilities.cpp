@@ -85,7 +85,7 @@ bool UVirtualRealityUtilities::IsMaster()
 	{
 		return true; // if we are not in cluster mode, we are always the master
 	}
-	return Manager->IsMaster() || !Manager->IsSlave();
+	return Manager->IsPrimary() || !Manager->IsSecondary();
 #else
     return true;
 #endif

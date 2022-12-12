@@ -26,7 +26,7 @@ public class RWTHVRToolkit : ModuleRules
 			"Slate",
 			"SlateCore",
 			"DeveloperSettings",
-			"Http",
+			"HTTP",
 			"LiveLink",
 			"LiveLinkInterface"
 			}
