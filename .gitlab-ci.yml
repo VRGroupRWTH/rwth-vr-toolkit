@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020 RWTH Aachen University, Germany,
+# Copyright (c) 2022 RWTH Aachen University, Germany,
 # Virtual Reality & Immersive Visualisation Group.
 #-------------------------------------------------------------------------------
 
@@ -27,11 +27,11 @@ include:
 #    only: ['web', 'schedules']
 #    extends: .Generate_Project_
 #    variables:
-#        GEN_TEMPLATE_REPO: "https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/unrealprojecttemplate.git"
+#        GEN_TEMPLATE_REPO: "https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/unrealprojecttemplate.git"
 #        GEN_TEMPLATE_BRANCH: "4.26"
 #        GEN_DEPENDENCIES: "(
-#            [4.26@RWTHVRToolkit]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/Plugins/rwth-vr-toolkit.git'
-#            [4.26@UniversalLogging]='https://devhub.vr.rwth-aachen.de/VR-Group/unreal-development/Plugins/universallogging.git'
+#            [4.26@RWTHVRToolkit]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/rwth-vr-toolkit.git'
+#            [4.26@UniversalLogging]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/universallogging.git'
 #        )"
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
@@ -47,7 +47,7 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-	GEN_TEMPLATE_BRANCH: "5.1"
+	    GEN_TEMPLATE_BRANCH: "5.1"
 
 Build_Windows:
     only: ['web', 'schedules']
@@ -78,7 +78,14 @@ Build_Linux:
     needs:
         - job: "Generate_Project"
           artifacts: true
-          
+
+Deploy_Windows:
+    only: ['web', 'schedules']
+    extends: .Deploy_VRDev_
+    needs:
+        - job: "Build_Windows"
+          artifacts: true          
+
 Deploy_CAVE:
     only: ['web', 'schedules']
     extends: .Deploy_CAVE_
@@ -86,9 +93,3 @@ Deploy_CAVE:
         - job: "Build_Linux"
           artifacts: true
 
-Deploy_Windows:
-    only: ['web', 'schedules']
-    extends: .Deploy_VRDev_
-    needs:
-        - job: "Build_Windows"
-          artifacts: true
