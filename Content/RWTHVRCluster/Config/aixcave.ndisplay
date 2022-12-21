@@ -1,13 +1,14 @@
 {
 	"nDisplay":
 	{
-		"description": "nDisplay configuration",
-		"version": "4.27",
-		"assetPath": "/RWTHVRToolkit/RWTHVRCluster/Config/aixcave_427.aixcave_427",
+		"description": "",
+		"version": "5.00",
+		"assetPath": "/RWTHVRToolkit/RWTHVRCluster/Config/aixcave_new.aixcave_new",
 		"misc":
 		{
 			"bFollowLocalPlayerCamera": false,
-			"bExitOnEsc": true
+			"bExitOnEsc": true,
+			"bOverrideViewportsFromExternalConfig": false
 		},
 		"scene":
 		{
@@ -29,39 +30,7 @@
 						"roll": 0
 					}
 				},
-				"cave_center":
-				{
-					"parentId": "cave_origin",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 165
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"flystick":
-				{
-					"parentId": "cave_origin",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"calibratio":
+				"left_hand_target":
 				{
 					"parentId": "cave_origin",
 					"location":
@@ -93,7 +62,7 @@
 						"roll": 0
 					}
 				},
-				"left_hand_target":
+				"calibratio":
 				{
 					"parentId": "cave_origin",
 					"location":
@@ -109,7 +78,103 @@
 						"roll": 0
 					}
 				},
-				"CaveGun":
+				"flystick":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"front":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"left":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": -0,
+						"yaw": -90,
+						"roll": -0
+					}
+				},
+				"right":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 90,
+						"roll": -0
+					}
+				},
+				"back":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 180,
+						"roll": -0
+					}
+				},
+				"ground":
+				{
+					"parentId": "cave_origin",
+					"location":
+					{
+						"x": 0,
+						"y": 0,
+						"z": 0
+					},
+					"rotation":
+					{
+						"pitch": -90,
+						"yaw": 0,
+						"roll": -0
+					}
+				},
+				"cavegun":
 				{
 					"parentId": "cave_origin",
 					"location":
@@ -140,470 +205,6 @@
 						"yaw": 0,
 						"roll": 0
 					}
-				},
-				"display_main":
-				{
-					"parentId": "shutter_glasses",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"angle_left":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": -89.999984741210938,
-						"roll": 0
-					}
-				},
-				"angle_right":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 89.999984741210938,
-						"roll": 0
-					}
-				},
-				"angle_back":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": -179.99996948242188,
-						"roll": 0
-					}
-				},
-				"display_front_upper_left":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 262.5,
-						"y": -105.35750579833984,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_front_upper_right":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 262.5,
-						"y": 105.35750579833984,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_front_lower_left":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 262.5,
-						"y": -105.35750579833984,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_front_lower_right":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 262.5,
-						"y": 105.35750579833984,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_left_upper_left":
-				{
-					"parentId": "angle_left",
-					"location":
-					{
-						"x": 262.4998779296875,
-						"y": -105.35745239257812,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_left_upper_right":
-				{
-					"parentId": "angle_left",
-					"location":
-					{
-						"x": 262.4998779296875,
-						"y": 105.35749816894531,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_left_lower_left":
-				{
-					"parentId": "angle_left",
-					"location":
-					{
-						"x": 262.4998779296875,
-						"y": -105.35745239257812,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_left_lower_right":
-				{
-					"parentId": "angle_left",
-					"location":
-					{
-						"x": 262.4998779296875,
-						"y": 105.35749816894531,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_right_upper_left":
-				{
-					"parentId": "angle_right",
-					"location":
-					{
-						"x": 262.5,
-						"y": -105.35751342773438,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_right_upper_right":
-				{
-					"parentId": "angle_right",
-					"location":
-					{
-						"x": 262.5,
-						"y": 105.35748291015625,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_right_lower_left":
-				{
-					"parentId": "angle_right",
-					"location":
-					{
-						"x": 262.5,
-						"y": -105.35751342773438,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_right_lower_right":
-				{
-					"parentId": "angle_right",
-					"location":
-					{
-						"x": 262.5,
-						"y": 105.35748291015625,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_back_upper_left":
-				{
-					"parentId": "angle_back",
-					"location":
-					{
-						"x": 262.499755859375,
-						"y": -105.35744476318359,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_back_upper_right":
-				{
-					"parentId": "angle_back",
-					"location":
-					{
-						"x": 262.499755859375,
-						"y": 105.35744476318359,
-						"z": 66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_back_lower_left":
-				{
-					"parentId": "angle_back",
-					"location":
-					{
-						"x": 262.499755859375,
-						"y": -105.35744476318359,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_back_lower_right":
-				{
-					"parentId": "angle_back",
-					"location":
-					{
-						"x": 262.499755859375,
-						"y": 105.35744476318359,
-						"z": -66.785751342773438
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_front_upper_left":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": -1.52587890625e-05,
-						"y": -112.5,
-						"z": 168.74992370605469
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_front_upper_right":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": -1.52587890625e-05,
-						"y": 112.5,
-						"z": 168.74992370605469
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_front_lower_left":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": 1.52587890625e-05,
-						"y": -112.5,
-						"z": 93.749954223632812
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_front_lower_right":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": 1.52587890625e-05,
-						"y": 112.5,
-						"z": 93.749954223632812
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_back_upper_left":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": -1.52587890625e-05,
-						"y": -112.5,
-						"z": -93.749954223632812
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_back_upper_right":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": -1.52587890625e-05,
-						"y": 112.5,
-						"z": -93.749954223632812
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_back_lower_left":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": 1.52587890625e-05,
-						"y": -112.5,
-						"z": -168.74992370605469
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"display_ground_back_lower_right":
-				{
-					"parentId": "angle_ground",
-					"location":
-					{
-						"x": 1.52587890625e-05,
-						"y": 112.5,
-						"z": -168.74992370605469
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"angle_ground":
-				{
-					"parentId": "cave_center",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": -165
-					},
-					"rotation":
-					{
-						"pitch": -90,
-						"yaw": 0,
-						"roll": 0
-					}
 				}
 			},
 			"cameras":
@@ -616,9 +217,9 @@
 					"parentId": "",
 					"location":
 					{
-						"x": 0.000152587890625,
-						"y": -396.54248046875,
-						"z": 94.846038818359375
+						"x": 0,
+						"y": 0,
+						"z": 50
 					},
 					"rotation":
 					{
@@ -627,11 +228,11 @@
 						"roll": 0
 					}
 				},
-				"camera_dynamic_left":
+				"camera_dynamic_main":
 				{
 					"interpupillaryDistance": 6.4000000953674316,
 					"swapEyes": false,
-					"stereoOffset": "left",
+					"stereoOffset": "none",
 					"parentId": "shutter_glasses",
 					"location":
 					{
@@ -665,11 +266,11 @@
 						"roll": 0
 					}
 				},
-				"camera_dynamic_main":
+				"camera_dynamic_left":
 				{
 					"interpupillaryDistance": 6.4000000953674316,
 					"swapEyes": false,
-					"stereoOffset": "none",
+					"stereoOffset": "left",
 					"parentId": "shutter_glasses",
 					"location":
 					{
@@ -691,73 +292,10 @@
 				{
 					"size":
 					{
-						"width": 43.333301544189453,
-						"height": 27.083297729492188
+						"width": 100,
+						"height": 56.25
 					},
-					"parentId": "display_main",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"screen_front_upper_left":
-				{
-					"size":
-					{
-						"width": 314.28500366210938,
-						"height": 196.42849731445312
-					},
-					"parentId": "display_front_upper_left",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"screen_front_upper_right":
-				{
-					"size":
-					{
-						"width": 314.28500366210938,
-						"height": 196.42849731445312
-					},
-					"parentId": "display_front_upper_right",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"screen_front_lower_left":
-				{
-					"size":
-					{
-						"width": 314.28500366210938,
-						"height": 196.42849731445312
-					},
-					"parentId": "display_front_lower_left",
+					"parentId": "shutter_glasses",
 					"location":
 					{
 						"x": 0,
@@ -778,12 +316,12 @@
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_front_lower_right",
+					"parentId": "front",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -792,19 +330,19 @@
 						"roll": 0
 					}
 				},
-				"screen_left_upper_left":
+				"screen_front_upper_left":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_left_upper_left",
+					"parentId": "front",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -813,19 +351,19 @@
 						"roll": 0
 					}
 				},
-				"screen_left_upper_right":
+				"screen_front_upper_right":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_left_upper_right",
+					"parentId": "front",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -834,40 +372,19 @@
 						"roll": 0
 					}
 				},
-				"screen_left_lower_left":
+				"screen_front_lower_left":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_left_lower_left",
+					"parentId": "front",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"screen_left_lower_right":
-				{
-					"size":
-					{
-						"width": 314.28500366210938,
-						"height": 196.42849731445312
-					},
-					"parentId": "display_left_lower_right",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -883,12 +400,12 @@
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_right_upper_left",
+					"parentId": "right",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -904,12 +421,12 @@
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_right_upper_right",
+					"parentId": "right",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -925,12 +442,12 @@
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_right_lower_left",
+					"parentId": "right",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -939,19 +456,19 @@
 						"roll": 0
 					}
 				},
-				"screen_right_lower_right":
+				"screen_left_lower_left":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_right_lower_right",
+					"parentId": "left",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -960,19 +477,19 @@
 						"roll": 0
 					}
 				},
-				"screen_back_upper_left":
+				"screen_left_lower_right":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_back_upper_left",
+					"parentId": "left",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -981,19 +498,19 @@
 						"roll": 0
 					}
 				},
-				"screen_back_upper_right":
+				"screen_left_upper_left":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_back_upper_right",
+					"parentId": "left",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -1002,19 +519,19 @@
 						"roll": 0
 					}
 				},
-				"screen_back_lower_left":
+				"screen_left_upper_right":
 				{
 					"size":
 					{
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_back_lower_left",
+					"parentId": "left",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -1030,12 +547,12 @@
 						"width": 314.28500366210938,
 						"height": 196.42849731445312
 					},
-					"parentId": "display_back_lower_right",
+					"parentId": "back",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -1044,19 +561,19 @@
 						"roll": 0
 					}
 				},
-				"screen_ground_front_upper_left":
+				"screen_back_upper_left":
 				{
 					"size":
 					{
-						"width": 300,
-						"height": 187.5
+						"width": 314.28500366210938,
+						"height": 196.42849731445312
 					},
-					"parentId": "display_ground_front_upper_left",
+					"parentId": "back",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -1065,19 +582,19 @@
 						"roll": 0
 					}
 				},
-				"screen_ground_front_upper_right":
+				"screen_back_lower_left":
 				{
 					"size":
 					{
-						"width": 300,
-						"height": 187.5
+						"width": 314.28500366210938,
+						"height": 196.42849731445312
 					},
-					"parentId": "display_ground_front_upper_right",
+					"parentId": "back",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": -105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -1086,40 +603,19 @@
 						"roll": 0
 					}
 				},
-				"screen_ground_front_lower_left":
+				"screen_back_upper_right":
 				{
 					"size":
 					{
-						"width": 300,
-						"height": 187.5
+						"width": 314.28500366210938,
+						"height": 196.42849731445312
 					},
-					"parentId": "display_ground_front_lower_left",
+					"parentId": "back",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
-					},
-					"rotation":
-					{
-						"pitch": 0,
-						"yaw": 0,
-						"roll": 0
-					}
-				},
-				"screen_ground_front_lower_right":
-				{
-					"size":
-					{
-						"width": 300,
-						"height": 187.5
-					},
-					"parentId": "display_ground_front_lower_right",
-					"location":
-					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 231.78575134277344
 					},
 					"rotation":
 					{
@@ -1135,12 +631,12 @@
 						"width": 300,
 						"height": 187.5
 					},
-					"parentId": "display_ground_back_upper_left",
+					"parentId": "ground",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": -1.4999999621068127e-05,
+						"y": -112.5,
+						"z": -93.749954223632812
 					},
 					"rotation":
 					{
@@ -1149,19 +645,61 @@
 						"roll": 0
 					}
 				},
-				"screen_ground_back_upper_right":
+				"screen_ground_front_upper_left":
 				{
 					"size":
 					{
 						"width": 300,
 						"height": 187.5
 					},
-					"parentId": "display_ground_back_upper_right",
+					"parentId": "ground",
 					"location":
 					{
 						"x": 0,
-						"y": 0,
-						"z": 0
+						"y": -112.5,
+						"z": 168.74992370605469
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"screen_ground_front_lower_right":
+				{
+					"size":
+					{
+						"width": 300,
+						"height": 187.5
+					},
+					"parentId": "ground",
+					"location":
+					{
+						"x": 0,
+						"y": 112.5,
+						"z": 93.749954223632812
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"screen_ground_front_lower_left":
+				{
+					"size":
+					{
+						"width": 300,
+						"height": 187.5
+					},
+					"parentId": "ground",
+					"location":
+					{
+						"x": 0,
+						"y": -112.5,
+						"z": 93.749954223632812
 					},
 					"rotation":
 					{
@@ -1177,12 +715,33 @@
 						"width": 300,
 						"height": 187.5
 					},
-					"parentId": "display_ground_back_lower_left",
+					"parentId": "ground",
 					"location":
 					{
-						"x": 0,
-						"y": 0,
-						"z": 0
+						"x": 1.4999999621068127e-05,
+						"y": -112.5,
+						"z": -168.74992370605469
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"screen_ground_back_upper_right":
+				{
+					"size":
+					{
+						"width": 300,
+						"height": 187.5
+					},
+					"parentId": "ground",
+					"location":
+					{
+						"x": -1.4999999621068127e-05,
+						"y": 112.5,
+						"z": -93.749954223632812
 					},
 					"rotation":
 					{
@@ -1198,12 +757,54 @@
 						"width": 300,
 						"height": 187.5
 					},
-					"parentId": "display_ground_back_lower_right",
+					"parentId": "ground",
+					"location":
+					{
+						"x": 1.4999999621068127e-05,
+						"y": 112.5,
+						"z": -168.74992370605469
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"screen_ground_front_upper_right":
+				{
+					"size":
+					{
+						"width": 300,
+						"height": 187.5
+					},
+					"parentId": "ground",
 					"location":
 					{
 						"x": 0,
-						"y": 0,
-						"z": 0
+						"y": 112.5,
+						"z": 168.74992370605469
+					},
+					"rotation":
+					{
+						"pitch": 0,
+						"yaw": 0,
+						"roll": 0
+					}
+				},
+				"screen_right_lower_right_new":
+				{
+					"size":
+					{
+						"width": 314.28500366210938,
+						"height": 196.42813110351562
+					},
+					"parentId": "right",
+					"location":
+					{
+						"x": 262.5,
+						"y": 105.35750579833984,
+						"z": 98.214248657226562
 					},
 					"rotation":
 					{
@@ -1216,13 +817,12 @@
 		},
 		"cluster":
 		{
-			"masterNode":
+			"primaryNode":
 			{
 				"id": "node_main",
 				"ports":
 				{
 					"ClusterSync": 41001,
-					"RenderSync": 41002,
 					"ClusterEventsJson": 41003,
 					"ClusterEventsBinary": 41004
 				}
@@ -1238,7 +838,7 @@
 				},
 				"inputSyncPolicy":
 				{
-					"type": "ReplicateMaster",
+					"type": "ReplicatePrimary",
 					"parameters":
 					{
 					}
@@ -1248,10 +848,14 @@
 			{
 				"ConnectRetriesAmount": "300",
 				"ConnectRetryDelay": "1000",
-				"GameStartBarrierTimeout": "600000",
-				"FrameStartBarrierTimeout": "600000",
-				"FrameEndBarrierTimeout": "600000",
-				"RenderSyncBarrierTimeout": "600000"
+				"GameStartBarrierTimeout": "18000000",
+				"FrameStartBarrierTimeout": "1800000",
+				"FrameEndBarrierTimeout": "1800000",
+				"RenderSyncBarrierTimeout": "1800000"
+			},
+			"failover":
+			{
+				"failoverPolicy": "Disabled"
 			},
 			"nodes":
 			{
@@ -1259,13 +863,13 @@
 				{
 					"host": "10.0.1.29",
 					"sound": true,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1600,
+						"h": 1000
 					},
 					"postprocess":
 					{
@@ -1279,6 +883,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1308,13 +922,13 @@
 				{
 					"host": "10.0.1.1",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1325,9 +939,19 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1357,13 +981,13 @@
 				{
 					"host": "10.0.1.1",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1374,9 +998,19 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1406,13 +1040,13 @@
 				{
 					"host": "10.0.1.2",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1423,9 +1057,19 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1455,13 +1099,13 @@
 				{
 					"host": "10.0.1.2",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1472,9 +1116,19 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1504,13 +1158,13 @@
 				{
 					"host": "10.0.1.3",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1521,9 +1175,19 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1553,13 +1217,13 @@
 				{
 					"host": "10.0.1.3",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1570,9 +1234,19 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1602,13 +1276,13 @@
 				{
 					"host": "10.0.1.4",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1619,9 +1293,19 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1651,13 +1335,13 @@
 				{
 					"host": "10.0.1.4",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1668,9 +1352,19 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1700,13 +1394,13 @@
 				{
 					"host": "10.0.1.5",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1720,6 +1414,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1749,13 +1453,13 @@
 				{
 					"host": "10.0.1.5",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1769,6 +1473,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1798,13 +1512,13 @@
 				{
 					"host": "10.0.1.6",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1818,6 +1532,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1847,13 +1571,13 @@
 				{
 					"host": "10.0.1.6",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1867,6 +1591,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1896,13 +1630,13 @@
 				{
 					"host": "10.0.1.7",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1916,6 +1650,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1945,13 +1689,13 @@
 				{
 					"host": "10.0.1.7",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -1965,6 +1709,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -1994,13 +1748,13 @@
 				{
 					"host": "10.0.1.8",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2014,6 +1768,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2043,13 +1807,13 @@
 				{
 					"host": "10.0.1.8",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2063,6 +1827,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2092,13 +1866,13 @@
 				{
 					"host": "10.0.1.9",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2112,6 +1886,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2141,13 +1925,13 @@
 				{
 					"host": "10.0.1.9",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2161,6 +1945,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2190,13 +1984,13 @@
 				{
 					"host": "10.0.1.10",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2210,6 +2004,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2239,13 +2043,13 @@
 				{
 					"host": "10.0.1.10",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2259,6 +2063,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2288,13 +2102,13 @@
 				{
 					"host": "10.0.1.11",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2308,6 +2122,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2337,13 +2161,13 @@
 				{
 					"host": "10.0.1.11",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2357,6 +2181,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2386,13 +2220,13 @@
 				{
 					"host": "10.0.1.12",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2406,6 +2240,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2418,7 +2262,7 @@
 								"type": "simple",
 								"parameters":
 								{
-									"screen": "screen_right_lower_right"
+									"screen": "screen_right_lower_right_new"
 								}
 							}
 						}
@@ -2435,13 +2279,13 @@
 				{
 					"host": "10.0.1.12",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2455,6 +2299,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2467,7 +2321,7 @@
 								"type": "simple",
 								"parameters":
 								{
-									"screen": "screen_right_lower_right"
+									"screen": "screen_right_lower_right_new"
 								}
 							}
 						}
@@ -2484,13 +2338,13 @@
 				{
 					"host": "10.0.1.13",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2504,6 +2358,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2533,13 +2397,13 @@
 				{
 					"host": "10.0.1.13",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2553,6 +2417,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2582,13 +2456,13 @@
 				{
 					"host": "10.0.1.14",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2602,6 +2476,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2631,13 +2515,13 @@
 				{
 					"host": "10.0.1.14",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2651,6 +2535,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2680,13 +2574,13 @@
 				{
 					"host": "10.0.1.15",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2700,6 +2594,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2729,13 +2633,13 @@
 				{
 					"host": "10.0.1.15",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2749,6 +2653,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2778,13 +2692,13 @@
 				{
 					"host": "10.0.1.16",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2798,6 +2712,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2827,13 +2751,13 @@
 				{
 					"host": "10.0.1.16",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2847,6 +2771,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2876,13 +2810,13 @@
 				{
 					"host": "10.0.1.17",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2896,6 +2830,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2925,13 +2869,13 @@
 				{
 					"host": "10.0.1.17",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2945,6 +2889,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -2974,13 +2928,13 @@
 				{
 					"host": "10.0.1.19",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -2994,6 +2948,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3023,13 +2987,13 @@
 				{
 					"host": "10.0.1.19",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3043,6 +3007,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3072,13 +3046,13 @@
 				{
 					"host": "10.0.1.18",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3092,6 +3066,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3121,13 +3105,13 @@
 				{
 					"host": "10.0.1.18",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3141,6 +3125,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3170,13 +3164,13 @@
 				{
 					"host": "10.0.1.20",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3190,6 +3184,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3219,13 +3223,13 @@
 				{
 					"host": "10.0.1.20",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3239,6 +3243,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3268,13 +3282,13 @@
 				{
 					"host": "10.0.1.21",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3288,6 +3302,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3317,13 +3341,13 @@
 				{
 					"host": "10.0.1.21",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3337,6 +3361,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3366,13 +3400,13 @@
 				{
 					"host": "10.0.1.23",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3386,6 +3420,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3415,13 +3459,13 @@
 				{
 					"host": "10.0.1.23",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3435,6 +3479,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3464,13 +3518,13 @@
 				{
 					"host": "10.0.1.22",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3484,6 +3538,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3513,13 +3577,13 @@
 				{
 					"host": "10.0.1.22",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3533,6 +3597,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3562,13 +3636,13 @@
 				{
 					"host": "10.0.1.24",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3582,6 +3656,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3611,13 +3695,13 @@
 				{
 					"host": "10.0.1.24",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"window":
 					{
 						"x": 0,
 						"y": 0,
-						"w": 0,
-						"h": 0
+						"w": 1920,
+						"h": 1200
 					},
 					"postprocess":
 					{
@@ -3631,6 +3715,16 @@
 							"gPUIndex": -1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
+							"overscan":
+							{
+								"bEnabled": false,
+								"mode": "percent",
+								"left": 0,
+								"right": 0,
+								"top": 0,
+								"bottom": 0,
+								"oversize": true
+							},
 							"region":
 							{
 								"x": 0,
@@ -3660,13 +3754,12 @@
 		},
 		"customParameters":
 		{
-			"Hardware_Platform": "AixCAVE"
 		},
 		"diagnostics":
 		{
 			"simulateLag": false,
-			"minLagTime": 0,
-			"maxLagTime": 0.5
+			"minLagTime": 0.0099999997764825821,
+			"maxLagTime": 0.30000001192092896
 		}
 	}
 }
