@@ -57,12 +57,37 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
+	PlayerInputComponent->BindAxis("MoveUp", this, &AVirtualRealityPawn::OnUp);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
 
 	// function bindings for grabbing and releasing
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnBeginFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
+
+	// bind functions for desktop rotations only on holding down right mouse
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			PC->bShowMouseCursor = true; 
+			PC->bEnableClickEvents = true; 
+			PC->bEnableMouseOverEvents = true;
+		}
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Pressed, this, &AVirtualRealityPawn::StartDesktopRotation);
+		PlayerInputComponent->BindAction("EnableDesktopRotation", IE_Released, this, &AVirtualRealityPawn::EndDesktopRotation);
+	}
+}
+
+void AVirtualRealityPawn::StartDesktopRotation()
+{
+	bApplyDesktopRotation = true;
+}
+
+void AVirtualRealityPawn::EndDesktopRotation()
+{
+	bApplyDesktopRotation = false;
 }
 
 void AVirtualRealityPawn::SetCameraOffset() const
@@ -75,35 +100,74 @@ void AVirtualRealityPawn::SetCameraOffset() const
 	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
+void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		FVector MouseLocation, MouseDirection;
+		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
+		RightHand->SetWorldRotation(HandOrientation);
+	}
+}
+
 void AVirtualRealityPawn::OnForward_Implementation(float Value)
 {
-	if (RightHand)
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddMovementInput(RightHand->GetForwardVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetForwardVector(), Value);
 	}
 }
 
 void AVirtualRealityPawn::OnRight_Implementation(float Value)
 {
-	if (RightHand)
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
 	{
 		AddMovementInput(RightHand->GetRightVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetRightVector(), Value);
+	}
+}
+
+void AVirtualRealityPawn::OnUp_Implementation(float Value)
+{
+	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
+	{
+		AddMovementInput(RightHand->GetUpVector(), Value);
+	}
+	else if (Head)
+	{
+		AddMovementInput(Head->GetUpVector(), Value);
 	}
 }
 
 void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
+	}
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		UpdateRightHandForDesktopInteraction();
 	}
 }
 
 void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
 {
 	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 	{
 		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
 		SetCameraOffset();
