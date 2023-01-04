@@ -3,7 +3,7 @@
 	{
 		"description": "",
 		"version": "5.00",
-		"assetPath": "/RWTHVRToolkit/RWTHVRCluster/Config/aixcave_new.aixcave_new",
+		"assetPath": "/RWTHVRToolkit/RWTHVRCluster/Config/aixcave.aixcave",
 		"misc":
 		{
 			"bFollowLocalPlayerCamera": false,
@@ -1411,7 +1411,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1470,7 +1470,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1529,7 +1529,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1588,7 +1588,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1647,7 +1647,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1706,7 +1706,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1765,7 +1765,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1824,7 +1824,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1883,7 +1883,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -1942,7 +1942,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2001,7 +2001,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2060,7 +2060,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2119,7 +2119,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2178,7 +2178,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2237,7 +2237,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2296,7 +2296,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2355,7 +2355,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2414,7 +2414,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2473,7 +2473,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2532,7 +2532,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2591,7 +2591,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2650,7 +2650,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2709,7 +2709,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2768,7 +2768,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2827,7 +2827,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2886,7 +2886,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -2945,7 +2945,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3004,7 +3004,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3063,7 +3063,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3122,7 +3122,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3181,7 +3181,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3240,7 +3240,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3299,7 +3299,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3358,7 +3358,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3417,7 +3417,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3476,7 +3476,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3535,7 +3535,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3594,7 +3594,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3653,7 +3653,7 @@
 						{
 							"camera": "camera_dynamic_left",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 1,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":
@@ -3712,7 +3712,7 @@
 						{
 							"camera": "camera_dynamic_right",
 							"bufferRatio": 1,
-							"gPUIndex": -1,
+							"gPUIndex": 0,
 							"allowCrossGPUTransfer": false,
 							"isShared": false,
 							"overscan":

@@ -26,7 +26,9 @@ public class RWTHVRCluster : ModuleRules
             "InputCore",
             "UMG",
             "Slate",
-            "SlateCore"
+            "SlateCore",
+			"DTrackPlugin",
+			"DTrackInput"
 			}
 		);
 
