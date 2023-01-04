@@ -47,7 +47,10 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-	    GEN_TEMPLATE_BRANCH: "5.1"
+        GEN_TEMPLATE_BRANCH: "5.1"
+        GEN_DEPENDENCIES: "(
+            [develop@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+
 
 Build_Windows:
     only: ['web', 'schedules']
