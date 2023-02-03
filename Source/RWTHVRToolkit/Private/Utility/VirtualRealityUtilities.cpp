@@ -13,6 +13,7 @@
 #include "Engine/Engine.h"
 #include "IXRTrackingSystem.h"
 #include "IHeadMountedDisplay.h"
+#include "AudioDevice.h"
 
 bool UVirtualRealityUtilities::IsDesktopMode()
 {
@@ -30,7 +31,9 @@ bool UVirtualRealityUtilities::IsRoomMountedMode()
 
 bool UVirtualRealityUtilities::IsHeadMountedMode()
 {
-	return GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
+	// In editor builds: checks for EdEngine->IsVRPreviewActive()
+	// In packaged builds: checks for `-vr` in commandline or bStartInVR in UGeneralProjectSettings
+	return FAudioDevice::CanUseVRAudioDevice();
 }
 
 bool UVirtualRealityUtilities::IsCave()
