@@ -42,7 +42,7 @@ public:
 	UPROPERTY(EditAnywhere) bool bCanRaytraceEveryTick = false;
 	UPROPERTY(EditAnywhere) TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
 
-	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance = 50, float InMaxClickDistance = 500);
+	UFUNCTION(BlueprintCallable) void Initialize(USceneComponent* RayEmitter);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure) AActor* GetGrabbedActor() const { return GrabbedActor;}
 	UFUNCTION(BlueprintCallable, BlueprintPure) USceneComponent* GetInteractionRayEmitter() const { return InteractionRayEmitter;	}
