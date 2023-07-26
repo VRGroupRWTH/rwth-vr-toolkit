@@ -28,7 +28,8 @@ public class RWTHVRToolkit : ModuleRules
 			"DeveloperSettings",
 			"HTTP",
 			"LiveLink",
-			"LiveLinkInterface"
+			"LiveLinkInterface",
+			"EnhancedInput"
 			}
 		);
 
