@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
+#include "Pawn/VRPawnMovement.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -34,10 +35,10 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CapsuleRotationFix = CreateDefaultSubobject<USceneComponent>(TEXT("CapsuleRotationFix"));
 	CapsuleRotationFix->SetUsingAbsoluteRotation(true);
 	CapsuleRotationFix->SetupAttachment(Head);
-	
-	/*PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
+
+	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(CapsuleRotationFix);*/
+	PawnMovement->SetHeadComponent(CapsuleRotationFix);
 	
 	RightHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Right Hand"));
 	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
@@ -59,20 +60,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	
-	// simple way of changing the handedness
-	/*if(bMoveWithRightHand)
-	{
-		MovementHand = RightHand;
-		RotationHand = LeftHand;
-		IMCMovement = IMCMovementRight;
-	} else
-	{
-		MovementHand = LeftHand;
-		RotationHand = RightHand;
-		IMCMovement = IMCMovementLeft;
-	}*/
-	
 	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	if(!InputSubsystem)
@@ -83,7 +70,6 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	InputSubsystem->ClearAllMappings();
 
 	// add Input Mapping context 
-	//InputSubsystem->AddMappingContext(IMCMovement,0);
 	InputSubsystem->AddMappingContext(IMCBase,0);
 	
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -95,101 +81,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// grabbing
 	EI->BindAction(InputActions->Grab, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginGrab);
 	EI->BindAction(InputActions->Grab, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndGrab);
-
-	/*// walking
-	EI->BindAction(InputActions->Move, ETriggerEvent::Triggered, this, &AVirtualRealityPawn::OnBeginMove);*/
-
-	/*
-	// turning
-	if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
-	{
-		EI->BindAction(InputActions->Turn, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginSnapTurn);
-	} else
-	{
-		EI->BindAction(InputActions->Turn, ETriggerEvent::Triggered, this, &AVirtualRealityPawn::OnBeginTurn);
-	}
-	*/
 	
-	// bind functions for desktop rotations only on holding down right mouse
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
-		{
-			PC->bShowMouseCursor = true; 
-			PC->bEnableClickEvents = true; 
-			PC->bEnableMouseOverEvents = true;
-		}
-		/*EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Started, this, &AVirtualRealityPawn::StartDesktopRotation);
-		EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Completed, this, &AVirtualRealityPawn::EndDesktopRotation);*/
-	}
-}
-
-/*void AVirtualRealityPawn::StartDesktopRotation()
-{
-	bApplyDesktopRotation = true;
-}
-
-void AVirtualRealityPawn::EndDesktopRotation()
-{
-	bApplyDesktopRotation = false;
-}*/
-
-/*void AVirtualRealityPawn::SetCameraOffset() const
-{
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	GetActorEyesViewPoint(Location, Rotation);
-	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}*/
-
-/*void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
-{
-	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (PC)
-	{
-		FVector MouseLocation, MouseDirection;
-		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		RightHand->SetWorldRotation(HandOrientation);
-	}
-}*/
-
-/*void AVirtualRealityPawn::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	
-	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(AVirtualRealityPawn, bMoveWithRightHand) ||
-		PropertyName == GET_MEMBER_NAME_CHECKED(AVirtualRealityPawn, bSnapTurn))
-	{
-		// if we want to change input bindings, we need to setup the player input again to load a different mapping context,
-		// or assign a different function to an input action.
-		// This is automatically done by restarting the pawn(calling SetupPlayerInputComponent() directly results in crashes)
-		// only do this in the editor
-		#if WITH_EDITOR
-			Restart();
-		#endif
-	}
-}*/
-
-
-void AVirtualRealityPawn::OnUp(const FInputActionValue& Value)
-{
-	const float MoveValue =  Value.Get<FVector2D>().X;
-	UE_LOG(LogTemp,Warning,TEXT("MoveUp: %f"),MoveValue);
-	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
-	if (RightHand && !UVirtualRealityUtilities::IsDesktopMode())
-	{
-		AddMovementInput(RightHand->GetUpVector(), MoveValue);
-	}
-	else if (Head)
-	{
-		AddMovementInput(Head->GetUpVector(), MoveValue);
-	}
 }
 
 // legacy grabbing
@@ -215,66 +107,5 @@ void AVirtualRealityPawn::OnEndGrab(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp,Warning,TEXT("EndGrab"));
 }
-
-/*void AVirtualRealityPawn::OnBeginMove(const FInputActionValue& Value)
-{
-	const FVector ForwardDir = UVirtualRealityUtilities::IsDesktopMode() ? Head->GetForwardVector() : MovementHand->GetForwardVector();
-	const FVector RightDir = UVirtualRealityUtilities::IsDesktopMode() ? Head->GetRightVector() : MovementHand->GetRightVector();
-	
-	if (Controller != nullptr)
-	{
-		const FVector2D MoveValue = Value.Get<FVector2D>();
-		const FRotator MovementRotation(0, Controller->GetControlRotation().Yaw, 0);
- 
-		// Forward/Backward direction
-		if (MoveValue.X != 0.f)
-		{
-			AddMovementInput(ForwardDir, MoveValue.X);
-		}
- 
-		// Right/Left direction
-		if (MoveValue.Y != 0.f)
-		{
-			AddMovementInput(RightDir, MoveValue.Y);
-		}
-	}
-}*/
-
-/*void AVirtualRealityPawn::OnBeginTurn(const FInputActionValue& Value)
-{
-	if(UVirtualRealityUtilities::IsDesktopMode() && !bApplyDesktopRotation) return;
-	if (Controller != nullptr)
-	{
-		const FVector2D TurnValue = Value.Get<FVector2D>();
- 
-		if (TurnValue.X != 0.f)
-		{
-			AddControllerYawInput(TurnRateFactor * TurnValue.X);
-			if (UVirtualRealityUtilities::IsDesktopMode())
-			{
-				UpdateRightHandForDesktopInteraction();
-			}
-		}
- 
-		if (TurnValue.Y != 0.f)
-		{
-			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
-			{
-				AddControllerPitchInput(TurnRateFactor * TurnValue.Y);
-				SetCameraOffset();
-			}
-		}
-	}
-}
-
-void AVirtualRealityPawn::OnBeginSnapTurn(const FInputActionValue& Value)
-{
-	const FVector2D TurnValue = Value.Get<FVector2D>();
- 
-	if (TurnValue.X != 0.f)
-	{
-		AddControllerYawInput(SnapTurnAngle);
-	}
-}*/
 
 
