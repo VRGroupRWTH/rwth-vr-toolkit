@@ -68,6 +68,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
 	void OnEndGrab(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleNavigationMode(const FInputActionValue& Value);
 	
 	/* Input */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")

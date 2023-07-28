@@ -78,6 +78,8 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	EI->BindAction(InputActions->Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
 	EI->BindAction(InputActions->Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
 
+	EI->BindAction(InputActions->ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::ToggleNavigationMode);
+
 	// grabbing
 	EI->BindAction(InputActions->Grab, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginGrab);
 	EI->BindAction(InputActions->Grab, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndGrab);
@@ -106,6 +108,24 @@ void AVirtualRealityPawn::OnBeginGrab(const FInputActionValue& Value)
 void AVirtualRealityPawn::OnEndGrab(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp,Warning,TEXT("EndGrab"));
+}
+
+void AVirtualRealityPawn::ToggleNavigationMode(const FInputActionValue& Value)
+{
+	
+	UE_LOG(LogTemp,Warning,TEXT("Toggle nav mode"));
+	switch (PawnMovement->NavigationMode)
+	{
+		case EVRNavigationModes::NAV_FLY:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+			break;
+
+		case EVRNavigationModes::NAV_WALK:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
+			break;
+		default:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+	}
 }
 
 
