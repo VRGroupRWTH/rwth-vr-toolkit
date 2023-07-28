@@ -41,9 +41,6 @@ void UContinuousMovementComponent::SetupInputActions()
 		UE_LOG(LogTemp,Error,TEXT("InputSubsystem IS NOT VALID"));
 		return;
 	}
-	
-	InputSubsystem->ClearAllMappings();
-
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement,0);
 	
@@ -72,18 +69,18 @@ void UContinuousMovementComponent::SetupInputActions()
 		APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
 		if (PC)
 		{
-			UE_LOG(LogTemp,Error,TEXT("PC PLAYER CONtroller is valid"));
 			PC->bShowMouseCursor = true; 
 			PC->bEnableClickEvents = true; 
 			PC->bEnableMouseOverEvents = true;
+		} else
+		{
+			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
 		}
 		EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Started, this, &UContinuousMovementComponent::StartDesktopRotation);
 		EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
-
 		EI->BindAction(InputActions->MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
 	}
 }
-
 
 void UContinuousMovementComponent::StartDesktopRotation()
 {
@@ -141,7 +138,7 @@ void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
 		{
 			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 			{
-				VRPawn->AddControllerPitchInput(TurnRateFactor * TurnValue.Y);
+				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
 				SetCameraOffset();
 			}
 		}
@@ -151,7 +148,6 @@ void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
 void UContinuousMovementComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 {
 	const FVector2D TurnValue = Value.Get<FVector2D>();
- 
 	if (TurnValue.X != 0.f)
 	{
 		VRPawn->AddControllerYawInput(SnapTurnAngle);
@@ -183,8 +179,6 @@ void UContinuousMovementComponent::UpdateRightHandForDesktopInteraction()
 void UContinuousMovementComponent::OnBeginUp(const FInputActionValue& Value)
 {
 	const float MoveValue =  Value.Get<FVector2D>().X;
-	UE_LOG(LogTemp,Warning,TEXT("MoveUp: %f"),MoveValue);
 	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
 	VRPawn->AddMovementInput(VRPawn->Head->GetUpVector(), MoveValue);
-	
 }

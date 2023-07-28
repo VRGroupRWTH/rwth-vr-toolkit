@@ -6,7 +6,6 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "Pawn/UniversalTrackedComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"

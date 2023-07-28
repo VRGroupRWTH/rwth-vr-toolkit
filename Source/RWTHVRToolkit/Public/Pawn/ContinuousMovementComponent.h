@@ -78,7 +78,6 @@ public:
 
 private:
 	
-	
 	UPROPERTY()
 	UUniversalTrackedComponent* MovementHand;
 	
