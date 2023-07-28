@@ -15,6 +15,9 @@
 #include "IHeadMountedDisplay.h"
 #include "AudioDevice.h"
 
+
+DEFINE_LOG_CATEGORY(Toolkit);
+
 bool UVirtualRealityUtilities::IsDesktopMode()
 {
 	return !IsRoomMountedMode() && !IsHeadMountedMode();

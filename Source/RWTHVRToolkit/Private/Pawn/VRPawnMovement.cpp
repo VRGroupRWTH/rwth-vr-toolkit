@@ -130,11 +130,11 @@ void UVRPawnMovement::ShiftVertically(float DiffernceDistance, float VerticalAcc
 	VerticalSpeed += VerticalAcceleration * DeltaSeconds;
 	if (VerticalSpeed*DeltaSeconds < DiffernceDistance)
 	{
-		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f, Direction * VerticalSpeed * DeltaSeconds));
+		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f, Direction * VerticalSpeed * DeltaSeconds));
 	}
 	else
 	{
-		UpdatedComponent->AddLocalOffset(FVector(0.f, 0.f, Direction * DiffernceDistance));
+		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f, Direction * DiffernceDistance));
 		VerticalSpeed = 0;
 	}
 }

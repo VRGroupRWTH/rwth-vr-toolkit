@@ -13,11 +13,6 @@ class ULiveLinkComponentController;
 
 
 /**
- * Custom logging for all RWTHToolkit related stuff
- */
-
-
-/**
  * 
  */
 UCLASS(Abstract)

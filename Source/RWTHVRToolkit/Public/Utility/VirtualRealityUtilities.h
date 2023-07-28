@@ -5,6 +5,14 @@
 #include "UObject/ConstructorHelpers.h"
 #include "VirtualRealityUtilities.generated.h"
 
+
+
+/**
+ * Custom log category for all RWTHVRToolkit related components
+ */
+DECLARE_LOG_CATEGORY_EXTERN(Toolkit, Log, All);
+
+
 UENUM(BlueprintType)
 enum class ENamedClusterComponent : uint8
 {

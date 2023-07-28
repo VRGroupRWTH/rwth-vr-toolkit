@@ -2,7 +2,6 @@
 
 #include "Pawn/VirtualRealityPawn.h"
 
-#include "AITypes.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "Pawn/UniversalTrackedComponent.h"

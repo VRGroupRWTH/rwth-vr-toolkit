@@ -38,7 +38,7 @@ void UContinuousMovementComponent::SetupInputActions()
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	if(!InputSubsystem)
 	{
-		UE_LOG(LogTemp,Error,TEXT("InputSubsystem IS NOT VALID"));
+		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
 		return;
 	}
 	// add Input Mapping context 
@@ -47,7 +47,7 @@ void UContinuousMovementComponent::SetupInputActions()
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(VRPawn->InputComponent);
 	if(!EI)
 	{
-		UE_LOG(LogTemp,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
+		UE_LOG(Toolkit,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
 		return;
 	}
 	
@@ -180,5 +180,5 @@ void UContinuousMovementComponent::OnBeginUp(const FInputActionValue& Value)
 {
 	const float MoveValue =  Value.Get<FVector2D>().X;
 	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
-	VRPawn->AddMovementInput(VRPawn->Head->GetUpVector(), MoveValue);
+	VRPawn->AddMovementInput(FVector::UpVector, MoveValue);
 }
