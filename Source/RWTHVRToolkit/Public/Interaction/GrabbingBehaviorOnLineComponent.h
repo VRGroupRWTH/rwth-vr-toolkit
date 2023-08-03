@@ -21,7 +21,7 @@ public:
 	UFUNCTION(BlueprintCallable) float GetDistance() const;
 	UFUNCTION(BlueprintCallable) void SetDiscreteNumberOfPoints(int Num);
 
-	virtual void HandleNewPositionAndDirection(FVector position, FQuat orientation) override;
+	virtual void HandleGrabHold(FVector position, FQuat orientation) override;
 
 protected:
 	// Called when the game starts

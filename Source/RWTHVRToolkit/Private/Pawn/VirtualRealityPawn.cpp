@@ -10,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -42,9 +43,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
 	RightHand->AttachementType = EAttachementType::AT_FLYSTICK;
 	RightHand->SetupAttachment(RootComponent);
-
-	auto MCRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MC Right"));
-	MCRight->SetTrackingSource(EControllerHand::Right);
 	
 	LeftHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Left Hand"));
 	LeftHand->ProxyType = ETrackedComponentType::TCT_LEFT_HAND;
@@ -62,7 +60,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	if(!InputSubsystem)
 	{
-		UE_LOG(LogTemp,Error,TEXT("InputSubsystem IS NOT VALID"));
+		UE_LOG(Toolkit,Error,TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
 	}
 	
 	InputSubsystem->ClearAllMappings();
@@ -73,14 +71,10 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	
 	// old function bindings for grabbing and releasing
-	EI->BindAction(InputActions->Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
-	EI->BindAction(InputActions->Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
+	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
+	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
 
-	EI->BindAction(InputActions->ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::ToggleNavigationMode);
-
-	// grabbing
-	EI->BindAction(InputActions->Grab, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginGrab);
-	EI->BindAction(InputActions->Grab, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndGrab);
+	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
 	
 }
 
@@ -94,35 +88,28 @@ void AVirtualRealityPawn::OnBeginFire(const FInputActionValue& Value)
 // legacy grabbing
 void AVirtualRealityPawn::OnEndFire(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp,Warning,TEXT("EndFire"));
+	UE_LOG(Toolkit,Log,TEXT("EndFire"));
 	BasicVRInteraction->EndInteraction();
 }
 
-void AVirtualRealityPawn::OnBeginGrab(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp,Warning,TEXT("BeginGrab"));
-}
 
-void AVirtualRealityPawn::OnEndGrab(const FInputActionValue& Value)
+void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp,Warning,TEXT("EndGrab"));
-}
-
-void AVirtualRealityPawn::ToggleNavigationMode(const FInputActionValue& Value)
-{
-	
-	UE_LOG(LogTemp,Warning,TEXT("Toggle nav mode"));
 	switch (PawnMovement->NavigationMode)
 	{
 		case EVRNavigationModes::NAV_FLY:
 			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
 			break;
 
 		case EVRNavigationModes::NAV_WALK:
 			PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to FLY"));
 			break;
 		default:
 			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
+			break;
 	}
 }
 
