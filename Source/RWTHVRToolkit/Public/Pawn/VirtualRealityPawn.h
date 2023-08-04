@@ -65,20 +65,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
 	void OnEndFire(const FInputActionValue& Value);
 
-	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
-	void OnBeginGrab(const FInputActionValue& Value);
-	
-	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
-	void OnEndGrab(const FInputActionValue& Value);
-
 	UFUNCTION(BlueprintCallable)
-	void ToggleNavigationMode(const FInputActionValue& Value);
+	void OnToggleNavigationMode(const FInputActionValue& Value);
 	
 	/* Input */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
 	class UInputMappingContext* IMCBase;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
-	class UVRPawnInputConfig* InputActions;
+	class UInputAction* Fire;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
+	class UInputAction* ToggleNavigationMode;
 
 };

@@ -130,7 +130,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 		const FVector HandPos = InteractionRayEmitter->GetComponentLocation();
 		const FQuat HandQuat = InteractionRayEmitter->GetComponentQuat();
 
-		Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
+		//Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
 	}
 
 	// only raytrace for targetable objects if bool user wants to enable this feature

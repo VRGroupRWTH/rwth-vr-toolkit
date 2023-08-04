@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
+
 #include "VirtualRealityUtilities.generated.h"
 
 
@@ -70,6 +71,12 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetClusterComponent(const FString& Name);
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
 
+	// Helper functions for components to register input events
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "VRPawn")
+	static UEnhancedInputComponent* GetVRPawnInputComponent(const UWorld* World);
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "VRPawn")
+	static UEnhancedInputLocalPlayerSubsystem* GetVRPawnLocalPlayerSubsystem(UWorld* World);
+	
 	/* Load and create an Object from an asset path. This only works in the constructor */
     template <class T>
     static bool LoadAsset(const FString& Path, T*& Result);
@@ -77,6 +84,10 @@ public:
     /* Finds and returns a class of an asset. This only works in the constructor */
     template <class T>
     static bool LoadClass(const FString& Path, TSubclassOf<T>& Result);
+
+	UFUNCTION(BlueprintCallable)
+	static void ShowErrorAndQuit(UWorld* WorldContext,const FString& Message);
+	
 };
 
 template <typename T>

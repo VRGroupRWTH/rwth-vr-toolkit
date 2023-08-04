@@ -16,8 +16,8 @@ void UContinuousMovementComponent::BeginPlay()
 
 	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 	SetupInputActions();
-	
 }
+	
 
 void UContinuousMovementComponent::SetupInputActions()
 {
@@ -52,15 +52,15 @@ void UContinuousMovementComponent::SetupInputActions()
 	}
 	
 	// walking
-	EI->BindAction(InputActions->Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginMove);
+	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginMove);
 
 	// turning
 	if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
 	{
-		EI->BindAction(InputActions->Turn, ETriggerEvent::Started, this, &UContinuousMovementComponent::OnBeginSnapTurn);
+		EI->BindAction(Turn, ETriggerEvent::Started, this, &UContinuousMovementComponent::OnBeginSnapTurn);
 	} else
 	{
-		EI->BindAction(InputActions->Turn, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginTurn);
+		EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginTurn);
 	}
 	
 	// bind functions for desktop rotations only on holding down right mouse
@@ -76,9 +76,9 @@ void UContinuousMovementComponent::SetupInputActions()
 		{
 			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
 		}
-		EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Started, this, &UContinuousMovementComponent::StartDesktopRotation);
-		EI->BindAction(InputActions->DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
-		EI->BindAction(InputActions->MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
+		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UContinuousMovementComponent::StartDesktopRotation);
+		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
+		EI->BindAction(MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
 	}
 }
 
@@ -148,9 +148,12 @@ void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
 void UContinuousMovementComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 {
 	const FVector2D TurnValue = Value.Get<FVector2D>();
-	if (TurnValue.X != 0.f)
+	if (TurnValue.X > 0.f)
 	{
 		VRPawn->AddControllerYawInput(SnapTurnAngle);
+	} else if (TurnValue.X < 0.f)
+	{
+		VRPawn->AddControllerYawInput(-SnapTurnAngle);
 	}
 }
 

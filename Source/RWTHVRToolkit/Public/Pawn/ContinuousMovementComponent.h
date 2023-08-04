@@ -43,16 +43,23 @@ public:
 	float SnapTurnAngle = 22.5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovementRight;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCMovementLeft;
-		
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UVRPawnInputConfig* InputActions;
+	class UInputMappingContext* IMCMovementRight;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* Move;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* Turn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* DesktopRotation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* MoveUp;
 	
-
-
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
 	void OnBeginMove(const FInputActionValue& Value);

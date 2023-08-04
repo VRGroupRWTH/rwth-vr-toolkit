@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "Pawn/IntenSelectComponent.h"
+#include "InputActionValue.h"
 #include "ClickBehaviour.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnClickStart, const UIntenSelectComponent*, IntenSelect, const FVector&, Point);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnClicktEnd, const UIntenSelectComponent*, IntenSelect);
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnClickStart, USceneComponent*, TriggeredComponent, const FInputActionValue&, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnClicktEnd, USceneComponent*, TriggeredComponent, const FInputActionValue&, Value);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RWTHVRTOOLKIT_API UClickBehaviour : public USceneComponent
@@ -26,9 +28,9 @@ public:
 
 protected:
 	UFUNCTION()
-		virtual void OnClickStart(const UIntenSelectComponent* IntenSelect, const FVector& Point);
+		virtual void OnClickStart(USceneComponent* TriggeredComponent,const FInputActionValue& Value);
 	UFUNCTION()
-		virtual void OnClickEnd(const UIntenSelectComponent* IntenSelect);
+		virtual void OnClickEnd(USceneComponent* TriggeredComponent,const FInputActionValue& Value);
 	
 	virtual void BeginPlay() override;
 	

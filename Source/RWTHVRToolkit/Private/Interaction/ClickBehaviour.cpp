@@ -9,12 +9,12 @@ UClickBehaviour::UClickBehaviour()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UClickBehaviour::OnClickStart(const UIntenSelectComponent* IntenSelect, const FVector& Point)
+void UClickBehaviour::OnClickStart(USceneComponent* TriggeredComponent,const FInputActionValue& Value)
 {
 	
 }
 
-void UClickBehaviour::OnClickEnd(const UIntenSelectComponent* IntenSelect)
+void UClickBehaviour::OnClickEnd(USceneComponent* TriggeredComponent,const FInputActionValue& Value)
 {
 	
 }

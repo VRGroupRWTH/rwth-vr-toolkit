@@ -60,6 +60,10 @@
 		{
 			"Name": "DTrackPlugin",
 			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
 		}
 	]
 }
