@@ -14,7 +14,7 @@ class RWTHVRTOOLKIT_API UTargetable: public UInterface
 	GENERATED_UINTERFACE_BODY()
 };
 
-class ITargetable
+class RWTHVRTOOLKIT_API ITargetable
 {
 	GENERATED_IINTERFACE_BODY()
 

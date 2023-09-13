@@ -26,13 +26,20 @@ public class RWTHVRToolkit : ModuleRules
 			"Slate",
 			"SlateCore",
 			"DeveloperSettings",
-			"Http"
+			"HTTP",
+			"LiveLink",
+			"LiveLinkInterface",
+			"EnhancedInput"
 			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
 			new string[]{}
 		);
+		if (Target.bBuildEditor == true)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]{}

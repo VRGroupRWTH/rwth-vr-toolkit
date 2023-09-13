@@ -4,15 +4,18 @@
 
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
-#include "GameFramework/DefaultPawn.h"
 #include "UniversalTrackedComponent.h"
-#include "VRPawnMovement.h"
+#include "Pawn/VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"
+
+class UCameraComponent;
+class ULiveLinkComponentController;
+
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 {
 	GENERATED_BODY()
@@ -20,32 +23,65 @@ public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
 	/* Proxy */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* Head;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* RightHand;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects") UUniversalTrackedComponent* LeftHand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UUniversalTrackedComponent* Head;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UUniversalTrackedComponent* RightHand;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UUniversalTrackedComponent* LeftHand;
 
 	/* Interaction */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction") UBasicVRInteractionComponent* BasicVRInteraction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction")
+	UBasicVRInteractionComponent* BasicVRInteraction;
+	
 
+<<<<<<< Source/RWTHVRToolkit/Public/Pawn/VirtualRealityPawn.h
 	/* Movement */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") UVRPawnMovement* PawnMovement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") float BaseTurnRate = 45.0f;
+=======
+	/** Workaround dummy component to prevent the Capsule from rotating in the editor, if LiveLink tracking is being used.
+	 *  This happens due to the rotation of the Capsule being set only while in Play Mode (instead of using e.g. absolute rotation).
+	 *  Additionally, there is an implicit race condition in Tick, due to LiveLink adjusting the parent's rotation, while the capsule
+	 *  then gets rotated back in Tick to be vertical. Depending on the order, LiveLink overrides the VRPawnMovement's rotation settings.
+	 *  The dummy seems to fix this, because its absolute rotation just catches all parent rotations and prevents them from
+	 *  overriding any of the capsules'.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	USceneComponent* CapsuleRotationFix;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	UVRPawnMovement* PawnMovement;
+>>>>>>> Source/RWTHVRToolkit/Public/Pawn/VirtualRealityPawn.h
 
 	/* CameraComponent */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera") UCameraComponent* CameraComponent;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")
+	UCameraComponent* CameraComponent;
+
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	/* Movement */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnForward(float Value);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnRight(float Value);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnTurnRate(float Rate);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Movement") void OnLookUpRate(float Rate);
-
 	/* Interaction */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnBeginFire(); 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pawn|Interaction") void OnEndFire();
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
+	void OnBeginFire(const FInputActionValue& Value);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
+	void OnEndFire(const FInputActionValue& Value);
 
-	void SetCameraOffset() const;
+	UFUNCTION(BlueprintCallable)
+	void OnToggleNavigationMode(const FInputActionValue& Value);
+	
+	/* Input */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
+	class UInputMappingContext* IMCBase;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
+	class UInputAction* Fire;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
+	class UInputAction* ToggleNavigationMode;
+
 };

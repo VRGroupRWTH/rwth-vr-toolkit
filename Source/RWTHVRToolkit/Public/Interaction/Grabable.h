@@ -14,7 +14,7 @@ class RWTHVRTOOLKIT_API UGrabable : public UInterface
 	GENERATED_UINTERFACE_BODY()
 };
 
-class IGrabable
+class RWTHVRTOOLKIT_API IGrabable
 {
 	GENERATED_IINTERFACE_BODY()
 

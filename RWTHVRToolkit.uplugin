@@ -48,6 +48,22 @@
 		{
 			"Name": "nDisplay",
 			"Enabled": true
+		},
+		{
+			"Name": "LiveLink",
+			"Enabled": true
+		},
+		{
+			"Name": "LiveLinkOvernDisplay",
+			"Enabled": true
+		},
+		{
+			"Name": "DTrackPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
 		}
 	]
 }

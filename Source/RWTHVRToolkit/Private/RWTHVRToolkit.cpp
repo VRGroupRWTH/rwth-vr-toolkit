@@ -6,10 +6,12 @@ void FRWTHVRToolkitModule::StartupModule ()
 {
 	ConsoleActivation.Register();
 }
+
 void FRWTHVRToolkitModule::ShutdownModule()
 {
-	ConsoleActivation.Unregister();
+	ConsoleActivation.Unregister();	
 }
+
 
 #undef LOCTEXT_NAMESPACE
 

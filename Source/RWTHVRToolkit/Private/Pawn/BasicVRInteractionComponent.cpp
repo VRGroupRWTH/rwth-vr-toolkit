@@ -11,6 +11,7 @@
 #include "Misc/Optional.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
 
@@ -42,6 +43,7 @@ void UBasicVRInteractionComponent::BeginPlay()
 	
 	//WidgetInteractionComponent
 	InteractionDistance = MaxClickDistance;
+	InteractionRay->SetRelativeScale3D(FVector(MaxClickDistance / 100.0f, 0.5f, 0.5f)); //the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
 	SetInteractionRayVisibility(InteractionRayVisibility);
 }
 
@@ -128,7 +130,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 		const FVector HandPos = InteractionRayEmitter->GetComponentLocation();
 		const FQuat HandQuat = InteractionRayEmitter->GetComponentQuat();
 
-		Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
+		//Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
 	}
 
 	// only raytrace for targetable objects if bool user wants to enable this feature
@@ -195,16 +197,13 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	LastActorHit = HitActor; // Store the actor that was hit to have access to it in the next frame as well
 }
 
-void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter, float InMaxGrabDistance, float InMaxClickDistance)
+void UBasicVRInteractionComponent::Initialize(USceneComponent* RayEmitter)
 {
 	if(InteractionRayEmitter) return; /* Return if already initialized */
 
 	InteractionRayEmitter = RayEmitter;
-	MaxGrabDistance = InMaxGrabDistance;
-	MaxClickDistance = InMaxClickDistance;
 
 	InteractionRay->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
-	InteractionRay->SetRelativeScale3D(FVector(MaxClickDistance/100.0f, 1.0f, 1.0f)); //the ray model has a length of 100cm
 	this->AttachToComponent(RayEmitter, FAttachmentTransformRules::KeepRelativeTransform);
 }
 

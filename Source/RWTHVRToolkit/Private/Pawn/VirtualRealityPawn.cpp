@@ -1,15 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pawn/VirtualRealityPawn.h"
 
-
-
-#include "GameFramework/InputSettings.h"
-#include "GameFramework/PlayerInput.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 #include "Pawn/UniversalTrackedComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
+#include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -18,10 +19,9 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
 	BaseEyeHeight = 160.0f;
-	
 	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
-	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root")));
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(RootComponent);
@@ -31,9 +31,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
 	Head->SetupAttachment(RootComponent);
 
+	CapsuleRotationFix = CreateDefaultSubobject<USceneComponent>(TEXT("CapsuleRotationFix"));
+	CapsuleRotationFix->SetUsingAbsoluteRotation(true);
+	CapsuleRotationFix->SetupAttachment(Head);
+
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(Head);
+	PawnMovement->SetHeadComponent(CapsuleRotationFix);
 	
 	RightHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Right Hand"));
 	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
@@ -47,74 +51,66 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
 	BasicVRInteraction->Initialize(RightHand);
+	
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (!PlayerInputComponent) return;
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if(!InputSubsystem)
+	{
+		UE_LOG(Toolkit,Error,TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
+	}
 	
-	PlayerInputComponent->BindAxis("MoveForward", this, &AVirtualRealityPawn::OnForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AVirtualRealityPawn::OnRight);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AVirtualRealityPawn::OnTurnRate);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AVirtualRealityPawn::OnLookUpRate);
+	InputSubsystem->ClearAllMappings();
 
-	// function bindings for grabbing and releasing
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AVirtualRealityPawn::OnBeginFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AVirtualRealityPawn::OnEndFire);
+	// add Input Mapping context 
+	InputSubsystem->AddMappingContext(IMCBase,0);
+	
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	
+	// old function bindings for grabbing and releasing
+	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
+	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
+
+	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
+	
 }
 
-void AVirtualRealityPawn::SetCameraOffset() const
+// legacy grabbing
+void AVirtualRealityPawn::OnBeginFire(const FInputActionValue& Value)
 {
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	GetActorEyesViewPoint(Location, Rotation);
-	CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void AVirtualRealityPawn::OnForward_Implementation(float Value)
-{
-	if (RightHand)
-	{
-		AddMovementInput(RightHand->GetForwardVector(), Value);
-	}
-}
-
-void AVirtualRealityPawn::OnRight_Implementation(float Value)
-{
-	if (RightHand)
-	{
-		AddMovementInput(RightHand->GetRightVector(), Value);
-	}
-}
-
-void AVirtualRealityPawn::OnTurnRate_Implementation(float Rate)
-{
-	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-	}
-}
-
-void AVirtualRealityPawn::OnLookUpRate_Implementation(float Rate)
-{
-	/* Turning the user externally will make them sick */
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * CustomTimeDilation);
-		SetCameraOffset();
-	}
-}
-
-void AVirtualRealityPawn::OnBeginFire_Implementation()
-{
+	UE_LOG(LogTemp,Warning,TEXT("BeginFire"));
 	BasicVRInteraction->BeginInteraction();
 }
 
-void AVirtualRealityPawn::OnEndFire_Implementation()
+// legacy grabbing
+void AVirtualRealityPawn::OnEndFire(const FInputActionValue& Value)
 {
+	UE_LOG(Toolkit,Log,TEXT("EndFire"));
 	BasicVRInteraction->EndInteraction();
 }
+
+
+void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
+{
+	switch (PawnMovement->NavigationMode)
+	{
+		case EVRNavigationModes::NAV_FLY:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
+			break;
+
+		case EVRNavigationModes::NAV_WALK:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to FLY"));
+			break;
+		default:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
+			break;
+	}
+}
+
+
