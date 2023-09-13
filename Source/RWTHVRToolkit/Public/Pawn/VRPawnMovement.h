@@ -4,6 +4,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Actor.h"
 
 #include "VRPawnMovement.generated.h"
 
@@ -35,6 +36,8 @@ class RWTHVRTOOLKIT_API UVRPawnMovement : public UFloatingPawnMovement
 
 public:
 
+	virtual void BeginPlay() override;
+
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -43,31 +46,42 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_WALK;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
 	float MaxStepHeight = 40.0f;
 
+	// if the height that the pawn would fall (in walking mode) is higher
+	// it is not falling, set to <0.0f if you want to fall infinitely
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	float GravityAcceleration = 981.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	float UpSteppingAcceleration = 500.0f;
+	float MaxFallingDepth = 1000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMax="0.0"))
+	float GravityAcceleration = -981.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
+	float UpSteppingAcceleration = 981.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
 	float CapsuleRadius = 40.0f;
 
 private:
-	FHitResult CreateLineTrace(FVector Direction, const FVector Start, bool Visibility);
-	FHitResult CreateMultiLineTrace(FVector Direction, const FVector Start, float Radius, bool Visibility);
+	//check for
+	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false);
 	void SetCapsuleColliderToUserSize();
 	void CheckForPhysWalkingCollision();
-	bool CheckForVirtualMovCollision(FVector PositionChange, float DeltaTime);
+	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
-	void ShiftVertically(float DiffernceDistance, float VerticalAcceleration, float DeltaSeconds, int Direction);
-	//(direction = Down = -1), (direction = Up = 1)
+	void ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds);
 
 	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	FVector LastHeadPosition;
+	TOptional<FVector> LastCapsulePosition;
+	FVector LastSteeringCollisionVector;
+
+	//this will deactivate all collision avoidance, so we can move out of a collision, e.g. if movements of the scene provoked a collision
+	bool bDeactivatedWhileInCollision = false;
+
+	//just stored for performance gains;
+	TArray<AActor*> ActorsToIgnore;
 };
