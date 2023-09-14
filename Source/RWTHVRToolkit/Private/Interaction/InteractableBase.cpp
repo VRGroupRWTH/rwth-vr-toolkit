@@ -5,6 +5,7 @@
 
 #include "Interaction/ClickBehaviour.h"
 #include "Interaction/HoverBehaviour.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UInteractableBase::UInteractableBase()
@@ -103,18 +104,25 @@ void UInteractableBase::HandleOnClickEndEvents(USceneComponent* TriggerComponent
 
 void UInteractableBase::InitDefaultBehaviourReferences()
 {
-	//Selecting
-	TInlineComponentArray<UHoverBehaviour*> AttachedHoverBehaviours;
-	GetOwner()->GetComponents(AttachedHoverBehaviours, true);
+	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
+	if(OnHoverBehaviours.IsEmpty())
+	{
+		//Selecting
+		TInlineComponentArray<UHoverBehaviour*> AttachedHoverBehaviours;
+		GetOwner()->GetComponents(AttachedHoverBehaviours, true);
 
-	OnHoverBehaviours = AttachedHoverBehaviours;
+		OnHoverBehaviours = AttachedHoverBehaviours;
+	}
+	
+	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
+	if(OnClickBehaviours.IsEmpty())
+	{
+		//Clicking
+		TInlineComponentArray<UClickBehaviour*> AttachedClickBehaviours;
+		GetOwner()->GetComponents(AttachedClickBehaviours, true);
 
-	//Clicking
-	TInlineComponentArray<UClickBehaviour*> AttachedClickBehaviours;
-	GetOwner()->GetComponents(AttachedClickBehaviours, true);
-
-	OnClickBehaviours = AttachedClickBehaviours;
-
+		OnClickBehaviours = AttachedClickBehaviours;
+	}
 }
 
 bool UInteractableBase::IsComponentAllowed(USceneComponent* Component) const

@@ -36,26 +36,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction")
 	UBasicVRInteractionComponent* BasicVRInteraction;
 	
-
-<<<<<<< Source/RWTHVRToolkit/Public/Pawn/VirtualRealityPawn.h
 	/* Movement */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") UVRPawnMovement* PawnMovement;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement") float BaseTurnRate = 45.0f;
-=======
-	/** Workaround dummy component to prevent the Capsule from rotating in the editor, if LiveLink tracking is being used.
-	 *  This happens due to the rotation of the Capsule being set only while in Play Mode (instead of using e.g. absolute rotation).
-	 *  Additionally, there is an implicit race condition in Tick, due to LiveLink adjusting the parent's rotation, while the capsule
-	 *  then gets rotated back in Tick to be vertical. Depending on the order, LiveLink overrides the VRPawnMovement's rotation settings.
-	 *  The dummy seems to fix this, because its absolute rotation just catches all parent rotations and prevents them from
-	 *  overriding any of the capsules'.
-	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	UVRPawnMovement* PawnMovement;
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
 	USceneComponent* CapsuleRotationFix;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
-	UVRPawnMovement* PawnMovement;
->>>>>>> Source/RWTHVRToolkit/Public/Pawn/VirtualRealityPawn.h
-
+	
 	/* CameraComponent */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")
 	UCameraComponent* CameraComponent;

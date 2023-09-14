@@ -91,8 +91,12 @@ void URaycastSelectionComponent::SetupInputActions()
 
 void URaycastSelectionComponent::OnBeginSelect(const FInputActionValue& Value)
 {
+	UE_LOG(Toolkit, Error, TEXT("Begin Select"))
 	if(CurrentRaycastSelectable)
+	{
+		UE_LOG(Toolkit, Error, TEXT("Selectable is valid"))
 		CurrentRaycastSelectable->HandleOnClickStartEvents(this, Value);
+	}
 }
 
 void URaycastSelectionComponent::OnEndSelect(const FInputActionValue& Value)

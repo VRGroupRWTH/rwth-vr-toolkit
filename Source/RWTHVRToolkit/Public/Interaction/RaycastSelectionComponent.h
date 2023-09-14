@@ -35,7 +35,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Raycast")
 	float TraceLength = 3000.0;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Raycast")
-	bool bShowDebugTrace = true;
+	bool bShowDebugTrace = false;
 
 private:
 	void SetupInputActions();

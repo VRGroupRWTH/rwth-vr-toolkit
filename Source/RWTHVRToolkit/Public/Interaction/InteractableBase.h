@@ -28,7 +28,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UClickBehaviour*> OnClickBehaviours;
-
+	
 	/**
 	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other components)
 	 * @param Components 
@@ -47,15 +47,19 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent);
 	void HandleOnClickStartEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value);
 	void HandleOnClickEndEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value);
 
+	/**
+	 * @brief If click and grab behaviors are not explicitly specified, load all existing ones
+	 */
 	void InitDefaultBehaviourReferences();
 
 	// Hit event of component that triggered this interactable
@@ -70,5 +74,8 @@ public:
 
 	bool IsComponentAllowed(USceneComponent* Component) const;
 
+private:
+	
+	bool bInitOnce = true;
 		
 };

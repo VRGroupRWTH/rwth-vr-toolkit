@@ -4,7 +4,6 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Actor.h"
 
 #include "VRPawnMovement.generated.h"
 

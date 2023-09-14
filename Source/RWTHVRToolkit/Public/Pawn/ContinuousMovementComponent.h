@@ -31,15 +31,18 @@ public:
 	EVRSteeringModes SteeringMode = EVRSteeringModes::STEER_HAND_DIRECTED;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	bool bMoveWithRightHand = false;
+	bool bMoveWithRightHand = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR Movement")
+	bool bAllowTurning = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bAllowTurning"))
 	bool bSnapTurn = false;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta=(EditCondition="!bSnapTurn"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="!bSnapTurn && bAllowTurning"))
 	float TurnRateFactor = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta=(EditCondition="bSnapTurn",ClampMin=0,ClampMax=360))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bSnapTurn && bAllowTurning",ClampMin=0,ClampMax=360))
 	float SnapTurnAngle = 22.5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")

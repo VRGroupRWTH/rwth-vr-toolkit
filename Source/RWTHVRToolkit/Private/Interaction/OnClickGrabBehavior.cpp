@@ -7,6 +7,7 @@
 #include "Interaction/InteractableBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UOnClickGrabBehavior::UOnClickGrabBehavior()
@@ -64,6 +65,7 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPr
 
 void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
 {
+	UE_LOG(Toolkit, Error, TEXT("Click Start in On Click Grab"))
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
@@ -73,10 +75,13 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
 
 	if (MyPhysicsComponent) {
+		UE_LOG(Toolkit, Error, TEXT("Attach to Component phisics comp"))
 		MyPhysicsComponent->SetSimulatePhysics(false);
 		MyPhysicsComponent->AttachToComponent(Hand, Rules);
 	}
-	else {
+	else
+	{
+		UE_LOG(Toolkit, Error, TEXT("Attach to Component else"))
 		GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
 	}
 
