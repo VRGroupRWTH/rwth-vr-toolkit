@@ -23,17 +23,17 @@ public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
 	/* Proxy */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* Head;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* RightHand;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* LeftHand;
 
 	/* Interaction */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Interaction")
 	UBasicVRInteractionComponent* BasicVRInteraction;
 	
 
@@ -44,14 +44,14 @@ public:
 	 *  The dummy seems to fix this, because its absolute rotation just catches all parent rotations and prevents them from
 	 *  overriding any of the capsules'.
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
 	USceneComponent* CapsuleRotationFix;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
 	UVRPawnMovement* PawnMovement;
 
 	/* CameraComponent */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* CameraComponent;
 
 
