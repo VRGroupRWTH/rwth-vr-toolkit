@@ -92,7 +92,9 @@ void URaycastSelectionComponent::SetupInputActions()
 void URaycastSelectionComponent::OnBeginSelect(const FInputActionValue& Value)
 {
 	if(CurrentRaycastSelectable)
+	{
 		CurrentRaycastSelectable->HandleOnClickStartEvents(this, Value);
+	}
 }
 
 void URaycastSelectionComponent::OnEndSelect(const FInputActionValue& Value)

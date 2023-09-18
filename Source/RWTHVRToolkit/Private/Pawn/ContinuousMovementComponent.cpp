@@ -55,15 +55,20 @@ void UContinuousMovementComponent::SetupInputActions()
 	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginMove);
 
 	// turning
-	if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
+
+	if(bAllowTurning)
 	{
-		EI->BindAction(Turn, ETriggerEvent::Started, this, &UContinuousMovementComponent::OnBeginSnapTurn);
-	} else
-	{
-		EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginTurn);
+		// no snap turning for desktop mode
+		if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
+		{
+			EI->BindAction(Turn, ETriggerEvent::Started, this, &UContinuousMovementComponent::OnBeginSnapTurn);
+		} else
+		{
+			EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginTurn);
+		}
 	}
 	
-	// bind functions for desktop rotations only on holding down right mouse
+	// bind additional functions for desktop rotations
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());

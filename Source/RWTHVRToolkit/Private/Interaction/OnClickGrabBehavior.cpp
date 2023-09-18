@@ -7,6 +7,7 @@
 #include "Interaction/InteractableBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UOnClickGrabBehavior::UOnClickGrabBehavior()
@@ -76,7 +77,8 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 		MyPhysicsComponent->SetSimulatePhysics(false);
 		MyPhysicsComponent->AttachToComponent(Hand, Rules);
 	}
-	else {
+	else
+	{
 		GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
 	}
 

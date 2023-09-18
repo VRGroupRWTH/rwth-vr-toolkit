@@ -29,7 +29,7 @@ public:
 	float GrabSphereRadius = 15.0;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Grabbing")
-	bool bShowDebugTrace = true;
+	bool bShowDebugTrace = false;
 
 
 protected:
