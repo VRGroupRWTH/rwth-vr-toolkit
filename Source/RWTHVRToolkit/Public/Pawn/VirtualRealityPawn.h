@@ -23,17 +23,17 @@ public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
 	/* Proxy */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* Head;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* RightHand;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
 	UUniversalTrackedComponent* LeftHand;
 
 	/* Interaction */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Interaction")
 	UBasicVRInteractionComponent* BasicVRInteraction;
 	
 	/* Movement */
@@ -41,12 +41,11 @@ public:
 	UVRPawnMovement* PawnMovement;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
 	USceneComponent* CapsuleRotationFix;
 	
-	
 	/* CameraComponent */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* CameraComponent;
 
 
