@@ -22,10 +22,10 @@ class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* LeftHand;
 
 	/* Interaction */
@@ -33,11 +33,11 @@ public:
 	UBasicVRInteractionComponent* BasicVRInteraction;
 	
 	/* Movement */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
 	UVRPawnMovement* PawnMovement;
 	
 	/* CameraComponent */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* HeadCameraComponent;
 
 
