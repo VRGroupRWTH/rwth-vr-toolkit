@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pawn/ContinuousMovementComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -9,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
 
 void UContinuousMovementComponent::BeginPlay()
 {

@@ -4,13 +4,12 @@
 
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
-#include "UniversalTrackedComponent.h"
 #include "Pawn/VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"
 
 class UCameraComponent;
 class ULiveLinkComponentController;
-
+class UMotionControllerComponent;
 
 /**
  * 

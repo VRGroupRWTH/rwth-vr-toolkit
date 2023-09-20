@@ -4,9 +4,9 @@
 
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
-#include "Pawn/UniversalTrackedComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"

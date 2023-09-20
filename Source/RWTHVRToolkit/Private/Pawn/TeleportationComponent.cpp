@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
 
 // Sets default values for this component's properties
 UTeleportationComponent::UTeleportationComponent()
