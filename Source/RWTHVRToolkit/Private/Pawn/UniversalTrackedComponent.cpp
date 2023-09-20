@@ -15,6 +15,7 @@ UUniversalTrackedComponent::UUniversalTrackedComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PrePhysics;
+	bAlwaysUseLiveLinkTracking = false;
 }
 
 void UUniversalTrackedComponent::SetShowDeviceModel(const bool bShowControllerModel)
@@ -39,6 +40,7 @@ void UUniversalTrackedComponent::BeginPlay()
 		{
 			/* Spawn Motion Controller Components in HMD Mode*/
 			UMotionControllerComponent* MotionController = Cast<UMotionControllerComponent>(GetOwner()->AddComponentByClass(UMotionControllerComponent::StaticClass(), false, FTransform::Identity, false));
+			GetOwner()->AddInstanceComponent(MotionController); // makes it show correctly in the hierarchy
 
 			// Todo: If bAlwaysUseLiveLinkTracking is true, those should be sourced by LiveLink
 			switch(ProxyType)
@@ -90,7 +92,7 @@ void UUniversalTrackedComponent::BeginPlay()
 		// Instead of using the clumsy LiveLinkComponentController, we just directly check the LiveLink Data in Tick later on.
 		// Set up this Component to Tick, and check whether Subject and Role is set.
 
-		// TODO: Check for AttachementType and automatically get the respective Subject/Role. Need to investigate how those are called by DTrack.
+		// TODO: Check for AttachmentType and automatically get the respective Subject/Role. Need to investigate how those are called by DTrack.
 		TrackedComponent = this;
 		bUseLiveLinkTracking = true; // override this in case someone forgot to set it.
 		if (SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)
@@ -127,7 +129,7 @@ void UUniversalTrackedComponent::PostEditChangeProperty(FPropertyChangedEvent& P
 #endif
 
 
-void UUniversalTrackedComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UUniversalTrackedComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
