@@ -102,8 +102,8 @@ void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
 	
 	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
 	
-	const FVector ForwardDir = bGazeDirected ? VRPawn->Head->GetForwardVector() : MovementHand->GetForwardVector();
-	const FVector RightDir = bGazeDirected ? VRPawn->Head->GetRightVector() : MovementHand->GetRightVector();
+	const FVector ForwardDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
+	const FVector RightDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
 	
 	if (VRPawn->Controller != nullptr)
 	{
@@ -169,7 +169,7 @@ void UContinuousMovementComponent::SetCameraOffset() const
 	FVector Location;
 	FRotator Rotation;
 	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
+	VRPawn->HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
 void UContinuousMovementComponent::UpdateRightHandForDesktopInteraction()

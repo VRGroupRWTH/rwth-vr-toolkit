@@ -22,14 +22,10 @@ class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
-	/* Proxy */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
-	UMotionControllerComponent* Head;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* LeftHand;
 
 	/* Interaction */
@@ -42,7 +38,7 @@ public:
 	
 	/* CameraComponent */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")
-	UCameraComponent* CameraComponent;
+	UCameraComponent* HeadCameraComponent;
 
 
 protected:

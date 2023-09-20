@@ -273,7 +273,7 @@ void UTeleportationComponent::SetCameraOffset() const
 	FVector Location;
 	FRotator Rotation;
 	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
+	VRPawn->HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
 void UTeleportationComponent::UpdateRightHandForDesktopInteraction()

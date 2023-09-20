@@ -23,17 +23,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 	
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	CameraComponent->SetupAttachment(RootComponent);
-	CameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
-	
-	Head = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Head MCC"));
-	Head->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-	Head->SetupAttachment(CameraComponent);
+	HeadCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	HeadCameraComponent->SetupAttachment(RootComponent);
+	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
 	
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(Head);
+	PawnMovement->SetHeadComponent(HeadCameraComponent);
 	
 	RightHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
