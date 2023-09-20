@@ -24,13 +24,13 @@ public:
 	
 	/* Proxy */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* Head;
+	UMotionControllerComponent* Head;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* RightHand;
+	UMotionControllerComponent* RightHand;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* LeftHand;
+	UMotionControllerComponent* LeftHand;
 
 	/* Interaction */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Interaction")
@@ -39,11 +39,6 @@ public:
 	/* Movement */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
 	UVRPawnMovement* PawnMovement;
-
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
-	USceneComponent* CapsuleRotationFix;
-	
 	
 	/* CameraComponent */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Camera")

@@ -27,31 +27,22 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	CameraComponent->SetupAttachment(RootComponent);
 	CameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
 	
-	Head = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Head"));
-	Head->ProxyType = ETrackedComponentType::TCT_HEAD;
-	Head->SetupAttachment(RootComponent);
-
-	CapsuleRotationFix = CreateDefaultSubobject<USceneComponent>(TEXT("CapsuleRotationFix"));
-	CapsuleRotationFix->SetUsingAbsoluteRotation(true);
-	CapsuleRotationFix->SetupAttachment(Head);
-
+	Head = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Head MCC"));
+	Head->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	Head->SetupAttachment(CameraComponent);
+	
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(CapsuleRotationFix);
+	PawnMovement->SetHeadComponent(Head);
 	
-	RightHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Right Hand"));
-	RightHand->ProxyType = ETrackedComponentType::TCT_RIGHT_HAND;
-	RightHand->AttachementType = EAttachementType::AT_FLYSTICK;
+	RightHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
 	
-	LeftHand = CreateDefaultSubobject<UUniversalTrackedComponent>(TEXT("Left Hand"));
-	LeftHand->ProxyType = ETrackedComponentType::TCT_LEFT_HAND;
-	LeftHand->AttachementType = EAttachementType::AT_HANDTARGET;
+	LeftHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 
 	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
-	BasicVRInteraction->Initialize(RightHand);
-	
+	BasicVRInteraction->Initialize(RightHand);	
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -74,8 +65,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
 	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
 
-	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
-	
+	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);	
 }
 
 // legacy grabbing

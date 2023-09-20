@@ -89,10 +89,10 @@ public:
 private:
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* MovementHand;
+	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* RotationHand;
+	UMotionControllerComponent* RotationHand;
 
 	UPROPERTY()
 	class UInputMappingContext* IMCMovement;
