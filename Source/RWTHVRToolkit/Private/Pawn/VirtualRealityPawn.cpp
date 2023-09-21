@@ -33,6 +33,13 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	
 	RightHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
+
+
+	if(UVirtualRealityUtilities::IsDesktopMode())
+	{
+		RightHand->SetEnableGravity(false);
+		RightHand->SetRelativeLocation(FVector(30,15,BaseEyeHeight-20));
+	}
 	
 	LeftHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
