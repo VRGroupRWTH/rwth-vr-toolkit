@@ -9,21 +9,6 @@
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
-#include "Net/UnrealNetwork.h"
-
-UContinuousMovementComponent::UContinuousMovementComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-	PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
-	PrimaryComponentTick.SetTickFunctionEnable(false);
-	// Replication:
-	SetIsReplicatedByDefault(true);
-
-	// Direct transform replication
-	ControllerNetUpdateRate = 100.0f; // 100 htz is default
-	ControllerNetUpdateCount = 0.0f;
-
-}
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
@@ -93,9 +78,6 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
 		EI->BindAction(MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
 	}
-
-	// We're initialized
-	PrimaryComponentTick.SetTickFunctionEnable(true);
 }
 
 void UContinuousMovementComponent::StartDesktopRotation()
@@ -112,7 +94,6 @@ void UContinuousMovementComponent::TickComponent(float DeltaTime, ELevelTick Tic
                                                  FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	UpdateState(DeltaTime);
 }
 
 void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
@@ -208,59 +189,3 @@ void UContinuousMovementComponent::OnBeginUp(const FInputActionValue& Value)
 	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
 	VRPawn->AddMovementInput(FVector::UpVector, MoveValue);
 }
-
-
-// Naive direct transform replication (replace with input rep?)
-
-void UContinuousMovementComponent::UpdateState(float DeltaTime)
-{	
-	if (VRPawn && VRPawn->HasLocalNetOwner())
-	{
-		if (GetIsReplicated())
-		{
-			const FVector Loc = VRPawn->GetActorLocation();
-			const FRotator Rot = VRPawn->GetActorRotation();
-
-			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
-			{
-				ControllerNetUpdateCount += DeltaTime;
-				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
-				{
-					ControllerNetUpdateCount = 0.0f;
-
-					ReplicatedTransform.Position = Loc;
-					ReplicatedTransform.Rotation = Rot;
-					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
-					{
-						SendControllerTransform_ServerRpc(ReplicatedTransform);
-					}
-				}
-			}
-		}
-	}
-}
-
-void UContinuousMovementComponent::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// Skipping the owner with this as the owner will use the controllers location directly
-	DOREPLIFETIME_CONDITION(UContinuousMovementComponent, ReplicatedTransform, COND_SkipOwner);
-	DOREPLIFETIME(UContinuousMovementComponent, ControllerNetUpdateRate);
-}
-
-void UContinuousMovementComponent::SendControllerTransform_ServerRpc_Implementation(FVRTransformRep NewTransform)
-{
-	// Store new transform and trigger OnRep_Function
-	ReplicatedTransform = NewTransform;
-
-	if (!GetOwner()->HasLocalNetOwner())
-		OnRep_ReplicatedTransform();
-}
-
-bool UContinuousMovementComponent::SendControllerTransform_ServerRpc_Validate(FVRTransformRep NewTransform)
-{
-	return true;
-	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?
-}
-
