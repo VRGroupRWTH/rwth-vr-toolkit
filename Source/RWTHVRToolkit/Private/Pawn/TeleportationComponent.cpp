@@ -28,9 +28,6 @@ UTeleportationComponent::UTeleportationComponent()
 void UTeleportationComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-	SetupInputActions();
 	
 	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation
 	(
@@ -66,8 +63,10 @@ void UTeleportationComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	// ...
 }
 
-void UTeleportationComponent::SetupInputActions()
+void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
+	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
+
 	// simple way of changing the handedness
 	if(bMoveWithRightHand)
 	{
@@ -81,8 +80,8 @@ void UTeleportationComponent::SetupInputActions()
 		IMCMovement = IMCTeleportLeft;
 	}
 	
-	const APlayerController* PlayerController = Cast<APlayerController>(VRPawn->GetController());
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	
+	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(VRPawn);
 	if(!InputSubsystem)
 	{
 		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
@@ -91,7 +90,7 @@ void UTeleportationComponent::SetupInputActions()
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement,0);
 	
-	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(VRPawn->InputComponent);
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if(!EI)
 	{
 		UE_LOG(Toolkit,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));

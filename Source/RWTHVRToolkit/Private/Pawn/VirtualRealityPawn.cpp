@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Pawn/ContinuousMovementComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"
 #include "Utility/VirtualRealityUtilities.h"
@@ -50,11 +51,14 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if(!InputSubsystem)
 	{
 		UE_LOG(Toolkit,Error,TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
+		return;
 	}
 	
 	InputSubsystem->ClearAllMappings();
@@ -68,7 +72,14 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
 	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
 
-	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);	
+	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
+
+	// Set up mappings on movement components, need to do this nicely
+	
+	for (UActorComponent* Comp : GetComponentsByInterface(UMovementExtensionInterface::StaticClass()))
+	{
+		Cast<IMovementExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
+	}
 }
 
 // legacy grabbing

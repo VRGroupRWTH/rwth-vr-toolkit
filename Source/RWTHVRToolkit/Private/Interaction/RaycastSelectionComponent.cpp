@@ -79,11 +79,19 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 void URaycastSelectionComponent::SetupInputActions()
 {
-	auto InputSubsystem = UVirtualRealityUtilities::GetVRPawnLocalPlayerSubsystem(GetWorld());
+	const APawn* Pawn = Cast<APawn>(GetOwner());
+	const APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
+	const ULocalPlayer* LP = PlayerController ? PlayerController->GetLocalPlayer() : nullptr;
+	if (LP == nullptr)
+		return;
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCRaycastSelection,0);
 	
-	UEnhancedInputComponent* EI = UVirtualRealityUtilities::GetVRPawnInputComponent(GetWorld());
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
+	if (EI == nullptr)
+		return;
 	
 	EI->BindAction(RayCastSelectInputAction, ETriggerEvent::Started, this, &URaycastSelectionComponent::OnBeginSelect);
 	EI->BindAction(RayCastSelectInputAction, ETriggerEvent::Completed, this, &URaycastSelectionComponent::OnEndSelect);	

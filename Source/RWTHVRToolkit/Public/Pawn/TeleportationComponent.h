@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MovementExtensionInterface.h"
 #include "Components/ActorComponent.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
@@ -13,7 +14,7 @@
 
 
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent
+class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent, public IMovementExtensionInterface
 {
 	GENERATED_BODY()
 
@@ -102,9 +103,10 @@ public:
 	UFUNCTION()
 	void EndDesktopRotation();
 
+	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
+
 	bool bApplyDesktopRotation = false;
-
-
+	
 	// Trace Visualization
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> BPTeleportVisualizer;
@@ -124,9 +126,7 @@ private:
 
 	UPROPERTY()
 	class UInputMappingContext* IMCMovement;
-
-	void SetupInputActions();
-
+	
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
 

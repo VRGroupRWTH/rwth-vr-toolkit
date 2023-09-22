@@ -93,11 +93,19 @@ void UGrabComponent::BeginPlay()
 
 void UGrabComponent::SetupInputActions()
 {
-	auto InputSubsystem = UVirtualRealityUtilities::GetVRPawnLocalPlayerSubsystem(GetWorld());
+	const APawn* Pawn = Cast<APawn>(GetOwner());
+	const APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
+	const ULocalPlayer* LP = PlayerController ? PlayerController->GetLocalPlayer() : nullptr;
+	if (LP == nullptr)
+		return;
+	
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCGrab,0);
 	
-	UEnhancedInputComponent* EI = UVirtualRealityUtilities::GetVRPawnInputComponent(GetWorld());
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
+	if (EI == nullptr)
+		return;
 	
 	EI->BindAction(GrabInputAction, ETriggerEvent::Started, this, &UGrabComponent::OnBeginGrab);
 	EI->BindAction(GrabInputAction, ETriggerEvent::Completed, this, &UGrabComponent::OnEndGrab);	

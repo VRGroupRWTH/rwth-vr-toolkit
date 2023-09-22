@@ -177,6 +177,10 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	}
 }
 
+/*
+ * //
+ * // These are deadly for multiplayer!
+ * 
 UEnhancedInputComponent* UVirtualRealityUtilities::GetVRPawnInputComponent(const UWorld* World)
 {
 	const APawn* VRPawn = Cast<AVirtualRealityPawn>(UGameplayStatics::GetPlayerPawn(World,0));
@@ -206,7 +210,7 @@ UEnhancedInputLocalPlayerSubsystem* UVirtualRealityUtilities::GetVRPawnLocalPlay
 	return InputSubsystem;
 	
 }
-
+*/
 void UVirtualRealityUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
 {
 	UE_LOG(Toolkit, Error, TEXT("%s"), *Message)

@@ -36,7 +36,10 @@ public class RWTHVRToolkit : ModuleRules
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[]{}
+			new string[]
+			{
+				"NetCore"
+			}
 		);
 		if (Target.bBuildEditor == true)
 		{
@@ -56,5 +59,7 @@ public class RWTHVRToolkit : ModuleRules
 		{
 			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=0");
 		}
+		
+		SetupIrisSupport(base.Target);
 	}
 }
