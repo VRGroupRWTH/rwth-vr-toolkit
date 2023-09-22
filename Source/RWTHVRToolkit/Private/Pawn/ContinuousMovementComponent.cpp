@@ -14,6 +14,11 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 {
 	check(PlayerInputComponent);
 	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
+
+	if(!VRPawn->HasLocalNetOwner())
+	{
+		return;
+	}
 	
 	// simple way of changing the handedness
 	if(bMoveWithRightHand)
@@ -88,12 +93,6 @@ void UContinuousMovementComponent::StartDesktopRotation()
 void UContinuousMovementComponent::EndDesktopRotation()
 {
 	bApplyDesktopRotation = false;
-}
-
-void UContinuousMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                 FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)

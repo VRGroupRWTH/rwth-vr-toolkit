@@ -26,7 +26,6 @@ class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UActorComponent, p
 	GENERATED_BODY()
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRSteeringModes SteeringMode = EVRSteeringModes::STEER_HAND_DIRECTED;

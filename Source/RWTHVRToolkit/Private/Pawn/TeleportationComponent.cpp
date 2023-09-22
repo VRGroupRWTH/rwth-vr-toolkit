@@ -28,6 +28,16 @@ UTeleportationComponent::UTeleportationComponent()
 void UTeleportationComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
+{
+	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
+
+	if(!VRPawn->HasLocalNetOwner())
+	{
+		return;
+	}
 	
 	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation
 	(
@@ -46,27 +56,13 @@ void UTeleportationComponent::BeginPlay()
 	SpawnParameters.Name = "TeleportVisualizer";
 	if(BPTeleportVisualizer)
 	{
-		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation(),SpawnParameters);
+		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, GetOwner()->GetActorLocation(),
+															GetOwner()->GetActorRotation(), SpawnParameters);
 	}
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 
-	
-	// ...
-}
-
-// Called every frame
-void UTeleportationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
-{
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-
+		
 	// simple way of changing the handedness
 	if(bMoveWithRightHand)
 	{
@@ -171,27 +167,24 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
 	
 	UGameplayStatics::PredictProjectilePath(GetWorld(),PredictParams,PredictResult);
-	
-	FVector HitLocation = PredictResult.HitResult.Location;
-	bool bValidHit = PredictResult.HitResult.IsValidBlockingHit();
-	// check if this is a valid location to move to
-	FNavLocation OutLocation;
 
-	FNavAgentProperties AgentProperties = FNavAgentProperties(15, 160);
+	const FVector HitLocation = PredictResult.HitResult.Location;
+	const bool bValidHit = PredictResult.HitResult.IsValidBlockingHit();
+	// check if this is a valid location to move to
 	
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-	// TODO: does not give valid location
-	const bool bValidProjection = NavSystem->ProjectPointToNavigation(HitLocation,OutLocation,FVector(1,1,1), &AgentProperties);
+	FVector OutLocation;	
+	const bool bValidProjection = IsValidTeleportLocation(PredictResult.HitResult, OutLocation);
 	
 	if(bUseNavMesh)
 	{
-		FinalTeleportLocation = OutLocation.Location;
+		FinalTeleportLocation = OutLocation;
 		if(bValidTeleportLocation != bValidProjection)
 		{
 			bValidTeleportLocation = bValidProjection;
 			TeleportVisualizer->SetActorHiddenInGame(!bValidTeleportLocation);
 		}
-	} else
+	}
+	else
 	{
 		if(bValidHit)
 		{
@@ -213,6 +206,17 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	
 }
 
+bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVector& ProjectedLocation) const
+{
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	const FNavAgentProperties& AgentProps = FNavAgentProperties(15, 160);
+	FNavLocation ProjectedNavLocation;
+	const bool bProjectPoint = (NavSys && NavSys->ProjectPointToNavigation(Hit.Location, ProjectedNavLocation, INVALID_NAVEXTENT, &AgentProps));
+	ProjectedLocation = ProjectedNavLocation.Location;
+	return bProjectPoint /*&& Hit.IsValidBlockingHit()*/;
+}
+
+
 // On button release -> remove trace and teleport user to location
 void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 {
@@ -223,7 +227,7 @@ void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 	TeleportVisualizer->SetActorHiddenInGame(true);
 	
 	bValidTeleportLocation = false;
-	GetOwner()->TeleportTo(FinalTeleportLocation,GetOwner()->GetActorRotation());
+	GetOwner()->TeleportTo(FinalTeleportLocation, GetOwner()->GetActorRotation());
 	
 }
 

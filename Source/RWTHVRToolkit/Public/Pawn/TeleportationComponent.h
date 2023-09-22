@@ -27,9 +27,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
@@ -84,6 +81,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateTeleportTrace(const FInputActionValue& Value);
+	bool IsValidTeleportLocation(const FHitResult& Hit, FVector& ProjectedLocation) const;
 
 	UFUNCTION(BlueprintCallable)
 	void OnEndTeleportTrace(const FInputActionValue& Value);
