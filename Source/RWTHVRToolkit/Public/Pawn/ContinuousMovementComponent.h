@@ -6,9 +6,9 @@
 #include "MovementExtensionInterface.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Components/ActorComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
 #include "ContinuousMovementComponent.generated.h"
 
+class UMotionControllerComponent;
 
 UENUM(BlueprintType)
 enum class EVRSteeringModes : uint8

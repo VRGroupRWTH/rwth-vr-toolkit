@@ -6,25 +6,21 @@
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "MotionControllerComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Pawn/ContinuousMovementComponent.h"
+#include "Pawn/ReplicatedCameraComponent.h"
+#include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-{
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationPitch = true;
-	bUseControllerRotationRoll = true;
+{	
 	BaseEyeHeight = 160.0f;
-	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 	
-	HeadCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	HeadCameraComponent = CreateDefaultSubobject<UReplicatedCameraComponent>(TEXT("Camera"));
 	HeadCameraComponent->SetupAttachment(RootComponent);
 	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
 	
@@ -32,17 +28,17 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	PawnMovement->SetUpdatedComponent(RootComponent);
 	PawnMovement->SetHeadComponent(HeadCameraComponent);
 	
-	RightHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Hand MCC"));
+	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
-
 
 	if(UVirtualRealityUtilities::IsDesktopMode())
 	{
 		RightHand->SetEnableGravity(false);
-		RightHand->SetRelativeLocation(FVector(30,15,BaseEyeHeight-20));
+	 	RightHand->SetRelativeLocation(FVector(30,15,BaseEyeHeight-20));
+		bUseControllerRotationYaw = true;
 	}
 	
-	LeftHand = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Hand MCC"));
+	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 
 	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
@@ -52,7 +48,15 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	
+	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
+	// the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here such that
+	// bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially.
+	// There is probably a checkbox or way of spawning that prevents that in a better way that this, change if found.
+	PlayerController->SetControlRotation(FRotator::ZeroRotator);
+	
 	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if(!InputSubsystem)
@@ -116,5 +120,3 @@ void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
 			break;
 	}
 }
-
-

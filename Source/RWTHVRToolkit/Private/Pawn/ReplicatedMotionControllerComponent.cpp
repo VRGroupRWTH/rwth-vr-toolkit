@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Pawn/ClientTransformReplication.h"
+#include "Pawn/ReplicatedMotionControllerComponent.h"
+
 
 #include "Net/UnrealNetwork.h"
 
-UClientTransformReplication::UClientTransformReplication()
+UReplicatedMotionControllerComponent::UReplicatedMotionControllerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
 	PrimaryComponentTick.SetTickFunctionEnable(true);
 	SetIsReplicatedByDefault(true);
 
@@ -19,52 +19,55 @@ UClientTransformReplication::UClientTransformReplication()
 
 // Naive direct transform replication (replace with input rep?)
 
-void UClientTransformReplication::UpdateState(float DeltaTime)
+void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 {
-	const auto* Pawn = GetOwner();
-	if (Pawn && Pawn->HasLocalNetOwner())
+	if (GetOwner()->HasLocalNetOwner())
 	{
 		if (GetIsReplicated())
 		{
-			const FVector Loc = Pawn->GetActorLocation();
-			const FRotator Rot = Pawn->GetActorRotation();
+			const FVector Loc = GetRelativeLocation();
+			const FRotator Rot = GetRelativeRotation();
 
 			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
 			{
 				ControllerNetUpdateCount += DeltaTime;
 				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
-				{
+					{
 					ControllerNetUpdateCount = 0.0f;
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
 					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
-					{
+						{
 						SendControllerTransform_ServerRpc(ReplicatedTransform);
+						}
 					}
-				}
 			}
 		}
 	}
 }
 
-void UClientTransformReplication::TickComponent(float DeltaTime, ELevelTick TickType,
+void UReplicatedMotionControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateState(DeltaTime);
 }
 
-void UClientTransformReplication::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
+void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeLocation);
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeRotation);
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);	
+
 	// Skipping the owner with this as the owner will use the controllers location directly
-	DOREPLIFETIME_CONDITION(UClientTransformReplication, ReplicatedTransform, COND_SkipOwner);
-	DOREPLIFETIME(UClientTransformReplication, ControllerNetUpdateRate);
+	DOREPLIFETIME_CONDITION(UReplicatedMotionControllerComponent, ReplicatedTransform, COND_SkipOwner);
+	DOREPLIFETIME(UReplicatedMotionControllerComponent, ControllerNetUpdateRate);
 }
 
-void UClientTransformReplication::SendControllerTransform_ServerRpc_Implementation(FVRTransformRep NewTransform)
+void UReplicatedMotionControllerComponent::SendControllerTransform_ServerRpc_Implementation(FVRTransformRep NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;
@@ -73,7 +76,7 @@ void UClientTransformReplication::SendControllerTransform_ServerRpc_Implementati
 		OnRep_ReplicatedTransform();
 }
 
-bool UClientTransformReplication::SendControllerTransform_ServerRpc_Validate(FVRTransformRep NewTransform)
+bool UReplicatedMotionControllerComponent::SendControllerTransform_ServerRpc_Validate(FVRTransformRep NewTransform)
 {
 	return true;
 	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?

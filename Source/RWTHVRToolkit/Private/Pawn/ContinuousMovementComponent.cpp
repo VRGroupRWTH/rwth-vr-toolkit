@@ -9,6 +9,8 @@
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
+#include "Pawn/ReplicatedCameraComponent.h"
+#include "Pawn/ReplicatedMotionControllerComponent.h"
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {

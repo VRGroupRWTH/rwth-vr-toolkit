@@ -18,6 +18,7 @@ UCLASS(Abstract)
 class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 {
 	GENERATED_BODY()
+	
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 	
@@ -42,7 +43,7 @@ public:
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
+	
 	/* Interaction */
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
 	void OnBeginFire(const FInputActionValue& Value);
