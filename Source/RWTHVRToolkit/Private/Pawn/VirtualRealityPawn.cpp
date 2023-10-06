@@ -49,10 +49,6 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if(UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsSlave())
-	{
-		return;
-	}
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	
