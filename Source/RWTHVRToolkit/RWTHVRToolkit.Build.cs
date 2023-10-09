@@ -59,7 +59,5 @@ public class RWTHVRToolkit : ModuleRules
 		{
 			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=0");
 		}
-		
-		SetupIrisSupport(base.Target);
 	}
 }
