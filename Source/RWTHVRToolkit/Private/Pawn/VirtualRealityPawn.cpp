@@ -49,6 +49,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
