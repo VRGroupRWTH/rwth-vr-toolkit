@@ -20,7 +20,7 @@ public:
 	UFUNCTION(BlueprintCallable) void SetDistance(float Dist);
 	UFUNCTION(BlueprintCallable) float GetDistance() const;
 	
-	virtual void HandleNewPositionAndDirection(FVector position, FQuat orientation) override;
+	virtual void HandleGrabHold(FVector position, FQuat orientation) override;
 
 protected:
 	// Called when the game starts

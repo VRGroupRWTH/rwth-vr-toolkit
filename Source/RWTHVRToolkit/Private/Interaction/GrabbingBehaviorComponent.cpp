@@ -38,12 +38,12 @@ UPrimitiveComponent* UGrabbingBehaviorComponent::GetHighestParentSimulatingPhysi
 	}
 }
 
-void UGrabbingBehaviorComponent::HandleNewPositionAndDirection(FVector Position, FQuat Orientation)
+void UGrabbingBehaviorComponent::HandleGrabHold(FVector Position, FQuat Orientation)
 {
 
 }
 
-void UGrabbingBehaviorComponent::HandleBeginGrab(AActor* GrabbedBy)
+void UGrabbingBehaviorComponent::HandleGrabStart(AActor* GrabbedBy)
 {
 	USceneComponent* RightHand = Cast<USceneComponent>(GrabbedBy->GetDefaultSubobjectByName("Right Hand"));
 	
@@ -55,7 +55,7 @@ void UGrabbingBehaviorComponent::HandleBeginGrab(AActor* GrabbedBy)
 	OnBeginGrab.Broadcast(GrabbedBy);
 }
 
-void UGrabbingBehaviorComponent::HandleEndGrab()
+void UGrabbingBehaviorComponent::HandleGrabEnd()
 {
 	//GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);

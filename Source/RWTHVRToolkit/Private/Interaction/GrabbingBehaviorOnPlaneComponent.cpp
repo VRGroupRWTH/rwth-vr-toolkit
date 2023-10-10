@@ -24,7 +24,7 @@ float UGrabbingBehaviorOnPlaneComponent::GetDistance() const
 }
 
 
-void UGrabbingBehaviorOnPlaneComponent::HandleNewPositionAndDirection(FVector Position, FQuat Orientation)
+void UGrabbingBehaviorOnPlaneComponent::HandleGrabHold(FVector Position, FQuat Orientation)
 {
 	FVector AttachmentPoint = this->GetRelativeLocation();
 	FVector PlaneNormal = this->GetComponentQuat().GetUpVector(); 

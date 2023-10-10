@@ -29,11 +29,11 @@ public:
 
 public:
 	// takes the hand ray and moves the parent actor to a new possible position, also might change rotation
-	virtual void HandleNewPositionAndDirection(FVector Position, FQuat Orientation);
+	virtual void HandleGrabHold(FVector Position, FQuat Orientation);
 	
-	virtual void HandleBeginGrab(AActor* GrabbedBy);
+	virtual void HandleGrabStart(AActor* GrabbedBy);
 
-	virtual void HandleEndGrab();
+	virtual void HandleGrabEnd();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

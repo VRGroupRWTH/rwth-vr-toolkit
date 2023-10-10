@@ -56,7 +56,7 @@ void UBasicVRInteractionComponent::BeginInteraction()
 		return;
 
 	AActor* HitActor = Hit->GetActor();
-
+	
 	//trigger interaction of WidgetInteractionComponent
 	SetCustomHitResult(Hit.GetValue());
 	//if !bCanRaytraceEveryTick, you have to click twice, since the first tick it only highlights and can't directly click
@@ -128,7 +128,7 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 		const FVector HandPos = InteractionRayEmitter->GetComponentLocation();
 		const FQuat HandQuat = InteractionRayEmitter->GetComponentQuat();
 
-		Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
+		Behavior->HandleGrabHold(HandPos, HandQuat); 
 	}
 
 	// only raytrace for targetable objects if bool user wants to enable this feature
