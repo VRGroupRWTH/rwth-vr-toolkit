@@ -59,7 +59,7 @@
 		},
 		{
 			"Name": "DTrackPlugin",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "EnhancedInput",
