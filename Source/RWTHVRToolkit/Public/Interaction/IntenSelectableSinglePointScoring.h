@@ -12,7 +12,7 @@ class RWTHVRTOOLKIT_API UIntenSelectableSinglePointScoring : public UIntenSelect
 public:
 	UIntenSelectableSinglePointScoring();
 	
-	virtual TPair<FVector, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
 	virtual void BeginPlay() override;
 };

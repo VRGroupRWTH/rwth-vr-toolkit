@@ -40,7 +40,7 @@ UIntenSelectableScoring::UIntenSelectableScoring()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-TPair<FVector, float> UIntenSelectableScoring::GetBestPointScorePair(const FVector& ConeOrigin,
+TPair<FHitResult, float> UIntenSelectableScoring::GetBestPointScorePair(const FVector& ConeOrigin,
                                                                      const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
                                                                      const float LastValue, const float DeltaTime)
 {

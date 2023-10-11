@@ -10,13 +10,14 @@ UIntenSelectableRectangleScoring::UIntenSelectableRectangleScoring()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-TPair<FVector, float> UIntenSelectableRectangleScoring::GetBestPointScorePair(const FVector& ConeOrigin,
+TPair<FHitResult, float> UIntenSelectableRectangleScoring::GetBestPointScorePair(const FVector& ConeOrigin,
 	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
 	const float LastValue, const float DeltaTime)
 {
 	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
 	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
-	return TPair<FVector, float>{Point, Score};
+	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
+	return TPair<FHitResult, float>{Result, Score};
 }
 
 bool UIntenSelectableRectangleScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA, const FVector& ToB, FVector& OutIntersection)

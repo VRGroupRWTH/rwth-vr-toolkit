@@ -7,7 +7,7 @@
 #include "HoverBehaviour.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHoverStart, const USceneComponent*, TriggeredComponent,FHitResult, Hit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHoverStart, const USceneComponent*, TriggeredComponent, FHitResult, Hit);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHoverEnd, const USceneComponent*, TriggeredComponent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

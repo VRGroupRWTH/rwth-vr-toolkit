@@ -3,10 +3,12 @@
 #include <string>
 
 #include "DrawDebugHelpers.h"
+#include "InputActionValue.h"
 #include "Components/WidgetComponent.h"
 #include "EditorFramework/AssetImportData.h"
 #include "GameFramework/Character.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
+#include "Interaction/ClickBehaviour.h"
 #include "Interaction/RaycastSelectable.h"
 #include "Misc/MessageDialog.h"
 
@@ -165,7 +167,9 @@ void URaycastSelectComponent::OnFireUp()
 
 		if(LastKnownGrab)
 		{
-			LastKnownGrab->HandleOnClickEndEvents(this);
+			FInputActionValue v;
+
+			LastKnownGrab->HandleOnClickEndEvents(this, v);
 		}
 	}
 }
@@ -182,7 +186,8 @@ void URaycastSelectComponent::SetActive(bool bNewActive, bool bReset)
 	{
 		if(CurrentSelection)
 		{
-			CurrentSelection->HandleOnSelectEndEvents(this);
+			FInputActionValue v;
+			CurrentSelection->HandleOnClickEndEvents(this, v);
 			CurrentSelection = nullptr;
 		}
 
@@ -225,8 +230,7 @@ void URaycastSelectComponent::TickComponent(const float DeltaTime, const ELevelT
 	URaycastSelectable* NewSelection = nullptr;
 	if(HitResult.IsSet())
 	{
-		AActor* HitActor = HitResult.GetValue().Actor.Get();
-		if(HitActor)
+		if(const AActor* HitActor = HitResult.GetValue().GetActor())
 		{
 			NewSelection = HitActor->FindComponentByClass<URaycastSelectable>();
 			if(bShowHitsOnScreen)
@@ -253,15 +257,15 @@ void URaycastSelectComponent::TickComponent(const float DeltaTime, const ELevelT
 		{
 			if(CurrentSelection != NewSelection)
 			{
-				CurrentSelection->HandleOnSelectEndEvents(this);
+				CurrentSelection->HandleOnHoverEndEvents(this);
 				CurrentSelectionPoint = HitResult->ImpactPoint;
 				
-				NewSelection->HandleOnSelectStartEvents(this, CurrentSelectionPoint);
+				NewSelection->HandleOnHoverStartEvents(this);
 				CurrentSelection = NewSelection;
 			}
 		}else
 		{
-			NewSelection->HandleOnSelectStartEvents(this, HitResult->ImpactPoint);
+			NewSelection->HandleOnHoverStartEvents(this);
 			CurrentSelection = NewSelection;
 			CurrentSelectionPoint = HitResult->ImpactPoint;
 		}
@@ -271,7 +275,7 @@ void URaycastSelectComponent::TickComponent(const float DeltaTime, const ELevelT
 
 		if(CurrentSelection)
 		{
-			CurrentSelection->HandleOnSelectEndEvents(this);
+			CurrentSelection->HandleOnHoverEndEvents(this);
 			CurrentSelection = nullptr;
 		}
 	}

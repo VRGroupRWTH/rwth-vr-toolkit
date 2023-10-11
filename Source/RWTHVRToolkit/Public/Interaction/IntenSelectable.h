@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HoverBehaviour.h"
+#include "InputActionValue.h"
 #include "Components/ActorComponent.h"
-#include "IntenSelectableScoring.h"
 #include "IntenSelectable.generated.h"
 
 
+class UIntenSelectableScoring;
 class UClickBehaviour;
 class USelectionBehaviour;
 class UIntenSelectComponent;
@@ -34,12 +36,12 @@ public:
 public:
 	UIntenSelectable();
 
-	TPair<FVector, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) const;
+	TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) const;
 	
-	void HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FVector& Point);
+	void HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult);
 	void HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect);
-	void HandleOnClickStartEvents(const UIntenSelectComponent* IntenSelect, const FVector& Point);
-	void HandleOnClickEndEvents(const UIntenSelectComponent* IntenSelect);
+	void HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect);
+	void HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue);
 
 	void InitDefaultBehaviourReferences();
 

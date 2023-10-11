@@ -11,13 +11,14 @@ UIntenSelectableCircleScoring::UIntenSelectableCircleScoring()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-TPair<FVector, float> UIntenSelectableCircleScoring::GetBestPointScorePair(const FVector& ConeOrigin,
+TPair<FHitResult, float> UIntenSelectableCircleScoring::GetBestPointScorePair(const FVector& ConeOrigin,
 	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
 	const float LastValue, const float DeltaTime)
 {
-	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
+	const FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
 	float Score = GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
-	return TPair<FVector, float>{Point, Score};
+	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
+	return TPair<FHitResult, float>{Result, Score};
 }
 
 FVector UIntenSelectableCircleScoring::GetClosestSelectionPointTo(const FVector& Point, const FVector& Direction) const

@@ -11,7 +11,7 @@ UClickBehaviour::UClickBehaviour()
 
 void UClickBehaviour::OnClickStart(USceneComponent* TriggeredComponent,const FInputActionValue& Value)
 {
-	Value.
+
 }
 
 void UClickBehaviour::OnClickEnd(USceneComponent* TriggeredComponent,const FInputActionValue& Value)

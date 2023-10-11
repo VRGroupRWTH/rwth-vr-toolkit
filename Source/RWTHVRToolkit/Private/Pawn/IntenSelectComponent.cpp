@@ -321,7 +321,7 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 	UIntenSelectable* MaxScoreSelectable = nullptr;
 	float MaxScore = TNumericLimits<float>::Min();
 	TArray<UIntenSelectable*> RemoveList;
-	TArray<TPair<UIntenSelectable*,FVector>> CandidateList;
+	TArray<TPair<UIntenSelectable*, FHitResult>> CandidateList;
 	
 	for (TTuple<UIntenSelectable*, float>& OldScoreEntry : ScoreMap)
 	{
@@ -331,13 +331,13 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 			continue;
 		}
 
-		TPair<FVector, float> NewScorePair = OldScoreEntry.Key->GetBestPointScorePair(
+		TPair<FHitResult, float> NewScorePair = OldScoreEntry.Key->GetBestPointScorePair(
 			ConeOrigin, ConeForward, ConeBackwardShiftDistance, SelectionConeAngle, OldScoreEntry.Value, DeltaTime);
 		
 		ContactPointMap.Add(OldScoreEntry.Key, NewScorePair.Key);
-		const float DistanceToActor = FVector::Dist(ConeOrigin, NewScorePair.Key);
+		const float DistanceToActor = FVector::Dist(ConeOrigin, NewScorePair.Key.ImpactPoint);
 
-		float Eps = 0.01;
+		const float Eps = 0.01;
 		if (NewScorePair.Value <= 0.01 || DistanceToActor >= MaxSelectionDistance || !OldScoreEntry.Key->IsSelectable)
 		{
 			RemoveList.Add(OldScoreEntry.Key);
@@ -346,13 +346,13 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		{
 			OldScoreEntry.Value = NewScorePair.Value;
 
-			if (NewScorePair.Value > (1.0 - Eps) && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key, SelectionConeAngle))
+			if (NewScorePair.Value > (1.0 - Eps) && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
 			{
-				CandidateList.Emplace(OldScoreEntry.Key,NewScorePair.Key);
+				CandidateList.Emplace(OldScoreEntry.Key, NewScorePair.Key);
 				MaxScore = NewScorePair.Value;
 				MaxScoreSelectable = OldScoreEntry.Key;
 			}
-			else if (NewScorePair.Value > MaxScore && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key, SelectionConeAngle))
+			else if (NewScorePair.Value > MaxScore && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
 			{
 				MaxScore = NewScorePair.Value;
 				MaxScoreSelectable = OldScoreEntry.Key;
@@ -371,7 +371,7 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		auto Dist = TNumericLimits<float>::Max();
 		for(const auto Actor : CandidateList)
 		{
-			const auto DistanceToCandidate = FVector::Distance(Actor.Value,GetComponentLocation());
+			const auto DistanceToCandidate = FVector::Distance(Actor.Value.ImpactPoint, GetComponentLocation());
 			if(DistanceToCandidate < Dist)
 			{
 				MaxScoreSelectable = Actor.Key;
@@ -521,10 +521,10 @@ void UIntenSelectComponent::OnFireDown()
 	
 	if(CurrentSelection)
 	{
-		const FVector GrabbedPoint = *ContactPointMap.Find(CurrentSelection);
-		CurrentSelection->HandleOnClickStartEvents(this, GrabbedPoint);
+		const FHitResult GrabbedPoint = *ContactPointMap.Find(CurrentSelection);
+		CurrentSelection->HandleOnClickStartEvents(this);
 		LastKnownSelection = CurrentSelection;
-		LastKnownGrabPoint = LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().InverseTransformPosition(GrabbedPoint);
+		LastKnownGrabPoint = LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().InverseTransformPosition(GrabbedPoint.ImpactPoint);
 	}else
 	{
 		LastKnownSelection = nullptr;
@@ -547,7 +547,8 @@ void UIntenSelectComponent::OnFireUp()
 	
 	if (LastKnownSelection)
 	{
-		LastKnownSelection->HandleOnClickEndEvents(this);
+		FInputActionValue v;
+		LastKnownSelection->HandleOnClickEndEvents(this, v);
 	}
 }
 
@@ -625,7 +626,7 @@ void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 		if(NewSelection)
 		{
 			UIntenSelectable* NewIntenSelectable = NewSelection;
-			const FVector GrabbedPoint = *ContactPointMap.Find(NewIntenSelectable);
+			const FHitResult GrabbedPoint = *ContactPointMap.Find(NewIntenSelectable);
 			NewIntenSelectable->HandleOnSelectStartEvents(this, GrabbedPoint);
 		}
 
@@ -635,8 +636,9 @@ void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 	
 	if(CurrentSelection)
 	{
-		UIntenSelectable* NewIntenSelectable = NewSelection;
-		const FVector PointToDrawTo = *ContactPointMap.Find(NewIntenSelectable);
+		const UIntenSelectable* NewIntenSelectable = NewSelection;
+		const auto V_Net = ContactPointMap.Find(NewIntenSelectable)->ImpactPoint;
+		const FVector PointToDrawTo = ConvertNetVector(V_Net);
 
 		if (bDrawForwardRay)
 		{
@@ -645,6 +647,15 @@ void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 
 		DrawSelectionCurve(PointToDrawTo);
 	}
+}
+
+FVector UIntenSelectComponent::ConvertNetVector(FVector_NetQuantize v)
+{
+	FVector Result;
+	Result.X = v.X;
+	Result.Y = v.Y;
+	Result.Z = v.Z;
+	return Result;
 }
 
 
@@ -688,7 +699,7 @@ void UIntenSelectComponent::TickComponent(const float DeltaTime, const ELevelTic
 		return;
 	}else if(CurrentSelection && ContactPointMap.Contains(CurrentSelection))
 	{
-		const FVector GrabbedPoint = *ContactPointMap.Find(CurrentSelection);
+		const FVector GrabbedPoint = ConvertNetVector(ContactPointMap.Find(CurrentSelection)->ImpactPoint);
 		DrawSelectionCurve(GrabbedPoint);
 	}
 	

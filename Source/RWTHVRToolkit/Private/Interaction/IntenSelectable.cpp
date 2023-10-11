@@ -2,18 +2,19 @@
 
 
 #include "Interaction/IntenSelectable.h"
-
 #include "Interaction/ClickBehaviour.h"
 #include "Interaction/IntenSelectableSinglePointScoring.h"
-#include "Interaction/SelectionBehaviour.h"
+#include "Interaction/HoverBehaviour.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Misc/MessageDialog.h"
+#include "Pawn/IntenSelectComponent.h"
 
 UIntenSelectable::UIntenSelectable()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-TPair<FVector, float> UIntenSelectable::GetBestPointScorePair(const FVector& ConeOrigin,
+TPair<FHitResult, float> UIntenSelectable::GetBestPointScorePair(const FVector& ConeOrigin,
 	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
 	const float LastValue, const float DeltaTime) const
 {
@@ -21,43 +22,43 @@ TPair<FVector, float> UIntenSelectable::GetBestPointScorePair(const FVector& Con
 	return ScoringBehaviour->GetBestPointScorePair(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, LastValue, DeltaTime);
 }
 
-void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FVector& Point)
+void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
 {
-	for(const USelectionBehaviour* b : OnSelectBehaviours)
+	for(const UHoverBehaviour* b : OnSelectBehaviours)
 	{
-		b->OnSelectStartEvent.Broadcast(IntenSelect->GetOwner(), Point);
+		b->OnHoverStartEvent.Broadcast(IntenSelect, HitResult);
 	}
 }
 
 void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect)
 {
-	for(const USelectionBehaviour* b : OnSelectBehaviours)
+	for(const UHoverBehaviour* b : OnSelectBehaviours)
 	{
-		b->OnSelectEndEvent.Broadcast(IntenSelect->GetOwner());
+		b->OnHoverEndEvent.Broadcast(IntenSelect);
 	}
 }
 
-void UIntenSelectable::HandleOnClickStartEvents(const UIntenSelectComponent* IntenSelect, const FVector& Point)
+void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect)
 {
 	for(const UClickBehaviour* b : OnClickBehaviours)
 	{
-		b->OnClickStartEvent.Broadcast(IntenSelect->GetOwner(), Point);
+		FInputActionValue v;
+		b->OnClickStartEvent.Broadcast(IntenSelect, v);
 	}
 }
 
-void UIntenSelectable::HandleOnClickEndEvents(const UIntenSelectComponent* IntenSelect)
+void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
 {
 	for(const UClickBehaviour* b : OnClickBehaviours)
 	{
-		b->OnClickEndEvent.Broadcast(IntenSelect->GetOwner());
+		b->OnClickEndEvent.Broadcast(IntenSelect, InputValue);
 	}
 }
 
 void UIntenSelectable::InitDefaultBehaviourReferences()
 {
 	//Scoring
-	UIntenSelectableScoring* AttachedScoring = Cast<UIntenSelectableScoring>(GetOwner()->GetComponentByClass(UIntenSelectableScoring::StaticClass()));
-	if(AttachedScoring)
+	if(UIntenSelectableScoring* AttachedScoring = Cast<UIntenSelectableScoring>(GetOwner()->GetComponentByClass(UIntenSelectableScoring::StaticClass())))
 	{
 		ScoringBehaviour = AttachedScoring;
 	}else
@@ -68,7 +69,7 @@ void UIntenSelectable::InitDefaultBehaviourReferences()
 	}
 
 	//Selecting
-	TInlineComponentArray<USelectionBehaviour*> AttachedSelectionBehaviours;
+	TInlineComponentArray<UHoverBehaviour*> AttachedSelectionBehaviours;
 	GetOwner()->GetComponents(AttachedSelectionBehaviours, true);
 
 	this->OnSelectBehaviours = AttachedSelectionBehaviours;
@@ -84,8 +85,7 @@ void UIntenSelectable::ShowErrorAndQuit(const FString& Message) const
 {
 	UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
 #if WITH_EDITOR
-	const FText Title = FText::FromString(FString("RUNTIME ERROR"));
-	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), &Title);
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString("RUNTIME ERROR")));
 #endif
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
 }

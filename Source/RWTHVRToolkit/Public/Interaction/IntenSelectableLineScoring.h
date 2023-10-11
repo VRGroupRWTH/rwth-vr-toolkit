@@ -22,7 +22,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool DrawDebug = true;
 	
-	virtual TPair<FVector, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
 		TArray<FVector> LinePoints{FVector::ZeroVector, FVector::ZeroVector};

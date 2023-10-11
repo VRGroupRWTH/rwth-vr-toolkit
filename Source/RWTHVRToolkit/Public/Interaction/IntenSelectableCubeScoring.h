@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ZLength = 100;
 	
-	virtual TPair<FVector, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
 	FVector GetClosestPointToRectangle(const FVector& StartPoint, const FVector& Direction, const FVector& Corner00, const FVector& Corner01, const FVector& Corner10, const FVector& Corner11) const;
 };

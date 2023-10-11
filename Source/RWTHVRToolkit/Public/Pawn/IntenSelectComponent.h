@@ -35,7 +35,7 @@ private:
 	UPROPERTY()
 		TMap<UIntenSelectable*, float> ScoreMap;
 	UPROPERTY()
-		TMap<UIntenSelectable*, FVector> ContactPointMap;
+		TMap<UIntenSelectable*, FHitResult> ContactPointMap;
 	UPROPERTY()
 		UIntenSelectable* CurrentSelection;
 	UPROPERTY()
@@ -155,6 +155,7 @@ private:
 	void HandleGrabbing(const float DeltaTime) const;
 	void HandleNoActorSelected();
 	void HandleActorSelected(UIntenSelectable* NewSelection);
+	FVector ConvertNetVector(FVector_NetQuantize v);
 
 public:	
 	UIntenSelectComponent(const FObjectInitializer& ObjectInitializer);

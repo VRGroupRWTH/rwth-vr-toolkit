@@ -9,13 +9,14 @@ UIntenSelectableMultiPointScoring::UIntenSelectableMultiPointScoring()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-TPair<FVector, float> UIntenSelectableMultiPointScoring::GetBestPointScorePair(const FVector& ConeOrigin,
+TPair<FHitResult, float> UIntenSelectableMultiPointScoring::GetBestPointScorePair(const FVector& ConeOrigin,
 	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
 	const float LastValue, const float DeltaTime)
 {
 	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
 	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
-	return TPair<FVector, float>{Point, Score};
+	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
+	return TPair<FHitResult, float>{Result, Score};
 }
 
 FVector UIntenSelectableMultiPointScoring::GetClosestSelectionPointTo(const FVector& Point, const FVector& Direction) const
