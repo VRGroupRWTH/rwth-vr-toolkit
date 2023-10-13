@@ -47,18 +47,15 @@
 	"Plugins": [
 		{
 			"Name": "nDisplay",
-			"Enabled": true,
-			"Optional": true
+			"Enabled": true
 		},
 		{
 			"Name": "LiveLink",
-			"Enabled": true,
-			"Optional": true
+			"Enabled": true
 		},
 		{
 			"Name": "LiveLinkOvernDisplay",
-			"Enabled": true,
-			"Optional": true
+			"Enabled": true
 		},
 		{
 			"Name": "DTrackPlugin",
