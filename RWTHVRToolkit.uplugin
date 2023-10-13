@@ -47,19 +47,23 @@
 	"Plugins": [
 		{
 			"Name": "nDisplay",
-			"Enabled": true
+			"Enabled": true,
+			"Optional": true
 		},
 		{
 			"Name": "LiveLink",
-			"Enabled": true
+			"Enabled": true,
+			"Optional": true
 		},
 		{
 			"Name": "LiveLinkOvernDisplay",
-			"Enabled": true
+			"Enabled": true,
+			"Optional": true
 		},
 		{
 			"Name": "DTrackPlugin",
-			"Enabled": true
+			"Enabled": true,
+			"Optional": true
 		},
 		{
 			"Name": "EnhancedInput",
@@ -68,6 +72,11 @@
 		{
 			"Name": "Niagara",
 			"Enabled": true
+		},
+		{
+			"Name": "Switchboard",
+			"Enabled": true,
+			"Optional": true
 		}
 	]
 }
