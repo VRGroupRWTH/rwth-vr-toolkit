@@ -47,7 +47,7 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "5.1"
+        GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
             [develop@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
@@ -57,7 +57,7 @@ Build_Windows:
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.1
+        - unreal-5.3
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -72,7 +72,7 @@ Build_Linux:
     extends: .Build_Linux_
     tags:
         - linux
-        - unreal-5.1
+        - unreal-5.3
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"

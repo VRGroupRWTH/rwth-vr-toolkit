@@ -59,7 +59,8 @@
 		},
 		{
 			"Name": "DTrackPlugin",
-			"Enabled": true
+			"Enabled": true,
+			"Optional": true
 		},
 		{
 			"Name": "EnhancedInput",
@@ -68,6 +69,11 @@
 		{
 			"Name": "Niagara",
 			"Enabled": true
+		},
+		{
+			"Name": "Switchboard",
+			"Enabled": true,
+			"Optional": true
 		}
 	]
 }
