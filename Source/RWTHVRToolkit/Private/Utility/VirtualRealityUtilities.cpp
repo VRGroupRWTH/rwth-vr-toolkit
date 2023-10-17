@@ -216,7 +216,7 @@ void UVirtualRealityUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FStr
 	UE_LOG(Toolkit, Error, TEXT("%s"), *Message)
 #if WITH_EDITOR
 	const FText Title = FText::FromString(FString("RUNTIME ERROR"));
-	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), &Title);
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
 #endif
 	UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
 

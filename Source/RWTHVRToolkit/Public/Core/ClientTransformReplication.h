@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Core/VRTransformRep.h"
 #include "ClientTransformReplication.generated.h"
 
 
@@ -49,9 +49,9 @@ protected:
 	{
 		// Modify pawn position - how does this work in movement components?
 		// For now, directly apply the transforms:
-		auto* Pawn = GetOwner();
-		if (Pawn && Pawn->HasValidRootComponent())
-			Pawn->SetActorLocationAndRotation(ReplicatedTransform.Position, ReplicatedTransform.Rotation);
+		auto* OwningActor = GetOwner();
+		if (OwningActor && OwningActor->HasValidRootComponent())
+			OwningActor->SetActorLocationAndRotation(ReplicatedTransform.Position, ReplicatedTransform.Rotation);
 	}
 
 	UFUNCTION(Unreliable, Server, WithValidation)

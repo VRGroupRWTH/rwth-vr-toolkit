@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Pawn/ClientTransformReplication.h"
+#include "Core/ClientTransformReplication.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -21,13 +21,13 @@ UClientTransformReplication::UClientTransformReplication()
 
 void UClientTransformReplication::UpdateState(float DeltaTime)
 {
-	const auto* Pawn = GetOwner();
-	if (Pawn && Pawn->HasLocalNetOwner())
+	const auto* OwningActor = GetOwner();
+	if (OwningActor && OwningActor->HasLocalNetOwner())
 	{
 		if (GetIsReplicated())
 		{
-			const FVector Loc = Pawn->GetActorLocation();
-			const FRotator Rot = Pawn->GetActorRotation();
+			const FVector Loc = OwningActor->GetActorLocation();
+			const FRotator Rot = OwningActor->GetActorRotation();
 
 			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
 			{
