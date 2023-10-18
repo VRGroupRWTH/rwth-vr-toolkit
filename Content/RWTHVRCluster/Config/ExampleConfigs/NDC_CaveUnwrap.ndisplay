@@ -354,7 +354,7 @@
 				{
 					"host": "127.0.0.1",
 					"sound": true,
-					"fullScreen": true,
+					"fullScreen": false,
 					"renderHeadless": false,
 					"graphicsAdapter": -1,
 					"textureShare": false,
@@ -414,16 +414,16 @@
 				},
 				"node_front":
 				{
-					"host": "127.0.0.1",
+					"host": "134.130.70.51",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"renderHeadless": false,
 					"graphicsAdapter": -1,
 					"textureShare": false,
 					"window":
 					{
-						"x": 1200,
-						"y": 304,
+						"x": 0,
+						"y": 0,
 						"w": 600,
 						"h": 400
 					},
@@ -478,7 +478,7 @@
 				{
 					"host": "127.0.0.1",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"renderHeadless": false,
 					"graphicsAdapter": -1,
 					"textureShare": false,
@@ -540,7 +540,7 @@
 				{
 					"host": "127.0.0.1",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"renderHeadless": false,
 					"graphicsAdapter": -1,
 					"textureShare": false,
@@ -602,7 +602,7 @@
 				{
 					"host": "127.0.0.1",
 					"sound": false,
-					"fullScreen": true,
+					"fullScreen": false,
 					"renderHeadless": false,
 					"graphicsAdapter": -1,
 					"textureShare": false,
