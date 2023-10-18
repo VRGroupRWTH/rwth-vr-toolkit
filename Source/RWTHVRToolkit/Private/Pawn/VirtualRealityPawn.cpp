@@ -103,8 +103,12 @@ void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
 			break;
 
 		case EVRNavigationModes::NAV_WALK:
+			PawnMovement->NavigationMode = EVRNavigationModes::NAV_GHOST;
+			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to GHOST"));
+			break;
+		case EVRNavigationModes::NAV_GHOST:
 			PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
-			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to FLY"));
+			UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to FLY"));
 			break;
 		default:
 			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;

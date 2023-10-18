@@ -7,45 +7,25 @@
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStaticsTypes.h"
+#include "Pawn/MovementComponentBase.h"
 
 
 #include "TeleportationComponent.generated.h"
 
 
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent
+class RWTHVRTOOLKIT_API UTeleportationComponent : public UMovementComponentBase
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this component's properties
-	UTeleportationComponent();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	bool bAllowTurning = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bAllowTurning"))
-	bool bSnapTurn = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta=(EditCondition="!bSnapTurn && bAllowTurning"))
-	float TurnRateFactor = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta=(EditCondition="bSnapTurn && bAllowTurning", ClampMin=0, ClampMax=360))
-	float SnapTurnAngle = 22.5;
 
 	/**
 	 * Whether the hit location of the teleport trace should be projected onto the navigation mesh
@@ -71,12 +51,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	class UInputAction* Move;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Turn;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* DesktopRotation;
-
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
 	void OnStartTeleportTrace(const FInputActionValue& Value);
@@ -86,24 +60,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnEndTeleportTrace(const FInputActionValue& Value);
-
-
-	UFUNCTION(BlueprintCallable)
-	void OnBeginTurn(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintCallable)
-	void OnBeginSnapTurn(const FInputActionValue& Value);
-
-	/*Desktop Testing*/
-	// the idea is that you have to hold the right mouse button to do rotations
-	UFUNCTION()
-	void StartDesktopRotation();
-
-	UFUNCTION()
-	void EndDesktopRotation();
-
-	bool bApplyDesktopRotation = false;
-
 
 	// Trace Visualization
 	UPROPERTY(EditAnywhere)
@@ -125,16 +81,7 @@ private:
 	UPROPERTY()
 	class UInputMappingContext* IMCMovement;
 
-	void SetupInputActions();
-
-	UPROPERTY()
-	AVirtualRealityPawn* VRPawn;
-
-	/**
-	* Fixes camera rotation in desktop mode.
-	*/
-	void SetCameraOffset() const;
-	void UpdateRightHandForDesktopInteraction();
+	virtual void SetupInputActions();
 
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;
