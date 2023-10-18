@@ -79,11 +79,11 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
 
-	// Set up mappings on movement components, need to do this nicely
+	// Set up mappings on input extension components, need to do this nicely
 	
-	for (UActorComponent* Comp : GetComponentsByInterface(UMovementExtensionInterface::StaticClass()))
+	for (UActorComponent* Comp : GetComponentsByInterface(UInputExtensionInterface::StaticClass()))
 	{
-		Cast<IMovementExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
+		Cast<IInputExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
 	}
 }
 

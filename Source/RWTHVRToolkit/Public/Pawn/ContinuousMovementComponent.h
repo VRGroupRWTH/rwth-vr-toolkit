@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MovementExtensionInterface.h"
+#include "InputExtensionInterface.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Components/ActorComponent.h"
 #include "ContinuousMovementComponent.generated.h"
@@ -21,7 +21,7 @@ enum class EVRSteeringModes : uint8
  * 
  */
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UActorComponent, public IMovementExtensionInterface
+class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UActorComponent, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 

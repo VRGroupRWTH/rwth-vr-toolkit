@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MovementExtensionInterface.h"
+#include "InputExtensionInterface.h"
 #include "Components/ActorComponent.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
@@ -14,7 +14,7 @@
 
 
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent, public IMovementExtensionInterface
+class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 

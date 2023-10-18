@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
 
+
 FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
                                            const FString& Options, const FString& Portal)
 {
@@ -28,12 +29,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 				                         : PrimaryNodeId;
 			
 			const EPlayerType Type = NodeName == PrimaryNodeId ? EPlayerType::nDisplayPrimary : EPlayerType::nDisplaySecondary;			
-			State->SetPlayerType(Type);
-		}
-		else
-		{
-			UE_LOGFMT(LogTemp, Warning,
-			          "ARWTHVRGameModeBase: Join URL Options contain node and PrimaryNodeId for DisplayClusterReplication, but PlayerState is not set to ARWTHPlayerState.");
+			State->SetPlayerType(Type);		
 		}
 	}
 	
