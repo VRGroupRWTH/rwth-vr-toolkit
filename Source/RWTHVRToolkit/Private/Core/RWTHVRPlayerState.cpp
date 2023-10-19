@@ -3,10 +3,10 @@
 
 #include "Core/RWTHVRPlayerState.h"
 
-#include "Logging/StructuredLog.h"
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
 
+// Boilerplate, copies properties to new state
 void ARWTHVRPlayerState::CopyProperties(class APlayerState* PlayerState)
 {
 	Super::CopyProperties(PlayerState);
@@ -21,6 +21,7 @@ void ARWTHVRPlayerState::CopyProperties(class APlayerState* PlayerState)
 	}
 }
 
+// Boilerplate
 void ARWTHVRPlayerState::OverrideWith(class APlayerState* PlayerState)
 {
 	Super::OverrideWith(PlayerState);
@@ -35,6 +36,7 @@ void ARWTHVRPlayerState::OverrideWith(class APlayerState* PlayerState)
 	}
 }
 
+// Replicate our property similar to the other state properties
 void ARWTHVRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

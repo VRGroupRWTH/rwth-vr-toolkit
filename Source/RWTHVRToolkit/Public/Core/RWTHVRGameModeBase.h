@@ -7,7 +7,9 @@
 #include "RWTHVRGameModeBase.generated.h"
 
 /**
- * 
+ * Simple GameModeBase extension that checks for join options such that we can distinguish between primary
+ * and secondary nodes in clusters. Could be moved to a different place as well, but quite reasonable here for now.
+ * Keep in mind that GameMode only exists on the server!
  */
 UCLASS()
 class RWTHVRTOOLKIT_API ARWTHVRGameModeBase : public AGameModeBase

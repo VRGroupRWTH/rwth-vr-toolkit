@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Core/VRTransformRep.h"
 #include "ReplicatedCameraComponent.generated.h"
 
 /**
- * 
+ * Simple CameraComponent with added client-side transform replication.
  */
 UCLASS()
 class RWTHVRTOOLKIT_API UReplicatedCameraComponent : public UCameraComponent

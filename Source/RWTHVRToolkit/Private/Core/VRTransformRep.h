@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "VRTransformRep.generated.h"
 
+// Simple custom transform struct for more efficient repliation, from VRE Plugin
 USTRUCT()
 struct RWTHVRTOOLKIT_API FVRTransformRep
 {

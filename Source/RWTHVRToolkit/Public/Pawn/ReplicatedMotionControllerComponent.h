@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "MotionControllerComponent.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Core/VRTransformRep.h"
 #include "ReplicatedMotionControllerComponent.generated.h"
 
-
+/**
+ * Simple MotionControllerComponent with added client-side transform replication.
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UReplicatedMotionControllerComponent : public UMotionControllerComponent
 {

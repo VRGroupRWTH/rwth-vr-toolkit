@@ -1,6 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Core/ClientTransformReplication.h"
 
 #include "Net/UnrealNetwork.h"
@@ -18,7 +17,6 @@ UClientTransformReplication::UClientTransformReplication()
 }
 
 // Naive direct transform replication (replace with input rep?)
-
 void UClientTransformReplication::UpdateState(float DeltaTime)
 {
 	const auto* OwningActor = GetOwner();

@@ -11,9 +11,13 @@
 FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
                                            const FString& Options, const FString& Portal)
 {
+	// Used by the DisplayClusterNetDriver/Connection to handshake nodes. Could use their types directly
+	// but I don't really want to introduce a hard dependency here.
 	const FString NodeNameKey = "node";
 	const FString PrimaryNodeIdKey = "PrimaryNodeId";
 
+	// Check if we're using our custom PlayerState so that we can save the player type there.
+	// If not, just ingore all related args.
 	ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayerController->PlayerState);
 		
 	if (State != nullptr)

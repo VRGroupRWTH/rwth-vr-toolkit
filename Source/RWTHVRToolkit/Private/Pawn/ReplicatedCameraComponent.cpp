@@ -2,6 +2,7 @@
 
 
 #include "Pawn/ReplicatedCameraComponent.h"
+
 #include "Net/UnrealNetwork.h"
 
 UReplicatedCameraComponent::UReplicatedCameraComponent()

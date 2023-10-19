@@ -8,13 +8,16 @@
 #include "ClientTransformReplication.generated.h"
 
 
+/*
+* Simple Client Transform Replication Component. Replicates the owning actor's root transform from owning client to server,
+* from there to all other clients.
+*/	
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UClientTransformReplication : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UClientTransformReplication();
 
 protected:
@@ -38,27 +41,29 @@ protected:
 
 	// Accumulates time until next send
 	float ControllerNetUpdateCount;
-	
+
+	// Replicated transform property - used to replicate from server to all non-owning clients
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
 	FVRTransformRep ReplicatedTransform;
-	
-	void UpdateState(float DeltaTime);
 
+	// Called whenever ReplicatedTransform is replicated to clients. Not called on Server/Owning client
 	UFUNCTION()
 	virtual void OnRep_ReplicatedTransform()
 	{
-		// Modify pawn position - how does this work in movement components?
+		// Modify owner position - how does this work in movement components?
 		// For now, directly apply the transforms:
 		auto* OwningActor = GetOwner();
 		if (OwningActor && OwningActor->HasValidRootComponent())
 			OwningActor->SetActorLocationAndRotation(ReplicatedTransform.Position, ReplicatedTransform.Rotation);
 	}
 
+	// Unreliable Server RPC that sends the transform from owning client to the server
 	UFUNCTION(Unreliable, Server, WithValidation)
 	void SendControllerTransform_ServerRpc(FVRTransformRep NewTransform);
 
+	void UpdateState(float DeltaTime);
+
 public:
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 };
