@@ -5,6 +5,7 @@
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
+#include "Templates/RemoveCV.h"
 
 static constexpr int32 CLUSTER_EVENT_WRAPPER_EVENT_ID = 1337420;
 
