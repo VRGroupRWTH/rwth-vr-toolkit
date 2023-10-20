@@ -20,6 +20,8 @@ class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 	GENERATED_BODY()
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;
@@ -62,5 +64,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
 	class UInputAction* ToggleNavigationMode;
+
+	/**
+	* Fixes camera rotation in desktop mode.
+	*/
+	void SetCameraOffset() const;
+	void UpdateRightHandForDesktopInteraction();
 
 };

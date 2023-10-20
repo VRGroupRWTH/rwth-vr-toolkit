@@ -101,11 +101,5 @@ private:
 
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
-
-	/**
-	* Fixes camera rotation in desktop mode.
-	*/
-	void SetCameraOffset() const;
-	void UpdateRightHandForDesktopInteraction();
 	
 };
