@@ -89,10 +89,10 @@ public:
 private:
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* MovementHand;
+	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* RotationHand;
+	UMotionControllerComponent* RotationHand;
 
 	UPROPERTY()
 	class UInputMappingContext* IMCMovement;
@@ -101,11 +101,5 @@ private:
 
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
-
-	/**
-	* Fixes camera rotation in desktop mode.
-	*/
-	void SetCameraOffset() const;
-	void UpdateRightHandForDesktopInteraction();
 	
 };

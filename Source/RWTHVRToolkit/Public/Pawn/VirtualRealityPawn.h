@@ -4,13 +4,12 @@
 
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
-#include "UniversalTrackedComponent.h"
 #include "Pawn/VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"
 
 class UCameraComponent;
 class ULiveLinkComponentController;
-
+class UMotionControllerComponent;
 
 /**
  * 
@@ -21,32 +20,26 @@ class RWTHVRTOOLKIT_API AVirtualRealityPawn : public APawn
 	GENERATED_BODY()
 public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
+
+	virtual void Tick(float DeltaSeconds) override;
 	
-	/* Proxy */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* Head;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
+	UMotionControllerComponent* RightHand;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* RightHand;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Proxy Objects")
-	UUniversalTrackedComponent* LeftHand;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
+	UMotionControllerComponent* LeftHand;
 
 	/* Interaction */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Interaction")
 	UBasicVRInteractionComponent* BasicVRInteraction;
 	
 	/* Movement */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Movement")
-	UVRPawnMovement* PawnMovement;
-
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
-	USceneComponent* CapsuleRotationFix;
+	UVRPawnMovement* PawnMovement;
 	
 	/* CameraComponent */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
-	UCameraComponent* CameraComponent;
+	UCameraComponent* HeadCameraComponent;
 
 
 protected:
@@ -71,5 +64,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
 	class UInputAction* ToggleNavigationMode;
+
+	/**
+	* Fixes camera rotation in desktop mode.
+	*/
+	void SetCameraOffset() const;
+	void UpdateRightHandForDesktopInteraction();
 
 };

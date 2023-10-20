@@ -85,7 +85,7 @@ void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 	CapsuleColliderComponent->SetupAttachment(HeadComponent);
 	const float HalfHeight = 80.0f; //this is just an initial value to look good in editor
 	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, HalfHeight);
-	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f,HalfHeight));
+	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f,-HalfHeight));
 }
 
 void UVRPawnMovement::SetCapsuleColliderToUserSize()

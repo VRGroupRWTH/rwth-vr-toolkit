@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pawn/ContinuousMovementComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -9,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
 
 void UContinuousMovementComponent::BeginPlay()
 {
@@ -71,16 +71,6 @@ void UContinuousMovementComponent::SetupInputActions()
 	// bind additional functions for desktop rotations
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
-		APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-		if (PC)
-		{
-			PC->bShowMouseCursor = true; 
-			PC->bEnableClickEvents = true; 
-			PC->bEnableMouseOverEvents = true;
-		} else
-		{
-			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
-		}
 		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UContinuousMovementComponent::StartDesktopRotation);
 		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
 		EI->BindAction(MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
@@ -102,8 +92,8 @@ void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
 	
 	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
 	
-	const FVector ForwardDir = bGazeDirected ? VRPawn->Head->GetForwardVector() : MovementHand->GetForwardVector();
-	const FVector RightDir = bGazeDirected ? VRPawn->Head->GetRightVector() : MovementHand->GetRightVector();
+	const FVector ForwardDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
+	const FVector RightDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
 	
 	if (VRPawn->Controller != nullptr)
 	{
@@ -133,10 +123,6 @@ void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
 		if (TurnValue.X != 0.f)
 		{
 			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-			if (UVirtualRealityUtilities::IsDesktopMode())
-			{
-				UpdateRightHandForDesktopInteraction();
-			}
 		}
  
 		if (TurnValue.Y != 0.f)
@@ -144,7 +130,6 @@ void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
 			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 			{
 				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
-				SetCameraOffset();
 			}
 		}
 	}
@@ -159,28 +144,6 @@ void UContinuousMovementComponent::OnBeginSnapTurn(const FInputActionValue& Valu
 	} else if (TurnValue.X < 0.f)
 	{
 		VRPawn->AddControllerYawInput(-SnapTurnAngle);
-	}
-}
-
-void UContinuousMovementComponent::SetCameraOffset() const
-{
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void UContinuousMovementComponent::UpdateRightHandForDesktopInteraction()
-{
-	APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-	if (PC)
-	{
-		FVector MouseLocation, MouseDirection;
-		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		VRPawn->RightHand->SetWorldRotation(HandOrientation);
 	}
 }
 
