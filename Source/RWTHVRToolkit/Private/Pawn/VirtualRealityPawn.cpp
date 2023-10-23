@@ -30,19 +30,23 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
-
-	if(UVirtualRealityUtilities::IsDesktopMode())
-	{
-		RightHand->SetEnableGravity(false);
-	 	RightHand->SetRelativeLocation(FVector(30,15,BaseEyeHeight-20));
-		bUseControllerRotationYaw = true;
-	}
 	
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 
 	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
-	BasicVRInteraction->Initialize(RightHand);	
+	BasicVRInteraction->Initialize(RightHand);
+}
+
+void AVirtualRealityPawn::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (UVirtualRealityUtilities::IsDesktopMode())
+	{
+		SetCameraOffset();
+		UpdateRightHandForDesktopInteraction();
+	}
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -51,7 +55,11 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	
+	if (!PlayerController) 
+	{
+		UE_LOG(Toolkit, Warning, TEXT("SetupPlayerInputComponent: Player Controller is invalid"));
+		return;
+	}
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
 	// the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here such that
 	// bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially.
@@ -62,8 +70,15 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if(!InputSubsystem)
 	{
-		UE_LOG(Toolkit,Error,TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
+		UE_LOG(Toolkit, Error, TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
 		return;
+	}
+
+	if(UVirtualRealityUtilities::IsDesktopMode())
+	{
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
 	}
 	
 	InputSubsystem->ClearAllMappings();
@@ -85,6 +100,29 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	{
 		Cast<IInputExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
 	}
+}
+
+void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		FVector MouseLocation, MouseDirection;
+		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
+		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
+		RightHand->SetWorldRotation(HandOrientation);
+		RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+	}
+}
+
+void AVirtualRealityPawn::SetCameraOffset() const
+{
+	// this also incorporates the BaseEyeHeight, if set as static offset,
+	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
+	FVector Location;
+	FRotator Rotation;
+	GetActorEyesViewPoint(Location, Rotation);
+	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
 // legacy grabbing
