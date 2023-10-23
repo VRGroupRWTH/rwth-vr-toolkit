@@ -41,6 +41,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* HeadCameraComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Desktop Movement")
+	bool bMoveRightHandWithMouse = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Desktop Movement")
+	bool bMoveLeftHandWithMouse = false;
+
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;

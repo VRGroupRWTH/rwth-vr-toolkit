@@ -93,8 +93,16 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
 		FVector MouseLocation, MouseDirection;
 		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
 		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		RightHand->SetWorldRotation(HandOrientation);
-		RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		if(bMoveRightHandWithMouse)
+		{
+			RightHand->SetWorldRotation(HandOrientation);
+			RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		}
+		if (bMoveLeftHandWithMouse)
+		{
+			LeftHand->SetWorldRotation(HandOrientation);
+			LeftHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		}
 	}
 }
 
