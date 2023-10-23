@@ -75,23 +75,29 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		return;
 	}
 
-	EPlayerType Type = EPlayerType::Desktop;
+	ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
+
+	// Should not do this here but on connection or on possess I think.
+	if (State)
+	{
+		// Might not be properly synced yet?
+		const EPlayerType Type = State->GetPlayerType();
+
+		// Don't do anything with the type if it's been set to clustertype or anything.
+		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
+
+		if (!bClusterType && UVirtualRealityUtilities::IsHeadMountedMode())
+		{
+			// Could be too early to call this RPC...
+			State->RequestSetPlayerType(Type);
+		}
+	}
+	
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
-	}
-	else if (UVirtualRealityUtilities::IsHeadMountedMode())
-	{
-		Type = EPlayerType::HMD;
-	}
-
-	// Should not do this here but on connection or on possess I think.
-	ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
-	if (State)
-	{
-		State->RequestSetPlayerType(Type);
 	}
 	
 	InputSubsystem->ClearAllMappings();
