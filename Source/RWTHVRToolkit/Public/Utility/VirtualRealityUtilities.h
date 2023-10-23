@@ -69,16 +69,6 @@ public:
 	//Get Component of Display Cluster by it's name, which is specified in the nDisplay config
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetClusterComponent(const FString& Name);
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
-
-	/*
-	 * These are deadly for multiplayer
-	 
-	// Helper functions for components to register input events
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "VRPawn")
-	static UEnhancedInputComponent* GetVRPawnInputComponent(const UWorld* World);
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "VRPawn")
-	static UEnhancedInputLocalPlayerSubsystem* GetVRPawnLocalPlayerSubsystem(UWorld* World);
-	*/
 	
 	/* Load and create an Object from an asset path. This only works in the constructor */
     template <class T>
