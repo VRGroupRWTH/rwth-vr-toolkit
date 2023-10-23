@@ -19,7 +19,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
 	BaseEyeHeight = 160.0f;
-	AutoPossessPlayer = EAutoReceiveInput::Player0; // Necessary for receiving motion controller events.
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 	
