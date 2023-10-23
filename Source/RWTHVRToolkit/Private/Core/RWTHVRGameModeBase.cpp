@@ -33,7 +33,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 				                         : PrimaryNodeId;
 			
 			const EPlayerType Type = NodeName == PrimaryNodeId ? EPlayerType::nDisplayPrimary : EPlayerType::nDisplaySecondary;			
-			State->SetPlayerType(Type);		
+			State->RequestSetPlayerType(Type);		
 		}
 	}
 	

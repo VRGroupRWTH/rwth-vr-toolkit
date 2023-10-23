@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Core/RWTHVRPlayerState.h"
 #include "Pawn/ContinuousMovementComponent.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
@@ -74,11 +75,23 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		return;
 	}
 
-	if(UVirtualRealityUtilities::IsDesktopMode())
+	EPlayerType Type = EPlayerType::Desktop;
+	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
+	}
+	else if (UVirtualRealityUtilities::IsHeadMountedMode())
+	{
+		Type = EPlayerType::HMD;
+	}
+
+	// Should not do this here but on connection or on possess I think.
+	ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
+	if (State)
+	{
+		State->RequestSetPlayerType(Type);
 	}
 	
 	InputSubsystem->ClearAllMappings();

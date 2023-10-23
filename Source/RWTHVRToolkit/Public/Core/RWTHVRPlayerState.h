@@ -22,15 +22,21 @@ private:
 	UPROPERTY(Replicated, Category=PlayerState, BlueprintGetter=GetPlayerType, meta=(AllowPrivateAccess))
 	EPlayerType PlayerType = EPlayerType::Desktop;
 
+	UFUNCTION(Reliable, Server)
+	void SetPlayerTypeServerRpc(EPlayerType NewPlayerType);
+
+	void SetPlayerType(EPlayerType NewPlayerType);
+
 public:
 
 	UFUNCTION(BlueprintGetter)
 	EPlayerType GetPlayerType() const
 	{
 		return PlayerType;
-	}
-	
-	void SetPlayerType(EPlayerType NewType);
+	}	
+
+	UFUNCTION(BlueprintCallable)
+	void RequestSetPlayerType(EPlayerType NewPlayerType);
 
 	virtual void CopyProperties(APlayerState* PlayerState) override;
 	virtual void OverrideWith(APlayerState* PlayerState) override;

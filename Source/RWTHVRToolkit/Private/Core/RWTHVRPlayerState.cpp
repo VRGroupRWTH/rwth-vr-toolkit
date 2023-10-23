@@ -47,8 +47,25 @@ void ARWTHVRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME_WITH_PARAMS_FAST(ARWTHVRPlayerState, PlayerType, SharedParams);
 }
 
+void ARWTHVRPlayerState::SetPlayerTypeServerRpc_Implementation(const EPlayerType NewPlayerType)
+{
+	SetPlayerType(NewPlayerType);
+}
+
 void ARWTHVRPlayerState::SetPlayerType(const EPlayerType NewPlayerType)
 {
 	MARK_PROPERTY_DIRTY_FROM_NAME(ARWTHVRPlayerState, PlayerType, this);
 	PlayerType = NewPlayerType;
+}
+
+void ARWTHVRPlayerState::RequestSetPlayerType(const EPlayerType NewPlayerType)
+{
+	if (HasAuthority())
+	{
+		SetPlayerType(NewPlayerType);
+	}
+	else
+	{
+		SetPlayerTypeServerRpc(NewPlayerType);
+	}
 }
