@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pawn/ContinuousMovementComponent.h"
 
 #include "EnhancedInputComponent.h"
@@ -9,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
 
 void UContinuousMovementComponent::BeginPlay()
 {
@@ -53,19 +53,20 @@ void UContinuousMovementComponent::SetupInputActions()
 		return;
 	}
 	
-	// walking
-	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginMove);
+	// continuous steering
+	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnMove);
+	EI->BindAction(MoveUp, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnMoveUp);
 
 	// turning is defined in MovementComponentBase
 }
 
-void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
+void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
 {
 	AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
 	
-	const FVector ForwardDir = bGazeDirected ? VRPawn->Head->GetForwardVector() : MovementHand->GetForwardVector();
-	const FVector RightDir = bGazeDirected ? VRPawn->Head->GetRightVector() : MovementHand->GetRightVector();
+	const FVector ForwardDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
+	const FVector RightDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
 	
 	if (VRPawn->Controller != nullptr)
 	{
@@ -85,7 +86,7 @@ void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
 	}
 }
 
-void UContinuousMovementComponent::OnBeginUp(const FInputActionValue& Value)
+void UContinuousMovementComponent::OnMoveUp(const FInputActionValue& Value)
 {
 	AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 	const float MoveValue =  Value.Get<FVector2D>().X;

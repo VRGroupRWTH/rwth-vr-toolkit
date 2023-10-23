@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
 
 
 // Called when the game starts
@@ -179,5 +180,4 @@ void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 	GetOwner()->TeleportTo(FinalTeleportLocation,GetOwner()->GetActorRotation());
 	
 }
-
 

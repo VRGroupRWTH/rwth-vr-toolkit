@@ -73,10 +73,10 @@ public:
 	
 private:
 	UPROPERTY()
-	UUniversalTrackedComponent* TeleportationHand;
+	UMotionControllerComponent* TeleportationHand;
 
 	UPROPERTY()
-	UUniversalTrackedComponent* RotationHand;
+	UMotionControllerComponent* RotationHand;
 
 	UPROPERTY()
 	class UInputMappingContext* IMCMovement;

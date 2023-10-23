@@ -49,10 +49,10 @@ public:
 	
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
-	void OnBeginMove(const FInputActionValue& Value);
+	void OnMove(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable)
-	void OnBeginUp(const FInputActionValue& Value);
+	void OnMoveUp(const FInputActionValue& Value);
 
 
 private:
@@ -61,10 +61,11 @@ private:
 	class UInputMappingContext* IMCMovement;
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* MovementHand;
+	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
-	UUniversalTrackedComponent* RotationHand;
+	UMotionControllerComponent* RotationHand;
+
 
 	virtual void SetupInputActions();
 };
