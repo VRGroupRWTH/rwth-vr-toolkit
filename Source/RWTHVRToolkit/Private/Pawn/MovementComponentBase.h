@@ -15,12 +15,8 @@ class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UMovementComponentBase();
 
 	virtual void BeginPlay() override;
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bAllowTurning = true;
@@ -66,12 +62,5 @@ private:
 
 
 	bool bApplyDesktopRotation = false;
-
-
-	/**
-	* Fixes camera rotation in desktop mode.
-	*/
-	void SetCameraOffset() const;
-	void UpdateRightHandForDesktopInteraction() const;
 	
 };

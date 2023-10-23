@@ -11,32 +11,12 @@
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
 
-// Sets default values for this component's properties
-UMovementComponentBase::UMovementComponentBase()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
 void UMovementComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SetupInputActions();
 }
-
-// Called every frame
-void UMovementComponentBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		UpdateRightHandForDesktopInteraction();
-	}
-}
-	
 
 void UMovementComponentBase::SetupInputActions()
 {
@@ -77,15 +57,6 @@ void UMovementComponentBase::SetupInputActions()
 	// bind additional functions for desktop rotations
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
-		if (APlayerController* PC = Cast<APlayerController>(VRPawn->GetController()))
-		{
-			PC->bShowMouseCursor = true; 
-			PC->bEnableClickEvents = true; 
-			PC->bEnableMouseOverEvents = true;
-		} else
-		{
-			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
-		}
 		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UMovementComponentBase::StartDesktopRotation);
 		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UMovementComponentBase::EndDesktopRotation);
 	}
@@ -115,10 +86,6 @@ void UMovementComponentBase::OnBeginTurn(const FInputActionValue& Value)
 		if (TurnValue.X != 0.f)
 		{
 			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-			if (UVirtualRealityUtilities::IsDesktopMode())
-			{
-				UpdateRightHandForDesktopInteraction();
-			}
 		}
  
 		if (TurnValue.Y != 0.f)
@@ -126,7 +93,6 @@ void UMovementComponentBase::OnBeginTurn(const FInputActionValue& Value)
 			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 			{
 				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
-				SetCameraOffset();
 			}
 		}
 	}
@@ -142,29 +108,5 @@ void UMovementComponentBase::OnBeginSnapTurn(const FInputActionValue& Value)
 	} else if (TurnValue.X < 0.f)
 	{
 		VRPawn->AddControllerYawInput(-SnapTurnAngle);
-	}
-}
-
-void UMovementComponentBase::SetCameraOffset() const
-{
-	AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->CameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void UMovementComponentBase::UpdateRightHandForDesktopInteraction() const
-{
-	AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-	APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-	if (PC)
-	{
-		FVector MouseLocation, MouseDirection;
-		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		const FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		VRPawn->RightHand->SetWorldRotation(HandOrientation);
 	}
 }
