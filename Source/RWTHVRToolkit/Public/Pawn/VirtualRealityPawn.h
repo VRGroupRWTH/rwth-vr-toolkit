@@ -4,12 +4,13 @@
 
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
+#include "LiveLinkRole.h"
 #include "Pawn/VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"
 
 class UCameraComponent;
-class ULiveLinkComponentController;
 class UMotionControllerComponent;
+struct FLiveLinkTransformStaticData;
 
 /**
  * 
@@ -42,10 +43,30 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* HeadCameraComponent;
 
+	/** Set whether nDisplay should disable LiveLink tracking*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|LiveLink")
+	bool bDisableLiveLink = false;
+
+	/** Set the LiveLink Subject Representation to be used by this pawn. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	FLiveLinkSubjectRepresentation SubjectRepresentation;
+
+	/** Set the transform of the component in world space of in its local reference frame. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	bool bWorldTransform = false;
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	
+
+	void EvaluateLivelink();
+	/**
+	 * @brief Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller.
+	 * @param Transform Transform read from the LiveLink Client.
+	 * @param StaticData Static data from the LiveLink Subject, defines what is and isn't supported.
+	 * @return void
+	 */
+	void ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData);
+
 	/* Interaction */
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
 	void OnBeginFire(const FInputActionValue& Value);

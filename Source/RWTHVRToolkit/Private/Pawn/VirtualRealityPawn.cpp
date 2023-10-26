@@ -6,12 +6,14 @@
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "ILiveLinkClient.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Pawn/ContinuousMovementComponent.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
 #include "Pawn/VRPawnMovement.h"
+#include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
@@ -121,6 +123,38 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
+void AVirtualRealityPawn::EvaluateLivelink()
+{
+	if (UVirtualRealityUtilities::IsRoomMountedMode() && IsLocallyControlled())
+	{
+
+		if(bDisableLiveLink || SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)
+		{
+			return;
+		}
+
+		
+		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
+		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
+		FLiveLinkSubjectFrameData SubjectData;
+		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(SubjectRepresentation.Subject, SubjectRepresentation.Role, SubjectData);
+
+		if(!bHasValidData)
+			return;
+
+		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and could be further improved.
+		const FLiveLinkTransformStaticData* StaticData = SubjectData.StaticData.Cast<FLiveLinkTransformStaticData>();
+		const FLiveLinkTransformFrameData* FrameData = SubjectData.FrameData.Cast<FLiveLinkTransformFrameData>();
+
+		if (StaticData && FrameData)
+		{
+			// Finally, apply the transform to this component according to the static data.
+			ApplyLiveLinkTransform(FrameData->Transform, *StaticData);
+		}	
+
+	}
+}
+
 void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
 {
 	APlayerController* PC = Cast<APlayerController>(GetController());
@@ -177,4 +211,44 @@ void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
 			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
 			break;
 	}
+}
+
+
+void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData)
+{
+	if (StaticData.bIsLocationSupported)
+	{
+		if (bWorldTransform)
+		{
+			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+		else
+		{
+			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+	}
+
+	if (StaticData.bIsRotationSupported)
+	{
+		if (bWorldTransform)
+		{
+			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+		else
+		{
+			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+	}
+
+	if (StaticData.bIsScaleSupported)
+	{
+		if (bWorldTransform)
+		{
+			HeadCameraComponent->SetWorldScale3D(Transform.GetScale3D());
+		}
+		else
+		{
+			HeadCameraComponent->SetRelativeScale3D(Transform.GetScale3D());
+		}
+	}	
 }
