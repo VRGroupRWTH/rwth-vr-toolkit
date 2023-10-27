@@ -45,7 +45,7 @@ protected:
 	}
 
 	UFUNCTION(Unreliable, Server, WithValidation)
-	void SendControllerTransform_ServerRpc(FVRTransformRep NewTransform);
+	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
 
 public:
 	// Called every frame

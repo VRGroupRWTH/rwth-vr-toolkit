@@ -8,6 +8,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "ILiveLinkClient.h"
 #include "Core/RWTHVRPlayerState.h"
+#include "Kismet/GameplayStatics.h"
+#include "Logging/StructuredLog.h"
 #include "Pawn/ContinuousMovementComponent.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
@@ -50,19 +52,42 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 		SetCameraOffset();
 		UpdateRightHandForDesktopInteraction();
 	}
+	EvaluateLivelink();
+}
+
+/*
+ * The alternative would be to do this only on the server on possess and check for player state/type,
+ * as connections now send their playertype over.
+ */
+void AVirtualRealityPawn::NotifyControllerChanged()
+{
+	Super::NotifyControllerChanged();
+
+	// Only do this for all local controlled pawns
+	if (IsLocallyControlled())
+	{
+		// Only do this for the master
+		if(UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster())
+		{
+			if (HasAuthority())
+				AttachDCRAtoPawn();
+			else
+				ServerAttachDCRAtoPawnRpc();
+		}
+	}
 }
 
 void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (!PlayerController) 
+	if (!PlayerController)
 	{
 		UE_LOG(Toolkit, Warning, TEXT("SetupPlayerInputComponent: Player Controller is invalid"));
 		return;
-	}
+	}	
+	
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
 	// the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here such that
 	// bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially.
@@ -70,12 +95,14 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 	
 	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP ? LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
 	if(!InputSubsystem)
 	{
 		UE_LOG(Toolkit, Error, TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
 		return;
 	}
+
+	SetupMotionControllerSources();
 
 	ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
 
@@ -128,7 +155,7 @@ void AVirtualRealityPawn::EvaluateLivelink()
 	if (UVirtualRealityUtilities::IsRoomMountedMode() && IsLocallyControlled())
 	{
 
-		if(bDisableLiveLink || SubjectRepresentation.Subject.IsNone() || SubjectRepresentation.Role == nullptr)
+		if(bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
 		{
 			return;
 		}
@@ -137,7 +164,7 @@ void AVirtualRealityPawn::EvaluateLivelink()
 		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
 		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
 		FLiveLinkSubjectFrameData SubjectData;
-		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(SubjectRepresentation.Subject, SubjectRepresentation.Role, SubjectData);
+		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject, HeadSubjectRepresentation.Role, SubjectData);
 
 		if(!bHasValidData)
 			return;
@@ -166,6 +193,55 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
 		RightHand->SetWorldRotation(HandOrientation);
 		RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
 	}
+}
+
+// Todo rewrite this in some other way or attach it differently, this is horrible
+void AVirtualRealityPawn::AttachDCRAtoPawn()
+{
+	if (!CaveSetupActorClass || !CaveSetupActorClass->IsValidLowLevelFast())
+	{
+		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor class set in pawn!");
+		return;
+	}
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), CaveSetupActorClass, FoundActors);
+
+	if (!FoundActors.IsEmpty())
+	{
+		const auto CaveSetupActor = FoundActors[0];
+		FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+		AttachmentRules.RotationRule = EAttachmentRule::KeepWorld;
+		CaveSetupActor->AttachToActor(this, AttachmentRules);
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
+	}
+}
+
+void AVirtualRealityPawn::SetupMotionControllerSources()
+{
+	// Setup Motion Controllers
+
+	FName MotionControllerSourceLeft = EName::None;
+	FName MotionControllerSourceRight = EName::None;
+	if (UVirtualRealityUtilities::IsHeadMountedMode())
+	{
+		MotionControllerSourceLeft = FName("Left");
+		MotionControllerSourceRight = FName("Right");
+	}
+	if (UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster())
+	{
+		MotionControllerSourceLeft = LeftSubjectRepresentation.Subject;
+		MotionControllerSourceRight = RightSubjectRepresentation.Subject;
+	}
+	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
+	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
+}
+
+void AVirtualRealityPawn::ServerAttachDCRAtoPawnRpc_Implementation()
+{
+	AttachDCRAtoPawn();
 }
 
 void AVirtualRealityPawn::SetCameraOffset() const

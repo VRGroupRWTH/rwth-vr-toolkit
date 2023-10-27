@@ -24,6 +24,8 @@ public:
 	AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void NotifyControllerChanged() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;
@@ -49,12 +51,24 @@ public:
 
 	/** Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
-	FLiveLinkSubjectRepresentation SubjectRepresentation;
+	FLiveLinkSubjectRepresentation HeadSubjectRepresentation;
 
+	/** Set the LiveLink Subject Representation to be used by this pawn. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	FLiveLinkSubjectRepresentation LeftSubjectRepresentation;
+
+	/** Set the LiveLink Subject Representation to be used by this pawn. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	FLiveLinkSubjectRepresentation RightSubjectRepresentation;
+	
 	/** Set the transform of the component in world space of in its local reference frame. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
 	bool bWorldTransform = false;
 
+	/** The class which to search for DCRA attachment. TODO: Make this better it's ugly */
+	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	TSubclassOf<AActor> CaveSetupActorClass;
+	
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -93,4 +107,18 @@ protected:
 	void SetCameraOffset() const;
 	void UpdateRightHandForDesktopInteraction();
 
+	/**
+	 * Ask the server to attach the DCRA to the correct pawn
+	 * @return void
+	 */
+	UFUNCTION(Reliable, Server)
+	void ServerAttachDCRAtoPawnRpc();
+
+	/**
+	 * Attaches the DCRA to the pawn
+	 * @return void
+	 */
+	void AttachDCRAtoPawn();
+
+	void SetupMotionControllerSources();
 };

@@ -38,7 +38,7 @@ void UReplicatedCameraComponent::UpdateState(float DeltaTime)
 					ReplicatedTransform.Rotation = Rot;
 					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
 						{
-						SendControllerTransform_ServerRpc(ReplicatedTransform);
+							ServerSendControllerTransformRpc(ReplicatedTransform);
 						}
 					}
 			}
@@ -66,7 +66,7 @@ void UReplicatedCameraComponent::GetLifetimeReplicatedProps(TArray< class FLifet
 	DOREPLIFETIME(UReplicatedCameraComponent, ControllerNetUpdateRate);
 }
 
-void UReplicatedCameraComponent::SendControllerTransform_ServerRpc_Implementation(FVRTransformRep NewTransform)
+void UReplicatedCameraComponent::ServerSendControllerTransformRpc_Implementation(FVRTransformRep NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;
@@ -75,7 +75,7 @@ void UReplicatedCameraComponent::SendControllerTransform_ServerRpc_Implementatio
 		OnRep_ReplicatedTransform();
 }
 
-bool UReplicatedCameraComponent::SendControllerTransform_ServerRpc_Validate(FVRTransformRep NewTransform)
+bool UReplicatedCameraComponent::ServerSendControllerTransformRpc_Validate(FVRTransformRep NewTransform)
 {
 	return true;
 	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?
