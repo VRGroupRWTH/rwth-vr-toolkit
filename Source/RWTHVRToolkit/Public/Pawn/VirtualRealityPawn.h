@@ -50,23 +50,23 @@ public:
 	bool bDisableLiveLink = false;
 
 	/** Set the LiveLink Subject Representation to be used by this pawn. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	FLiveLinkSubjectRepresentation HeadSubjectRepresentation;
 
 	/** Set the LiveLink Subject Representation to be used by this pawn. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	FLiveLinkSubjectRepresentation LeftSubjectRepresentation;
 
 	/** Set the LiveLink Subject Representation to be used by this pawn. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	FLiveLinkSubjectRepresentation RightSubjectRepresentation;
 	
 	/** Set the transform of the component in world space of in its local reference frame. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	bool bWorldTransform = false;
 
 	/** The class which to search for DCRA attachment. TODO: Make this better it's ugly */
-	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	TSubclassOf<AActor> CaveSetupActorClass;
 	
 protected:

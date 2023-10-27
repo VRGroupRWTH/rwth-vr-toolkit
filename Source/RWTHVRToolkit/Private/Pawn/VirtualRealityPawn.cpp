@@ -66,8 +66,8 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
 	{
-		// Only do this for the master
-		if(UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster())
+		// Only do this for the master or when we're running in standalone
+		if(UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster() || GetNetMode() == NM_Standalone)
 		{
 			if (HasAuthority())
 				AttachDCRAtoPawn();
