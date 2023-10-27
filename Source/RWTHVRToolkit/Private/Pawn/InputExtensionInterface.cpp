@@ -3,7 +3,7 @@
 
 #include "Pawn/InputExtensionInterface.h"
 
-UEnhancedInputLocalPlayerSubsystem* IInputExtensionInterface::GetEnhancedInputLocalPlayerSubsystem(APawn* Pawn) const
+UEnhancedInputLocalPlayerSubsystem* IInputExtensionInterface::GetEnhancedInputLocalPlayerSubsystem(const APawn* Pawn) const
 {
 	const APlayerController* PlayerController = Pawn ? Cast<APlayerController>(Pawn->GetController()) : nullptr;
 	const ULocalPlayer* LP = PlayerController ? PlayerController->GetLocalPlayer() : nullptr;

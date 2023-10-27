@@ -56,8 +56,8 @@ private:
 	UStaticMeshComponent* CreateMeshComponent(const FName& Name, UStaticMesh* Mesh, USceneComponent* Parent);
 	UPROPERTY() UMaterial* TapeMaterial = nullptr;
 	UPROPERTY() UMaterial* SignMaterial = nullptr;
-	float CalculateOpacityFromPosition(FVector Position) const;
-	bool PositionInDoorOpening(FVector Position) const;
+	float CalculateOpacityFromPosition(const FVector& Position) const;
+	bool PositionInDoorOpening(const FVector& Position) const;
 
 	//Pawn Components
 	bool bAttachedToCAVEOrigin = false;

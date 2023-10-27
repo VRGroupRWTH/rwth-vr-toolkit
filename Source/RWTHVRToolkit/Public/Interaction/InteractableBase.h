@@ -11,47 +11,39 @@ struct FInputActionValue;
 class UClickBehaviour;
 class UHoverBehaviour;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UInteractableBase : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UInteractableBase();
-
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsInteractable = true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UHoverBehaviour*> OnHoverBehaviours;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UClickBehaviour*> OnClickBehaviours;
-	
+
 	/**
 	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other components)
 	 * @param Components 
 	 */
 	UFUNCTION()
-	void RestrictInteractionToComponents(TArray<USceneComponent*> Components);
-	
+	void RestrictInteractionToComponents(const TArray<USceneComponent*>& Components);
+
 	UFUNCTION()
 	void RestrictInteractionToComponent(USceneComponent* Component);
 
 	UFUNCTION()
 	void ResetRestrictInteraction();
 
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+public:
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent);
 	void HandleOnClickStartEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value);
@@ -75,7 +67,5 @@ public:
 	bool IsComponentAllowed(USceneComponent* Component) const;
 
 private:
-	
 	bool bInitOnce = true;
-		
 };

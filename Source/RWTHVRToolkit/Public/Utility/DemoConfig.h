@@ -17,33 +17,34 @@ class RWTHVRTOOLKIT_API UDemoConfig : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
-	virtual FName GetCategoryName() const override {return "Game";};
+	virtual FName GetCategoryName() const override { return "Game"; };
 
-	#if WITH_EDITOR
-	    virtual FText GetSectionText() const override {return FText::FromString("Demo");};
-    #endif
+#if WITH_EDITOR
+	virtual FText GetSectionText() const override { return FText::FromString("Demo"); };
+#endif
 
 	virtual void PostInitProperties() override
 	{
 		Super::PostInitProperties();
 
 		// Do not create/load this config file in the editor. We have the DefaultDemo.ini already
-		if(FApp::GetBuildTargetType() == EBuildTargetType::Editor) return; 
+		if (FApp::GetBuildTargetType() == EBuildTargetType::Editor) return;
 
 		// Load config file (does nothing if not exist)
-		const FString ConfigFile = FPaths::Combine(FPaths::ProjectConfigDir(), FPaths::GetCleanFilename(GetClass()->GetConfigName()));
-	    FConfigCacheIni Config(EConfigCacheType::DiskBacked);
+		const FString ConfigFile = FPaths::Combine(FPaths::ProjectConfigDir(),
+		                                           FPaths::GetCleanFilename(GetClass()->GetConfigName()));
+		FConfigCacheIni Config(EConfigCacheType::DiskBacked);
 		Config.LoadFile(ConfigFile);
 
 		// Check existence of correct section (fails if file does not exist)
-		if(Config.DoesSectionExist(*GetClass()->GetPathName(), ConfigFile))
+		if (Config.DoesSectionExist(*GetClass()->GetPathName(), ConfigFile))
 		{
-		    LoadConfig(GetClass(), *ConfigFile);
-        }
-	    else
-        {
-		    SaveConfig(CPF_Config, *ConfigFile, &Config); 
+			LoadConfig(GetClass(), *ConfigFile);
+		}
+		else
+		{
+			SaveConfig(CPF_Config, *ConfigFile, &Config);
 			Config.Flush(false);
-        }
+		}
 	};
 };

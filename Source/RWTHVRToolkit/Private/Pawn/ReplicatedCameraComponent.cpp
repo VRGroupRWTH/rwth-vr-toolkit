@@ -31,35 +31,35 @@ void UReplicatedCameraComponent::UpdateState(float DeltaTime)
 			{
 				ControllerNetUpdateCount += DeltaTime;
 				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
-					{
+				{
 					ControllerNetUpdateCount = 0.0f;
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
 					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
-						{
-							ServerSendControllerTransformRpc(ReplicatedTransform);
-						}
+					{
+						ServerSendControllerTransformRpc(ReplicatedTransform);
 					}
+				}
 			}
 		}
 	}
 }
 
 void UReplicatedCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+                                               FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateState(DeltaTime);
 }
 
-void UReplicatedCameraComponent::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
+void UReplicatedCameraComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeLocation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeRotation);
-	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);	
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);
 
 	// Skipping the owner with this as the owner will use the controllers location directly
 	DOREPLIFETIME_CONDITION(UReplicatedCameraComponent, ReplicatedTransform, COND_SkipOwner);

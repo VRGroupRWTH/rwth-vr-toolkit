@@ -7,7 +7,6 @@
 #include "VirtualRealityUtilities.generated.h"
 
 
-
 /**
  * Custom log category for all RWTHVRToolkit related components
  */
@@ -50,39 +49,51 @@ class RWTHVRTOOLKIT_API UVirtualRealityUtilities : public UBlueprintFunctionLibr
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsDesktopMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsRoomMountedMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsHeadMountedMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsCave();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsTdw();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform") static bool IsRolv();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsDesktopMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsRoomMountedMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsHeadMountedMode();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsCave();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsTdw();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	static bool IsRolv();
 
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsMaster();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static bool IsSlave();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	static bool IsMaster();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	static bool IsSlave();
 
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static FString GetNodeName();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	static FString GetNodeName();
 	/* Distance in meters */
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static float GetEyeDistance();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	static float GetEyeDistance();
 
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster") static EEyeStereoOffset GetNodeEyeType();
+	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	static EEyeStereoOffset GetNodeEyeType();
 
 	//Get Component of Display Cluster by it's name, which is specified in the nDisplay config
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetClusterComponent(const FString& Name);
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster") static USceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
-	
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster")
+	static USceneComponent* GetClusterComponent(const FString& Name);
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster")
+	static USceneComponent* GetNamedClusterComponent(const ENamedClusterComponent& Component);
+
 	/* Load and create an Object from an asset path. This only works in the constructor */
-    template <class T>
+	template <class T>
 	[[deprecated]]
-    static bool LoadAsset(const FString& Path, T*& Result);
-	
-    /* Finds and returns a class of an asset. This only works in the constructor */
-    template <class T>
+	static bool LoadAsset(const FString& Path, T*& Result);
+
+	/* Finds and returns a class of an asset. This only works in the constructor */
+	template <class T>
 	[[deprecated]]
-    static bool LoadClass(const FString& Path, TSubclassOf<T>& Result);
+	static bool LoadClass(const FString& Path, TSubclassOf<T>& Result);
 
 	UFUNCTION(BlueprintCallable)
-	static void ShowErrorAndQuit(UWorld* WorldContext,const FString& Message);
-	
+	static void ShowErrorAndQuit(UWorld* WorldContext, const FString& Message);
 };
 
 template <typename T>
@@ -95,9 +106,9 @@ bool UVirtualRealityUtilities::LoadAsset(const FString& Path, T* & Result)
 }
 
 template <typename T>
-bool UVirtualRealityUtilities::LoadClass(const FString& Path, TSubclassOf<T> & Result)
+bool UVirtualRealityUtilities::LoadClass(const FString& Path, TSubclassOf<T>& Result)
 {
-    ConstructorHelpers::FClassFinder<T> Loader(*Path);
+	ConstructorHelpers::FClassFinder<T> Loader(*Path);
 	Result = Loader.Class;
 	if (!Loader.Succeeded()) UE_LOG(LogTemp, Error, TEXT("Could not find %s. Have you renamed it?"), *Path);
 	return Loader.Succeeded();

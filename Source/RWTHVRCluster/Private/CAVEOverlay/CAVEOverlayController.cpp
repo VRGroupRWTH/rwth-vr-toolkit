@@ -1,14 +1,12 @@
 #include "CAVEOverlay/CAVEOverlayController.h"
 #include "CoreMinimal.h"
-#include "CAVEOverlay/DoorOverlayData.h"
 #include "IDisplayCluster.h"
-#include "IXRTrackingSystem.h"
+#include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
-#include "Game/IDisplayClusterGameManager.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Components/StaticMeshComponent.h"
-#include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/CollisionProfile.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
@@ -22,7 +20,8 @@ bool ContainsFString(const TArray<FString>& Array, const FString& Entry)
 	return false;
 }
 
-UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& Name, UStaticMesh* Mesh, USceneComponent* Parent)
+UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& Name, UStaticMesh* Mesh,
+                                                                  USceneComponent* Parent)
 {
 	UStaticMeshComponent* Result = CreateDefaultSubobject<UStaticMeshComponent>(Name);
 	Result->SetStaticMesh(Mesh);
@@ -40,7 +39,8 @@ ACAVEOverlayController::ACAVEOverlayController()
 	bAllowTickBeforeBeginPlay = false;
 	AutoReceiveInput = EAutoReceiveInput::Player0;
 
-	ConstructorHelpers::FClassFinder<UDoorOverlayData> WidgetClassFinder(TEXT("Blueprint'/RWTHVRToolkit/CAVEOverlay/DoorOverlay'"));
+	ConstructorHelpers::FClassFinder<UDoorOverlayData> WidgetClassFinder(
+		TEXT("Blueprint'/RWTHVRToolkit/CAVEOverlay/DoorOverlay'"));
 	if (WidgetClassFinder.Succeeded())
 	{
 		OverlayClass = WidgetClassFinder.Class;
@@ -133,7 +133,8 @@ void ACAVEOverlayController::CycleDoorType()
 
 void ACAVEOverlayController::HandleClusterEvent(const FDisplayClusterClusterEventJson& Event)
 {
-	if (Event.Category.Equals("CAVEOverlay") && Event.Type.Equals("DoorChange") && Event.Parameters.Contains("NewDoorState"))
+	if (Event.Category.Equals("CAVEOverlay") && Event.Type.Equals("DoorChange") && Event.Parameters.Contains(
+		"NewDoorState"))
 	{
 		SetDoorMode(static_cast<EDoorMode>(FCString::Atoi(*Event.Parameters["NewDoorState"])));
 	}
@@ -148,7 +149,8 @@ void ACAVEOverlayController::SetDoorMode(EDoorMode NewMode)
 	case EDoorMode::DOOR_PARTIALLY_OPEN:
 		DoorCurrentOpeningWidthAbsolute = DoorOpeningWidthAbsolute;
 		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->
+		                                                SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
 		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
@@ -170,7 +172,8 @@ void ACAVEOverlayController::SetDoorMode(EDoorMode NewMode)
 	}
 	if (ScreenType == SCREEN_NORMAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
 
-	UE_LOG(LogCAVEOverlay, Log, TEXT("Switched door state to '%s'. New opening width is %f."), *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
+	UE_LOG(LogCAVEOverlay, Log, TEXT("Switched door state to '%s'. New opening width is %f."),
+	       *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
 	if (ScreenType == SCREEN_MASTER)
 	{
@@ -192,7 +195,8 @@ void ACAVEOverlayController::BeginPlay()
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
 	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
 	{
-		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateUObject(this, &ACAVEOverlayController::HandleClusterEvent);
+		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateUObject(
+			this, &ACAVEOverlayController::HandleClusterEvent);
 		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
 	}
 
@@ -217,7 +221,8 @@ void ACAVEOverlayController::BeginPlay()
 	Overlay = CreateWidget<UDoorOverlayData>(GetWorld()->GetFirstPlayerController(), OverlayClass);
 	Overlay->AddToViewport(0);
 	SetDoorMode(DoorCurrentMode);
-	Overlay->CornerText->SetText(FText::FromString("")); //Set Text to "" until someone presses the key for the first time
+	Overlay->CornerText->SetText(FText::FromString(""));
+	//Set Text to "" until someone presses the key for the first time
 
 	if (!bAttachedToCAVEOrigin && CaveOrigin)
 	{
@@ -237,7 +242,7 @@ void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-float ACAVEOverlayController::CalculateOpacityFromPosition(FVector Position) const
+float ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Position) const
 {
 	return FMath::Max(
 		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0f, 1.0f),
@@ -245,10 +250,12 @@ float ACAVEOverlayController::CalculateOpacityFromPosition(FVector Position) con
 	);
 }
 
-bool ACAVEOverlayController::PositionInDoorOpening(FVector Position) const
+bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) const
 {
-	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10) //Overlap both sides 10cm
-		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute, WallDistance + 10); //Overlap one side 10cm
+	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10)
+		//Overlap both sides 10cm
+		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute,
+		                            WallDistance + 10); //Overlap one side 10cm
 }
 
 // Called every frame
@@ -272,7 +279,8 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	//FPS Counter
 	if (Overlay)
 	{
-		if (DoorCurrentMode == EDoorMode::DOOR_DEBUG && ContainsFString(ScreensFPS, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
+		if (DoorCurrentMode == EDoorMode::DOOR_DEBUG && ContainsFString(
+			ScreensFPS, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
 		{
 			Overlay->FPS->SetText(FText::FromString(FString::Printf(TEXT("FPS: %.1f"), 1.0f / DeltaTime)));
 		}
@@ -284,14 +292,15 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 
 	if (!Head)
 	{
-	    Head = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
+		Head = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
 	}
 
 	if (!Head || !CaveOrigin) return; //Display Cluster not fully initialized
 
 	//Head/Tape Logic
-    const FVector ShutterPosition = Head->GetComponentLocation() - CaveOrigin->GetComponentLocation();
-    const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(ShutterPosition.GetAbsMax(), WallDistance - WallCloseDistance, WallDistance);
+	const FVector ShutterPosition = Head->GetComponentLocation() - CaveOrigin->GetComponentLocation();
+	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(ShutterPosition.GetAbsMax(),
+	                                                         WallDistance - WallCloseDistance, WallDistance);
 
 	if (bHeadIsCloseToWall && !PositionInDoorOpening(ShutterPosition))
 	{
@@ -316,24 +325,28 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	}
 
 	// Flystick/Sign Logic
-    if(!Flystick)
+	if (!Flystick)
 	{
-	    Flystick = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
+		Flystick = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
 	}
 	if (Flystick)
 	{
-        const FVector FlystickPosition = Flystick->GetRelativeTransform().GetLocation();
-        const bool bFlystickInDoor = PositionInDoorOpening(FlystickPosition);
+		const FVector FlystickPosition = Flystick->GetRelativeTransform().GetLocation();
+		const bool bFlystickInDoor = PositionInDoorOpening(FlystickPosition);
 
 		SignNegativeX->SetRelativeLocation(FVector(-WallDistance, FlystickPosition.Y, FlystickPosition.Z));
 		SignNegativeY->SetRelativeLocation(FVector(FlystickPosition.X, -WallDistance, FlystickPosition.Z));
 		SignPositiveX->SetRelativeLocation(FVector(+WallDistance, FlystickPosition.Y, FlystickPosition.Z));
 		SignPositiveY->SetRelativeLocation(FVector(FlystickPosition.X, +WallDistance, FlystickPosition.Z));
 
-		SignNegativeX->SetVisibility(FMath::IsWithin(-FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignNegativeY->SetVisibility(FMath::IsWithin(-FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignPositiveX->SetVisibility(FMath::IsWithin(+FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignPositiveY->SetVisibility(FMath::IsWithin(+FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignNegativeX->SetVisibility(
+			FMath::IsWithin(-FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignNegativeY->SetVisibility(
+			FMath::IsWithin(-FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignPositiveX->SetVisibility(
+			FMath::IsWithin(+FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+		SignPositiveY->SetVisibility(
+			FMath::IsWithin(+FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
 
 		SignMaterialDynamic->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(FlystickPosition));
 	}

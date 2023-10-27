@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/Image.h"
-#include "Runtime/ImageWrapper/Public/IImageWrapper.h"
 #include "ExternalImage.generated.h"
 
 /**
@@ -13,17 +12,21 @@ class RWTHVRTOOLKIT_API UExternalImage : public UImage
 {
 	GENERATED_BODY()
 
-    UExternalImage();
+	UExternalImage();
 
 public:
-    /* Loads an Image from either a file or an URL */
-    UFUNCTION(BlueprintCallable) void LoadImageFromURL(const FString& ImageURL);
+	/* Loads an Image from either a file or an URL */
+	UFUNCTION(BlueprintCallable)
+	void LoadImageFromURL(const FString& ImageURL);
 
 private:
-    TArray<uint8> CompressedData;
-    UPROPERTY() UTexture2D* NewTexture;
+	TArray<uint8> CompressedData;
+	UPROPERTY()
+	UTexture2D* NewTexture;
 
-    bool LoadCompressedDataIntoTexture2D(const TArray<uint8>& InCompressedData, UTexture2D*& OutTexture);
-    static void LoadDataFromURL(const FString& ImageURL, TArray<uint8>& OutCompressedData, TFunction<void()> OnSuccessCallback);
-    static void LoadDataFromFile(const FString& ImagePath, TArray<uint8>& OutCompressedData, TFunction<void()> OnSuccessCallback);
+	bool LoadCompressedDataIntoTexture2D(const TArray<uint8>& InCompressedData, UTexture2D*& OutTexture);
+	static void LoadDataFromURL(const FString& ImageURL, TArray<uint8>& OutCompressedData,
+	                            TFunction<void()> OnSuccessCallback);
+	static void LoadDataFromFile(const FString& ImagePath, TArray<uint8>& OutCompressedData,
+	                             TFunction<void()> OnSuccessCallback);
 };

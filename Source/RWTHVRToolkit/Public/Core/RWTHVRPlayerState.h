@@ -28,12 +28,11 @@ private:
 	void SetPlayerType(EPlayerType NewPlayerType);
 
 public:
-
 	UFUNCTION(BlueprintGetter)
 	EPlayerType GetPlayerType() const
 	{
 		return PlayerType;
-	}	
+	}
 
 	UFUNCTION(BlueprintCallable)
 	void RequestSetPlayerType(EPlayerType NewPlayerType);
@@ -41,5 +40,5 @@ public:
 	virtual void CopyProperties(APlayerState* PlayerState) override;
 	virtual void OverrideWith(APlayerState* PlayerState) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

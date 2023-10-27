@@ -8,6 +8,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBeginGrabSignature, AActor*, GrabbedBy);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndGrabSignature);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -18,13 +19,13 @@ class RWTHVRTOOLKIT_API UGrabbingBehaviorComponent : public USceneComponent
 protected:
 	bool WasSimulatingPhysicsOnGrab;
 	UPROPERTY()
-		UPrimitiveComponent* MyPhysicsComponent;
-		
+	UPrimitiveComponent* MyPhysicsComponent;
+
 public:
 	UPROPERTY(BlueprintAssignable)
-		FOnBeginGrabSignature OnBeginGrab;
+	FOnBeginGrabSignature OnBeginGrab;
 	UPROPERTY(BlueprintAssignable)
-		FOnEndGrabSignature OnEndGrab;
+	FOnEndGrabSignature OnEndGrab;
 
 	// Sets default values for this component's properties
 	UGrabbingBehaviorComponent();
@@ -32,13 +33,14 @@ public:
 public:
 	// takes the hand ray and moves the parent actor to a new possible position, also might change rotation
 	virtual void HandleGrabHold(FVector Position, FQuat Orientation);
-	
+
 	virtual void HandleGrabStart(AActor* GrabbedBy);
 
 	virtual void HandleGrabEnd();
 
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts

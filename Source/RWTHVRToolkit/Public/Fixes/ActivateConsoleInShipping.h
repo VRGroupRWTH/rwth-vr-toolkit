@@ -14,7 +14,7 @@ struct RWTHVRTOOLKIT_API FActivateConsoleInShipping
 
 	void Register();
 	void Unregister() const;
-	
+
 private:
 	void OnSessionStart(UWorld*, const UWorld::InitializationValues) const;
 

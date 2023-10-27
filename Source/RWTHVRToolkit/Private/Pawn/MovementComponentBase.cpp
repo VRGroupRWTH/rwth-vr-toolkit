@@ -28,7 +28,7 @@ void UMovementComponentBase::SetupPlayerInput(UInputComponent* PlayerInputCompon
 		UE_LOG(Toolkit, Error, TEXT("InputSubsystem IS NOT VALID"));
 		return;
 	}
-	
+
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCRotation, 0);
 
@@ -78,7 +78,7 @@ void UMovementComponentBase::OnBeginTurn(const FInputActionValue& Value)
 
 	if (!VRPawn || !VRPawn->Controller)
 		return;
-	
+
 	const FVector2D TurnValue = Value.Get<FVector2D>();
 
 	if (TurnValue.X != 0.f)
@@ -99,7 +99,7 @@ void UMovementComponentBase::OnBeginSnapTurn(const FInputActionValue& Value)
 {
 	if (!VRPawn || !VRPawn->Controller)
 		return;
-	
+
 	const FVector2D TurnValue = Value.Get<FVector2D>();
 	if (TurnValue.X > 0.f)
 	{

@@ -3,7 +3,6 @@
 
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 
-
 #include "Net/UnrealNetwork.h"
 
 UReplicatedMotionControllerComponent::UReplicatedMotionControllerComponent()
@@ -32,42 +31,44 @@ void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 			{
 				ControllerNetUpdateCount += DeltaTime;
 				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
-					{
+				{
 					ControllerNetUpdateCount = 0.0f;
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
 					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
-						{
+					{
 						SendControllerTransform_ServerRpc(ReplicatedTransform);
-						}
 					}
+				}
 			}
 		}
 	}
 }
 
 void UReplicatedMotionControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+                                                         FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateState(DeltaTime);
 }
 
-void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const
+void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(
+	TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeLocation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeRotation);
-	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);	
+	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);
 
 	// Skipping the owner with this as the owner will use the controllers location directly
 	DOREPLIFETIME_CONDITION(UReplicatedMotionControllerComponent, ReplicatedTransform, COND_SkipOwner);
 	DOREPLIFETIME(UReplicatedMotionControllerComponent, ControllerNetUpdateRate);
 }
 
-void UReplicatedMotionControllerComponent::SendControllerTransform_ServerRpc_Implementation(FVRTransformRep NewTransform)
+void UReplicatedMotionControllerComponent::SendControllerTransform_ServerRpc_Implementation(
+	FVRTransformRep NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;

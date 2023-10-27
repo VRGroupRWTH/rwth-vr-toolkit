@@ -8,9 +8,9 @@
 class FRWTHVRToolkitModule : public IModuleInterface
 {
 public:
-	virtual void StartupModule () override;
+	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
+
 private:
 	FActivateConsoleInShipping ConsoleActivation;
 	TUniquePtr<FLiveLinkMotionControllerFix> LiveLinkMotionController;

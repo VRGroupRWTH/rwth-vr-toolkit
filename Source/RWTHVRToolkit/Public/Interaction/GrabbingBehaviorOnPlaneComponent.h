@@ -13,23 +13,12 @@ class RWTHVRTOOLKIT_API UGrabbingBehaviorOnPlaneComponent : public UGrabbingBeha
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
-	UGrabbingBehaviorOnPlaneComponent();
 
 	// defining the constraint plane with these 3 parameters
 	UFUNCTION(BlueprintCallable) void SetDistance(float Dist);
 	UFUNCTION(BlueprintCallable) float GetDistance() const;
 	
 	virtual void HandleGrabHold(FVector position, FQuat orientation) override;
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	
 private:
 	UPROPERTY(EditAnywhere) float Distance; // distance the object can be moved from the center 

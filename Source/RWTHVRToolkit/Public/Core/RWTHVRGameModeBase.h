@@ -18,5 +18,5 @@ class RWTHVRTOOLKIT_API ARWTHVRGameModeBase : public AGameModeBase
 
 protected:
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
-		const FString& Options, const FString& Portal) override;
+	                              const FString& Options, const FString& Portal) override;
 };

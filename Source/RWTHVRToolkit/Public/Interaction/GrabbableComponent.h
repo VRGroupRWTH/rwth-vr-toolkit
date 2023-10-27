@@ -9,9 +9,8 @@
 /**
  * 
  */
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabbableComponent : public UInteractableBase
 {
 	GENERATED_BODY()
-	
 };

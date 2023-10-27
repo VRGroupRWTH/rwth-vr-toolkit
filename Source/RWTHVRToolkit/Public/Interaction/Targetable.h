@@ -8,21 +8,21 @@
 #include "Targetable.generated.h"
 
 UINTERFACE(BlueprintType)
-class RWTHVRTOOLKIT_API UTargetable: public UInterface
+class RWTHVRTOOLKIT_API UTargetable : public UInterface
 {
 	// has to be empty, this is Unreals syntax to make it visible in blueprints
-	GENERATED_UINTERFACE_BODY()
+	GENERATED_BODY()
 };
 
 class RWTHVRTOOLKIT_API ITargetable
 {
-	GENERATED_IINTERFACE_BODY()
+	GENERATED_BODY()
 
 public:
 	// function that will be called when targetable actor is targeted, the world pos of the target is returned
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnTargeted(FVector WorldPositionOfTarget);
-	
+
 	//function that will be called when a targetable actor gets focused
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnTargetedEnter();

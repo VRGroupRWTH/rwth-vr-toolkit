@@ -8,7 +8,6 @@
 #include "Interaction/GrabbableComponent.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
@@ -26,24 +25,25 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 
 	TArray<UGrabbableComponent*> CurrentGrabCompsInRange;
-	
+
 	TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> OutHits;
 	const ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_PhysicsBody);
-	
-	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
-	
-	UKismetSystemLibrary::SphereTraceMulti(GetWorld(),GetAttachParent()->GetComponentLocation(),
-		GetAttachParent()->GetComponentLocation(),GrabSphereRadius,TraceType,true,ActorsToIgnore,DebugTrace,
-		OutHits,true,FColor::Green);
 
-	for(FHitResult Hit : OutHits)
+	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetAttachParent()->GetComponentLocation(),
+	                                       GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
+	                                       ActorsToIgnore, DebugTrace,
+	                                       OutHits, true, FColor::Green);
+
+	for (FHitResult Hit : OutHits)
 	{
 		AActor* HitActor = Hit.GetActor();
-		if(HitActor)
+		if (HitActor)
 		{
 			UGrabbableComponent* Grabbable = HitActor->FindComponentByClass<UGrabbableComponent>();
-			if(Grabbable && Grabbable->IsInteractable)
+			if (Grabbable && Grabbable->IsInteractable)
 			{
 				Grabbable->HitResult = Hit;
 				CurrentGrabCompsInRange.Add(Grabbable);
@@ -54,67 +54,59 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	CurrentGrabbableInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
-	for(UGrabbableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
+	for (UGrabbableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
 	{
-		if(!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
+		if (!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
 		{
 			PreviousGrabbablesInRange.Add(CurrentGrabbale);
 			CurrentGrabbale->HandleOnHoverStartEvents(this);
 		}
-		
 	}
 
 	TArray<UGrabbableComponent*> ComponentsToRemove;
-	
+
 	// Call hover end events on all components that were previously in range, but not anymore
-	for(UGrabbableComponent* PrevGrabbale : PreviousGrabbablesInRange)
+	for (UGrabbableComponent* PrevGrabbale : PreviousGrabbablesInRange)
 	{
-		if(!CurrentGrabCompsInRange.Contains(PrevGrabbale))
+		if (!CurrentGrabCompsInRange.Contains(PrevGrabbale))
 		{
 			ComponentsToRemove.Add(PrevGrabbale);
 			PrevGrabbale->HandleOnHoverEndEvents(this);
 		}
 	}
 
-	for(UGrabbableComponent* CompToRemove : ComponentsToRemove)
+	for (UGrabbableComponent* CompToRemove : ComponentsToRemove)
 	{
 		PreviousGrabbablesInRange.Remove(CompToRemove);
 	}
 }
 
-// Called when the game starts
-void UGrabComponent::BeginPlay()
+void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
-	Super::BeginPlay();
-	SetupInputActions();
-	// ...
-	
-}
+	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
-void UGrabComponent::SetupInputActions()
-{
 	const APawn* Pawn = Cast<APawn>(GetOwner());
-	const APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
-	const ULocalPlayer* LP = PlayerController ? PlayerController->GetLocalPlayer() : nullptr;
-	if (LP == nullptr)
+	if (!Pawn)
+		return;
+
+	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
+	if (!InputSubsystem)
 		return;
 	
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCGrab,0);
-	
+	InputSubsystem->AddMappingContext(IMCGrab, 0);
+
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (EI == nullptr)
 		return;
-	
+
 	EI->BindAction(GrabInputAction, ETriggerEvent::Started, this, &UGrabComponent::OnBeginGrab);
-	EI->BindAction(GrabInputAction, ETriggerEvent::Completed, this, &UGrabComponent::OnEndGrab);	
-	
+	EI->BindAction(GrabInputAction, ETriggerEvent::Completed, this, &UGrabComponent::OnEndGrab);
 }
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
-	for(UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
+	for (UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnClickStartEvents(this, Value);
 	}
@@ -122,10 +114,8 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for(UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
+	for (UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnClickEndEvents(this, Value);
 	}
 }
-
-

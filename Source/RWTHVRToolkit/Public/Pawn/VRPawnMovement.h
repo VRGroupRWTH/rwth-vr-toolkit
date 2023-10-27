@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
-#include "Camera/CameraComponent.h"
 
 #include "VRPawnMovement.generated.h"
 
@@ -34,7 +33,6 @@ class RWTHVRTOOLKIT_API UVRPawnMovement : public UFloatingPawnMovement
 	GENERATED_UCLASS_BODY()
 
 public:
-
 	virtual void BeginPlay() override;
 	void CheckAndRevertCollisionSinceLastTick();
 
@@ -57,7 +55,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMax="0.0"))
 	float GravityAcceleration = -981.0f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin="0.0"))
 	float UpSteppingAcceleration = 981.0f;
 
@@ -66,16 +64,18 @@ public:
 
 private:
 	//check for
-	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false);
+	FHitResult CreateCapsuleTrace(const FVector& Start, const FVector& End, bool DrawDebug = false) const;
 	FVector GetOverlapResolveDirection();
-	void SetCapsuleColliderToUserSize();
+	void SetCapsuleColliderToUserSize() const;
 	void CheckForPhysWalkingCollision();
 	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
 	void MoveByGravityOrStepUp(float DeltaSeconds);
 	void ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds);
 
-	UPROPERTY(VisibleAnywhere) UCapsuleComponent* CapsuleColliderComponent = nullptr;
-	UPROPERTY() USceneComponent* HeadComponent = nullptr;
+	UPROPERTY(VisibleAnywhere)
+	UCapsuleComponent* CapsuleColliderComponent = nullptr;
+	UPROPERTY()
+	USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
 	FVector LastCollisionFreeCapsulePosition;

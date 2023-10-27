@@ -13,7 +13,7 @@
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
-	
+
 	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
 	{
 		return;
@@ -32,7 +32,7 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 		RotationHand = VRPawn->RightHand;
 		IMCMovement = IMCMovementLeft;
 	}
-	
+
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
