@@ -177,42 +177,12 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	}
 }
 
-UEnhancedInputComponent* UVirtualRealityUtilities::GetVRPawnInputComponent(const UWorld* World)
-{
-	const APawn* VRPawn = Cast<AVirtualRealityPawn>(UGameplayStatics::GetPlayerPawn(World,0));
-	if(!VRPawn)
-	{
-		UE_LOG(Toolkit, Error,TEXT("[VirtualRealityUtilities.cpp] cannot cast current Pawn to AVirtualRealityPawn"));
-		return nullptr;
-	}
-	return Cast<UEnhancedInputComponent>(VRPawn->InputComponent);
-}
-
-UEnhancedInputLocalPlayerSubsystem* UVirtualRealityUtilities::GetVRPawnLocalPlayerSubsystem(UWorld* World)
-{
-	const APawn* VRPawn = Cast<AVirtualRealityPawn>(UGameplayStatics::GetPlayerPawn(World,0));
-	if(!VRPawn)
-	{
-		UE_LOG(Toolkit, Error,TEXT("[VirtualRealityUtilities.cpp] cannot cast current Pawn to AVirtualRealityPawn"));
-		return nullptr;
-	}
-	const APlayerController* PlayerController = Cast<APlayerController>(VRPawn->GetController());
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if(!InputSubsystem)
-	{
-		UE_LOG(Toolkit,Error,TEXT("[VirtualRealityUtilities.cpp] InputSubsystem IS NOT VALID"));
-		return nullptr;
-	}
-	return InputSubsystem;
-	
-}
-
 void UVirtualRealityUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
 {
 	UE_LOG(Toolkit, Error, TEXT("%s"), *Message)
 #if WITH_EDITOR
 	const FText Title = FText::FromString(FString("RUNTIME ERROR"));
-	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), &Title);
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
 #endif
 	UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
 

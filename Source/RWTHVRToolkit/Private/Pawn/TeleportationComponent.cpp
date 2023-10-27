@@ -16,18 +16,20 @@
 #include "MotionControllerComponent.h"
 
 
-// Called when the game starts
-void UTeleportationComponent::BeginPlay()
+void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
-	Super::BeginPlay();
-
-	SetupInputActions();
+	Super::SetupPlayerInput(PlayerInputComponent);
+	
+	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
+	{
+		return;
+	}
 	
 	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation
 	(
 		GetWorld(),
 		TeleportTraceSystem,
-		GetOwner()->GetActorLocation(),
+		VRPawn->GetActorLocation(),
 		FRotator(0),
 		FVector(1),
 		true,
@@ -38,48 +40,34 @@ void UTeleportationComponent::BeginPlay()
 
 	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
 	SpawnParameters.Name = "TeleportVisualizer";
-	if(BPTeleportVisualizer)
+	
+	if (BPTeleportVisualizer)
 	{
-		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation(),SpawnParameters);
+		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(),
+															VRPawn->GetActorRotation(), SpawnParameters);
 	}
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
-
-}
-
-
-
-void UTeleportationComponent::SetupInputActions()
-{
-	Super::SetupInputActions();
-
-	const AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-
+	
 	// simple way of changing the handedness
-	if(bMoveWithRightHand)
+	if (bMoveWithRightHand)
 	{
 		TeleportationHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
 		IMCMovement = IMCTeleportRight;
-	} else
+	}
+	else
 	{
 		TeleportationHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
 		IMCMovement = IMCTeleportLeft;
 	}
 	
-	const APlayerController* PlayerController = Cast<APlayerController>(VRPawn->GetController());
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if(!InputSubsystem)
-	{
-		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
-		return;
-	}
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement,0);
 	
-	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(VRPawn->InputComponent);
-	if(!EI)
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (!EI)
 	{
 		UE_LOG(Toolkit,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
 		return;
@@ -107,8 +95,8 @@ void UTeleportationComponent::OnStartTeleportTrace(const FInputActionValue& Valu
 void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value)
 {
 	// Update the teleport trace
-	FVector StartPosition = TeleportationHand->GetComponentLocation();
-	FVector ForwardVector = TeleportationHand->GetForwardVector();
+	const FVector StartPosition = TeleportationHand->GetComponentLocation();
+	const FVector ForwardVector = TeleportationHand->GetForwardVector();
 
 	TArray<AActor> ActorsToIgnore;
 	
@@ -121,33 +109,30 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 		ECC_WorldStatic
 	);
 
-	PredictParams.ActorsToIgnore.Add(GetOwner());
+	PredictParams.ActorsToIgnore.Add(VRPawn);
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
 	
 	UGameplayStatics::PredictProjectilePath(GetWorld(),PredictParams,PredictResult);
-	
-	FVector HitLocation = PredictResult.HitResult.Location;
-	bool bValidHit = PredictResult.HitResult.IsValidBlockingHit();
-	// check if this is a valid location to move to
-	FNavLocation OutLocation;
 
-	FNavAgentProperties AgentProperties = FNavAgentProperties(15, 160);
+	const FVector HitLocation = PredictResult.HitResult.Location;
+	const bool bValidHit = PredictResult.HitResult.IsValidBlockingHit();
+	// check if this is a valid location to move to
 	
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-	// TODO: does not give valid location
-	const bool bValidProjection = NavSystem->ProjectPointToNavigation(HitLocation,OutLocation,FVector(1,1,1), &AgentProperties);
+	FVector OutLocation;	
+	const bool bValidProjection = IsValidTeleportLocation(PredictResult.HitResult, OutLocation);
 	
-	if(bUseNavMesh)
+	if (bUseNavMesh)
 	{
-		FinalTeleportLocation = OutLocation.Location;
-		if(bValidTeleportLocation != bValidProjection)
+		FinalTeleportLocation = OutLocation;
+		if (bValidTeleportLocation != bValidProjection)
 		{
 			bValidTeleportLocation = bValidProjection;
 			TeleportVisualizer->SetActorHiddenInGame(!bValidTeleportLocation);
 		}
-	} else
+	}
+	else
 	{
-		if(bValidHit)
+		if (bValidHit)
 		{
 			FinalTeleportLocation = HitLocation;
 			TeleportVisualizer->SetActorHiddenInGame(false);
@@ -156,28 +141,36 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 		} 
 	}
 
-
 	TArray<FVector> PathPoints;
 	PathPoints.Add(StartPosition);
-	for(FPredictProjectilePathPointData PData : PredictResult.PathData)
+	for (FPredictProjectilePathPointData PData : PredictResult.PathData)
 	{
 		PathPoints.Add(PData.Location);
 	}
 	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(TeleportTraceComponent,FName("User.PointArray"),PathPoints);
-	
+}
+
+bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVector& ProjectedLocation) const
+{
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	const FNavAgentProperties& AgentProps = FNavAgentProperties(15, 160);
+	FNavLocation ProjectedNavLocation;
+	const bool bProjectPoint = (NavSys && NavSys->ProjectPointToNavigation(Hit.Location, ProjectedNavLocation, INVALID_NAVEXTENT, &AgentProps));
+	ProjectedLocation = ProjectedNavLocation.Location;
+	return bProjectPoint /*&& Hit.IsValidBlockingHit()*/;
 }
 
 // On button release -> remove trace and teleport user to location
 void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 {
-
+	if (!VRPawn)
+		return;
 	// End Teleport Trace
 	bTeleportTraceActive = false;
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 	
 	bValidTeleportLocation = false;
-	GetOwner()->TeleportTo(FinalTeleportLocation,GetOwner()->GetActorRotation());
-	
+	VRPawn->TeleportTo(FinalTeleportLocation, VRPawn->GetActorRotation());
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputExtensionInterface.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Pawn/MovementComponentBase.h"
 #include "Components/ActorComponent.h"
@@ -25,27 +26,24 @@ class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UMovementComponent
 	GENERATED_BODY()
 
 public:
-
-	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRSteeringModes SteeringMode = EVRSteeringModes::STEER_HAND_DIRECTED;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
+	UInputMappingContext* IMCMovementLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovementLeft;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovementRight;
+	UInputMappingContext* IMCMovementRight;
 		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Move;
+	UInputAction* Move;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* MoveUp;
+	UInputAction* MoveUp;
 	
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
@@ -53,7 +51,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMoveUp(const FInputActionValue& Value);
-
+	
+	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
 
@@ -64,8 +63,5 @@ private:
 	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
-	UMotionControllerComponent* RotationHand;
-
-
-	virtual void SetupInputActions();
+	UMotionControllerComponent* RotationHand;	
 };

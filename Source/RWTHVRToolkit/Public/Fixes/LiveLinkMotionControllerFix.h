@@ -13,6 +13,15 @@
 #define LOCTEXT_NAMESPACE "LiveLinkMotionController"
 
 
+/*
+ * Workaround due to an issue regarding LiveLInk Subjects as MotionController sources:
+ * The original FLiveLinkMotionController updates its subject list OnLiveLinkSourcesChanged
+ * instead of OnLiveLinkSubjectsChanged, which leads to the subjects not being actually initialized when queried.
+ * As they are a modular feature, this is a copy & paste of the original class with just that simple line changed.
+ * Works well non-invasive and can be removed if the PR is merged or they fix it another way:
+ * https://github.com/EpicGames/UnrealEngine/pull/10895
+*/
+
 class FLiveLinkMotionControllerFix : public IMotionController
 {
 	// Internal structure for caching enumerated data
