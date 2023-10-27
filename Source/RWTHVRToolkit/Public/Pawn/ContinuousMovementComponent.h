@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "InputExtensionInterface.h"
 #include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/MovementComponentBase.h"
 #include "Components/ActorComponent.h"
 #include "ContinuousMovementComponent.generated.h"
 
-class UMotionControllerComponent;
 
 UENUM(BlueprintType)
 enum class EVRSteeringModes : uint8
@@ -21,7 +21,7 @@ enum class EVRSteeringModes : uint8
  * 
  */
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UActorComponent, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UMovementComponentBase, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
@@ -32,72 +32,39 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR Movement")
-	bool bAllowTurning = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bAllowTurning"))
-	bool bSnapTurn = false;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="!bSnapTurn && bAllowTurning"))
-	float TurnRateFactor = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bSnapTurn && bAllowTurning",ClampMin=0,ClampMax=360))
-	float SnapTurnAngle = 22.5;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
+	UInputMappingContext* IMCMovementLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovementLeft;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovementRight;
+	UInputMappingContext* IMCMovementRight;
 		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Move;
+	UInputAction* Move;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Turn;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* DesktopRotation;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* MoveUp;
+	UInputAction* MoveUp;
 	
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
-	void OnBeginMove(const FInputActionValue& Value);
-	
-	UFUNCTION(BlueprintCallable)
-	void OnBeginTurn(const FInputActionValue& Value);
+	void OnMove(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable)
-	void OnBeginSnapTurn(const FInputActionValue& Value);
+	void OnMoveUp(const FInputActionValue& Value);
 
-	UFUNCTION(BlueprintCallable)
-	void OnBeginUp(const FInputActionValue& Value);
-	
-	/*Desktop Testing*/
-	// the idea is that you have to hold the right mouse button to do rotations
-	UFUNCTION()
-	void StartDesktopRotation();
-	
-	UFUNCTION()
-	void EndDesktopRotation();
-	
-	bool bApplyDesktopRotation = false;
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
+
+	UPROPERTY()
+	class UInputMappingContext* IMCMovement;
 	
 	UPROPERTY()
 	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
 	UMotionControllerComponent* RotationHand;
-
-	UPROPERTY()
-	class UInputMappingContext* IMCMovement;
 	
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;

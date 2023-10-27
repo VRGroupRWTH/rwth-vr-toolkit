@@ -72,10 +72,12 @@ public:
 	
 	/* Load and create an Object from an asset path. This only works in the constructor */
     template <class T>
+	[[deprecated]]
     static bool LoadAsset(const FString& Path, T*& Result);
-
+	
     /* Finds and returns a class of an asset. This only works in the constructor */
     template <class T>
+	[[deprecated]]
     static bool LoadClass(const FString& Path, TSubclassOf<T>& Result);
 
 	UFUNCTION(BlueprintCallable)

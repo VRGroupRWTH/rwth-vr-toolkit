@@ -15,26 +15,12 @@
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
 
-// Sets default values for this component's properties
-UTeleportationComponent::UTeleportationComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
-
-// Called when the game starts
-void UTeleportationComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
 
 void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 
-	if(!VRPawn->HasLocalNetOwner())
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
@@ -43,7 +29,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	(
 		GetWorld(),
 		TeleportTraceSystem,
-		GetOwner()->GetActorLocation(),
+		VRPawn->GetActorLocation(),
 		FRotator(0),
 		FVector(1),
 		true,
@@ -54,31 +40,31 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 
 	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
 	SpawnParameters.Name = "TeleportVisualizer";
-	if(BPTeleportVisualizer)
+	
+	if (BPTeleportVisualizer)
 	{
-		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, GetOwner()->GetActorLocation(),
-															GetOwner()->GetActorRotation(), SpawnParameters);
+		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(),
+															VRPawn->GetActorRotation(), SpawnParameters);
 	}
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
-
-		
+	
 	// simple way of changing the handedness
-	if(bMoveWithRightHand)
+	if (bMoveWithRightHand)
 	{
 		TeleportationHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
 		IMCMovement = IMCTeleportRight;
-	} else
+	}
+	else
 	{
 		TeleportationHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
 		IMCMovement = IMCTeleportLeft;
 	}
 	
-	
 	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(VRPawn);
-	if(!InputSubsystem)
+	if (!InputSubsystem)
 	{
 		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
 		return;
@@ -87,53 +73,19 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	InputSubsystem->AddMappingContext(IMCMovement,0);
 	
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	if(!EI)
+	if (!EI)
 	{
 		UE_LOG(Toolkit,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
 		return;
 	}
 	
-	// walking
+	// teleporting
 	EI->BindAction(Move, ETriggerEvent::Started, this, &UTeleportationComponent::OnStartTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UTeleportationComponent::UpdateTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Completed, this, &UTeleportationComponent::OnEndTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Canceled, this, &UTeleportationComponent::OnEndTeleportTrace);
 
-	// turning
-	if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
-	{
-		EI->BindAction(Turn, ETriggerEvent::Started, this, &UTeleportationComponent::OnBeginSnapTurn);
-	} else
-	{
-		EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UTeleportationComponent::OnBeginTurn);
-	}
-	
-	// bind functions for desktop rotations only on holding down right mouse
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-		if (PC)
-		{
-			PC->bShowMouseCursor = true; 
-			PC->bEnableClickEvents = true; 
-			PC->bEnableMouseOverEvents = true;
-		} else
-		{
-			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
-		}
-		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UTeleportationComponent::StartDesktopRotation);
-		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UTeleportationComponent::EndDesktopRotation);
-	}
-}
-
-void UTeleportationComponent::StartDesktopRotation()
-{
-	bApplyDesktopRotation = true;
-}
-
-void UTeleportationComponent::EndDesktopRotation()
-{
-	bApplyDesktopRotation = false;
+	// turning is defined in MovementComponentBase
 }
 
 // On button press -> show teleport trace
@@ -149,8 +101,8 @@ void UTeleportationComponent::OnStartTeleportTrace(const FInputActionValue& Valu
 void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value)
 {
 	// Update the teleport trace
-	FVector StartPosition = TeleportationHand->GetComponentLocation();
-	FVector ForwardVector = TeleportationHand->GetForwardVector();
+	const FVector StartPosition = TeleportationHand->GetComponentLocation();
+	const FVector ForwardVector = TeleportationHand->GetForwardVector();
 
 	TArray<AActor> ActorsToIgnore;
 	
@@ -163,7 +115,7 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 		ECC_WorldStatic
 	);
 
-	PredictParams.ActorsToIgnore.Add(GetOwner());
+	PredictParams.ActorsToIgnore.Add(VRPawn);
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
 	
 	UGameplayStatics::PredictProjectilePath(GetWorld(),PredictParams,PredictResult);
@@ -175,10 +127,10 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	FVector OutLocation;	
 	const bool bValidProjection = IsValidTeleportLocation(PredictResult.HitResult, OutLocation);
 	
-	if(bUseNavMesh)
+	if (bUseNavMesh)
 	{
 		FinalTeleportLocation = OutLocation;
-		if(bValidTeleportLocation != bValidProjection)
+		if (bValidTeleportLocation != bValidProjection)
 		{
 			bValidTeleportLocation = bValidProjection;
 			TeleportVisualizer->SetActorHiddenInGame(!bValidTeleportLocation);
@@ -186,7 +138,7 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	}
 	else
 	{
-		if(bValidHit)
+		if (bValidHit)
 		{
 			FinalTeleportLocation = HitLocation;
 			TeleportVisualizer->SetActorHiddenInGame(false);
@@ -195,15 +147,13 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 		} 
 	}
 
-
 	TArray<FVector> PathPoints;
 	PathPoints.Add(StartPosition);
-	for(FPredictProjectilePathPointData PData : PredictResult.PathData)
+	for (FPredictProjectilePathPointData PData : PredictResult.PathData)
 	{
 		PathPoints.Add(PData.Location);
 	}
 	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(TeleportTraceComponent,FName("User.PointArray"),PathPoints);
-	
 }
 
 bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVector& ProjectedLocation) const
@@ -216,79 +166,17 @@ bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVe
 	return bProjectPoint /*&& Hit.IsValidBlockingHit()*/;
 }
 
-
 // On button release -> remove trace and teleport user to location
 void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 {
-
+	if (!VRPawn)
+		return;
 	// End Teleport Trace
 	bTeleportTraceActive = false;
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 	
 	bValidTeleportLocation = false;
-	GetOwner()->TeleportTo(FinalTeleportLocation, GetOwner()->GetActorRotation());
-	
-}
-
-void UTeleportationComponent::OnBeginTurn(const FInputActionValue& Value)
-{
-	if(UVirtualRealityUtilities::IsDesktopMode() && !bApplyDesktopRotation) return;
-	if (VRPawn->Controller != nullptr)
-	{
-		const FVector2D TurnValue = Value.Get<FVector2D>();
- 
-		if (TurnValue.X != 0.f)
-		{
-			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-			if (UVirtualRealityUtilities::IsDesktopMode())
-			{
-				UpdateRightHandForDesktopInteraction();
-			}
-		}
- 
-		if (TurnValue.Y != 0.f)
-		{
-			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
-			{
-				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
-				SetCameraOffset();
-			}
-		}
-	}
-}
-
-void UTeleportationComponent::OnBeginSnapTurn(const FInputActionValue& Value)
-{
-	const FVector2D TurnValue = Value.Get<FVector2D>();
-	if (TurnValue.X > 0.f)
-	{
-		VRPawn->AddControllerYawInput(SnapTurnAngle);
-	} else if (TurnValue.X < 0.f)
-	{
-		VRPawn->AddControllerYawInput(-SnapTurnAngle);
-	}
-}
-
-void UTeleportationComponent::SetCameraOffset() const
-{
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void UTeleportationComponent::UpdateRightHandForDesktopInteraction()
-{
-	APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-	if (PC)
-	{
-		FVector MouseLocation, MouseDirection;
-		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		VRPawn->RightHand->SetWorldRotation(HandOrientation);
-	}
+	VRPawn->TeleportTo(FinalTeleportLocation, VRPawn->GetActorRotation());
 }
 

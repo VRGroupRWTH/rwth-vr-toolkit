@@ -20,22 +20,23 @@
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-{	
+{
 	BaseEyeHeight = 160.0f;
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
-	
+
 	HeadCameraComponent = CreateDefaultSubobject<UReplicatedCameraComponent>(TEXT("Camera"));
 	HeadCameraComponent->SetupAttachment(RootComponent);
-	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight)); //so it is rendered correctly in editor
-	
+	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
+	//so it is rendered correctly in editor
+
 	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
 	PawnMovement->SetHeadComponent(HeadCameraComponent);
-	
+
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
-	
+
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 
@@ -67,7 +68,8 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	if (IsLocallyControlled())
 	{
 		// Only do this for the master or when we're running in standalone
-		if(UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster() || GetNetMode() == NM_Standalone)
+		if (UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster() || GetNetMode() ==
+			NM_Standalone)
 		{
 			if (HasAuthority())
 				AttachDCRAtoPawn();
@@ -86,17 +88,19 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	{
 		UE_LOG(Toolkit, Warning, TEXT("SetupPlayerInputComponent: Player Controller is invalid"));
 		return;
-	}	
-	
+	}
+
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
 	// the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here such that
 	// bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially.
 	// There is probably a checkbox or way of spawning that prevents that in a better way that this, change if found.
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
-	
+
 	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP ? LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
-	if(!InputSubsystem)
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP
+		                                                     ? LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()
+		                                                     : nullptr;
+	if (!InputSubsystem)
 	{
 		UE_LOG(Toolkit, Error, TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
 		return;
@@ -104,10 +108,8 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	SetupMotionControllerSources();
 
-	ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
-
 	// Should not do this here but on connection or on possess I think.
-	if (State)
+	if (ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
 		// Might not be properly synced yet?
 		const EPlayerType Type = State->GetPlayerType();
@@ -121,52 +123,53 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 			State->RequestSetPlayerType(Type);
 		}
 	}
-	
+
 	if (UVirtualRealityUtilities::IsDesktopMode())
 	{
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
 	}
-	
+
 	InputSubsystem->ClearAllMappings();
 
 	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCBase,0);
-	
+	InputSubsystem->AddMappingContext(IMCBase, 0);
+
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	
+
 	// old function bindings for grabbing and releasing
 	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
 	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
 
-	EI->BindAction(ToggleNavigationMode,ETriggerEvent::Started,this,&AVirtualRealityPawn::OnToggleNavigationMode);
+	EI->BindAction(ToggleNavigationMode, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnToggleNavigationMode);
 
 	// Set up mappings on input extension components, need to do this nicely
-	
+
 	for (UActorComponent* Comp : GetComponentsByInterface(UInputExtensionInterface::StaticClass()))
 	{
 		Cast<IInputExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
 	}
 }
 
-void AVirtualRealityPawn::EvaluateLivelink()
+void AVirtualRealityPawn::EvaluateLivelink() const
 {
 	if (UVirtualRealityUtilities::IsRoomMountedMode() && IsLocallyControlled())
 	{
-
-		if(bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
+		if (bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
 		{
 			return;
 		}
 
-		
-		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
-		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
-		FLiveLinkSubjectFrameData SubjectData;
-		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject, HeadSubjectRepresentation.Role, SubjectData);
 
-		if(!bHasValidData)
+		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
+		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(
+			ILiveLinkClient::ModularFeatureName);
+		FLiveLinkSubjectFrameData SubjectData;
+		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(
+			HeadSubjectRepresentation.Subject, HeadSubjectRepresentation.Role, SubjectData);
+
+		if (!bHasValidData)
 			return;
 
 		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and could be further improved.
@@ -177,21 +180,27 @@ void AVirtualRealityPawn::EvaluateLivelink()
 		{
 			// Finally, apply the transform to this component according to the static data.
 			ApplyLiveLinkTransform(FrameData->Transform, *StaticData);
-		}	
-
+		}
 	}
 }
 
-void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction()
+void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction() const
 {
-	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (PC)
+	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		FVector MouseLocation, MouseDirection;
 		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		RightHand->SetWorldRotation(HandOrientation);
-		RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		const FRotator HandOrientation = MouseDirection.ToOrientationRotator();
+		if (bMoveRightHandWithMouse)
+		{
+			RightHand->SetWorldRotation(HandOrientation);
+			RightHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		}
+		if (bMoveLeftHandWithMouse)
+		{
+			LeftHand->SetWorldRotation(HandOrientation);
+			LeftHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
+		}
 	}
 }
 
@@ -215,7 +224,8 @@ void AVirtualRealityPawn::AttachDCRAtoPawn()
 	}
 	else
 	{
-		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
+		UE_LOGFMT(Toolkit, Warning,
+		          "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
 }
 
@@ -257,50 +267,55 @@ void AVirtualRealityPawn::SetCameraOffset() const
 // legacy grabbing
 void AVirtualRealityPawn::OnBeginFire(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp,Warning,TEXT("BeginFire"));
+	UE_LOG(LogTemp, Warning, TEXT("BeginFire"));
 	BasicVRInteraction->BeginInteraction();
 }
 
 // legacy grabbing
 void AVirtualRealityPawn::OnEndFire(const FInputActionValue& Value)
 {
-	UE_LOG(Toolkit,Log,TEXT("EndFire"));
+	UE_LOG(Toolkit, Log, TEXT("EndFire"));
 	BasicVRInteraction->EndInteraction();
 }
-
 
 void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
 {
 	switch (PawnMovement->NavigationMode)
 	{
-		case EVRNavigationModes::NAV_FLY:
-			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
-			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
-			break;
+	case EVRNavigationModes::NAV_FLY:
+		PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to WALK"));
+		break;
 
-		case EVRNavigationModes::NAV_WALK:
-			PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
-			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to FLY"));
-			break;
-		default:
-			PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
-			UE_LOG(Toolkit,Log,TEXT("Changed Nav mode to WALK"));
-			break;
+	case EVRNavigationModes::NAV_WALK:
+		PawnMovement->NavigationMode = EVRNavigationModes::NAV_GHOST;
+		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to GHOST"));
+		break;
+	case EVRNavigationModes::NAV_GHOST:
+		PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
+		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to FLY"));
+		break;
+	default:
+		PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
+		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to WALK"));
+		break;
 	}
 }
 
-
-void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData)
+void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform,
+                                                 const FLiveLinkTransformStaticData& StaticData) const
 {
 	if (StaticData.bIsLocationSupported)
 	{
 		if (bWorldTransform)
 		{
-			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr,
+			                                      ETeleportType::TeleportPhysics);
 		}
 		else
 		{
-			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr,
+			                                         ETeleportType::TeleportPhysics);
 		}
 	}
 
@@ -308,11 +323,13 @@ void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform, co
 	{
 		if (bWorldTransform)
 		{
-			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr,
+			                                      ETeleportType::TeleportPhysics);
 		}
 		else
 		{
-			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr,
+			                                         ETeleportType::TeleportPhysics);
 		}
 	}
 
@@ -326,5 +343,5 @@ void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform, co
 		{
 			HeadCameraComponent->SetRelativeScale3D(Transform.GetScale3D());
 		}
-	}	
+	}
 }

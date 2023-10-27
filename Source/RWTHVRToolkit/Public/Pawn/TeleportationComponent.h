@@ -8,42 +8,19 @@
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStaticsTypes.h"
-
+#include "Pawn/MovementComponentBase.h"
 
 #include "TeleportationComponent.generated.h"
 
-
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UTeleportationComponent : public UActorComponent, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API UTeleportationComponent : public UMovementComponentBase, public IInputExtensionInterface
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this component's properties
-	UTeleportationComponent();
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
-	bool bAllowTurning = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning", meta=(EditCondition="bAllowTurning"))
-	bool bSnapTurn = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta=(EditCondition="!bSnapTurn && bAllowTurning"))
-	float TurnRateFactor = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta=(EditCondition="bSnapTurn && bAllowTurning", ClampMin=0, ClampMax=360))
-	float SnapTurnAngle = 22.5;
 
 	/**
 	 * Whether the hit location of the teleport trace should be projected onto the navigation mesh
@@ -51,7 +28,6 @@ public:
 	 */
 	UPROPERTY(VisibleAnywhere, Category = "VR Movement|Teleport")
 	bool bUseNavMesh = false;
-
 
 	/**
 	 * Speed at which the projectile shoots out from the controller to get the teleport location
@@ -61,19 +37,23 @@ public:
 	float TeleportLaunchSpeed = 800;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCTeleportLeft;
+	UInputMappingContext* IMCTeleportLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCTeleportRight;
+	UInputMappingContext* IMCTeleportRight;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Move;
+	UInputAction* Move;
+	
+	// Trace Visualization
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BPTeleportVisualizer;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Turn;
+	UPROPERTY(EditDefaultsOnly)
+	UNiagaraSystem* TeleportTraceSystem;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* DesktopRotation;
+	UPROPERTY()
+	UNiagaraComponent* TeleportTraceComponent;
 
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
@@ -86,34 +66,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnEndTeleportTrace(const FInputActionValue& Value);
 
-
-	UFUNCTION(BlueprintCallable)
-	void OnBeginTurn(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintCallable)
-	void OnBeginSnapTurn(const FInputActionValue& Value);
-
-	/*Desktop Testing*/
-	// the idea is that you have to hold the right mouse button to do rotations
-	UFUNCTION()
-	void StartDesktopRotation();
-
-	UFUNCTION()
-	void EndDesktopRotation();
-
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
-
-	bool bApplyDesktopRotation = false;
-	
-	// Trace Visualization
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> BPTeleportVisualizer;
-
-	UPROPERTY(EditDefaultsOnly)
-	UNiagaraSystem* TeleportTraceSystem;
-
-	UPROPERTY()
-	UNiagaraComponent* TeleportTraceComponent;
 	
 private:
 	UPROPERTY()
@@ -127,12 +80,6 @@ private:
 	
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
-
-	/**
-	* Fixes camera rotation in desktop mode.
-	*/
-	void SetCameraOffset() const;
-	void UpdateRightHandForDesktopInteraction();
 
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;

@@ -9,147 +9,90 @@
 #include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
-#include "Pawn/ReplicatedCameraComponent.h"
-#include "Pawn/ReplicatedMotionControllerComponent.h"
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
 	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 
-	if(!VRPawn->HasLocalNetOwner())
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
-	
+
 	// simple way of changing the handedness
-	if(bMoveWithRightHand)
+	if (bMoveWithRightHand)
 	{
 		MovementHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
 		IMCMovement = IMCMovementRight;
-	} else
+	}
+	else
 	{
 		MovementHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
 		IMCMovement = IMCMovementLeft;
 	}
-	
+
 	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(VRPawn);
-	if(!InputSubsystem)
+	if (!InputSubsystem)
 	{
-		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
+		UE_LOG(Toolkit, Error, TEXT("InputSubsystem IS NOT VALID"));
 		return;
 	}
 	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCMovement,0);
-	
+	InputSubsystem->AddMappingContext(IMCMovement, 0);
+
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)
 	{
-		UE_LOG(Toolkit,Error,TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
+		UE_LOG(Toolkit, Error, TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
 		return;
 	}
-	
-	// walking
-	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginMove);
 
-	// turning
+	// continuous steering
+	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnMove);
+	EI->BindAction(MoveUp, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnMoveUp);
 
-	if(bAllowTurning)
+	// turning is defined in MovementComponentBase
+}
+
+void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
+{
+	if (!VRPawn || !VRPawn->Controller)
+		return;
+
+	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode ==
+		EVRSteeringModes::STEER_GAZE_DIRECTED;
+
+	const FVector ForwardDir = bGazeDirected
+		                           ? VRPawn->HeadCameraComponent->GetForwardVector()
+		                           : MovementHand->GetForwardVector();
+	const FVector RightDir = bGazeDirected
+		                         ? VRPawn->HeadCameraComponent->GetRightVector()
+		                         : MovementHand->GetRightVector();
+
+	const FVector2D MoveValue = Value.Get<FVector2D>();
+
+	// Forward/Backward direction
+	if (MoveValue.X != 0.f)
 	{
-		// no snap turning for desktop mode
-		if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
-		{
-			EI->BindAction(Turn, ETriggerEvent::Started, this, &UContinuousMovementComponent::OnBeginSnapTurn);
-		} else
-		{
-			EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UContinuousMovementComponent::OnBeginTurn);
-		}
+		VRPawn->AddMovementInput(ForwardDir, MoveValue.X);
 	}
-	
-	// bind additional functions for desktop rotations
-	if (UVirtualRealityUtilities::IsDesktopMode())
+
+	// Right/Left direction
+	if (MoveValue.Y != 0.f)
 	{
-		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UContinuousMovementComponent::StartDesktopRotation);
-		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UContinuousMovementComponent::EndDesktopRotation);
-		EI->BindAction(MoveUp, ETriggerEvent::Triggered,this,&UContinuousMovementComponent::OnBeginUp);
-	}
-}
-
-void UContinuousMovementComponent::StartDesktopRotation()
-{
-	bApplyDesktopRotation = true;
-}
-
-void UContinuousMovementComponent::EndDesktopRotation()
-{
-	bApplyDesktopRotation = false;
-}
-
-void UContinuousMovementComponent::OnBeginMove(const FInputActionValue& Value)
-{
-	
-	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
-	
-	const FVector ForwardDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
-	const FVector RightDir = bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
-	
-	if (VRPawn->Controller != nullptr)
-	{
-		const FVector2D MoveValue = Value.Get<FVector2D>();
- 
-		// Forward/Backward direction
-		if (MoveValue.X != 0.f)
-		{
-			VRPawn->AddMovementInput(ForwardDir, MoveValue.X);
-		}
- 
-		// Right/Left direction
-		if (MoveValue.Y != 0.f)
-		{
-			VRPawn->AddMovementInput(RightDir, MoveValue.Y);
-		}
+		VRPawn->AddMovementInput(RightDir, MoveValue.Y);
 	}
 }
 
-void UContinuousMovementComponent::OnBeginTurn(const FInputActionValue& Value)
+void UContinuousMovementComponent::OnMoveUp(const FInputActionValue& Value)
 {
-	if(UVirtualRealityUtilities::IsDesktopMode() && !bApplyDesktopRotation) return;
-	if (VRPawn->Controller != nullptr)
-	{
-		const FVector2D TurnValue = Value.Get<FVector2D>();
- 
-		if (TurnValue.X != 0.f)
-		{
-			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-		}
- 
-		if (TurnValue.Y != 0.f)
-		{
-			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
-			{
-				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
-			}
-		}
-	}
-}
+	if (!VRPawn)
+		return;
 
-void UContinuousMovementComponent::OnBeginSnapTurn(const FInputActionValue& Value)
-{
-	const FVector2D TurnValue = Value.Get<FVector2D>();
-	if (TurnValue.X > 0.f)
-	{
-		VRPawn->AddControllerYawInput(SnapTurnAngle);
-	} else if (TurnValue.X < 0.f)
-	{
-		VRPawn->AddControllerYawInput(-SnapTurnAngle);
-	}
-}
-
-void UContinuousMovementComponent::OnBeginUp(const FInputActionValue& Value)
-{
-	const float MoveValue =  Value.Get<FVector2D>().X;
+	const float MoveValue = Value.Get<FVector2D>().X;
 	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
 	VRPawn->AddMovementInput(FVector::UpVector, MoveValue);
 }

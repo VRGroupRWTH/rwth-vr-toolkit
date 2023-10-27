@@ -22,8 +22,10 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 void UVRPawnMovement::BeginPlay()
 {
 	Super::BeginPlay();
-	LastCapsulePosition.Reset();
+	LastCollisionFreeCapsulePosition = CapsuleColliderComponent->GetComponentLocation();
 	LastSteeringCollisionVector = FVector(0,0,0);
+
+	ActorsToIgnore = { GetOwner() };
 }
 
 
@@ -43,11 +45,10 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		AddInputVector(InputVector);
 	}
 
-	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
-	if(bDeactivatedWhileInCollision && !CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
-	{
-		bDeactivatedWhileInCollision=false;
-	}
+	//if me managed to get into a collision revert the movement since last Tick
+	CheckAndRevertCollisionSinceLastTick();
+	//check whether we are still in collision e.g. if an object has moved and got us into collision
+	MoveOutOfNewDynamicCollisions();
 	
 	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
@@ -67,7 +68,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		MoveByGravityOrStepUp(DeltaTime);
 
 		//if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
-		if(!bDeactivatedWhileInCollision) CheckForPhysWalkingCollision();
+		CheckForPhysWalkingCollision();
 	}
 
 	if(NavigationMode == EVRNavigationModes::NAV_NONE)
@@ -134,17 +135,32 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 	CapsuleColliderComponent->SetWorldRotation(FRotator::ZeroRotator);
 }
 
+void UVRPawnMovement::CheckAndRevertCollisionSinceLastTick()
+{
+	//check whether we are in a collision at the current position
+	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
+	if (CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
+	{
+		//if so move back to last position
+		UpdatedComponent->AddWorldOffset(LastCollisionFreeCapsulePosition - CapsuleLocation);
+	}
+	else
+	{
+		LastCollisionFreeCapsulePosition = CapsuleLocation;
+	}
+}
+
+void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
+{
+	FVector ResolveDirection = GetOverlapResolveDirection();
+	ResolveDirection *= 1.5f; //scale it up for security distance
+	UpdatedComponent->AddWorldOffset(ResolveDirection);
+}
+
 void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
-	if(!LastCapsulePosition.IsSet())
-	{
-		//not yet set, so do nothing than setting it
-		LastCapsulePosition = CapsuleColliderComponent->GetComponentLocation();
-		return;
-	}
-
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
-	const FHitResult HitResult = CreateCapsuleTrace(LastCapsulePosition.GetValue(), CapsuleLocation);
+	const FHitResult HitResult = CreateCapsuleTrace(LastCollisionFreeCapsulePosition, CapsuleLocation);
 
 	//if this was not possible move the entire pawn away to avoid the head collision
 	if (HitResult.bBlockingHit)
@@ -152,18 +168,6 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 		const FVector MoveOutVector = HitResult.Location-CapsuleLocation;
 		//move it out twice as far, to avoid getting stuck situations
 		UpdatedComponent->AddWorldOffset(2*MoveOutVector);
-	}
-
-
-	//only update if not in collision
-	if(!CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
-	{
-		LastCapsulePosition = CapsuleColliderComponent->GetComponentLocation();;
-	}
-	else{
-		//we are still in collision, so deactivate collision handling until this stopped
-		bDeactivatedWhileInCollision=true;
-		LastCapsulePosition.Reset();
 	}
 }
 
@@ -184,7 +188,7 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 	FVector CollisionVector = TraceResult.Location - CapsuleLocation;
 
 	//sometimes (if by chance we already moved into collision entirely CollisionVector is 0
-	if(! CollisionVector.Normalize())
+	if(!CollisionVector.Normalize())
 	{
 		//then we probably start already in collision, so we use the last one
 		CollisionVector = LastSteeringCollisionVector;
@@ -260,13 +264,29 @@ void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration
 FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug)
 {
 	const EDrawDebugTrace::Type DrawType = DrawDebug ? EDrawDebugTrace::Type::ForDuration : EDrawDebugTrace::Type::None;
-	if(ActorsToIgnore.Num()==0){
-		ActorsToIgnore.Add(GetOwner());
-	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("Capsule from %s to %s"), *Start.ToString(), *End.ToString())
 
 	FHitResult Hit;
 	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight(), UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, DrawType, Hit, true);
 	return Hit;
+}
+
+FVector UVRPawnMovement::GetOverlapResolveDirection()
+{
+	TArray<UPrimitiveComponent*> OverlappingComponents;
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Visibility));
+	UKismetSystemLibrary::CapsuleOverlapComponents(GetWorld(), CapsuleColliderComponent->GetComponentLocation(), CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight(), traceObjectTypes, nullptr, ActorsToIgnore, OverlappingComponents);
+
+	FVector ResolveVector = FVector::ZeroVector;
+
+	//check what to do to move out of these collisions (or nothing if non is there)
+	//we just add the penetrations so in very unfortunate conditions this can become problematic/blocking but for now and our regular use cases this works
+	for(const UPrimitiveComponent* OverlappingComp : OverlappingComponents)
+	{
+		FHitResult Hit = CreateCapsuleTrace(CapsuleColliderComponent->GetComponentLocation(), OverlappingComp->GetComponentLocation(), false);
+		ResolveVector += Hit.ImpactNormal * Hit.PenetrationDepth;
+	}
+	return ResolveVector;
 }

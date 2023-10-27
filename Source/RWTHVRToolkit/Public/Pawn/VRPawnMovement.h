@@ -36,7 +36,9 @@ class RWTHVRTOOLKIT_API UVRPawnMovement : public UFloatingPawnMovement
 public:
 
 	virtual void BeginPlay() override;
+	void CheckAndRevertCollisionSinceLastTick();
 
+	void MoveOutOfNewDynamicCollisions();
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -65,6 +67,7 @@ public:
 private:
 	//check for
 	FHitResult CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug=false);
+	FVector GetOverlapResolveDirection();
 	void SetCapsuleColliderToUserSize();
 	void CheckForPhysWalkingCollision();
 	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
@@ -75,12 +78,10 @@ private:
 	UPROPERTY() USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	TOptional<FVector> LastCapsulePosition;
+	FVector LastCollisionFreeCapsulePosition;
 	FVector LastSteeringCollisionVector;
 
-	//this will deactivate all collision avoidance, so we can move out of a collision, e.g. if movements of the scene provoked a collision
-	bool bDeactivatedWhileInCollision = false;
-
 	//just stored for performance gains;
+	UPROPERTY()
 	TArray<AActor*> ActorsToIgnore;
 };
