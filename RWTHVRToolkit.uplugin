@@ -16,15 +16,6 @@
 	"EnabledByDefault": true,
 	"Modules": [
 		{
-			"Name": "Calibratio",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Linux"
-			]
-		},
-		{
 			"Name": "RWTHVRCluster",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
