@@ -4,19 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Pawn/InputExtensionInterface.h"
 #include "MovementComponentBase.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent
+class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
 public:
-
-	virtual void BeginPlay() override;
+	
+	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bAllowTurning = true;
@@ -53,14 +54,15 @@ public:
 	void EndDesktopRotation();
 
 protected:
-	void SetupInputActions();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCRotation;
 
-private:
+	UPROPERTY()
+	AVirtualRealityPawn* VRPawn;
 
+	UPROPERTY()
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;
 
 	bool bApplyDesktopRotation = false;
-	
 };

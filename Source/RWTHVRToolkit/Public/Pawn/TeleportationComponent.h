@@ -13,12 +13,11 @@
 #include "TeleportationComponent.generated.h"
 
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UTeleportationComponent : public UMovementComponentBase, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API UTeleportationComponent : public UMovementComponentBase
 {
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
 
@@ -44,7 +43,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	UInputAction* Move;
-	
+
 	// Trace Visualization
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> BPTeleportVisualizer;
@@ -67,7 +66,7 @@ public:
 	void OnEndTeleportTrace(const FInputActionValue& Value);
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
-	
+
 private:
 	UPROPERTY()
 	UMotionControllerComponent* TeleportationHand;
@@ -76,11 +75,8 @@ private:
 	UMotionControllerComponent* RotationHand;
 
 	UPROPERTY()
-	class UInputMappingContext* IMCMovement;
+	UInputMappingContext* IMCMovement;
 	
-	UPROPERTY()
-	AVirtualRealityPawn* VRPawn;
-
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;
 	float RotationArrowRadius = 10.0;
@@ -90,5 +86,4 @@ private:
 
 	UPROPERTY()
 	AActor* TeleportVisualizer;
-	
 };

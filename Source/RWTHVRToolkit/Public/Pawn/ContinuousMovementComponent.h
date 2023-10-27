@@ -21,7 +21,7 @@ enum class EVRSteeringModes : uint8
  * 
  */
 UCLASS(Blueprintable)
-class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UMovementComponentBase, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UMovementComponentBase
 {
 	GENERATED_BODY()
 
@@ -51,8 +51,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnMoveUp(const FInputActionValue& Value);
-
-
+	
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
@@ -64,9 +63,5 @@ private:
 	UMotionControllerComponent* MovementHand;
 	
 	UPROPERTY()
-	UMotionControllerComponent* RotationHand;
-	
-	UPROPERTY()
-	AVirtualRealityPawn* VRPawn;
-	
+	UMotionControllerComponent* RotationHand;	
 };

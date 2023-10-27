@@ -12,10 +12,9 @@
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
-	check(PlayerInputComponent);
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-
-	if (!VRPawn || !VRPawn->HasLocalNetOwner())
+	Super::SetupPlayerInput(PlayerInputComponent);
+	
+	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
 	{
 		return;
 	}
@@ -33,13 +32,7 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 		RotationHand = VRPawn->RightHand;
 		IMCMovement = IMCMovementLeft;
 	}
-
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(VRPawn);
-	if (!InputSubsystem)
-	{
-		UE_LOG(Toolkit, Error, TEXT("InputSubsystem IS NOT VALID"));
-		return;
-	}
+	
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement, 0);
 

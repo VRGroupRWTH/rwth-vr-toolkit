@@ -18,9 +18,9 @@
 
 void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
-
-	if (!VRPawn || !VRPawn->HasLocalNetOwner())
+	Super::SetupPlayerInput(PlayerInputComponent);
+	
+	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
 	{
 		return;
 	}
@@ -63,12 +63,6 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 		IMCMovement = IMCTeleportLeft;
 	}
 	
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(VRPawn);
-	if (!InputSubsystem)
-	{
-		UE_LOG(Toolkit,Error,TEXT("InputSubsystem IS NOT VALID"));
-		return;
-	}
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCMovement,0);
 	
