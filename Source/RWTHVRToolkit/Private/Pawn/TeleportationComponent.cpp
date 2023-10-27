@@ -15,21 +15,12 @@
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
 
-// Sets default values for this component's properties
-UTeleportationComponent::UTeleportationComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
 
 // Called when the game starts
 void UTeleportationComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
 	SetupInputActions();
 	
 	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation
@@ -54,20 +45,16 @@ void UTeleportationComponent::BeginPlay()
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 
-	
-	// ...
 }
 
-// Called every frame
-void UTeleportationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-}
 
 void UTeleportationComponent::SetupInputActions()
 {
+	Super::SetupInputActions();
+
+	const AVirtualRealityPawn* VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
+
 	// simple way of changing the handedness
 	if(bMoveWithRightHand)
 	{
@@ -98,47 +85,13 @@ void UTeleportationComponent::SetupInputActions()
 		return;
 	}
 	
-	// walking
+	// teleporting
 	EI->BindAction(Move, ETriggerEvent::Started, this, &UTeleportationComponent::OnStartTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Triggered, this, &UTeleportationComponent::UpdateTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Completed, this, &UTeleportationComponent::OnEndTeleportTrace);
 	EI->BindAction(Move, ETriggerEvent::Canceled, this, &UTeleportationComponent::OnEndTeleportTrace);
 
-	// turning
-	if(bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
-	{
-		EI->BindAction(Turn, ETriggerEvent::Started, this, &UTeleportationComponent::OnBeginSnapTurn);
-	} else
-	{
-		EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UTeleportationComponent::OnBeginTurn);
-	}
-	
-	// bind functions for desktop rotations only on holding down right mouse
-	if (UVirtualRealityUtilities::IsDesktopMode())
-	{
-		APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-		if (PC)
-		{
-			PC->bShowMouseCursor = true; 
-			PC->bEnableClickEvents = true; 
-			PC->bEnableMouseOverEvents = true;
-		} else
-		{
-			UE_LOG(LogTemp,Error,TEXT("PC Player Controller is invalid"));
-		}
-		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UTeleportationComponent::StartDesktopRotation);
-		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UTeleportationComponent::EndDesktopRotation);
-	}
-}
-
-void UTeleportationComponent::StartDesktopRotation()
-{
-	bApplyDesktopRotation = true;
-}
-
-void UTeleportationComponent::EndDesktopRotation()
-{
-	bApplyDesktopRotation = false;
+	// turning is defined in MovementComponentBase
 }
 
 // On button press -> show teleport trace
@@ -226,66 +179,5 @@ void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 	bValidTeleportLocation = false;
 	GetOwner()->TeleportTo(FinalTeleportLocation,GetOwner()->GetActorRotation());
 	
-}
-
-void UTeleportationComponent::OnBeginTurn(const FInputActionValue& Value)
-{
-	if(UVirtualRealityUtilities::IsDesktopMode() && !bApplyDesktopRotation) return;
-	if (VRPawn->Controller != nullptr)
-	{
-		const FVector2D TurnValue = Value.Get<FVector2D>();
- 
-		if (TurnValue.X != 0.f)
-		{
-			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-			if (UVirtualRealityUtilities::IsDesktopMode())
-			{
-				UpdateRightHandForDesktopInteraction();
-			}
-		}
- 
-		if (TurnValue.Y != 0.f)
-		{
-			if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
-			{
-				VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
-				SetCameraOffset();
-			}
-		}
-	}
-}
-
-void UTeleportationComponent::OnBeginSnapTurn(const FInputActionValue& Value)
-{
-	const FVector2D TurnValue = Value.Get<FVector2D>();
-	if (TurnValue.X > 0.f)
-	{
-		VRPawn->AddControllerYawInput(SnapTurnAngle);
-	} else if (TurnValue.X < 0.f)
-	{
-		VRPawn->AddControllerYawInput(-SnapTurnAngle);
-	}
-}
-
-void UTeleportationComponent::SetCameraOffset() const
-{
-	// this also incorporates the BaseEyeHeight, if set as static offset,
-	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	VRPawn->GetActorEyesViewPoint(Location, Rotation);
-	VRPawn->HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void UTeleportationComponent::UpdateRightHandForDesktopInteraction()
-{
-	APlayerController* PC = Cast<APlayerController>(VRPawn->GetController());
-	if (PC)
-	{
-		FVector MouseLocation, MouseDirection;
-		PC->DeprojectMousePositionToWorld(MouseLocation, MouseDirection);
-		FRotator HandOrientation = MouseDirection.ToOrientationRotator();
-		VRPawn->RightHand->SetWorldRotation(HandOrientation);
-	}
 }
 
