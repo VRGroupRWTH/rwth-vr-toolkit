@@ -5,7 +5,7 @@
 #include <Pawn/InputExtensionInterface.h>
 
 #include "CoreMinimal.h"
-#include "RaycastSelectable.h"
+#include "Interaction/Interactees/RaycastSelectable.h"
 #include "Components/SceneComponent.h"
 #include "RaycastSelectionComponent.generated.h"
 

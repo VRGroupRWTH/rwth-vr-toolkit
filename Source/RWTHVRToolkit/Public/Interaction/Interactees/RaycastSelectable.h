@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interaction/InteractableBase.h"
+#include "Interaction/Interactees/InteractableBase.h"
 #include "RaycastSelectable.generated.h"
 
 /**

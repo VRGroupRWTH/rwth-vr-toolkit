@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/GrabComponent.h"
+#include "Interaction/Interactors/GrabComponent.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interaction/GrabbableComponent.h"
+#include "Interaction/Interactees/GrabbableComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -92,7 +92,7 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
 	if (!InputSubsystem)
 		return;
-	
+
 	// add Input Mapping context 
 	InputSubsystem->AddMappingContext(IMCGrab, 0);
 
