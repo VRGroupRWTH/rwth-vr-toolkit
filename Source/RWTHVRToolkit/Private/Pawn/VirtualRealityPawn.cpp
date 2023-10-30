@@ -68,7 +68,7 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	if (IsLocallyControlled())
 	{
 		// Only do this for the master or when we're running in standalone
-		if (UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster() || GetNetMode() ==
+		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsMaster() || GetNetMode()) ==
 			NM_Standalone)
 		{
 			if (HasAuthority())
