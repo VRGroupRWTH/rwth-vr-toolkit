@@ -15,11 +15,12 @@ USTRUCT()
 struct RWTHVRCLUSTER_API FClusterConsole
 {
 	GENERATED_BODY()
+
 private:
 	/* Used for ClusterExecute console command */
 	IConsoleCommand* ClusterConsoleCommand = nullptr;
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;
-	
+
 public:
 	void Register();
 	void Unregister() const;
