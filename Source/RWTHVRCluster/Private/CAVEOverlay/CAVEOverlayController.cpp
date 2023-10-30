@@ -221,8 +221,8 @@ void ACAVEOverlayController::BeginPlay()
 	Overlay = CreateWidget<UDoorOverlayData>(GetWorld()->GetFirstPlayerController(), OverlayClass);
 	Overlay->AddToViewport(0);
 	SetDoorMode(DoorCurrentMode);
-	Overlay->CornerText->SetText(FText::FromString(""));
 	//Set Text to "" until someone presses the key for the first time
+	Overlay->CornerText->SetText(FText::FromString(""));
 
 	if (!bAttachedToCAVEOrigin && CaveOrigin)
 	{
@@ -252,10 +252,11 @@ float ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Positi
 
 bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) const
 {
+	//Overlap both sides 10cm
 	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10)
-		//Overlap both sides 10cm
+		//Overlap one side 10cm
 		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute,
-		                            WallDistance + 10); //Overlap one side 10cm
+		                            WallDistance + 10); 
 }
 
 // Called every frame

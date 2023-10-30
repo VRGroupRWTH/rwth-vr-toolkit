@@ -3,8 +3,8 @@
 
 void FActivateConsoleInShipping::Register()
 {
-	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping) return;
 	/* Should only enable console in shipping */
+	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping) return;
 
 	On_Post_World_Initialization_Delegate.BindRaw(this, &FActivateConsoleInShipping::OnSessionStart);
 	StartHandle = FWorldDelegates::OnPostWorldInitialization.Add(On_Post_World_Initialization_Delegate);

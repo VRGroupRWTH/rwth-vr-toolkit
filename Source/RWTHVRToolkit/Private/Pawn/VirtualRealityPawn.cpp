@@ -207,7 +207,7 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction() const
 // Todo rewrite this in some other way or attach it differently, this is horrible
 void AVirtualRealityPawn::AttachDCRAtoPawn()
 {
-	if (!CaveSetupActorClass->IsValidLowLevelFast())
+	if (!CaveSetupActorClass || !CaveSetupActorClass->IsValidLowLevelFast())
 	{
 		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor class set in pawn!");
 		return;
