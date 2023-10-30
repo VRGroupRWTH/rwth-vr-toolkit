@@ -23,7 +23,7 @@ private:
 	EPlayerType PlayerType = EPlayerType::Desktop;
 
 	UFUNCTION(Reliable, Server)
-	void SetPlayerTypeServerRpc(EPlayerType NewPlayerType);
+	void ServerSetPlayerTypeRpc(EPlayerType NewPlayerType);
 
 	void SetPlayerType(EPlayerType NewPlayerType);
 

@@ -43,11 +43,11 @@ void ARWTHVRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	FDoRepLifetimeParams SharedParams;
 	SharedParams.bIsPushBased = true;
-	
+
 	DOREPLIFETIME_WITH_PARAMS_FAST(ARWTHVRPlayerState, PlayerType, SharedParams);
 }
 
-void ARWTHVRPlayerState::SetPlayerTypeServerRpc_Implementation(const EPlayerType NewPlayerType)
+void ARWTHVRPlayerState::ServerSetPlayerTypeRpc_Implementation(const EPlayerType NewPlayerType)
 {
 	SetPlayerType(NewPlayerType);
 }
@@ -66,6 +66,6 @@ void ARWTHVRPlayerState::RequestSetPlayerType(const EPlayerType NewPlayerType)
 	}
 	else
 	{
-		SetPlayerTypeServerRpc(NewPlayerType);
+		ServerSetPlayerTypeRpc(NewPlayerType);
 	}
 }
