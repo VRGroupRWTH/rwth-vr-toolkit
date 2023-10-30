@@ -14,9 +14,10 @@ USTRUCT()
 struct RWTHVRCLUSTER_API FCAVEOverlay
 {
 	GENERATED_BODY()
-	
+
 	void Register();
 	void Unregister() const;
+
 private:
 	TDelegate<void(UWorld*, const UWorld::InitializationValues)> On_Post_World_Initialization_Delegate;
 	void OnSessionStart(UWorld* World, UWorld::InitializationValues);

@@ -20,5 +20,5 @@ public:
 	TEnumAsByte<DefaultActivationType> DefaultActivationType = DefaultActivationType_ON;
 
 	UPROPERTY(EditAnywhere, config, Category = Maps, meta=(AllowedClasses="World"))
-	TArray<FSoftObjectPath> excludedMaps;
+	TArray<FSoftObjectPath> ExcludedMaps;
 };

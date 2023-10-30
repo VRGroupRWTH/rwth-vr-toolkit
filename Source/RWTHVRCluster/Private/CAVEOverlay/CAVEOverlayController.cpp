@@ -1,4 +1,5 @@
 #include "CAVEOverlay/CAVEOverlayController.h"
+
 #include "CoreMinimal.h"
 #include "IDisplayCluster.h"
 #include "CAVEOverlay/DoorOverlayData.h"
@@ -149,8 +150,9 @@ void ACAVEOverlayController::SetDoorMode(EDoorMode NewMode)
 	case EDoorMode::DOOR_PARTIALLY_OPEN:
 		DoorCurrentOpeningWidthAbsolute = DoorOpeningWidthAbsolute;
 		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->
-		                                                SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL)
+			Overlay->BlackBox->
+			         SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
 		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
@@ -256,7 +258,7 @@ bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) cons
 	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10)
 		//Overlap one side 10cm
 		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute,
-		                            WallDistance + 10); 
+		                            WallDistance + 10);
 }
 
 // Called every frame

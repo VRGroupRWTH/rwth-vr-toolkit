@@ -26,7 +26,7 @@ void FCAVEOverlay::OnSessionStart(UWorld* World, const UWorld::InitializationVal
 	UGameplayStatics::GetAllActorsOfClass(World, ACAVEOverlayController::StaticClass(), Actors);
 
 	if ((Settings->DefaultActivationType == DefaultActivationType_ON
-		!= Settings->excludedMaps.ContainsByPredicate(
+		!= Settings->ExcludedMaps.ContainsByPredicate(
 			[World](const FSoftObjectPath& Map) { return Map.GetAssetName() == World->GetName(); }
 		)) && Actors.Num() == 0)
 	{

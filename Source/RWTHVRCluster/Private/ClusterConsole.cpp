@@ -1,4 +1,5 @@
 #include "ClusterConsole.h"
+
 #include "IDisplayCluster.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
 

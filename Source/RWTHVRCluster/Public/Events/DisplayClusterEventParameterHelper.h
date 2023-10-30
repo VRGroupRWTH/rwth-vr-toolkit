@@ -4,10 +4,12 @@
 #include "Serialization/MemoryWriter.h"
 
 template <typename ParameterType, typename... RemainingParameterTypes>
-inline void SerializeParameters(FMemoryWriter* MemoryWriter, ParameterType&& Parameter, RemainingParameterTypes&&... RemainingParameters)
+inline void SerializeParameters(FMemoryWriter* MemoryWriter, ParameterType&& Parameter,
+                                RemainingParameterTypes&&... RemainingParameters)
 {
 	using NonConstType = typename TRemoveCV<typename TRemoveReference<ParameterType>::Type>::Type;
-	(*MemoryWriter) << const_cast<NonConstType&>(Parameter); // const_cast because the same operator (<<) is used for reading and writing
+	// const_cast because the same operator (<<) is used for reading and writing
+	(*MemoryWriter) << const_cast<NonConstType&>(Parameter);
 	SerializeParameters(MemoryWriter, Forward<RemainingParameterTypes>(RemainingParameters)...);
 }
 
@@ -49,5 +51,8 @@ inline RetType CallDelegateWithParameterMap(
 
 	// The lambda function is only necessary because delegates do not overload the ()-operator but use the Execute() method
 	// instead. So, the lambda acts as a wrapper.
-	return ArgumentTuple.ApplyBefore([Delegate](ArgTypes&&... Arguments) { Delegate.Execute(Forward<ArgTypes>(Arguments)...); });
+	return ArgumentTuple.ApplyBefore([Delegate](ArgTypes&&... Arguments)
+	{
+		Delegate.Execute(Forward<ArgTypes>(Arguments)...);
+	});
 }

@@ -13,9 +13,10 @@ UCLASS()
 class RWTHVRCLUSTER_API ACAVEOverlayController : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ACAVEOverlayController();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,9 +31,15 @@ private:
 	enum EScreen_Type { SCREEN_MASTER, SCREEN_NORMAL, SCREEN_DOOR_PARTIAL, SCREEN_DOOR };
 
 	EScreen_Type ScreenType = SCREEN_NORMAL;
-	const TArray<FString> ScreensDoor = {"node_bul_left_eye", "node_bul_right_eye", "node_bll_left_eye", "node_bll_right_eye"};
-	const TArray<FString> ScreensDoorPartial = {"node_bur_left_eye", "node_bur_right_eye", "node_blr_left_eye", "node_blr_right_eye"};
-	const TArray<FString> ScreensFPS = {"node_rur_left_eye", "node_rur_right_eye", "node_lur_left_eye", "node_lur_right_eye", "node_main"};
+	const TArray<FString> ScreensDoor = {
+		"node_bul_left_eye", "node_bul_right_eye", "node_bll_left_eye", "node_bll_right_eye"
+	};
+	const TArray<FString> ScreensDoorPartial = {
+		"node_bur_left_eye", "node_bur_right_eye", "node_blr_left_eye", "node_blr_right_eye"
+	};
+	const TArray<FString> ScreensFPS = {
+		"node_rur_left_eye", "node_rur_right_eye", "node_lur_left_eye", "node_lur_right_eye", "node_main"
+	};
 	const FString ScreenMain = "node_main";
 
 	//Door Mode
@@ -50,27 +57,32 @@ private:
 
 	//Overlay
 	TSubclassOf<class UDoorOverlayData> OverlayClass;
-	UPROPERTY() UDoorOverlayData* Overlay;
+	UPROPERTY()
+	UDoorOverlayData* Overlay;
 
 	//Geometry and Material
 	UStaticMeshComponent* CreateMeshComponent(const FName& Name, UStaticMesh* Mesh, USceneComponent* Parent);
-	UPROPERTY() UMaterial* TapeMaterial = nullptr;
-	UPROPERTY() UMaterial* SignMaterial = nullptr;
+	UPROPERTY()
+	UMaterial* TapeMaterial = nullptr;
+	UPROPERTY()
+	UMaterial* SignMaterial = nullptr;
 	float CalculateOpacityFromPosition(const FVector& Position) const;
 	bool PositionInDoorOpening(const FVector& Position) const;
 
 	//Pawn Components
 	bool bAttachedToCAVEOrigin = false;
-	UPROPERTY() USceneComponent* CaveOrigin;
-	UPROPERTY() USceneComponent* Head;
-	UPROPERTY() USceneComponent* Flystick;
+	UPROPERTY()
+	USceneComponent* CaveOrigin;
+	UPROPERTY()
+	USceneComponent* Head;
+	UPROPERTY()
+	USceneComponent* Flystick;
 
 	//Cluster Events
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;
 	void HandleClusterEvent(const FDisplayClusterClusterEventJson& Event);
 
 public:
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -78,21 +90,35 @@ public:
 	void SetDoorMode(EDoorMode M);
 
 	//Signs and Banners
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) USceneComponent* Root = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) USceneComponent* TapeRoot = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) USceneComponent* SignRoot = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* Root = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* TapeRoot = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* SignRoot = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* TapeNegativeY = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* TapeNegativeX = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* TapePositiveY = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* TapePositiveX = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TapeNegativeY = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TapeNegativeX = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TapePositiveY = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TapePositiveX = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* SignNegativeY = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* SignNegativeX = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* SignPositiveY = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* SignPositiveX = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SignNegativeY = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SignNegativeX = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SignPositiveY = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SignPositiveX = nullptr;
 
-	UPROPERTY() UMaterialInstanceDynamic* TapeMaterialDynamic = nullptr;
-	UPROPERTY() UMaterialInstanceDynamic* SignMaterialDynamic = nullptr;
-	UPROPERTY() UStaticMesh* PlaneMesh = nullptr;
+	UPROPERTY()
+	UMaterialInstanceDynamic* TapeMaterialDynamic = nullptr;
+	UPROPERTY()
+	UMaterialInstanceDynamic* SignMaterialDynamic = nullptr;
+	UPROPERTY()
+	UStaticMesh* PlaneMesh = nullptr;
 };

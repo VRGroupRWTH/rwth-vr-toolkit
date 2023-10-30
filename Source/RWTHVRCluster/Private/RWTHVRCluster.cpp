@@ -2,7 +2,7 @@
 
 #define LOCTEXT_NAMESPACE "FRWTHVRClusterModule"
 
-void FRWTHVRClusterModule::StartupModule ()
+void FRWTHVRClusterModule::StartupModule()
 {
 	ClusterConsole.Register();
 	CAVEOverlay.Register();

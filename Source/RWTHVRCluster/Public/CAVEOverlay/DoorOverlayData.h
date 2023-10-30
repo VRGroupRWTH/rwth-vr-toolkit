@@ -15,7 +15,7 @@ UCLASS()
 class RWTHVRCLUSTER_API UDoorOverlayData : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	//These declarations are magically bound to the UMG blueprints elements,
 	//if they are named the same
