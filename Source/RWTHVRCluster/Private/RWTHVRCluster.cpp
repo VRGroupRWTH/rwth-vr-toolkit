@@ -7,6 +7,7 @@ void FRWTHVRClusterModule::StartupModule ()
 	ClusterConsole.Register();
 	CAVEOverlay.Register();
 }
+
 void FRWTHVRClusterModule::ShutdownModule()
 {
 	ClusterConsole.Unregister();

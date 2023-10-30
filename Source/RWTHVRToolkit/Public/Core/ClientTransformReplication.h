@@ -11,7 +11,7 @@
 /*
 * Simple Client Transform Replication Component. Replicates the owning actor's root transform from owning client to server,
 * from there to all other clients.
-*/	
+*/
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UClientTransformReplication : public UActorComponent
 {
@@ -21,7 +21,6 @@ public:
 	UClientTransformReplication();
 
 protected:
-	
 	/*
 	* For now, replicate in a naive sending every x ms if the transform has changed.
 	* This is way overkill, as we should only be sending input. However, I am not yet fully sure how
@@ -29,14 +28,15 @@ protected:
 	* As this modifies only the tracking origin, latency should not be that much of an issue, so theoretically
 	* Server-Authority should work here too, in which case we'd just send the x and y input.
 	* Try both ways.
-	*/	
-	
+	*/
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Full transform update replication
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Rate to update the position to the server, 100htz is default (same as replication rate, should also hit every tick).
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Networking", meta = (ClampMin = "0", UIMin = "0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Networking",
+		meta = (ClampMin = "0", UIMin = "0"))
 	float ControllerNetUpdateRate;
 
 	// Accumulates time until next send

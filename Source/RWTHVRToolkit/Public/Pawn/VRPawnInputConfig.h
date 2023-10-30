@@ -16,16 +16,15 @@ class RWTHVRTOOLKIT_API UVRPawnInputConfig : public UDataAsset
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* MoveUp;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* DesktopRotation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* Fire;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* Grab;
 
@@ -40,10 +39,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* GrabLeft;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* GrabRight;
-	
-
-
 };

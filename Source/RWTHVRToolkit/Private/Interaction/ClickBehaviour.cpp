@@ -9,14 +9,12 @@ UClickBehaviour::UClickBehaviour()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UClickBehaviour::OnClickStart(USceneComponent* TriggeredComponent,const FInputActionValue& Value)
+void UClickBehaviour::OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
 {
-	
 }
 
-void UClickBehaviour::OnClickEnd(USceneComponent* TriggeredComponent,const FInputActionValue& Value)
+void UClickBehaviour::OnClickEnd(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
 {
-	
 }
 
 void UClickBehaviour::BeginPlay()
@@ -27,10 +25,8 @@ void UClickBehaviour::BeginPlay()
 	OnClickEndEvent.AddDynamic(this, &UClickBehaviour::OnClickEnd);
 }
 
-
 // Called every frame
 void UClickBehaviour::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-

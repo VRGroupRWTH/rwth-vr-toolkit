@@ -3,40 +3,9 @@
 
 #include "Interaction/OnClickGrabBehavior.h"
 
-#include "Interaction/GrabbableComponent.h"
 #include "Interaction/InteractableBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
-#include "Utility/VirtualRealityUtilities.h"
-
-// Sets default values for this component's properties
-UOnClickGrabBehavior::UOnClickGrabBehavior()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UOnClickGrabBehavior::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UOnClickGrabBehavior::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
 
 UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
@@ -44,8 +13,10 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(co
 	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
 
 	// find any component that simulates physics, then traverse the hierarchy
-	for (UPrimitiveComponent* const& Component : PrimitiveComponents) {
-		if (Component->IsSimulatingPhysics()) {
+	for (UPrimitiveComponent* const& Component : PrimitiveComponents)
+	{
+		if (Component->IsSimulatingPhysics())
+		{
 			return GetHighestParentSimulatingPhysics(Component);
 		}
 	}
@@ -55,10 +26,12 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(co
 // recursively goes up the hierarchy and returns the highest parent simulating physics
 UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
 {
-	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics()) {
+	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics())
+	{
 		return GetHighestParentSimulatingPhysics(Cast<UPrimitiveComponent>(Comp->GetAttachParent()));
 	}
-	else {
+	else
+	{
 		return Comp;
 	}
 }
@@ -66,14 +39,15 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPr
 void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	
+
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
-	
+
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 
 	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
 
-	if (MyPhysicsComponent) {
+	if (MyPhysicsComponent)
+	{
 		MyPhysicsComponent->SetSimulatePhysics(false);
 		MyPhysicsComponent->AttachToComponent(Hand, Rules);
 	}
@@ -82,11 +56,11 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 		GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
 	}
 
-	
-	if(bBlockOtherInteractionsWhileGrabbed)
+
+	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables; 
-		GetOwner()->GetComponents<UInteractableBase>(Interactables,false);
+		TArray<UInteractableBase*> Interactables;
+		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
 		for (UInteractableBase* Interactable : Interactables)
 		{
 			Interactable->RestrictInteractionToComponent(TriggeredComponent);
@@ -96,24 +70,23 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 
 void UOnClickGrabBehavior::OnClickEnd(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
 {
-	if(MyPhysicsComponent)
+	if (MyPhysicsComponent)
 	{
 		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		MyPhysicsComponent->SetSimulatePhysics(true);
-	}else
+	}
+	else
 	{
 		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	}
 
-	if(bBlockOtherInteractionsWhileGrabbed)
+	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables; 
-		GetOwner()->GetComponents<UInteractableBase>(Interactables,false);
+		TArray<UInteractableBase*> Interactables;
+		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
 		for (UInteractableBase* Interactable : Interactables)
 		{
 			Interactable->ResetRestrictInteraction();
 		}
 	}
 }
-
-

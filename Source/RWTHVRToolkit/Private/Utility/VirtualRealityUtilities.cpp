@@ -1,24 +1,21 @@
 #include "Utility/VirtualRealityUtilities.h"
 
 #if PLATFORM_SUPPORTS_NDISPLAY
-    #include "Cluster/IDisplayClusterClusterManager.h"
-    #include "Components/DisplayClusterCameraComponent.h"
-    #include "Config/IDisplayClusterConfigManager.h"
-    #include "DisplayClusterRootActor.h"
-    #include "DisplayClusterConfigurationTypes.h"
-    #include "Game/IDisplayClusterGameManager.h"
-    #include "IDisplayCluster.h"
+#include "DisplayClusterConfigurationTypes.h"
+#include "DisplayClusterRootActor.h"
+#include "IDisplayCluster.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
+#include "Components/DisplayClusterCameraComponent.h"
+#include "Config/IDisplayClusterConfigManager.h"
+#include "Game/IDisplayClusterGameManager.h"
 #endif
 
-#include "Engine/Engine.h"
-#include "IXRTrackingSystem.h"
-#include "IHeadMountedDisplay.h"
 #include "AudioDevice.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
+#include "IHeadMountedDisplay.h"
+#include "IXRTrackingSystem.h"
+#include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
 #include "Kismet/GameplayStatics.h"
-#include "Pawn/VirtualRealityPawn.h"
 
 
 DEFINE_LOG_CATEGORY(Toolkit);
@@ -47,8 +44,8 @@ bool UVirtualRealityUtilities::IsHeadMountedMode()
 bool UVirtualRealityUtilities::IsCave()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if(!IsRoomMountedMode()) return false;
-	
+	if (!IsRoomMountedMode()) return false;
+
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
 		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
@@ -60,11 +57,12 @@ bool UVirtualRealityUtilities::IsCave()
 bool UVirtualRealityUtilities::IsTdw()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if(!IsRoomMountedMode()) return false;
-	
+	if (!IsRoomMountedMode()) return false;
+
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
-		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("TiledDisplayWall", ESearchCase::IgnoreCase);
+		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals(
+			"TiledDisplayWall", ESearchCase::IgnoreCase);
 #else
 	return false;
 #endif
@@ -73,8 +71,8 @@ bool UVirtualRealityUtilities::IsTdw()
 bool UVirtualRealityUtilities::IsRolv()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if(!IsRoomMountedMode()) return false;
-	
+	if (!IsRoomMountedMode()) return false;
+
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
 		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
@@ -87,7 +85,7 @@ bool UVirtualRealityUtilities::IsRolv()
 bool UVirtualRealityUtilities::IsMaster()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if (!IDisplayCluster::IsAvailable()) 
+	if (!IDisplayCluster::IsAvailable())
 	{
 		return true;
 	}
@@ -118,15 +116,15 @@ FString UVirtualRealityUtilities::GetNodeName()
 
 float UVirtualRealityUtilities::GetEyeDistance()
 {
-	if(IsHeadMountedMode())
+	if (IsHeadMountedMode())
 	{
-	    return GEngine->XRSystem->GetHMDDevice()->GetInterpupillaryDistance();
+		return GEngine->XRSystem->GetHMDDevice()->GetInterpupillaryDistance();
 	}
-    else
+	else
 	{
 #if PLATFORM_SUPPORTS_NDISPLAY
-	    ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	    return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0.0f;
+		ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+		return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0.0f;
 #else
 	    return 0.0f;
 #endif
@@ -137,7 +135,9 @@ EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	return static_cast<EEyeStereoOffset>((RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset() : EDisplayClusterEyeStereoOffset::None);
+	return static_cast<EEyeStereoOffset>((RootActor)
+		                                     ? RootActor->GetDefaultCamera()->GetStereoOffset()
+		                                     : EDisplayClusterEyeStereoOffset::None);
 #else
 	return EDisplayClusterEyeStereoOffset::None;
 #endif
@@ -146,7 +146,7 @@ EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Name)
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 	return (RootActor) ? RootActor->GetComponentByName<USceneComponent>(Name) : nullptr;
 #else
 	return nullptr;
@@ -155,7 +155,7 @@ USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Na
 
 USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamedClusterComponent& Component)
 {
-	switch(Component)
+	switch (Component)
 	{
 	case ENamedClusterComponent::NCC_CAVE_ORIGIN: return GetClusterComponent("cave_origin");
 	case ENamedClusterComponent::NCC_CAVE_CENTER: return GetClusterComponent("cave_center");
@@ -169,9 +169,9 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	case ENamedClusterComponent::NCC_CALIBRATIO: return GetClusterComponent("calibratio");
 	case ENamedClusterComponent::NCC_TRACKING_ORIGIN:
 		USceneComponent* Result;
-		if((Result = GetClusterComponent("cave_origin"))) return Result;
-		if((Result = GetClusterComponent("rolv_origin"))) return Result;
-		if((Result = GetClusterComponent("tdw_origin_floor"))) return Result;
+		if ((Result = GetClusterComponent("cave_origin"))) return Result;
+		if ((Result = GetClusterComponent("rolv_origin"))) return Result;
+		if ((Result = GetClusterComponent("tdw_origin_floor"))) return Result;
 		return nullptr;
 	default: return nullptr;
 	}
@@ -185,5 +185,4 @@ void UVirtualRealityUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FStr
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
 #endif
 	UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
-
 }

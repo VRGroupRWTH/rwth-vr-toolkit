@@ -8,7 +8,6 @@
 #include "Interaction/Targetable.h"
 #include "Interaction/GrabbingBehaviorComponent.h"
 #include "Misc/Optional.h"
-#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
 

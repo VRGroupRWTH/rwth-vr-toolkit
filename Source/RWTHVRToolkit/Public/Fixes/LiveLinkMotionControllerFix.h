@@ -33,7 +33,10 @@ class FLiveLinkMotionControllerFix : public IMotionController
 		// MotionSource name for interacting with Motion Controller system
 		FName MotionSource;
 
-		FLiveLinkMotionControllerEnumeratedSource(const FLiveLinkSubjectKey& Key, FName MotionSourceName) : SubjectKey(Key), MotionSource(MotionSourceName) {}
+		FLiveLinkMotionControllerEnumeratedSource(const FLiveLinkSubjectKey& Key, FName MotionSourceName) :
+			SubjectKey(Key), MotionSource(MotionSourceName)
+		{
+		}
 	};
 
 	// Built array of Live Link Sources to give to Motion Controller system
@@ -41,9 +44,10 @@ class FLiveLinkMotionControllerFix : public IMotionController
 
 public:
 	FLiveLinkMotionControllerFix(FLiveLinkClient& InClient) : Client(InClient)
-	{ 
+	{
 		BuildSourceData();
-		OnSubjectsChangedHandle = Client.OnLiveLinkSubjectsChanged().AddRaw(this, &FLiveLinkMotionControllerFix::OnSubjectsChangedHandler);
+		OnSubjectsChangedHandle = Client.OnLiveLinkSubjectsChanged().AddRaw(
+			this, &FLiveLinkMotionControllerFix::OnSubjectsChangedHandler);
 		WildcardSource = FGuid::NewGuid();
 	}
 
@@ -63,14 +67,17 @@ public:
 		IModularFeatures::Get().UnregisterModularFeature(GetModularFeatureName(), this);
 	}
 
-	virtual bool GetControllerOrientationAndPosition(const int32 ControllerIndex, const FName MotionSource, FRotator& OutOrientation, FVector& OutPosition, float) const override
+	virtual bool GetControllerOrientationAndPosition(const int32 ControllerIndex, const FName MotionSource,
+	                                                 FRotator& OutOrientation, FVector& OutPosition,
+	                                                 float) const override
 	{
 		FLiveLinkSubjectKey SubjectKey = GetSubjectKeyFromMotionSource(MotionSource);
 
 		FLiveLinkSubjectFrameData FrameData;
 		if (Client.EvaluateFrame_AnyThread(SubjectKey.SubjectName, ULiveLinkTransformRole::StaticClass(), FrameData))
 		{
-			if (FLiveLinkTransformFrameData* TransformFrameData = FrameData.FrameData.Cast<FLiveLinkTransformFrameData>())
+			if (FLiveLinkTransformFrameData* TransformFrameData = FrameData.FrameData.Cast<
+				FLiveLinkTransformFrameData>())
 			{
 				OutPosition = TransformFrameData->Transform.GetLocation();
 				OutOrientation = TransformFrameData->Transform.GetRotation().Rotator();
@@ -80,21 +87,39 @@ public:
 		return false;
 	}
 
-	virtual bool GetControllerOrientationAndPosition(const int32 ControllerIndex, const FName MotionSource, FRotator& OutOrientation, FVector& OutPosition, bool& OutbProvidedLinearVelocity, FVector& OutLinearVelocity, bool& OutbProvidedAngularVelocity, FVector& OutAngularVelocityAsAxisAndLength, bool& OutbProvidedLinearAcceleration, FVector& OutLinearAcceleration, float WorldToMetersScale) const override
+	virtual bool GetControllerOrientationAndPosition(const int32 ControllerIndex, const FName MotionSource,
+	                                                 FRotator& OutOrientation, FVector& OutPosition,
+	                                                 bool& OutbProvidedLinearVelocity, FVector& OutLinearVelocity,
+	                                                 bool& OutbProvidedAngularVelocity,
+	                                                 FVector& OutAngularVelocityAsAxisAndLength,
+	                                                 bool& OutbProvidedLinearAcceleration,
+	                                                 FVector& OutLinearAcceleration,
+	                                                 float WorldToMetersScale) const override
 	{
 		OutbProvidedLinearVelocity = false;
 		OutbProvidedAngularVelocity = false;
 		OutbProvidedLinearAcceleration = false;
-		return GetControllerOrientationAndPosition(ControllerIndex, MotionSource, OutOrientation, OutPosition, WorldToMetersScale);
+		return GetControllerOrientationAndPosition(ControllerIndex, MotionSource, OutOrientation, OutPosition,
+		                                           WorldToMetersScale);
 	}
-	
-	virtual bool GetControllerOrientationAndPositionForTime(const int32 ControllerIndex, const FName MotionSource, FTimespan Time, bool& OutTimeWasUsed, FRotator& OutOrientation, FVector& OutPosition, bool& OutbProvidedLinearVelocity, FVector& OutLinearVelocity, bool& OutbProvidedAngularVelocity, FVector& OutAngularVelocityAsAxisAndLength, bool& OutbProvidedLinearAcceleration, FVector& OutLinearAcceleration, float WorldToMetersScale) const override
+
+	virtual bool GetControllerOrientationAndPositionForTime(const int32 ControllerIndex, const FName MotionSource,
+	                                                        FTimespan Time, bool& OutTimeWasUsed,
+	                                                        FRotator& OutOrientation, FVector& OutPosition,
+	                                                        bool& OutbProvidedLinearVelocity,
+	                                                        FVector& OutLinearVelocity,
+	                                                        bool& OutbProvidedAngularVelocity,
+	                                                        FVector& OutAngularVelocityAsAxisAndLength,
+	                                                        bool& OutbProvidedLinearAcceleration,
+	                                                        FVector& OutLinearAcceleration,
+	                                                        float WorldToMetersScale) const override
 	{
 		OutTimeWasUsed = false;
 		OutbProvidedLinearVelocity = false;
 		OutbProvidedAngularVelocity = false;
 		OutbProvidedLinearAcceleration = false;
-		return GetControllerOrientationAndPosition(ControllerIndex, MotionSource, OutOrientation, OutPosition, WorldToMetersScale);
+		return GetControllerOrientationAndPosition(ControllerIndex, MotionSource, OutOrientation, OutPosition,
+		                                           WorldToMetersScale);
 	}
 
 	float GetCustomParameterValue(const FName MotionSource, FName ParameterName, bool& bValueFound) const override
@@ -121,7 +146,8 @@ public:
 		return 0.f;
 	}
 
-	virtual ETrackingStatus GetControllerTrackingStatus(const int32 ControllerIndex, const FName MotionSource) const override
+	virtual ETrackingStatus
+	GetControllerTrackingStatus(const int32 ControllerIndex, const FName MotionSource) const override
 	{
 		FLiveLinkSubjectKey SubjectKey = GetSubjectKeyFromMotionSource(MotionSource);
 
@@ -163,13 +189,18 @@ public:
 
 		for (const FGuid& Source : SourceGuids)
 		{
-			FText SourceName = (Source == WildcardSource) ? LOCTEXT("LiveLinkAnySource", "Any") : Client.GetSourceType(Source);
+			FText SourceName = (Source == WildcardSource)
+				                   ? LOCTEXT("LiveLinkAnySource", "Any")
+				                   : Client.GetSourceType(Source);
 			Headers.Emplace(Source, SourceName);
 		}
 
 		{
 			FGuid& CaptureWildcardSource = WildcardSource;
-			Headers.Sort([CaptureWildcardSource](const FHeaderEntry& A, const FHeaderEntry& B) { return A.Key == CaptureWildcardSource || A.Value.CompareToCaseIgnored(B.Value) <= 0; });
+			Headers.Sort([CaptureWildcardSource](const FHeaderEntry& A, const FHeaderEntry& B)
+			{
+				return A.Key == CaptureWildcardSource || A.Value.CompareToCaseIgnored(B.Value) <= 0;
+			});
 		}
 
 		//Build EnumeratedSources data
@@ -182,7 +213,7 @@ public:
 			Subjects.Sort(FNameLexicalLess());
 			for (FName Subject : Subjects)
 			{
-				FName FullName = *FString::Format(TEXT("{0} ({1})"), { Subject.ToString(), Header.Value.ToString() });
+				FName FullName = *FString::Format(TEXT("{0} ({1})"), {Subject.ToString(), Header.Value.ToString()});
 				EnumeratedSources.Emplace(FLiveLinkSubjectKey(Header.Key, Subject), FullName);
 			}
 		}
@@ -201,12 +232,16 @@ public:
 		}
 	}
 
-	virtual bool GetHandJointPosition(const FName MotionSource, int jointIndex, FVector& OutPosition) const override { return false; }
+	virtual bool GetHandJointPosition(const FName MotionSource, int jointIndex, FVector& OutPosition) const override
+	{
+		return false;
+	}
 
 private:
 	FLiveLinkSubjectKey GetSubjectKeyFromMotionSource(FName MotionSource) const
 	{
-		const FLiveLinkMotionControllerEnumeratedSource* EnumeratedSource = EnumeratedSources.FindByPredicate([&](const FLiveLinkMotionControllerEnumeratedSource& Item) { return Item.MotionSource == MotionSource; });
+		const FLiveLinkMotionControllerEnumeratedSource* EnumeratedSource = EnumeratedSources.FindByPredicate(
+			[&](const FLiveLinkMotionControllerEnumeratedSource& Item) { return Item.MotionSource == MotionSource; });
 		if (EnumeratedSource)
 		{
 			return EnumeratedSource->SubjectKey;

@@ -1,14 +1,11 @@
 #include "RWTHVRToolkitEditor.h"
 
-#include "ComponentVisualizers.h"
-#include "Interaction/GrabbingBehaviorOnLineVisualizer.h"
-#include "Interaction/GrabbingBehaviorPlaneVisualizer.h"
-
-#include "Interaction/GrabbingBehaviorOnPlaneComponent.h"
-#include "Interaction/GrabbingBehaviorOnLineComponent.h"
-
 #include "UnrealEdGlobals.h"
 #include "Editor/UnrealEdEngine.h"
+#include "Interaction/GrabbingBehaviorOnLineComponent.h"
+#include "Interaction/GrabbingBehaviorOnLineVisualizer.h"
+#include "Interaction/GrabbingBehaviorOnPlaneComponent.h"
+#include "Interaction/GrabbingBehaviorPlaneVisualizer.h"
 
 IMPLEMENT_GAME_MODULE(FRWTHVRToolkitEditorModule, RWTHVRToolkitEditor);
 
@@ -16,21 +13,23 @@ IMPLEMENT_GAME_MODULE(FRWTHVRToolkitEditorModule, RWTHVRToolkitEditor);
 
 void FRWTHVRToolkitEditorModule::StartupModule()
 {
-	if (GUnrealEd != NULL)
+	if (GUnrealEd != nullptr)
 	{
-		TSharedPtr<FComponentVisualizer> LineVisualizer = MakeShareable(new FGrabbingBehaviorOnLineVisualizer());
+		const TSharedPtr<FComponentVisualizer> LineVisualizer = MakeShareable(new FGrabbingBehaviorOnLineVisualizer());
 
 		if (LineVisualizer.IsValid())
 		{
-			GUnrealEd->RegisterComponentVisualizer(UGrabbingBehaviorOnLineComponent::StaticClass()->GetFName(), LineVisualizer);
+			GUnrealEd->RegisterComponentVisualizer(UGrabbingBehaviorOnLineComponent::StaticClass()->GetFName(),
+			                                       LineVisualizer);
 			LineVisualizer->OnRegister();
 		}
 
-		TSharedPtr<FComponentVisualizer> PlaneVisualizer = MakeShareable(new FGrabbingBehaviorPlaneVisualizer());
-		
+		const TSharedPtr<FComponentVisualizer> PlaneVisualizer = MakeShareable(new FGrabbingBehaviorPlaneVisualizer());
+
 		if (PlaneVisualizer.IsValid())
 		{
-			GUnrealEd->RegisterComponentVisualizer(UGrabbingBehaviorOnPlaneComponent::StaticClass()->GetFName(), PlaneVisualizer);
+			GUnrealEd->RegisterComponentVisualizer(UGrabbingBehaviorOnPlaneComponent::StaticClass()->GetFName(),
+			                                       PlaneVisualizer);
 			PlaneVisualizer->OnRegister();
 		}
 	}
@@ -38,7 +37,7 @@ void FRWTHVRToolkitEditorModule::StartupModule()
 
 void FRWTHVRToolkitEditorModule::ShutdownModule()
 {
-	if (GUnrealEd != NULL)
+	if (GUnrealEd != nullptr)
 	{
 		GUnrealEd->UnregisterComponentVisualizer(UGrabbingBehaviorOnLineComponent::StaticClass()->GetFName());
 		GUnrealEd->UnregisterComponentVisualizer(UGrabbingBehaviorOnPlaneComponent::StaticClass()->GetFName());

@@ -16,7 +16,6 @@ class RWTHVRTOOLKIT_API UHoverBehaviour : public USceneComponent
 	GENERATED_BODY()
 
 public:	
-	UHoverBehaviour();
 	/**
 	* TriggeredComponent: Component that triggered this event (e.g. GrabComponent, RayCastComponent attached at the VRPawn)
 	* Hit: Hit Result of the trace to get access to e.g. contact point/normals etc.
@@ -34,6 +33,4 @@ protected:
 		virtual void OnHoverEnd(const USceneComponent* TriggeredComponent);
 	
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
 };

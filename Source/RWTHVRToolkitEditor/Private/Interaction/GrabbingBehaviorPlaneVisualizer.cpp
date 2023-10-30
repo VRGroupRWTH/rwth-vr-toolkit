@@ -13,9 +13,9 @@ FGrabbingBehaviorPlaneVisualizer::~FGrabbingBehaviorPlaneVisualizer()
 {
 }
 
-void FGrabbingBehaviorPlaneVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
-
-
+void FGrabbingBehaviorPlaneVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View,
+                                                         FPrimitiveDrawInterface* PDI)
+{
 	const UGrabbingBehaviorOnPlaneComponent* PlaneBehavior = Cast<const UGrabbingBehaviorOnPlaneComponent>(Component);
 
 	if (PlaneBehavior != nullptr)
@@ -33,11 +33,10 @@ void FGrabbingBehaviorPlaneVisualizer::DrawVisualization(const UActorComponent* 
 
 		for (int i = 1; i < Segments + 1; i++) // draw circle using lines
 		{
-			Next = Right.RotateAngleAxis(360/Segments, Forward);
+			Next = Right.RotateAngleAxis(360 / Segments, Forward);
 
-			PDI->DrawLine(Attachment + Right*Distance,Attachment + Next*Distance, FColor::Blue, SDPG_World);
+			PDI->DrawLine(Attachment + Right * Distance, Attachment + Next * Distance, FColor::Blue, SDPG_World);
 			Right = Next;
 		}
 	}
 }
-

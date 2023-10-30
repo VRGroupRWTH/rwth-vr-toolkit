@@ -4,41 +4,38 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "Pawn/InputExtensionInterface.h"
 #include "GrabComponent.generated.h"
 
 class UGrabbableComponent;
 
-UCLASS(Abstract,Blueprintable)
-class RWTHVRTOOLKIT_API UGrabComponent : public USceneComponent
+UCLASS(Abstract, Blueprintable)
+class RWTHVRTOOLKIT_API UGrabComponent : public USceneComponent, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UGrabComponent();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMCGrab;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* GrabInputAction;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Grabbing")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	float GrabSphereRadius = 15.0;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Grabbing")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bShowDebugTrace = false;
 
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
-	void SetupInputActions();
-	
 	UFUNCTION()
 	void OnBeginGrab(const FInputActionValue& Value);
 
@@ -50,6 +47,4 @@ private:
 
 	UPROPERTY()
 	TArray<UGrabbableComponent*> CurrentGrabbableInRange;
-
-		
 };

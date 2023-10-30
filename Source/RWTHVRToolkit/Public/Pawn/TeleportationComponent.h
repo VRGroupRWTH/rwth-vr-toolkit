@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InputExtensionInterface.h"
 #include "Components/ActorComponent.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
@@ -76,7 +75,7 @@ private:
 
 	UPROPERTY()
 	UInputMappingContext* IMCMovement;
-	
+
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;
 	float RotationArrowRadius = 10.0;

@@ -22,5 +22,5 @@ private:
 	
 public:
 	void Register();
-	void Unregister();
+	void Unregister() const;
 };

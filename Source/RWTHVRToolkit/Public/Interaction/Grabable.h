@@ -11,18 +11,18 @@ UINTERFACE(BlueprintType)
 class RWTHVRTOOLKIT_API UGrabable : public UInterface
 {
 	// has to be empty, this is Unreals syntax to make it visible in blueprints
-	GENERATED_UINTERFACE_BODY()
+	GENERATED_BODY()
 };
 
 class RWTHVRTOOLKIT_API IGrabable
 {
-	GENERATED_IINTERFACE_BODY()
+	GENERATED_BODY()
 
 public:
 	// function that will be called when grabbed by a pawn
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnBeginGrab();
-	
+
 	// called when pawn released the object
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Gameplay)
 	void OnEndGrab();

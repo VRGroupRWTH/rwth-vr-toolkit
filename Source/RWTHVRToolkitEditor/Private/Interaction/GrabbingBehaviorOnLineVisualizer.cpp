@@ -17,9 +17,9 @@ FGrabbingBehaviorOnLineVisualizer::~FGrabbingBehaviorOnLineVisualizer()
 
 // Fill out your copyright notice in the Description page of Project Settings.
 
-void FGrabbingBehaviorOnLineVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
-
-
+void FGrabbingBehaviorOnLineVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View,
+                                                          FPrimitiveDrawInterface* PDI)
+{
 	const UGrabbingBehaviorOnLineComponent* LineBehavior = Cast<const UGrabbingBehaviorOnLineComponent>(Component);
 
 	if (LineBehavior != nullptr)
@@ -31,5 +31,3 @@ void FGrabbingBehaviorOnLineVisualizer::DrawVisualization(const UActorComponent*
 		PDI->DrawLine(Attachment + Forward * Distance, Attachment - Forward * Distance, FColor::Blue, SDPG_World);
 	}
 }
-
-

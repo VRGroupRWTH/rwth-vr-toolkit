@@ -2,18 +2,18 @@
 
 #define LOCTEXT_NAMESPACE "FRWTHVRToolkitModule"
 
-void FRWTHVRToolkitModule::StartupModule ()
+void FRWTHVRToolkitModule::StartupModule()
 {
-
 	IModularFeatures& ModularFeatures = IModularFeatures::Get();
 	if (ModularFeatures.IsModularFeatureAvailable(ILiveLinkClient::ModularFeatureName))
 	{
-		FLiveLinkClient* LiveLinkClient = static_cast<FLiveLinkClient*>(&IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(
+		FLiveLinkClient* LiveLinkClient = static_cast<FLiveLinkClient*>(&IModularFeatures::Get().GetModularFeature<
+			ILiveLinkClient>(
 			ILiveLinkClient::ModularFeatureName));
 		LiveLinkMotionController = MakeUnique<FLiveLinkMotionControllerFix>(*LiveLinkClient);
 		LiveLinkMotionController->RegisterController();
 	}
-	
+
 	ConsoleActivation.Register();
 }
 
@@ -23,7 +23,6 @@ void FRWTHVRToolkitModule::ShutdownModule()
 	if (LiveLinkMotionController)
 		LiveLinkMotionController->UnregisterController();
 }
-
 
 #undef LOCTEXT_NAMESPACE
 

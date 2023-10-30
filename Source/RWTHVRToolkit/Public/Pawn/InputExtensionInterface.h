@@ -27,6 +27,6 @@ public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) {}
 
 	// Helper function to get the local player subsystem 
-	virtual UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputLocalPlayerSubsystem(APawn* Pawn) const;
+	virtual UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputLocalPlayerSubsystem(const APawn* Pawn) const;
 	
 };

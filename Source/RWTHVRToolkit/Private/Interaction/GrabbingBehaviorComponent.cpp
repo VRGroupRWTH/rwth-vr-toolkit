@@ -19,8 +19,10 @@ UPrimitiveComponent* UGrabbingBehaviorComponent::GetFirstComponentSimulatingPhys
 	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
 
 	// find any component that simulates physics, then traverse the hierarchy
-	for (UPrimitiveComponent* const& Component : PrimitiveComponents) {
-		if (Component->IsSimulatingPhysics()) {
+	for (UPrimitiveComponent* const& Component : PrimitiveComponents)
+	{
+		if (Component->IsSimulatingPhysics())
+		{
 			return GetHighestParentSimulatingPhysics(Component);
 		}
 	}
@@ -30,50 +32,54 @@ UPrimitiveComponent* UGrabbingBehaviorComponent::GetFirstComponentSimulatingPhys
 // recursively goes up the hierarchy and returns the highest parent simulating physics
 UPrimitiveComponent* UGrabbingBehaviorComponent::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
 {
-	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics()) {
+	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics())
+	{
 		return GetHighestParentSimulatingPhysics(Cast<UPrimitiveComponent>(Comp->GetAttachParent()));
 	}
-	else {
+	else
+	{
 		return Comp;
 	}
 }
 
 void UGrabbingBehaviorComponent::HandleGrabHold(FVector Position, FQuat Orientation)
 {
-
 }
 
 void UGrabbingBehaviorComponent::HandleGrabStart(AActor* GrabbedBy)
 {
 	USceneComponent* RightHand = Cast<USceneComponent>(GrabbedBy->GetDefaultSubobjectByName("Right Hand"));
-	
+
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 
 	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
 
-	if (MyPhysicsComponent) {
+	if (MyPhysicsComponent)
+	{
 		MyPhysicsComponent->SetSimulatePhysics(false);
 		MyPhysicsComponent->AttachToComponent(RightHand, Rules);
 	}
-	else {
+	else
+	{
 		GetOwner()->GetRootComponent()->AttachToComponent(RightHand, Rules);
 	}
 
-	
+
 	OnBeginGrab.Broadcast(GrabbedBy);
 }
 
 void UGrabbingBehaviorComponent::HandleGrabEnd()
 {
-	if(MyPhysicsComponent)
+	if (MyPhysicsComponent)
 	{
 		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		MyPhysicsComponent->SetSimulatePhysics(true);
-	}else
+	}
+	else
 	{
 		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	}
-	
+
 	OnEndGrab.Broadcast();
 }
 
@@ -82,10 +88,8 @@ void UGrabbingBehaviorComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UGrabbingBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrabbingBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                               FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-
-
-

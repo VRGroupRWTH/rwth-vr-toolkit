@@ -1,5 +1,4 @@
-﻿
-#include "Pawn/VRPawnMovement.h"
+﻿#include "Pawn/VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -10,7 +9,8 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 	CapsuleColliderComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollider"));
 	CapsuleColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CapsuleColliderComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CapsuleColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic,
+	                                                        ECollisionResponse::ECR_Block);
 	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, 80.0f);
 
 	//set some defaults for the UFloatingPawnMovement component, which are more reasonable for usage in VR
@@ -23,14 +23,15 @@ void UVRPawnMovement::BeginPlay()
 {
 	Super::BeginPlay();
 	LastCollisionFreeCapsulePosition = CapsuleColliderComponent->GetComponentLocation();
-	LastSteeringCollisionVector = FVector(0,0,0);
+	LastSteeringCollisionVector = FVector(0, 0, 0);
 
-	ActorsToIgnore = { GetOwner() };
+	ActorsToIgnore = {GetOwner()};
 }
 
 
-void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction){
-
+void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
+                                    FActorComponentTickFunction* ThisTickFunction)
+{
 	SetCapsuleColliderToUserSize();
 
 	FVector InputVector = GetPendingInputVector();
@@ -49,12 +50,13 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 	CheckAndRevertCollisionSinceLastTick();
 	//check whether we are still in collision e.g. if an object has moved and got us into collision
 	MoveOutOfNewDynamicCollisions();
-	
-	if(NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
+
+	if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
-		if(InputVector.Size() > 0.001){
+		if (InputVector.Size() > 0.001)
+		{
 			const FVector SafeSteeringInput = GetCollisionSafeVirtualSteeringVec(InputVector, DeltaTime);
-			if(SafeSteeringInput != InputVector)
+			if (SafeSteeringInput != InputVector)
 			{
 				// if we would move into something if we apply this input (estimating distance by max speed)
 				// we only apply its perpendicular part (unless it is facing away from the collision)
@@ -71,7 +73,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 		CheckForPhysWalkingCollision();
 	}
 
-	if(NavigationMode == EVRNavigationModes::NAV_NONE)
+	if (NavigationMode == EVRNavigationModes::NAV_NONE)
 	{
 		//just remove whatever input is there
 		ConsumeInputVector();
@@ -86,12 +88,11 @@ void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 	CapsuleColliderComponent->SetupAttachment(HeadComponent);
 	const float HalfHeight = 80.0f; //this is just an initial value to look good in editor
 	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, HalfHeight);
-	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f,-HalfHeight));
+	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f, -HalfHeight));
 }
 
-void UVRPawnMovement::SetCapsuleColliderToUserSize()
+void UVRPawnMovement::SetCapsuleColliderToUserSize() const
 {
-
 	// the collider should be placed
 	//	between head and floor + MaxStepHeight
 	//             head
@@ -125,7 +126,8 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize()
 			CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, ColliderHalfHeight);
 		}
 
-		CapsuleColliderComponent->SetWorldLocation(HeadComponent->GetComponentLocation() - FVector(0, 0, ColliderHalfHeight));
+		CapsuleColliderComponent->SetWorldLocation(
+			HeadComponent->GetComponentLocation() - FVector(0, 0, ColliderHalfHeight));
 	}
 	else
 	{
@@ -165,15 +167,14 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 	//if this was not possible move the entire pawn away to avoid the head collision
 	if (HitResult.bBlockingHit)
 	{
-		const FVector MoveOutVector = HitResult.Location-CapsuleLocation;
+		const FVector MoveOutVector = HitResult.Location - CapsuleLocation;
 		//move it out twice as far, to avoid getting stuck situations
-		UpdatedComponent->AddWorldOffset(2*MoveOutVector);
+		UpdatedComponent->AddWorldOffset(2 * MoveOutVector);
 	}
 }
 
 FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime)
 {
-
 	const float SafetyFactor = 3.0f; //so we detect collision a bit earlier
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 	FVector ProbePosition = SafetyFactor * InputVector.GetSafeNormal() * GetMaxSpeed() * DeltaTime + CapsuleLocation;
@@ -188,7 +189,7 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 	FVector CollisionVector = TraceResult.Location - CapsuleLocation;
 
 	//sometimes (if by chance we already moved into collision entirely CollisionVector is 0
-	if(!CollisionVector.Normalize())
+	if (!CollisionVector.Normalize())
 	{
 		//then we probably start already in collision, so we use the last one
 		CollisionVector = LastSteeringCollisionVector;
@@ -199,8 +200,8 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 	}
 
 	FVector SafeInput = InputVector;
-	const float DotProduct =  FVector::DotProduct(InputVector, CollisionVector);
-	if(DotProduct>0.0f)
+	const float DotProduct = FVector::DotProduct(InputVector, CollisionVector);
+	if (DotProduct > 0.0f)
 	{
 		// only keep perpendicular part of the input vector (remove anything towards hit)
 		SafeInput -= DotProduct * CollisionVector;
@@ -212,36 +213,36 @@ void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 {
 	const FVector DownTraceStart = CapsuleColliderComponent->GetComponentLocation();
 	const float DownTraceDist = MaxFallingDepth < 0.0f ? 1000.0f : MaxFallingDepth;
-	const FVector DownTraceDir = FVector(0,0,-1);
+	const FVector DownTraceDir = FVector(0, 0, -1);
 	const FVector DownTraceEnd = DownTraceStart + DownTraceDist * DownTraceDir;
 
 	const FHitResult DownTraceHitResult = CreateCapsuleTrace(DownTraceStart, DownTraceEnd);
 	float HeightDifference = 0.0f;
 
-	if(DownTraceHitResult.bBlockingHit)
+	if (DownTraceHitResult.bBlockingHit)
 	{
 		HeightDifference = DownTraceHitResult.ImpactPoint.Z - UpdatedComponent->GetComponentLocation().Z;
 		//so for HeightDifference>0, we have to move the pawn up; for HeightDifference<0 we have to move it down
 	}
 
 	//Going up (in Fly and Walk Mode)
-	if (HeightDifference>0.0f && HeightDifference<=MaxStepHeight)
+	if (HeightDifference > 0.0f && HeightDifference <= MaxStepHeight)
 	{
 		ShiftVertically(HeightDifference, UpSteppingAcceleration, DeltaSeconds);
 	}
 
-	if(NavigationMode!=EVRNavigationModes::NAV_WALK)
+	if (NavigationMode != EVRNavigationModes::NAV_WALK)
 	{
 		return;
 	}
 
-	if(!DownTraceHitResult.bBlockingHit && MaxFallingDepth<0.0f)
+	if (!DownTraceHitResult.bBlockingHit && MaxFallingDepth < 0.0f)
 	{
 		HeightDifference = -1000.0f; //just fall
 	}
 
 	//Gravity (only in Walk Mode)
-	if (HeightDifference<0.0f)
+	if (HeightDifference < 0.0f)
 	{
 		ShiftVertically(HeightDifference, GravityAcceleration, DeltaSeconds);
 	}
@@ -250,25 +251,28 @@ void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds)
 {
 	VerticalSpeed += VerticalAcceleration * DeltaSeconds;
-	if (abs(VerticalSpeed*DeltaSeconds) < abs(Distance))
+	if (abs(VerticalSpeed * DeltaSeconds) < abs(Distance))
 	{
-		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f,  VerticalSpeed * DeltaSeconds));
+		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f, VerticalSpeed * DeltaSeconds));
 	}
 	else
 	{
-		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f,  Distance));
+		UpdatedComponent->AddWorldOffset(FVector(0.f, 0.f, Distance));
 		VerticalSpeed = 0;
 	}
 }
 
-FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector Start, FVector End, bool DrawDebug)
+FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector& Start, const FVector& End, const bool DrawDebug) const
 {
 	const EDrawDebugTrace::Type DrawType = DrawDebug ? EDrawDebugTrace::Type::ForDuration : EDrawDebugTrace::Type::None;
 
 	//UE_LOG(LogTemp, Warning, TEXT("Capsule from %s to %s"), *Start.ToString(), *End.ToString())
 
 	FHitResult Hit;
-	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight(), UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, DrawType, Hit, true);
+	UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), Start, End, CapsuleColliderComponent->GetScaledCapsuleRadius(),
+	                                         CapsuleColliderComponent->GetScaledCapsuleHalfHeight(),
+	                                         UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true,
+	                                         ActorsToIgnore, DrawType, Hit, true);
 	return Hit;
 }
 
@@ -277,15 +281,19 @@ FVector UVRPawnMovement::GetOverlapResolveDirection()
 	TArray<UPrimitiveComponent*> OverlappingComponents;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
 	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Visibility));
-	UKismetSystemLibrary::CapsuleOverlapComponents(GetWorld(), CapsuleColliderComponent->GetComponentLocation(), CapsuleColliderComponent->GetScaledCapsuleRadius(), CapsuleColliderComponent->GetScaledCapsuleHalfHeight(), traceObjectTypes, nullptr, ActorsToIgnore, OverlappingComponents);
+	UKismetSystemLibrary::CapsuleOverlapComponents(GetWorld(), CapsuleColliderComponent->GetComponentLocation(),
+	                                               CapsuleColliderComponent->GetScaledCapsuleRadius(),
+	                                               CapsuleColliderComponent->GetScaledCapsuleHalfHeight(),
+	                                               traceObjectTypes, nullptr, ActorsToIgnore, OverlappingComponents);
 
 	FVector ResolveVector = FVector::ZeroVector;
 
 	//check what to do to move out of these collisions (or nothing if non is there)
 	//we just add the penetrations so in very unfortunate conditions this can become problematic/blocking but for now and our regular use cases this works
-	for(const UPrimitiveComponent* OverlappingComp : OverlappingComponents)
+	for (const UPrimitiveComponent* OverlappingComp : OverlappingComponents)
 	{
-		FHitResult Hit = CreateCapsuleTrace(CapsuleColliderComponent->GetComponentLocation(), OverlappingComp->GetComponentLocation(), false);
+		FHitResult Hit = CreateCapsuleTrace(CapsuleColliderComponent->GetComponentLocation(),
+		                                    OverlappingComp->GetComponentLocation(), false);
 		ResolveVector += Hit.ImpactNormal * Hit.PenetrationDepth;
 	}
 	return ResolveVector;
