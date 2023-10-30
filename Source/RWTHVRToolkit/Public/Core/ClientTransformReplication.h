@@ -59,7 +59,7 @@ protected:
 
 	// Unreliable Server RPC that sends the transform from owning client to the server
 	UFUNCTION(Unreliable, Server, WithValidation)
-	void SendControllerTransform_ServerRpc(FVRTransformRep NewTransform);
+	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
 
 	void UpdateState(float DeltaTime);
 
