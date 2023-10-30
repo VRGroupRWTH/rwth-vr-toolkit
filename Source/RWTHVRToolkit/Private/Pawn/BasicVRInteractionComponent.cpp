@@ -3,7 +3,6 @@
 
 #include "Pawn/BasicVRInteractionComponent.h"
 
-#include "Interaction/Targetable.h"
 #include "Misc/Optional.h"
 
 DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
