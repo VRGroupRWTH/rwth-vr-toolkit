@@ -3,10 +3,7 @@
 
 #include "Pawn/BasicVRInteractionComponent.h"
 
-#include "Interaction/Clickable.h"
-#include "Interaction/Grabable.h"
 #include "Interaction/Targetable.h"
-#include "Interaction/GrabbingBehaviorComponent.h"
 #include "Misc/Optional.h"
 
 DEFINE_LOG_CATEGORY(LogVRInteractionComponent);
@@ -58,25 +55,6 @@ void UBasicVRInteractionComponent::BeginInteraction()
 	SetCustomHitResult(Hit.GetValue());
 	//if !bCanRaytraceEveryTick, you have to click twice, since the first tick it only highlights and can't directly click
 	PressPointerKey(EKeys::LeftMouseButton);
-
-
-	if (HitActor && HitActor->Implements<UGrabable>() && Hit->Distance < MaxGrabDistance)
-	{
-		// call grabable actors function so he reacts to our grab
-		IGrabable::Execute_OnBeginGrab(HitActor);
-
-		// save it for later, is needed every tick
-		Behavior = HitActor->FindComponentByClass<UGrabbingBehaviorComponent>();
-		if (Behavior == nullptr)
-			HandlePhysicsAndAttachActor(HitActor);
-
-		// we save the grabbedActor in a general form to access all of AActors functions easily later
-		GrabbedActor = HitActor;
-	}
-	else if (HitActor && HitActor->Implements<UClickable>() && Hit->Distance < MaxClickDistance)
-	{
-		IClickable::Execute_OnClick(HitActor, Hit->Location);
-	}
 }
 
 void UBasicVRInteractionComponent::EndInteraction()
@@ -85,32 +63,6 @@ void UBasicVRInteractionComponent::EndInteraction()
 
 	//end interaction of WidgetInteractionComponent
 	ReleasePointerKey(EKeys::LeftMouseButton);
-
-	// if we didnt grab anyone there is no need to release
-	if (GrabbedActor == nullptr)
-		return;
-
-	// let the grabbed object react to release
-	IGrabable::Execute_OnEndGrab(GrabbedActor);
-
-	// Detach the Actor
-	if (GrabbedActor->FindComponentByClass<UGrabbingBehaviorComponent>() == nullptr)
-	{
-		if (ComponentSimulatingPhysics)
-		{
-			ComponentSimulatingPhysics->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-			ComponentSimulatingPhysics->SetSimulatePhysics(true);
-		}
-		else
-		{
-			GrabbedActor->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		}
-	}
-
-	// forget about the actor
-	GrabbedActor = nullptr;
-	ComponentSimulatingPhysics = nullptr;
-	Behavior = nullptr;
 }
 
 // Called every frame
@@ -120,16 +72,6 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!InteractionRayEmitter) return;
-
-	// if our Grabable Actor is not constrained we need to calculate the position dynamically
-	if (Behavior != nullptr)
-	{
-		// specifies the hand in space
-		const FVector HandPos = InteractionRayEmitter->GetComponentLocation();
-		const FQuat HandQuat = InteractionRayEmitter->GetComponentQuat();
-
-		//Behavior->HandleNewPositionAndDirection(HandPos, HandQuat); 
-	}
 
 	// only raytrace for targetable objects if bool user wants to enable this feature
 	if (!bCanRaytraceEveryTick)
@@ -144,46 +86,16 @@ void UBasicVRInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 		{
 			InteractionRay->SetVisibility(false);
 		}
-
-		// Execute leave event on the actor that lost the focus if there was one
-		if (LastActorHit && LastActorHit->Implements<UTargetable>())
-		{
-			ITargetable::Execute_OnTargetedLeave(LastActorHit);
-		}
-
-		LastActorHit = nullptr;
 		return;
 	}
 
 	AActor* HitActor = Hit->GetActor();
 
-	// Execute Leave and enter events when the focused actor changed
-	if (HitActor != LastActorHit)
-	{
-		//We can always execute the enter event as we are sure that a hit occured
-		if (HitActor->Implements<UTargetable>())
-		{
-			ITargetable::Execute_OnTargetedEnter(HitActor);
-		}
-
-		//Only execute the Leave Event if there was an actor that was focused previously
-		if (LastActorHit != nullptr && LastActorHit->Implements<UTargetable>())
-		{
-			ITargetable::Execute_OnTargetedLeave(LastActorHit);
-		}
-	}
-
-	// for now uses the same distance as clicking
-	if (HitActor->Implements<UTargetable>() && Hit->Distance < MaxClickDistance)
-	{
-		ITargetable::Execute_OnTargeted(HitActor, Hit->Location);
-	}
-
 	// widget interaction
 	SetCustomHitResult(Hit.GetValue());
 	if (InteractionRayVisibility == EInteractionRayVisibility::VisibleOnHoverOnly)
 	{
-		if (HitActor->Implements<UTargetable>() || HitActor->Implements<UClickable>() || IsOverInteractableWidget())
+		if (IsOverInteractableWidget())
 		{
 			InteractionRay->SetVisibility(true);
 		}
@@ -238,23 +150,6 @@ void UBasicVRInteractionComponent::SetInteractionRayVisibility(EInteractionRayVi
 	}
 }
 
-void UBasicVRInteractionComponent::HandlePhysicsAndAttachActor(const AActor* HitActor)
-{
-	UPrimitiveComponent* PhysicsSimulatingComp = GetFirstComponentSimulatingPhysics(HitActor);
-	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
-
-	if (PhysicsSimulatingComp)
-	{
-		PhysicsSimulatingComp->SetSimulatePhysics(false);
-		PhysicsSimulatingComp->AttachToComponent(InteractionRayEmitter, Rules);
-		ComponentSimulatingPhysics = PhysicsSimulatingComp;
-	}
-	else
-	{
-		HitActor->GetRootComponent()->AttachToComponent(InteractionRayEmitter, Rules);
-	}
-}
-
 FTwoVectors UBasicVRInteractionComponent::GetHandRay(const float Length) const
 {
 	const FVector Start = InteractionRayEmitter->GetComponentLocation();
@@ -278,33 +173,4 @@ TOptional<FHitResult> UBasicVRInteractionComponent::RaytraceForFirstHit(const FT
 		return {Hit};
 	else
 		return {};
-}
-
-UPrimitiveComponent* UBasicVRInteractionComponent::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
-{
-	TArray<UPrimitiveComponent*> PrimitiveComponents;
-	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
-
-	// find any component that simulates physics, then traverse the hierarchy
-	for (const auto& Component : PrimitiveComponents)
-	{
-		if (Component->IsSimulatingPhysics())
-		{
-			return GetHighestParentSimulatingPhysics(Component);
-		}
-	}
-	return nullptr;
-}
-
-// recursively goes up the hierarchy and returns the highest parent simulating physics
-UPrimitiveComponent* UBasicVRInteractionComponent::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
-{
-	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics())
-	{
-		return GetHighestParentSimulatingPhysics(Cast<UPrimitiveComponent>(Comp->GetAttachParent()));
-	}
-	else
-	{
-		return Comp;
-	}
 }

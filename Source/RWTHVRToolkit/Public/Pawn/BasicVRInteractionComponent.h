@@ -79,28 +79,12 @@ private:
 	UPrimitiveComponent* ComponentSimulatingPhysics = nullptr;
 
 	UPROPERTY()
-	UGrabbingBehaviorComponent* Behavior = nullptr;
-
-	UPROPERTY()
 	USceneComponent* InteractionRayEmitter = nullptr;
 
 	/* Stores the reference of the Actor that was hit in the last frame*/
 	UPROPERTY()
 	AActor* LastActorHit = nullptr;
 
-	void HandlePhysicsAndAttachActor(const AActor* HitActor);
 	FTwoVectors GetHandRay(float Length) const;
 	TOptional<FHitResult> RaytraceForFirstHit(const FTwoVectors& Ray) const;
-
-	// Free utility functions 
-	/*
-		Returns the UPrimitiveComponent simulating physics that is highest in the hierarchy
-	*/
-	static UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
-	/*
-		Recursive Function
-		If parent component simulates physics returns GetHighestParentSimulatingPhysics(Parent)
-		else returns Comp itself
-	*/
-	static UPrimitiveComponent* GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp);
 };
