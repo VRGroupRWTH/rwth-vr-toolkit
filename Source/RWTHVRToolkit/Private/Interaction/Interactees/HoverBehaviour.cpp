@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/HoverBehaviour.h"
+#include "Interaction/Interactees/HoverBehaviour.h"
 
 void UHoverBehaviour::OnHoverStart(const USceneComponent* TriggeredComponent, FHitResult Hit)
 {

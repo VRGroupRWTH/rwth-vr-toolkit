@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/InteractableBase.h"
+#include "Interaction/Interactees/InteractableBase.h"
 
-#include "Interaction/ClickBehaviour.h"
-#include "Interaction/HoverBehaviour.h"
+#include "Interaction/Interactees/ClickBehaviour.h"
+#include "Interaction/Interactees/HoverBehaviour.h"
 
 void UInteractableBase::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
 {

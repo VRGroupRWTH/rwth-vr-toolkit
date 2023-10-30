@@ -7,7 +7,7 @@
 #include "Pawn/VirtualRealityPawn.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStaticsTypes.h"
-#include "Pawn/MovementComponentBase.h"
+#include "Pawn/Navigation/MovementComponentBase.h"
 
 #include "TeleportationComponent.generated.h"
 

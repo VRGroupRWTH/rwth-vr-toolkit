@@ -10,11 +10,11 @@
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
-#include "Pawn/ContinuousMovementComponent.h"
+#include "Pawn/InputExtensionInterface.h"
+#include "Pawn/Navigation/VRPawnMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Pawn/VRPawnInputConfig.h"
-#include "Pawn/VRPawnMovement.h"
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/VirtualRealityUtilities.h"
 

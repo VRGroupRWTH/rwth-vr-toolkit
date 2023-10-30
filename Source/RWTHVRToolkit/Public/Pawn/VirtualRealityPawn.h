@@ -5,7 +5,7 @@
 #include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
 #include "LiveLinkRole.h"
-#include "Pawn/VRPawnMovement.h"
+#include "Pawn/Navigation/VRPawnMovement.h"
 #include "VirtualRealityPawn.generated.h"
 
 class UInputMappingContext;

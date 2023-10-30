@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/OnClickGrabBehavior.h"
+#include "Interaction/Interactees/OnClickGrabBehavior.h"
 
-#include "Interaction/InteractableBase.h"
+#include "Interaction/Interactees/InteractableBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
 

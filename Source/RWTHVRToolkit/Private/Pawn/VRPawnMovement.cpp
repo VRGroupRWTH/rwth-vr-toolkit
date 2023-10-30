@@ -1,4 +1,4 @@
-﻿#include "Pawn/VRPawnMovement.h"
+﻿#include "Pawn/Navigation/VRPawnMovement.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 
