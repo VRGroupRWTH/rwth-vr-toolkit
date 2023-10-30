@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Pawn/VirtualRealityPawn.h"
-#include "Pawn/MovementComponentBase.h"
+#include "Pawn/Navigation/MovementComponentBase.h"
 #include "Components/ActorComponent.h"
 #include "ContinuousMovementComponent.generated.h"
 
