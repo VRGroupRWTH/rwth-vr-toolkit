@@ -49,7 +49,8 @@ public:
 					FMemoryReader MemoryReader(Event.EventData);
 
 					uint32 EventObjectId;
-					MemoryReader << EventObjectId; // This is reads the value!
+					// This reads the value!
+					MemoryReader << EventObjectId;
 					if (EventObjectId != ObjectId)
 					{
 						// Event does not belong to this object.
@@ -57,7 +58,8 @@ public:
 					}
 
 					FString EventMethodName;
-					MemoryReader << EventMethodName; // This is reads the value!
+					// This reads the value!
+					MemoryReader << EventMethodName; 
 					if (EventMethodName != MethodName)
 					{
 						// This event does not belong to this method.
@@ -116,7 +118,7 @@ public:
 
 			FMemoryWriter MemoryWriter(ClusterEvent.EventData);
 			MemoryWriter << ObjectId;
-			MemoryWriter << const_cast<FString&>(MethodName); // const_cast... thanks unreal!
+			MemoryWriter << const_cast<FString&>(MethodName);
 			SerializeParameters(&MemoryWriter, Forward<ArgTypes>(Arguments)...);
 
 			ClusterManager->EmitClusterEventBinary(ClusterEvent, true);

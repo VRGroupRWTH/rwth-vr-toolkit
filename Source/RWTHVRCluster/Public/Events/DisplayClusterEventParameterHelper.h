@@ -8,8 +8,8 @@ inline void SerializeParameters(FMemoryWriter* MemoryWriter, ParameterType&& Par
                                 RemainingParameterTypes&&... RemainingParameters)
 {
 	using NonConstType = typename TRemoveCV<typename TRemoveReference<ParameterType>::Type>::Type;
-	(*MemoryWriter) << const_cast<NonConstType&>(Parameter);
 	// const_cast because the same operator (<<) is used for reading and writing
+	(*MemoryWriter) << const_cast<NonConstType&>(Parameter);
 	SerializeParameters(MemoryWriter, Forward<RemainingParameterTypes>(RemainingParameters)...);
 }
 
