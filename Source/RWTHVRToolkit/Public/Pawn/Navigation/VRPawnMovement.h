@@ -65,7 +65,7 @@ public:
 private:
 	//check for
 	FHitResult CreateCapsuleTrace(const FVector& Start, const FVector& End, bool DrawDebug = false) const;
-	FVector GetOverlapResolveDirection();
+	TOptional<FVector> GetOverlapResolveDirection() const;
 	void SetCapsuleColliderToUserSize() const;
 	void CheckForPhysWalkingCollision();
 	FVector GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime);
@@ -78,7 +78,7 @@ private:
 	USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
-	FVector LastCollisionFreeCapsulePosition;
+	TOptional<FVector> LastCollisionFreeCapsulePosition;
 	FVector LastSteeringCollisionVector;
 
 	//just stored for performance gains;
