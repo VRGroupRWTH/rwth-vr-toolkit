@@ -174,7 +174,7 @@ void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
 		FVector ResolveDirection = 1.5f * ResolveDirectionOptional.GetValue(); //scale it up for security distance
 		UpdatedComponent->AddWorldOffset(ResolveDirection);
 
-		//invalidate the last collision-free position, since apparently something change so ew got into this collision
+		//invalidate the last collision-free position, since apparently something changed so we got into this collision
 		LastCollisionFreeCapsulePosition.Reset();
 	}
 }
@@ -183,7 +183,7 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
 	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
-		//we don't know any old location-free location, so do nothing here
+		//we don't know any old collision-free location, so do nothing here
 		return;
 	}
 
@@ -201,7 +201,7 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 
 FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime)
 {
-	//if we were in a collision in the last step already (so no LastCollisionFreeCapsulePosition is set)
+	// if we were in a collision in the last step already (so no LastCollisionFreeCapsulePosition is set)
 	// we allow movement to resole this collision (otherwise you wold be stuck forever)
 	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
@@ -327,7 +327,7 @@ TOptional<FVector> UVRPawnMovement::GetOverlapResolveDirection() const
 	}
 
 	FVector ResolveVector = FVector::ZeroVector;
-	//check what to do to move out of these collisions (or nothing if non is there)
+	//check what to do to move out of these collisions (or nothing if none is there)
 	//we just add the penetrations so in very unfortunate conditions this can become problematic/blocking but for now and our regular use cases this works
 	for (const UPrimitiveComponent* OverlappingComp : OverlappingComponents)
 	{
