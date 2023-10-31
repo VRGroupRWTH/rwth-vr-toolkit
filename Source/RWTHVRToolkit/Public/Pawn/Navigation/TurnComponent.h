@@ -45,6 +45,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCMovement_Right;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
+	class UInputMappingContext* IMCDesktopRotation;
+
 	/*Movement Input*/
 	UFUNCTION(BlueprintCallable)
 	void OnBeginTurn(const FInputActionValue& Value);
@@ -66,9 +69,6 @@ private:
 
 	UPROPERTY()
 	class UInputMappingContext* IMCTurn;
-
-	UPROPERTY()
-	class UInputMappingContext* IMCDesktopRotation;
 
 	void RotateCameraAndPawn(float Yaw);
 	bool bApplyDesktopRotation;

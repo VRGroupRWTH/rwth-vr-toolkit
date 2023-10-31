@@ -5,7 +5,6 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "MotionControllerComponent.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Utility/VirtualRealityUtilities.h"
 
@@ -33,9 +32,9 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 		IMCTurn = IMCMovement_Left;
 	}
 
-	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCTurn, 0);
-	InputSubsystem->AddMappingContext(IMCDesktopRotation, 0);
+	// add Input Mapping context
+	InputSubsystem->AddMappingContext(UVirtualRealityUtilities::IsDesktopMode() ? IMCDesktopRotation : IMCTurn, 0);
+
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)
@@ -89,19 +88,15 @@ void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 	if (TurnValue.X != 0.f)
 	{
 		RotateCameraAndPawn(TurnRateFactor * TurnValue.X);
-		if (UVirtualRealityUtilities::IsDesktopMode())
-		{
-			UpdateRightHandForDesktopInteraction();
-		}
 	}
-
-	if (TurnValue.Y != 0.f)
+	
+	/*if (TurnValue.Y != 0.f)
 	{
 		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 		{
 			VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
 		}
-	}
+	}*/
 }
 
 void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
