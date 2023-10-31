@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "Interaction/Interactables/InteractableComponent.h"
 #include "Pawn/InputExtensionInterface.h"
 #include "GrabComponent.generated.h"
 
@@ -43,8 +44,8 @@ private:
 	void OnEndGrab(const FInputActionValue& Value);
 
 	UPROPERTY()
-	TArray<UGrabbableComponent*> PreviousGrabbablesInRange;
+	TArray<UInteractableComponent*> PreviousGrabbablesInRange;
 
 	UPROPERTY()
-	TArray<UGrabbableComponent*> CurrentGrabbableInRange;
+	TArray<UInteractableComponent*> CurrentGrabbableInRange;
 };
