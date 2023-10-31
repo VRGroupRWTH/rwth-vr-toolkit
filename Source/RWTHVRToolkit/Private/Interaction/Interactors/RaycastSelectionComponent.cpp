@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Interaction/Interactees/InteractableBase.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
@@ -23,7 +24,7 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	URaycastSelectable* CurrentSelectable = nullptr;
+	UInteractableBase* CurrentSelectable = nullptr;
 
 
 	TArray<AActor*> ActorsToIgnore;
@@ -41,7 +42,7 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	AActor* HitActor = Hit.GetActor();
 	if (HitActor)
 	{
-		URaycastSelectable* Selectable = HitActor->FindComponentByClass<URaycastSelectable>();
+		UInteractableBase* Selectable = HitActor->FindComponentByClass<UInteractableBase>();
 		if (Selectable && Selectable->IsInteractable)
 		{
 			CurrentSelectable = Selectable;
@@ -49,35 +50,31 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 		}
 	}
 
-	CurrentRaycastSelectable = CurrentSelectable;
+	CurrentInteractable = CurrentSelectable;
 
-	if (CurrentRaycastSelectable != PreviousRaycastSelectable)
+	if (CurrentInteractable != PreviousInteractable)
 	{
-		if (CurrentRaycastSelectable)
-		{
-			CurrentRaycastSelectable->HandleOnHoverStartEvents(this);
-		}
-		if (PreviousRaycastSelectable)
-		{
-			PreviousRaycastSelectable->HandleOnHoverEndEvents(this);
-		}
+		if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
+			CurrentInteractable->HandleOnHoverStartEvents(this, EInteractorType::Raycast);
+		if (PreviousInteractable && PreviousInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
+			PreviousInteractable->HandleOnHoverEndEvents(this, EInteractorType::Raycast);
 	}
 
-	PreviousRaycastSelectable = CurrentRaycastSelectable;
+	PreviousInteractable = CurrentInteractable;
 }
 
 void URaycastSelectionComponent::OnBeginSelect(const FInputActionValue& Value)
 {
-	if (CurrentRaycastSelectable)
-	{
-		CurrentRaycastSelectable->HandleOnClickStartEvents(this, Value);
-	}
+	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
+		CurrentInteractable->HandleOnActionStartEvents(this, RayCastSelectInputAction, Value,
+		                                               EInteractorType::Raycast);
 }
 
 void URaycastSelectionComponent::OnEndSelect(const FInputActionValue& Value)
 {
-	if (CurrentRaycastSelectable)
-		CurrentRaycastSelectable->HandleOnClickEndEvents(this, Value);
+	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
+		CurrentInteractable->HandleOnActionEndEvents(this, RayCastSelectInputAction, Value,
+		                                             EInteractorType::Raycast);
 }
 
 void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)

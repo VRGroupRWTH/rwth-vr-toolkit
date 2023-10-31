@@ -3,14 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputAction.h"
+#include "InteractionBitSet.h"
 #include "Components/ActorComponent.h"
 #include "InteractableBase.generated.h"
 
 
 struct FInputActionValue;
-class UClickBehaviour;
+class UActionBehaviour;
 class UHoverBehaviour;
 
+/*
+ * This class is the entry point into interactions on actors.
+ * The InteractorComponents will call this component to notify it about Action and Hover events.
+ *
+ * The Interactable component receives Action and Hover calls and broadcasts it to all registered
+ * Action and Hover Behaviour components.
+ *
+ * The Interactable can be filtered.
+ * Currently we filter on the InteractorType, e.g.: Raycast, Spherecast, etc.
+ * 
+ * Action and Hover Behaviours can be manually added via Blueprints on a per-Interactable basis.
+ * If no Action and Hover Behaviours are set manually, all Action and Hover behaviours that are
+ * attached to the Actor are used.
+ *
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UInteractableBase : public UActorComponent
 {
@@ -20,11 +37,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsInteractable = true;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Bitmask, BitmaskEnum = EInteractorType))
+	int32 InteractorFilter = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UHoverBehaviour*> OnHoverBehaviours;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UClickBehaviour*> OnClickBehaviours;
+	TArray<UActionBehaviour*> OnActionBehaviours;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type)
+	{
+		return type & InteractorFilter;
+	}
 
 	/**
 	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other components)
@@ -44,10 +70,14 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent);
-	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent);
-	void HandleOnClickStartEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value);
-	void HandleOnClickEndEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value);
+	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
+	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
+	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
+	                               const FInputActionValue& Value,
+	                               const EInteractorType Interactor);
+	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
+	                             const FInputActionValue& Value,
+	                             const EInteractorType Interactor);
 
 	/**
 	 * @brief If click and grab behaviors are not explicitly specified, load all existing ones

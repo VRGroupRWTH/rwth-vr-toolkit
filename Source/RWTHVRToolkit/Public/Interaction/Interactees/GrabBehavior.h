@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ClickBehaviour.h"
+#include "ActionBehaviour.h"
 #include "Components/SceneComponent.h"
-#include "OnClickGrabBehavior.generated.h"
+#include "GrabBehavior.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class RWTHVRTOOLKIT_API UOnClickGrabBehavior : public UClickBehaviour
+class RWTHVRTOOLKIT_API UOnClickGrabBehavior : public UActionBehaviour
 {
 	GENERATED_BODY()
 
@@ -17,8 +17,10 @@ public:
 	UPROPERTY(EditAnywhere, Category="Grabbing")
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
-	virtual void OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value) override;
-	virtual void OnClickEnd(USceneComponent* TriggeredComponent, const FInputActionValue& Value) override;
+	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+	                           const FInputActionValue& Value) override;
+	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+	                         const FInputActionValue& Value) override;
 
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 

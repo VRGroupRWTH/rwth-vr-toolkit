@@ -3,16 +3,17 @@
 
 #include "Interaction/Interactees/InteractableBase.h"
 
-#include "Interaction/Interactees/ClickBehaviour.h"
+#include "Interaction/Interactees/ActionBehaviour.h"
 #include "Interaction/Interactees/HoverBehaviour.h"
 
 void UInteractableBase::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
 {
-	if(Components.IsEmpty())
+	if (Components.IsEmpty())
 	{
 		bRestrictInteraction = false;
 		AllowedComponents.Empty();
-	} else
+	}
+	else
 	{
 		bRestrictInteraction = true;
 		AllowedComponents = Components;
@@ -39,51 +40,80 @@ void UInteractableBase::BeginPlay()
 	InitDefaultBehaviourReferences();
 }
 
-void UInteractableBase::HandleOnHoverStartEvents(USceneComponent* TriggerComponent)
+// This functions dispatches the HoverStart Event to the attached Hover Behaviour Components
+void UInteractableBase::HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
 {
-	if(!IsComponentAllowed(TriggerComponent)) return;
-	
-	for(const UHoverBehaviour* b : OnHoverBehaviours)
+	// We early return if there the InteractorFilter is set and the Interactor is allowed.
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+
+	// We early return if the source Interactor is not part of the allowed components
+	if (!IsComponentAllowed(TriggerComponent)) return;
+
+	//Broadcast event to all HoverBehaviours
+	for (const UHoverBehaviour* b : OnHoverBehaviours)
 	{
 		b->OnHoverStartEvent.Broadcast(TriggerComponent, HitResult);
 	}
-
 }
 
-void UInteractableBase::HandleOnHoverEndEvents(USceneComponent* TriggerComponent)
+// This functions dispatches the HoverEnd Event to the attached Hover Behaviour Components
+void UInteractableBase::HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
 {
-	if(!IsComponentAllowed(TriggerComponent)) return;
-	
-	for(const UHoverBehaviour* b : OnHoverBehaviours)
+	// We early return if there the InteractorFilter is set and the Interactor is allowed.
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+
+	// We early return if the source Interactor is not part of the allowed components
+	if (!IsComponentAllowed(TriggerComponent)) return;
+
+	//Broadcast event to all HoverBehaviours
+	for (const UHoverBehaviour* b : OnHoverBehaviours)
 	{
 		b->OnHoverEndEvent.Broadcast(TriggerComponent);
 	}
 }
 
-void UInteractableBase::HandleOnClickStartEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value)
+// This functions dispatches the ActionStart Event to the attached Action Behaviour Components
+void UInteractableBase::HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
+                                                  const FInputActionValue& Value,
+                                                  const EInteractorType Interactor)
 {
-	if(!IsComponentAllowed(TriggerComponent)) return;
-	
-	for(const UClickBehaviour* b : OnClickBehaviours)
+	// We early return if there the InteractorFilter is set and the Interactor is allowed.
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+
+	// We early return if the source Interactor is not part of the allowed components
+	if (!IsComponentAllowed(TriggerComponent)) return;
+
+	//Broadcast event to all ActionBehaviours
+	for (const UActionBehaviour* b : OnActionBehaviours)
 	{
-		b->OnClickStartEvent.Broadcast(TriggerComponent, Value);
+		b->OnActionBeginEvent.Broadcast(TriggerComponent, InputAction, Value);
 	}
 }
 
-void UInteractableBase::HandleOnClickEndEvents(USceneComponent* TriggerComponent, const FInputActionValue& Value)
+// This functions dispatches the ActionEnd Event to the attached Action Behaviour Components
+void UInteractableBase::HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
+                                                const FInputActionValue& Value,
+                                                const EInteractorType Interactor)
 {
-	if(!IsComponentAllowed(TriggerComponent)) return;
-	
-	for(const UClickBehaviour* b : OnClickBehaviours)
+	// We early return if there the InteractorFilter is set and the Interactor is allowed.
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+
+	// We early return if the source Interactor is not part of the allowed components
+	if (!IsComponentAllowed(TriggerComponent)) return;
+
+	//Broadcast event to all ActionBehaviours
+	for (const UActionBehaviour* b : OnActionBehaviours)
 	{
-		b->OnClickEndEvent.Broadcast(TriggerComponent, Value);
+		b->OnActionEndEvent.Broadcast(TriggerComponent, InputAction, Value);
 	}
 }
 
+// This function searches for Action and Hover Behaviours that are attached to the Actor iff they are not set
+// manually by the user.
 void UInteractableBase::InitDefaultBehaviourReferences()
 {
 	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
-	if(OnHoverBehaviours.IsEmpty())
+	if (OnHoverBehaviours.IsEmpty())
 	{
 		//Selecting
 		TInlineComponentArray<UHoverBehaviour*> AttachedHoverBehaviours;
@@ -91,27 +121,26 @@ void UInteractableBase::InitDefaultBehaviourReferences()
 
 		OnHoverBehaviours = AttachedHoverBehaviours;
 	}
-	
+
 	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
-	if(OnClickBehaviours.IsEmpty())
+	if (OnActionBehaviours.IsEmpty())
 	{
 		//Clicking
-		TInlineComponentArray<UClickBehaviour*> AttachedClickBehaviours;
+		TInlineComponentArray<UActionBehaviour*> AttachedClickBehaviours;
 		GetOwner()->GetComponents(AttachedClickBehaviours, true);
 
-		OnClickBehaviours = AttachedClickBehaviours;
+		OnActionBehaviours = AttachedClickBehaviours;
 	}
 }
 
 bool UInteractableBase::IsComponentAllowed(USceneComponent* Component) const
 {
-	if(bRestrictInteraction)
+	if (bRestrictInteraction)
 	{
-		if(!AllowedComponents.Contains(Component))
+		if (!AllowedComponents.Contains(Component))
 		{
 			return false;
-		} 
+		}
 	}
 	return true;
 }
-

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/Interactees/OnClickGrabBehavior.h"
+#include "Interaction\Interactees\GrabBehavior.h"
 
 #include "Interaction/Interactees/InteractableBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -36,7 +36,8 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPr
 	}
 }
 
-void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
+void UOnClickGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+                                         const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
@@ -68,7 +69,8 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 	}
 }
 
-void UOnClickGrabBehavior::OnClickEnd(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
+void UOnClickGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+                                       const FInputActionValue& Value)
 {
 	if (MyPhysicsComponent)
 	{
