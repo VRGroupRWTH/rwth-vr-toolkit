@@ -1,5 +1,5 @@
 ﻿#include "Pawn/Navigation/VRPawnMovement.h"
-#include "DrawDebugHelpers.h"
+
 #include "Kismet/KismetSystemLibrary.h"
 
 UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -46,7 +46,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
 		AddInputVector(InputVector);
 	}
 
-	
+
 	if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 	{
 		//if me managed to get into a collision revert the movement since last Tick
@@ -65,7 +65,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
 				AddInputVector(SafeSteeringInput);
 			}
 		}
-		
+
 
 		// so we add stepping-up (for both walk and fly)
 		// and gravity for walking only
@@ -143,7 +143,7 @@ void UVRPawnMovement::CheckAndRevertCollisionSinceLastTick()
 {
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 
-	if(!LastCollisionFreeCapsulePosition.IsSet())
+	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
 		//we cannot revert anyways so only check if the current position is collision free
 		if (!CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
@@ -169,7 +169,7 @@ void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
 {
 	TOptional<FVector> ResolveDirectionOptional = GetOverlapResolveDirection();
 
-	if(ResolveDirectionOptional.IsSet())
+	if (ResolveDirectionOptional.IsSet())
 	{
 		FVector ResolveDirection = 1.5f * ResolveDirectionOptional.GetValue(); //scale it up for security distance
 		UpdatedComponent->AddWorldOffset(ResolveDirection);
@@ -181,7 +181,7 @@ void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
 
 void UVRPawnMovement::CheckForPhysWalkingCollision()
 {
-	if(!LastCollisionFreeCapsulePosition.IsSet())
+	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
 		//we don't know any old location-free location, so do nothing here
 		return;
@@ -203,7 +203,7 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 {
 	//if we were in a collision in the last step already (so no LastCollisionFreeCapsulePosition is set)
 	// we allow movement to resole this collision (otherwise you wold be stuck forever)
-	if(!LastCollisionFreeCapsulePosition.IsSet())
+	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
 		return InputVector;
 	}
@@ -320,7 +320,7 @@ TOptional<FVector> UVRPawnMovement::GetOverlapResolveDirection() const
 	                                               CapsuleColliderComponent->GetScaledCapsuleHalfHeight(),
 	                                               traceObjectTypes, nullptr, ActorsToIgnore, OverlappingComponents);
 
-	if(OverlappingComponents.Num() == 0)
+	if (OverlappingComponents.Num() == 0)
 	{
 		// return unset optional
 		return TOptional<FVector>();

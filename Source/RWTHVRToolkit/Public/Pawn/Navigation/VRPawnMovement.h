@@ -74,6 +74,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UCapsuleComponent* CapsuleColliderComponent = nullptr;
+
 	UPROPERTY()
 	USceneComponent* HeadComponent = nullptr;
 
