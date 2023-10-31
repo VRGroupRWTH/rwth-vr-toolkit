@@ -7,7 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
 
-UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
+UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
 	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
@@ -24,7 +24,7 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(co
 }
 
 // recursively goes up the hierarchy and returns the highest parent simulating physics
-UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
+UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
 {
 	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics())
 	{
@@ -36,7 +36,7 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPr
 	}
 }
 
-void UOnClickGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
                                          const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
@@ -69,7 +69,7 @@ void UOnClickGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, co
 	}
 }
 
-void UOnClickGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
                                        const FInputActionValue& Value)
 {
 	if (MyPhysicsComponent)

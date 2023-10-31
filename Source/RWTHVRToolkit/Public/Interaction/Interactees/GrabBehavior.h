@@ -9,7 +9,7 @@
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class RWTHVRTOOLKIT_API UOnClickGrabBehavior : public UActionBehaviour
+class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 {
 	GENERATED_BODY()
 
