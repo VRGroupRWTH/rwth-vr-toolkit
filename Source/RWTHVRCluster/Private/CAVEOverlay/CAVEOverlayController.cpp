@@ -2,12 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "IDisplayCluster.h"
+#include "MotionControllerComponent.h"
+#include "Camera/CameraComponent.h"
 #include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
+#include "Logging/StructuredLog.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "UObject/ConstructorHelpers.h"
+#include "Pawn/VirtualRealityPawn.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
@@ -38,18 +41,6 @@ ACAVEOverlayController::ACAVEOverlayController()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bAllowTickBeforeBeginPlay = false;
-	AutoReceiveInput = EAutoReceiveInput::Player0;
-
-	ConstructorHelpers::FClassFinder<UDoorOverlayData> WidgetClassFinder(
-		TEXT("Blueprint'/RWTHVRToolkit/CAVEOverlay/DoorOverlay'"));
-	if (WidgetClassFinder.Succeeded())
-	{
-		OverlayClass = WidgetClassFinder.Class;
-	}
-	else
-	{
-		UE_LOG(LogCAVEOverlay, Error, TEXT("Could not find the DoorOverlay class. Have you renamed it?"));
-	}
 
 	//Creation of sub-components
 	Root = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
@@ -58,11 +49,6 @@ ACAVEOverlayController::ACAVEOverlayController()
 	SignRoot = CreateDefaultSubobject<USceneComponent>("SignRoot");
 	TapeRoot->SetupAttachment(Root);
 	SignRoot->SetupAttachment(Root);
-
-	//Loading of Materials and Meshes
-	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/Stripes", TapeMaterial);
-	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/StopMaterial", SignMaterial);
-	UVirtualRealityUtilities::LoadAsset("/RWTHVRToolkit/CAVEOverlay/Plane", PlaneMesh);
 
 	TapeNegativeY = CreateMeshComponent("TapeNegY", PlaneMesh, TapeRoot);
 	TapeNegativeX = CreateMeshComponent("TapeNegX", PlaneMesh, TapeRoot);
@@ -97,31 +83,11 @@ ACAVEOverlayController::ACAVEOverlayController()
 	SignPositiveX->SetRelativeScale3D(FVector(0.5f));
 }
 
-void ACAVEOverlayController::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	//Create dynamic materials in runtime
-	TapeMaterialDynamic = UMaterialInstanceDynamic::Create(TapeMaterial, TapeRoot);
-	SignMaterialDynamic = UMaterialInstanceDynamic::Create(SignMaterial, SignRoot);
-
-	TapeNegativeY->SetMaterial(0, TapeMaterialDynamic);
-	TapeNegativeX->SetMaterial(0, TapeMaterialDynamic);
-	TapePositiveY->SetMaterial(0, TapeMaterialDynamic);
-	TapePositiveX->SetMaterial(0, TapeMaterialDynamic);
-
-	SignNegativeY->SetMaterial(0, SignMaterialDynamic);
-	SignNegativeX->SetMaterial(0, SignMaterialDynamic);
-	SignPositiveY->SetMaterial(0, SignMaterialDynamic);
-	SignPositiveX->SetMaterial(0, SignMaterialDynamic);
-}
-
 void ACAVEOverlayController::CycleDoorType()
 {
 	DoorCurrentMode = static_cast<EDoorMode>((DoorCurrentMode + 1) % DOOR_NUM_MODES);
 
-	IDisplayClusterClusterManager* const Manager = IDisplayCluster::Get().GetClusterMgr();
-	if (Manager)
+	if (auto* const Manager = IDisplayCluster::Get().GetClusterMgr())
 	{
 		FDisplayClusterClusterEventJson cluster_event;
 		cluster_event.Name = "CAVEOverlay Change Door to " + DoorModeNames[DoorCurrentMode];
@@ -141,7 +107,7 @@ void ACAVEOverlayController::HandleClusterEvent(const FDisplayClusterClusterEven
 	}
 }
 
-void ACAVEOverlayController::SetDoorMode(EDoorMode NewMode)
+void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 {
 	DoorCurrentMode = NewMode;
 	switch (DoorCurrentMode)
@@ -188,12 +154,22 @@ void ACAVEOverlayController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Don't do anything if we're a dedicated server. We shouldn't even exist there.
+	if (GetNetMode() == NM_DedicatedServer)
+		return;
+
+	// This should return the respective client's local playercontroller or, if we're a listen server, our own PC.
+	auto* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+
 	bCAVEMode = UVirtualRealityUtilities::IsCave(); /* Store current situation */
 
-	if (!bCAVEMode) return; // Not our business
+	bCAVEMode = true;
+
+	if (PC == nullptr || !bCAVEMode)
+		return;
 
 	//Input config
-	InputComponent->BindKey(EKeys::F10, EInputEvent::IE_Pressed, this, &ACAVEOverlayController::CycleDoorType);
+	//InputComponent->BindKey(EKeys::F10, EInputEvent::IE_Pressed, this, &ACAVEOverlayController::CycleDoorType);
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
 	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
 	{
@@ -220,17 +196,55 @@ void ACAVEOverlayController::BeginPlay()
 		ScreenType = SCREEN_NORMAL;
 	}
 
-	Overlay = CreateWidget<UDoorOverlayData>(GetWorld()->GetFirstPlayerController(), OverlayClass);
+	// Create and add widget to local playercontroller.
+	if (!OverlayClass)
+	{
+		UE_LOGFMT(LogCAVEOverlay, Error, "OverlayClass not set in CaveOverlayController!");
+		return;
+	}
+	Overlay = CreateWidget<UDoorOverlayData>(PC, OverlayClass);
 	Overlay->AddToViewport(0);
 	SetDoorMode(DoorCurrentMode);
 	//Set Text to "" until someone presses the key for the first time
 	Overlay->CornerText->SetText(FText::FromString(""));
 
-	if (!bAttachedToCAVEOrigin && CaveOrigin)
+	// Attach it to the pawn
+	VRPawn = Cast<AVirtualRealityPawn>(PC->GetPawnOrSpectator());
+	if (VRPawn)
 	{
-		AttachToComponent(CaveOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		bAttachedToCAVEOrigin = true;
+		AttachToActor(VRPawn, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		bAttachedToPawn = true;
 	}
+	else
+	{
+		UE_LOGFMT(LogCAVEOverlay, Error, "No VirtualRealityPawn found which we could attach to!");
+	}
+
+	if (!TapeMaterial || !TapeMaterial->IsValidLowLevelFast())
+	{
+		UE_LOGFMT(LogCAVEOverlay, Error, "TapeMaterial not set! Please set asset reference in BP!");
+		return;
+	}
+
+	if (!SignMaterial || !SignMaterial->IsValidLowLevelFast())
+	{
+		UE_LOGFMT(LogCAVEOverlay, Error, "SignMaterial not set! Please set asset reference in BP!");
+		return;
+	}
+
+	//Create dynamic materials in runtime
+	TapeMaterialDynamic = UMaterialInstanceDynamic::Create(TapeMaterial, TapeRoot);
+	SignMaterialDynamic = UMaterialInstanceDynamic::Create(SignMaterial, SignRoot);
+
+	TapeNegativeY->SetMaterial(0, TapeMaterialDynamic);
+	TapeNegativeX->SetMaterial(0, TapeMaterialDynamic);
+	TapePositiveY->SetMaterial(0, TapeMaterialDynamic);
+	TapePositiveX->SetMaterial(0, TapeMaterialDynamic);
+
+	SignNegativeY->SetMaterial(0, SignMaterialDynamic);
+	SignNegativeX->SetMaterial(0, SignMaterialDynamic);
+	SignPositiveY->SetMaterial(0, SignMaterialDynamic);
+	SignPositiveX->SetMaterial(0, SignMaterialDynamic);
 }
 
 void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -261,58 +275,33 @@ bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) cons
 		                            WallDistance + 10);
 }
 
-// Called every frame
 void ACAVEOverlayController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bCAVEMode) return; // Not our business
+	// todo: avoid empty ticks, we should disable ourselves and/or never spawn when not in Cave mode
+	if (!bCAVEMode)
+		return;
 
-	if (!CaveOrigin)
+	// todo: handle pawn changes etc
+	if (!bAttachedToPawn)
 	{
-		CaveOrigin = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_CAVE_ORIGIN);
+		return;
 	}
-
-	if (!bAttachedToCAVEOrigin && CaveOrigin)
-	{
-		AttachToComponent(CaveOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		bAttachedToCAVEOrigin = true;
-	}
-
-	//FPS Counter
-	if (Overlay)
-	{
-		if (DoorCurrentMode == EDoorMode::DOOR_DEBUG && ContainsFString(
-			ScreensFPS, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
-		{
-			Overlay->FPS->SetText(FText::FromString(FString::Printf(TEXT("FPS: %.1f"), 1.0f / DeltaTime)));
-		}
-		else
-		{
-			Overlay->FPS->SetText(FText::FromString(""));
-		}
-	}
-
-	if (!Head)
-	{
-		Head = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_SHUTTERGLASSES);
-	}
-
-	if (!Head || !CaveOrigin) return; //Display Cluster not fully initialized
 
 	//Head/Tape Logic
-	const FVector ShutterPosition = Head->GetComponentLocation() - CaveOrigin->GetComponentLocation();
-	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(ShutterPosition.GetAbsMax(),
+	const FVector HeadPosition = VRPawn->HeadCameraComponent->GetRelativeTransform().GetLocation();
+	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(HeadPosition.GetAbsMax(),
 	                                                         WallDistance - WallCloseDistance, WallDistance);
 
-	if (bHeadIsCloseToWall && !PositionInDoorOpening(ShutterPosition))
+	if (bHeadIsCloseToWall && !PositionInDoorOpening(HeadPosition))
 	{
 		TapeRoot->SetVisibility(true, true);
-		TapeRoot->SetRelativeLocation(ShutterPosition * FVector(0, 0, 1)); //Only apply Z
+		TapeRoot->SetRelativeLocation(HeadPosition * FVector(0, 0, 1)); //Only apply Z
 
-		TapeMaterialDynamic->SetScalarParameterValue("BarrierOpacity", CalculateOpacityFromPosition(ShutterPosition));
+		TapeMaterialDynamic->SetScalarParameterValue("BarrierOpacity", CalculateOpacityFromPosition(HeadPosition));
 
-		if (FMath::IsWithin(FVector2D(ShutterPosition).GetAbsMax(), WallDistance - WallWarningDistance, WallDistance))
+		if (FMath::IsWithin(FVector2D(HeadPosition).GetAbsMax(), WallDistance - WallWarningDistance, WallDistance))
 		{
 			//in warning distance == red tape
 			TapeMaterialDynamic->SetVectorParameterValue("StripeColor", FVector(1, 0, 0));
@@ -327,37 +316,24 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 		TapeRoot->SetVisibility(false, true);
 	}
 
-	// Flystick/Sign Logic
-	if (!Flystick)
-	{
-		Flystick = UVirtualRealityUtilities::GetNamedClusterComponent(ENamedClusterComponent::NCC_FLYSTICK);
-	}
-	if (Flystick)
-	{
-		const FVector FlystickPosition = Flystick->GetRelativeTransform().GetLocation();
-		const bool bFlystickInDoor = PositionInDoorOpening(FlystickPosition);
+	// Right Hand (Flystick) / Sign Logic
 
-		SignNegativeX->SetRelativeLocation(FVector(-WallDistance, FlystickPosition.Y, FlystickPosition.Z));
-		SignNegativeY->SetRelativeLocation(FVector(FlystickPosition.X, -WallDistance, FlystickPosition.Z));
-		SignPositiveX->SetRelativeLocation(FVector(+WallDistance, FlystickPosition.Y, FlystickPosition.Z));
-		SignPositiveY->SetRelativeLocation(FVector(FlystickPosition.X, +WallDistance, FlystickPosition.Z));
+	const FVector RightHandPosition = VRPawn->RightHand->GetRelativeTransform().GetLocation();
+	const bool bFlystickInDoor = PositionInDoorOpening(RightHandPosition);
 
-		SignNegativeX->SetVisibility(
-			FMath::IsWithin(-FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignNegativeY->SetVisibility(
-			FMath::IsWithin(-FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignPositiveX->SetVisibility(
-			FMath::IsWithin(+FlystickPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-		SignPositiveY->SetVisibility(
-			FMath::IsWithin(+FlystickPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+	SignNegativeX->SetRelativeLocation(FVector(-WallDistance, RightHandPosition.Y, RightHandPosition.Z));
+	SignNegativeY->SetRelativeLocation(FVector(RightHandPosition.X, -WallDistance, RightHandPosition.Z));
+	SignPositiveX->SetRelativeLocation(FVector(+WallDistance, RightHandPosition.Y, RightHandPosition.Z));
+	SignPositiveY->SetRelativeLocation(FVector(RightHandPosition.X, +WallDistance, RightHandPosition.Z));
 
-		SignMaterialDynamic->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(FlystickPosition));
-	}
-	else
-	{
-		SignNegativeX->SetVisibility(false);
-		SignNegativeY->SetVisibility(false);
-		SignPositiveX->SetVisibility(false);
-		SignPositiveY->SetVisibility(false);
-	}
+	SignNegativeX->SetVisibility(
+		FMath::IsWithin(-RightHandPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+	SignNegativeY->SetVisibility(
+		FMath::IsWithin(-RightHandPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+	SignPositiveX->SetVisibility(
+		FMath::IsWithin(+RightHandPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+	SignPositiveY->SetVisibility(
+		FMath::IsWithin(+RightHandPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
+
+	SignMaterialDynamic->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(RightHandPosition));
 }
