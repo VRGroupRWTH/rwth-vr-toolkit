@@ -5,6 +5,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Interaction/Interactables/InteractableComponent.h"
+#include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -23,7 +25,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
-	TArray<UInteractableBase*> CurrentGrabCompsInRange;
+	TArray<UInteractableComponent*> CurrentGrabCompsInRange;
 
 	TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> OutHits;
@@ -41,7 +43,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			UInteractableBase* Grabbable = HitActor->FindComponentByClass<UInteractableBase>();
+			UInteractableComponent* Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 			if (Grabbable && Grabbable->HasInteractionTypeFlag(EInteractorType::Grab) && Grabbable->IsInteractable)
 			{
 				Grabbable->HitResult = Hit;
@@ -53,7 +55,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	CurrentGrabbableInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
-	for (UInteractableBase* CurrentGrabbale : CurrentGrabCompsInRange)
+	for (UInteractableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
 	{
 		if (!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
 		{
@@ -62,10 +64,10 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		}
 	}
 
-	TArray<UInteractableBase*> ComponentsToRemove;
+	TArray<UInteractableComponent*> ComponentsToRemove;
 
 	// Call hover end events on all components that were previously in range, but not anymore
-	for (UInteractableBase* PrevGrabbale : PreviousGrabbablesInRange)
+	for (UInteractableComponent* PrevGrabbale : PreviousGrabbablesInRange)
 	{
 		if (!CurrentGrabCompsInRange.Contains(PrevGrabbale))
 		{
@@ -74,7 +76,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		}
 	}
 
-	for (UInteractableBase* CompToRemove : ComponentsToRemove)
+	for (UInteractableComponent* CompToRemove : ComponentsToRemove)
 	{
 		PreviousGrabbablesInRange.Remove(CompToRemove);
 	}
@@ -105,7 +107,7 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
-	for (UInteractableBase* Grabbale : CurrentGrabbableInRange)
+	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
@@ -113,7 +115,7 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for (UInteractableBase* Grabbale : CurrentGrabbableInRange)
+	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}

@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interaction/Interactees/InteractableBase.h"
+#include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
@@ -24,7 +24,7 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UInteractableBase* CurrentSelectable = nullptr;
+	UInteractableComponent* CurrentSelectable = nullptr;
 
 
 	TArray<AActor*> ActorsToIgnore;
@@ -42,7 +42,7 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	AActor* HitActor = Hit.GetActor();
 	if (HitActor)
 	{
-		UInteractableBase* Selectable = HitActor->FindComponentByClass<UInteractableBase>();
+		UInteractableComponent* Selectable = HitActor->FindComponentByClass<UInteractableComponent>();
 		if (Selectable && Selectable->IsInteractable)
 		{
 			CurrentSelectable = Selectable;

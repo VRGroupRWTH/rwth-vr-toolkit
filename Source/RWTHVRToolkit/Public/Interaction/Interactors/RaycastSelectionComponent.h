@@ -46,8 +46,8 @@ public:
 
 private:
 	UPROPERTY()
-	UInteractableBase* PreviousInteractable;
+	UInteractableComponent* PreviousInteractable;
 
 	UPROPERTY()
-	UInteractableBase* CurrentInteractable;
+	UInteractableComponent* CurrentInteractable;
 };

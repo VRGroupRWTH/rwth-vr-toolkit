@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction\Interactees\GrabBehavior.h"
-
-#include "Interaction/Interactees/InteractableBase.h"
+#include "Interaction/Interactables/GrabBehavior.h"
+#include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
 
@@ -37,7 +36,7 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 }
 
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                         const FInputActionValue& Value)
+                                  const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
@@ -60,9 +59,9 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables;
-		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
-		for (UInteractableBase* Interactable : Interactables)
+		TArray<UInteractableComponent*> Interactables;
+		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
+		for (UInteractableComponent* Interactable : Interactables)
 		{
 			Interactable->RestrictInteractionToComponent(TriggeredComponent);
 		}
@@ -70,7 +69,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                       const FInputActionValue& Value)
+                                const FInputActionValue& Value)
 {
 	if (MyPhysicsComponent)
 	{
@@ -84,9 +83,9 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables;
-		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
-		for (UInteractableBase* Interactable : Interactables)
+		TArray<UInteractableComponent*> Interactables;
+		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
+		for (UInteractableComponent* Interactable : Interactables)
 		{
 			Interactable->ResetRestrictInteraction();
 		}

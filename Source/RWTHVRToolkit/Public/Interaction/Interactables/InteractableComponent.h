@@ -6,7 +6,7 @@
 #include "InputAction.h"
 #include "InteractionBitSet.h"
 #include "Components/ActorComponent.h"
-#include "InteractableBase.generated.h"
+#include "InteractableComponent.generated.h"
 
 
 struct FInputActionValue;
@@ -29,7 +29,7 @@ class UHoverBehaviour;
  *
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class RWTHVRTOOLKIT_API UInteractableBase : public UActorComponent
+class RWTHVRTOOLKIT_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

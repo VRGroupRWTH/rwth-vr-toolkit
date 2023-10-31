@@ -1,12 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/Interactees/InteractableBase.h"
+#include "Interaction/Interactables/InteractableComponent.h"
+#include "Interaction/Interactables/ActionBehaviour.h"
+#include "Interaction/Interactables/HoverBehaviour.h"
 
-#include "Interaction/Interactees/ActionBehaviour.h"
-#include "Interaction/Interactees/HoverBehaviour.h"
-
-void UInteractableBase::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
+void UInteractableComponent::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
 {
 	if (Components.IsEmpty())
 	{
@@ -20,28 +19,29 @@ void UInteractableBase::RestrictInteractionToComponents(const TArray<USceneCompo
 	}
 }
 
-void UInteractableBase::RestrictInteractionToComponent(USceneComponent* Component)
+void UInteractableComponent::RestrictInteractionToComponent(USceneComponent* Component)
 {
 	TArray<USceneComponent*> Components;
 	Components.Add(Component);
 	RestrictInteractionToComponents(Components);
 }
 
-void UInteractableBase::ResetRestrictInteraction()
+void UInteractableComponent::ResetRestrictInteraction()
 {
 	bRestrictInteraction = false;
 	AllowedComponents.Empty();
 }
 
 // Called when the game starts
-void UInteractableBase::BeginPlay()
+void UInteractableComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	InitDefaultBehaviourReferences();
 }
 
 // This functions dispatches the HoverStart Event to the attached Hover Behaviour Components
-void UInteractableBase::HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
+void UInteractableComponent::HandleOnHoverStartEvents(USceneComponent* TriggerComponent,
+                                                      const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
@@ -57,7 +57,7 @@ void UInteractableBase::HandleOnHoverStartEvents(USceneComponent* TriggerCompone
 }
 
 // This functions dispatches the HoverEnd Event to the attached Hover Behaviour Components
-void UInteractableBase::HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
+void UInteractableComponent::HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
@@ -73,9 +73,10 @@ void UInteractableBase::HandleOnHoverEndEvents(USceneComponent* TriggerComponent
 }
 
 // This functions dispatches the ActionStart Event to the attached Action Behaviour Components
-void UInteractableBase::HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-                                                  const FInputActionValue& Value,
-                                                  const EInteractorType Interactor)
+void UInteractableComponent::HandleOnActionStartEvents(USceneComponent* TriggerComponent,
+                                                       const UInputAction* InputAction,
+                                                       const FInputActionValue& Value,
+                                                       const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
@@ -91,9 +92,9 @@ void UInteractableBase::HandleOnActionStartEvents(USceneComponent* TriggerCompon
 }
 
 // This functions dispatches the ActionEnd Event to the attached Action Behaviour Components
-void UInteractableBase::HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-                                                const FInputActionValue& Value,
-                                                const EInteractorType Interactor)
+void UInteractableComponent::HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
+                                                     const FInputActionValue& Value,
+                                                     const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
@@ -110,7 +111,7 @@ void UInteractableBase::HandleOnActionEndEvents(USceneComponent* TriggerComponen
 
 // This function searches for Action and Hover Behaviours that are attached to the Actor iff they are not set
 // manually by the user.
-void UInteractableBase::InitDefaultBehaviourReferences()
+void UInteractableComponent::InitDefaultBehaviourReferences()
 {
 	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
 	if (OnHoverBehaviours.IsEmpty())
@@ -133,7 +134,7 @@ void UInteractableBase::InitDefaultBehaviourReferences()
 	}
 }
 
-bool UInteractableBase::IsComponentAllowed(USceneComponent* Component) const
+bool UInteractableComponent::IsComponentAllowed(USceneComponent* Component) const
 {
 	if (bRestrictInteraction)
 	{
