@@ -81,32 +81,45 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 	case EDoorMode::DOOR_DEBUG:
 	case EDoorMode::DOOR_PARTIALLY_OPEN:
 		DoorCurrentOpeningWidthAbsolute = DoorOpeningWidthAbsolute;
-		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		if (ScreenType == SCREEN_DOOR_PARTIAL)
 			Overlay->BlackBox->
 			         SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
-		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_MASTER)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
 	case EDoorMode::DOOR_OPEN:
 		DoorCurrentOpeningWidthAbsolute = WallDistance * 2;
-		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
-		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
-		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR)
+			Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL)
+			Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
+		if (ScreenType == SCREEN_MASTER)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
 	case EDoorMode::DOOR_CLOSED:
 		DoorCurrentOpeningWidthAbsolute = 0;
-		if (ScreenType == SCREEN_DOOR) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (ScreenType == SCREEN_DOOR_PARTIAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (ScreenType == SCREEN_MASTER) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_DOOR_PARTIAL)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		if (ScreenType == SCREEN_MASTER)
+			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
+		
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Hidden);
 		break;
 	default: ;
 	}
-	if (ScreenType == SCREEN_NORMAL) Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
+	
+	if (ScreenType == SCREEN_NORMAL)
+		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
 
-	UE_LOG(LogCAVEOverlay, Log, TEXT("Switched door state to '%s'. New opening width is %f."),
+	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}}.",
 	       *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
 	if (ScreenType == SCREEN_MASTER)
@@ -252,10 +265,6 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Hand, UMateri
 void ACAVEOverlayController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// todo: avoid empty ticks, we should disable ourselves and/or never spawn when not in Cave mode
-	if (!bCAVEMode)
-		return;
 
 	if (!bInitialized)
 	{
