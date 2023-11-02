@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "IDisplayCluster.h"
+#include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/DisplayClusterClusterEvent.h"
@@ -12,7 +13,6 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Utility/VirtualRealityUtilities.h"
-#include "MotionControllerComponent.h"
 
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
@@ -90,7 +90,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 			         SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
 		if (ScreenType == SCREEN_MASTER)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		
+
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
 	case EDoorMode::DOOR_OPEN:
@@ -101,7 +101,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 			Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
 		if (ScreenType == SCREEN_MASTER)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		
+
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
 		break;
 	case EDoorMode::DOOR_CLOSED:
@@ -112,17 +112,17 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		if (ScreenType == SCREEN_MASTER)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		
+
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Hidden);
 		break;
 	default: ;
 	}
-	
+
 	if (ScreenType == SCREEN_NORMAL)
 		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
 
 	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}.",
-	       *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
+	          *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
 	if (ScreenType == SCREEN_MASTER)
 	{
@@ -235,7 +235,8 @@ bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) cons
 		                            WallDistance + 10);
 }
 
-void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const FVector HandPosition, UMaterialInstanceDynamic* HandMaterial) const
+void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const FVector& HandPosition,
+                                             UMaterialInstanceDynamic* HandMaterial) const
 {
 	const bool bHandIsCloseToWall = FMath::IsWithinInclusive(HandPosition.GetAbsMax(),
 	                                                         WallDistance - WallCloseDistance, WallDistance);
@@ -246,19 +247,18 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const F
 		                                      CalculateOpacityFromPosition(HandPosition));
 
 		// Which wall are we closest to? This is the wall we project the sign onto
-		const bool bXWallCloser = HandPosition.X > HandPosition.Y;
+		const bool bXWallCloser = FMath::Abs(HandPosition.X) > FMath::Abs(HandPosition.Y);
 
 		// Set the position towards the closest wall to the wall itself, keep the other positions
 		const double X = bXWallCloser ? FMath::Sign(HandPosition.X) * WallDistance : HandPosition.X;
 		const double Y = bXWallCloser ? HandPosition.Y : FMath::Sign(HandPosition.Y) * WallDistance;
 		const double Z = HandPosition.Z;
 
-		const auto Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 0, 90);
+		const auto Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 90, 0);
 		const auto Pos = FVector(X, Y, Z);
 		Sign->SetRelativeLocationAndRotation(Pos, Rot);
 
 		UE_LOGFMT(LogCAVEOverlay, Log, "HandPos: {Hand} vs SignPos: {Sign}", HandPosition.ToString(), Pos.ToString());
-
 	}
 	else
 	{
