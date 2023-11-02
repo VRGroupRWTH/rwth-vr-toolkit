@@ -240,7 +240,7 @@ void AVirtualRealityPawn::SetupMotionControllerSources()
 		MotionControllerSourceLeft = FName("Left");
 		MotionControllerSourceRight = FName("Right");
 	}
-	if (UVirtualRealityUtilities::IsRoomMountedMode() && UVirtualRealityUtilities::IsMaster())
+	if (UVirtualRealityUtilities::IsRoomMountedMode())
 	{
 		MotionControllerSourceLeft = LeftSubjectRepresentation.Subject;
 		MotionControllerSourceRight = RightSubjectRepresentation.Subject;
