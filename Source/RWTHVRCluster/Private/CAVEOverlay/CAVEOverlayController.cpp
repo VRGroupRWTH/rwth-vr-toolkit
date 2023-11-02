@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "IDisplayCluster.h"
-#include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "CAVEOverlay/DoorOverlayData.h"
+#include "Cluster/DisplayClusterClusterEvent.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
@@ -24,11 +24,9 @@ bool ContainsFString(const TArray<FString>& Array, const FString& Entry)
 	return false;
 }
 
-UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& Name, UStaticMesh* Mesh,
-                                                                  USceneComponent* Parent)
+UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& Name, USceneComponent* Parent)
 {
 	UStaticMeshComponent* Result = CreateDefaultSubobject<UStaticMeshComponent>(Name);
-	Result->SetStaticMesh(Mesh);
 	Result->SetupAttachment(Parent);
 	Result->SetVisibility(false);
 	Result->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
@@ -45,42 +43,10 @@ ACAVEOverlayController::ACAVEOverlayController()
 	//Creation of sub-components
 	Root = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
 	SetRootComponent(Root);
-	TapeRoot = CreateDefaultSubobject<USceneComponent>("TapeRoot");
-	SignRoot = CreateDefaultSubobject<USceneComponent>("SignRoot");
-	TapeRoot->SetupAttachment(Root);
-	SignRoot->SetupAttachment(Root);
 
-	TapeNegativeY = CreateMeshComponent("TapeNegY", PlaneMesh, TapeRoot);
-	TapeNegativeX = CreateMeshComponent("TapeNegX", PlaneMesh, TapeRoot);
-	TapePositiveY = CreateMeshComponent("TapePosY", PlaneMesh, TapeRoot);
-	TapePositiveX = CreateMeshComponent("TapePosX", PlaneMesh, TapeRoot);
-
-	SignNegativeY = CreateMeshComponent("SignNegY", PlaneMesh, SignRoot);
-	SignNegativeX = CreateMeshComponent("SignNegX", PlaneMesh, SignRoot);
-	SignPositiveY = CreateMeshComponent("SignPosY", PlaneMesh, SignRoot);
-	SignPositiveX = CreateMeshComponent("SignPosX", PlaneMesh, SignRoot);
-
-	//Set initial Position, Rotation and Scale of Tape
-	TapeNegativeY->SetRelativeLocationAndRotation(FVector(0, -WallDistance, 0), FRotator(0, 0, 90));
-	TapePositiveY->SetRelativeLocationAndRotation(FVector(0, +WallDistance, 0), FRotator(0, 180, 90));
-	TapeNegativeX->SetRelativeLocationAndRotation(FVector(-WallDistance, 0, 0), FRotator(0, -90, 90));
-	TapePositiveX->SetRelativeLocationAndRotation(FVector(+WallDistance, 0, 0), FRotator(0, 90, 90));
-
-	TapeNegativeY->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
-	TapePositiveY->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
-	TapeNegativeX->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
-	TapePositiveX->SetRelativeScale3D(FVector(WallDistance / 100 * 2, 0.15, 1));
-
-	//Set initial Position, Rotation and Scale of Signs
-	SignNegativeY->SetRelativeLocationAndRotation(FVector(0, -WallDistance, 0), FRotator(0, 0, 90));
-	SignPositiveY->SetRelativeLocationAndRotation(FVector(0, +WallDistance, 0), FRotator(0, 180, 90));
-	SignNegativeX->SetRelativeLocationAndRotation(FVector(-WallDistance, 0, 0), FRotator(0, -90, 90));
-	SignPositiveX->SetRelativeLocationAndRotation(FVector(+WallDistance, 0, 0), FRotator(0, 90, 90));
-
-	SignNegativeY->SetRelativeScale3D(FVector(0.5f));
-	SignPositiveY->SetRelativeScale3D(FVector(0.5f));
-	SignNegativeX->SetRelativeScale3D(FVector(0.5f));
-	SignPositiveX->SetRelativeScale3D(FVector(0.5f));
+	Tape = CreateMeshComponent("Tape", Root);
+	SignRightHand = CreateMeshComponent("SignRightHand", Root);
+	SignLeftHand = CreateMeshComponent("SignLeftHand", Root);
 }
 
 void ACAVEOverlayController::CycleDoorType()
@@ -161,11 +127,10 @@ void ACAVEOverlayController::BeginPlay()
 	// This should return the respective client's local playercontroller or, if we're a listen server, our own PC.
 	auto* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 
-	bCAVEMode = UVirtualRealityUtilities::IsCave(); /* Store current situation */
+	bCAVEMode = UVirtualRealityUtilities::IsRoomMountedMode();
+	const bool bValidPC = PC != nullptr;
 
-	bCAVEMode = true;
-
-	if (PC == nullptr || !bCAVEMode)
+	if (!bValidPC || !bCAVEMode)
 		return;
 
 	//Input config
@@ -208,43 +173,23 @@ void ACAVEOverlayController::BeginPlay()
 	//Set Text to "" until someone presses the key for the first time
 	Overlay->CornerText->SetText(FText::FromString(""));
 
-	// Attach it to the pawn
 	VRPawn = Cast<AVirtualRealityPawn>(PC->GetPawnOrSpectator());
 	if (VRPawn)
 	{
-		AttachToActor(VRPawn, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		bAttachedToPawn = true;
+		//AttachToActor(VRPawn, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		bInitialized = true;
 	}
 	else
 	{
 		UE_LOGFMT(LogCAVEOverlay, Error, "No VirtualRealityPawn found which we could attach to!");
 	}
 
-	if (!TapeMaterial || !TapeMaterial->IsValidLowLevelFast())
-	{
-		UE_LOGFMT(LogCAVEOverlay, Error, "TapeMaterial not set! Please set asset reference in BP!");
-		return;
-	}
-
-	if (!SignMaterial || !SignMaterial->IsValidLowLevelFast())
-	{
-		UE_LOGFMT(LogCAVEOverlay, Error, "SignMaterial not set! Please set asset reference in BP!");
-		return;
-	}
-
 	//Create dynamic materials in runtime
-	TapeMaterialDynamic = UMaterialInstanceDynamic::Create(TapeMaterial, TapeRoot);
-	SignMaterialDynamic = UMaterialInstanceDynamic::Create(SignMaterial, SignRoot);
+	TapeMaterialDynamic = Tape->CreateDynamicMaterialInstance(0);
+	RightSignMaterialDynamic = SignRightHand->CreateDynamicMaterialInstance(0);
+	LeftSignMaterialDynamic = SignLeftHand->CreateDynamicMaterialInstance(0);
 
-	TapeNegativeY->SetMaterial(0, TapeMaterialDynamic);
-	TapeNegativeX->SetMaterial(0, TapeMaterialDynamic);
-	TapePositiveY->SetMaterial(0, TapeMaterialDynamic);
-	TapePositiveX->SetMaterial(0, TapeMaterialDynamic);
-
-	SignNegativeY->SetMaterial(0, SignMaterialDynamic);
-	SignNegativeX->SetMaterial(0, SignMaterialDynamic);
-	SignPositiveY->SetMaterial(0, SignMaterialDynamic);
-	SignPositiveX->SetMaterial(0, SignMaterialDynamic);
+	UE_LOGFMT(LogCAVEOverlay, Display, "CaveOverlay Initialization was successfull.");
 }
 
 void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -258,11 +203,11 @@ void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-float ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Position) const
+double ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Position) const
 {
 	return FMath::Max(
-		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0f, 1.0f),
-		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0f, 1.0f)
+		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0),
+		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0)
 	);
 }
 
@@ -275,6 +220,35 @@ bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) cons
 		                            WallDistance + 10);
 }
 
+void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Hand, UMaterialInstanceDynamic* HandMaterial) const
+{
+	const FVector HandPosition = Hand->GetRelativeTransform().GetLocation();
+
+	const bool bHandIsCloseToWall = FMath::IsWithinInclusive(HandPosition.GetAbsMax(),
+	                                                         WallDistance - WallCloseDistance, WallDistance);
+	if (bHandIsCloseToWall && !PositionInDoorOpening(HandPosition))
+	{
+		Hand->SetVisibility(true);
+		HandMaterial->SetScalarParameterValue("SignOpacity",
+		                                      CalculateOpacityFromPosition(HandPosition));
+
+		// Which wall are we closest to? This is the wall we project the sign onto
+		const bool bXWallCloser = HandPosition.X > HandPosition.Y;
+
+		// Set the position towards the closest wall to the wall itself, keep the other positions
+		const double X = bXWallCloser ? FMath::Sign(HandPosition.X) * WallDistance : HandPosition.X;
+		const double Y = bXWallCloser ? HandPosition.Y : FMath::Sign(HandPosition.Y) * WallDistance;
+		const double Z = HandPosition.Z;
+
+		const FRotator Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 0, 90);
+		Hand->SetRelativeLocationAndRotation(FVector(X, Y, Z), Rot);
+	}
+	else
+	{
+		Hand->SetVisibility(true);
+	}
+}
+
 void ACAVEOverlayController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -283,8 +257,7 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	if (!bCAVEMode)
 		return;
 
-	// todo: handle pawn changes etc
-	if (!bAttachedToPawn)
+	if (!bInitialized)
 	{
 		return;
 	}
@@ -293,11 +266,10 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	const FVector HeadPosition = VRPawn->HeadCameraComponent->GetRelativeTransform().GetLocation();
 	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(HeadPosition.GetAbsMax(),
 	                                                         WallDistance - WallCloseDistance, WallDistance);
-
 	if (bHeadIsCloseToWall && !PositionInDoorOpening(HeadPosition))
 	{
-		TapeRoot->SetVisibility(true, true);
-		TapeRoot->SetRelativeLocation(HeadPosition * FVector(0, 0, 1)); //Only apply Z
+		Tape->SetVisibility(true);
+		Tape->SetRelativeLocation(HeadPosition * FVector(0, 0, 1)); //Only apply Z
 
 		TapeMaterialDynamic->SetScalarParameterValue("BarrierOpacity", CalculateOpacityFromPosition(HeadPosition));
 
@@ -313,27 +285,10 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	}
 	else
 	{
-		TapeRoot->SetVisibility(false, true);
+		Tape->SetVisibility(false);
 	}
 
-	// Right Hand (Flystick) / Sign Logic
-
-	const FVector RightHandPosition = VRPawn->RightHand->GetRelativeTransform().GetLocation();
-	const bool bFlystickInDoor = PositionInDoorOpening(RightHandPosition);
-
-	SignNegativeX->SetRelativeLocation(FVector(-WallDistance, RightHandPosition.Y, RightHandPosition.Z));
-	SignNegativeY->SetRelativeLocation(FVector(RightHandPosition.X, -WallDistance, RightHandPosition.Z));
-	SignPositiveX->SetRelativeLocation(FVector(+WallDistance, RightHandPosition.Y, RightHandPosition.Z));
-	SignPositiveY->SetRelativeLocation(FVector(RightHandPosition.X, +WallDistance, RightHandPosition.Z));
-
-	SignNegativeX->SetVisibility(
-		FMath::IsWithin(-RightHandPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-	SignNegativeY->SetVisibility(
-		FMath::IsWithin(-RightHandPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-	SignPositiveX->SetVisibility(
-		FMath::IsWithin(+RightHandPosition.X, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-	SignPositiveY->SetVisibility(
-		FMath::IsWithin(+RightHandPosition.Y, WallDistance - WallCloseDistance, WallDistance) && !bFlystickInDoor);
-
-	SignMaterialDynamic->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(RightHandPosition));
+	// Hand Logic
+	SetSignsForHand(SignRightHand, RightSignMaterialDynamic);
+	SetSignsForHand(SignLeftHand, LeftSignMaterialDynamic);
 }

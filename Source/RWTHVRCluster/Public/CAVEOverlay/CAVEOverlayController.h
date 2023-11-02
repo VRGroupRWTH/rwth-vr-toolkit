@@ -4,7 +4,6 @@
 #include "GameFramework/Actor.h"
 #include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
-#include "Cluster/DisplayClusterClusterEvent.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "CAVEOverlayController.generated.h"
 
@@ -54,13 +53,13 @@ private:
 	float DoorCurrentOpeningWidthAbsolute = 0;
 
 	//Geometry and Material
-	UStaticMeshComponent* CreateMeshComponent(const FName& Name, UStaticMesh* Mesh, USceneComponent* Parent);
+	UStaticMeshComponent* CreateMeshComponent(const FName& Name, USceneComponent* Parent);
 
-	float CalculateOpacityFromPosition(const FVector& Position) const;
+	double CalculateOpacityFromPosition(const FVector& Position) const;
 	bool PositionInDoorOpening(const FVector& Position) const;
+	void SetSignsForHand(UStaticMeshComponent* Hand, UMaterialInstanceDynamic* HandMaterial) const;
 
-	//Pawn Components
-	bool bAttachedToPawn = false;
+	bool bInitialized = false;
 
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
@@ -81,43 +80,13 @@ public:
 	USceneComponent* Root;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* TapeRoot;
+	UStaticMeshComponent* Tape;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* SignRoot;
+	UStaticMeshComponent* SignRightHand;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* TapeNegativeY;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* TapeNegativeX;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* TapePositiveY;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* TapePositiveX;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SignNegativeY;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SignNegativeX;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SignPositiveY;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SignPositiveX;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "CAVEOverlay")
-	UMaterial* TapeMaterial;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "CAVEOverlay")
-	UMaterial* SignMaterial;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "CAVEOverlay")
-	UStaticMesh* PlaneMesh;
+	UStaticMeshComponent* SignLeftHand;
 
 	//Overlay
 
@@ -131,5 +100,8 @@ public:
 	UMaterialInstanceDynamic* TapeMaterialDynamic;
 
 	UPROPERTY()
-	UMaterialInstanceDynamic* SignMaterialDynamic;
+	UMaterialInstanceDynamic* RightSignMaterialDynamic;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* LeftSignMaterialDynamic;
 };

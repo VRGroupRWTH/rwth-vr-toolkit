@@ -3,6 +3,7 @@
 
 #include "CaveSetup.h"
 
+#include "Logging/StructuredLog.h"
 #include "Utility/VirtualRealityUtilities.h"
 
 
@@ -13,7 +14,7 @@ ACaveSetup::ACaveSetup()
 	SetActorEnableCollision(false);
 
 	// Actor needs to replicate, as it is attached to the pawn on the server.
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +34,8 @@ void ACaveSetup::BeginPlay()
 		{
 			const auto Actor = World->SpawnActor(ActorClass);
 			Actor->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			UE_LOGFMT(LogTemp, Display, "CaveSetup: Spawned Actor {Actor} on the Cave and attached it.",
+			          Actor->GetName());
 		}
 	}
 
@@ -43,6 +46,9 @@ void ACaveSetup::BeginPlay()
 		if (LiveLinkPresetToApplyOnCave && LiveLinkPresetToApplyOnCave->IsValidLowLevelFast())
 		{
 			LiveLinkPresetToApplyOnCave->ApplyToClientLatent();
+
+			UE_LOGFMT(LogTemp, Display, "CaveSetup: Applied LiveLinkPreset {Preset} to Client.",
+			          LiveLinkPresetToApplyOnCave->GetName());
 		}
 	}
 }
