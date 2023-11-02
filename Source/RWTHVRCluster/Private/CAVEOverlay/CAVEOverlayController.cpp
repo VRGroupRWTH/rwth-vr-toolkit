@@ -12,6 +12,8 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Pawn/VirtualRealityPawn.h"
 #include "Utility/VirtualRealityUtilities.h"
+#include "MotionControllerComponent.h"
+
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
 
@@ -233,15 +235,13 @@ bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) cons
 		                            WallDistance + 10);
 }
 
-void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Hand, UMaterialInstanceDynamic* HandMaterial) const
+void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const FVector HandPosition, UMaterialInstanceDynamic* HandMaterial) const
 {
-	const FVector HandPosition = Hand->GetRelativeTransform().GetLocation();
-
 	const bool bHandIsCloseToWall = FMath::IsWithinInclusive(HandPosition.GetAbsMax(),
 	                                                         WallDistance - WallCloseDistance, WallDistance);
 	if (bHandIsCloseToWall && !PositionInDoorOpening(HandPosition))
 	{
-		Hand->SetVisibility(true);
+		Sign->SetVisibility(true);
 		HandMaterial->SetScalarParameterValue("SignOpacity",
 		                                      CalculateOpacityFromPosition(HandPosition));
 
@@ -253,12 +253,16 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Hand, UMateri
 		const double Y = bXWallCloser ? HandPosition.Y : FMath::Sign(HandPosition.Y) * WallDistance;
 		const double Z = HandPosition.Z;
 
-		const FRotator Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 0, 90);
-		Hand->SetRelativeLocationAndRotation(FVector(X, Y, Z), Rot);
+		const auto Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 0, 90);
+		const auto Pos = FVector(X, Y, Z);
+		Sign->SetRelativeLocationAndRotation(Pos, Rot);
+
+		UE_LOGFMT(LogCAVEOverlay, Log, "HandPos: {Hand} vs SignPos: {Sign}", HandPosition.ToString(), Pos.ToString());
+
 	}
 	else
 	{
-		Hand->SetVisibility(true);
+		Sign->SetVisibility(false);
 	}
 }
 
@@ -298,6 +302,9 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	}
 
 	// Hand Logic
-	SetSignsForHand(SignRightHand, RightSignMaterialDynamic);
-	SetSignsForHand(SignLeftHand, LeftSignMaterialDynamic);
+	const FVector RightPosition = VRPawn->RightHand->GetRelativeTransform().GetLocation();
+	const FVector LeftPosition = VRPawn->LeftHand->GetRelativeTransform().GetLocation();
+
+	SetSignsForHand(SignRightHand, RightPosition, RightSignMaterialDynamic);
+	SetSignsForHand(SignLeftHand, LeftPosition, LeftSignMaterialDynamic);
 }

@@ -57,7 +57,7 @@ private:
 
 	double CalculateOpacityFromPosition(const FVector& Position) const;
 	bool PositionInDoorOpening(const FVector& Position) const;
-	void SetSignsForHand(UStaticMeshComponent* Hand, UMaterialInstanceDynamic* HandMaterial) const;
+	void SetSignsForHand(UStaticMeshComponent* Sign, const FVector HandPosition, UMaterialInstanceDynamic* HandMaterial) const;
 
 	bool bInitialized = false;
 
