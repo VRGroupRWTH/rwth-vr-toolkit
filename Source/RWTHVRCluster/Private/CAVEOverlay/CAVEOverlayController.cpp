@@ -88,7 +88,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 		if (ScreenType == SCREEN_DOOR_PARTIAL)
 			Overlay->BlackBox->
 			         SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
-		if (ScreenType == SCREEN_MASTER)
+		if (ScreenType == SCREEN_PRIMARY)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
@@ -99,7 +99,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 			Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
 		if (ScreenType == SCREEN_DOOR_PARTIAL)
 			Overlay->BlackBox->SetRenderScale(FVector2D(1, 1));
-		if (ScreenType == SCREEN_MASTER)
+		if (ScreenType == SCREEN_PRIMARY)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Visible);
@@ -110,7 +110,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		if (ScreenType == SCREEN_DOOR_PARTIAL)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
-		if (ScreenType == SCREEN_MASTER)
+		if (ScreenType == SCREEN_PRIMARY)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Hidden);
@@ -124,7 +124,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}.",
 	          *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
-	if (ScreenType == SCREEN_MASTER)
+	if (ScreenType == SCREEN_PRIMARY)
 	{
 		Overlay->CornerText->SetText(FText::FromString(DoorModeNames[DoorCurrentMode]));
 	}
@@ -142,10 +142,9 @@ void ACAVEOverlayController::BeginPlay()
 	// This should return the respective client's local playercontroller or, if we're a listen server, our own PC.
 	auto* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 
-	bCAVEMode = UVirtualRealityUtilities::IsRoomMountedMode();
 	const bool bValidPC = PC != nullptr;
 
-	if (!bValidPC || !bCAVEMode)
+	if (!bValidPC || !UVirtualRealityUtilities::IsRoomMountedMode())
 		return;
 
 	//Input config
@@ -161,7 +160,7 @@ void ACAVEOverlayController::BeginPlay()
 	//Determine the screen-type for later usage
 	if (IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(ScreenMain, ESearchCase::IgnoreCase))
 	{
-		ScreenType = SCREEN_MASTER;
+		ScreenType = SCREEN_PRIMARY;
 	}
 	else if (ContainsFString(ScreensDoor, IDisplayCluster::Get().GetClusterMgr()->GetNodeId()))
 	{

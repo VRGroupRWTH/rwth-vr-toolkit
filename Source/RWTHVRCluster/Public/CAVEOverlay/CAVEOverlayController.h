@@ -9,6 +9,11 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCAVEOverlay, Log, All);
 
+/**
+ * Actor which controls the cave overlay. The overlay displays a warning tape around the cave
+ * when the user moves their head too close to the wall, and a warning sign when the hands are
+ * too close.
+*/
 UCLASS()
 class RWTHVRCLUSTER_API ACAVEOverlayController : public AActor
 {
@@ -18,21 +23,32 @@ public:
 	ACAVEOverlayController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-	//Execution Modes
-	bool bCAVEMode = false;
+	// Types of cave screens defined in the cluster config.
+	enum EScreen_Type
+	{
+		// the primary node screen
+		SCREEN_PRIMARY,
+		// any secondary node screen
+		SCREEN_NORMAL,
+		// the screens that cover the partially opened door
+		SCREEN_DOOR_PARTIAL,
+		// additional screens that cover the door
+		SCREEN_DOOR
+	};
 
-	//Screen Types
-	enum EScreen_Type { SCREEN_MASTER, SCREEN_NORMAL, SCREEN_DOOR_PARTIAL, SCREEN_DOOR };
-
+	// which screen type this node is running on
 	EScreen_Type ScreenType = SCREEN_NORMAL;
+
+	// which additional node names define the screens that cover the door
 	const TArray<FString> ScreensDoor = {
 		"node_bul_left_eye", "node_bul_right_eye", "node_bll_left_eye", "node_bll_right_eye"
 	};
+
+	// which node names define the screens that cover the partial door
 	const TArray<FString> ScreensDoorPartial = {
 		"node_bur_left_eye", "node_bur_right_eye", "node_blr_left_eye", "node_blr_right_eye"
 	};
@@ -52,51 +68,61 @@ private:
 	const float WallWarningDistance = 40; //cm, distance on which the tape turns red, measured from wall
 	float DoorCurrentOpeningWidthAbsolute = 0;
 
-	//Geometry and Material
+	// Helper function to create a mesh component in the constructor
 	UStaticMeshComponent* CreateMeshComponent(const FName& Name, USceneComponent* Parent);
 
+	// Calculates opacity value used for the dynamic materials of the tape and sign. The closer the more opaque.
 	double CalculateOpacityFromPosition(const FVector& Position) const;
+
+	// Check whether the given position is within the door area of the (partially) open door.
 	bool PositionInDoorOpening(const FVector& Position) const;
+
+	// Sets the position, orientation and opacity/visibility of the Sign according to the HandPosition.
 	void SetSignsForHand(UStaticMeshComponent* Sign, const FVector& HandPosition,
 	                     UMaterialInstanceDynamic* HandMaterial) const;
 
+	// Only calculate positions and material values when we're fully initialized.
 	bool bInitialized = false;
 
+	// Reference to the currently active pawn that we're tracking positions of.
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
 
-	//Cluster Events
+	// Cluster Events
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;
 	void HandleClusterEvent(const FDisplayClusterClusterEventJson& Event);
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Change door mode manually between open, partially open and closed.
 	void CycleDoorType();
 	void SetDoorMode(EDoorMode M);
 
-	//Signs and Banners
+	// Root component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* Root;
 
+	// Tape Static Mesh component. Reference to static mesh needs to be set in the corresponding BP.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Tape;
 
+	// Right Hand Sign Static Mesh component. Reference to static mesh needs to be set in the corresponding BP.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* SignRightHand;
 
+	// Left Hand Sign Static Mesh component. Reference to static mesh needs to be set in the corresponding BP.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CAVEOverlay", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* SignLeftHand;
 
-	//Overlay
-
+	// UI Overlay
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "CAVEOverlay")
 	TSubclassOf<UDoorOverlayData> OverlayClass;
 
 	UPROPERTY()
 	UDoorOverlayData* Overlay;
 
+	// Dynamic Materials to control opacity
 	UPROPERTY()
 	UMaterialInstanceDynamic* TapeMaterialDynamic;
 
