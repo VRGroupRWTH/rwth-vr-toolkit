@@ -119,7 +119,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 	if (ScreenType == SCREEN_NORMAL)
 		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
 
-	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}}.",
+	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}.",
 	       *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
 	if (ScreenType == SCREEN_MASTER)
