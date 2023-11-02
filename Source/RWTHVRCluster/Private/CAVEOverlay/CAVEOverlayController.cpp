@@ -17,11 +17,13 @@
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
 
+// Helper function to check if a string is contained within an array of strings, ignoring case.
 bool ContainsFString(const TArray<FString>& Array, const FString& Entry)
 {
 	for (FString Current_Entry : Array)
 	{
-		if (Current_Entry.Equals(Entry, ESearchCase::IgnoreCase)) return true;
+		if (Current_Entry.Equals(Entry, ESearchCase::IgnoreCase))
+			return true;
 	}
 	return false;
 }
@@ -38,7 +40,7 @@ UStaticMeshComponent* ACAVEOverlayController::CreateMeshComponent(const FName& N
 // Sets default values
 ACAVEOverlayController::ACAVEOverlayController()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	bAllowTickBeforeBeginPlay = false;
 
@@ -55,6 +57,7 @@ void ACAVEOverlayController::CycleDoorType()
 {
 	DoorCurrentMode = static_cast<EDoorMode>((DoorCurrentMode + 1) % DOOR_NUM_MODES);
 
+	// Send out a cluster event to the whole cluster that the door mode has been changed
 	if (auto* const Manager = IDisplayCluster::Get().GetClusterMgr())
 	{
 		FDisplayClusterClusterEventJson cluster_event;
@@ -118,12 +121,15 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 	default: ;
 	}
 
+	// On the secondary nodes that are not the door, hide the overlay completely
+	// It might make more sense to just not add it there...
 	if (ScreenType == SCREEN_NORMAL)
-		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1)); //no overlay
+		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
 	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}.",
 	          *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
+	// On the primary node, show which door mode is currently active.
 	if (ScreenType == SCREEN_PRIMARY)
 	{
 		Overlay->CornerText->SetText(FText::FromString(DoorModeNames[DoorCurrentMode]));
@@ -149,6 +155,8 @@ void ACAVEOverlayController::BeginPlay()
 
 	//Input config
 	//InputComponent->BindKey(EKeys::F10, EInputEvent::IE_Pressed, this, &ACAVEOverlayController::CycleDoorType);
+
+	// Bind the cluster events that manage the door state.
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
 	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
 	{
@@ -157,7 +165,7 @@ void ACAVEOverlayController::BeginPlay()
 		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
 	}
 
-	//Determine the screen-type for later usage
+	// Determine the screen-type for later usage
 	if (IDisplayCluster::Get().GetClusterMgr()->GetNodeId().Equals(ScreenMain, ESearchCase::IgnoreCase))
 	{
 		ScreenType = SCREEN_PRIMARY;
@@ -183,14 +191,18 @@ void ACAVEOverlayController::BeginPlay()
 	}
 	Overlay = CreateWidget<UDoorOverlayData>(PC, OverlayClass);
 	Overlay->AddToViewport(0);
+
+	// Set the default door mode (partially open)
 	SetDoorMode(DoorCurrentMode);
+
 	//Set Text to "" until someone presses the key for the first time
 	Overlay->CornerText->SetText(FText::FromString(""));
 
+	// Get the pawn so we can have access to head and hand positions
 	VRPawn = Cast<AVirtualRealityPawn>(PC->GetPawnOrSpectator());
 	if (VRPawn)
 	{
-		//AttachToActor(VRPawn, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		// we're good to go!
 		bInitialized = true;
 	}
 	else
@@ -198,7 +210,7 @@ void ACAVEOverlayController::BeginPlay()
 		UE_LOGFMT(LogCAVEOverlay, Error, "No VirtualRealityPawn found which we could attach to!");
 	}
 
-	//Create dynamic materials in runtime
+	//Create dynamic materials at runtime
 	TapeMaterialDynamic = Tape->CreateDynamicMaterialInstance(0);
 	RightSignMaterialDynamic = SignRightHand->CreateDynamicMaterialInstance(0);
 	LeftSignMaterialDynamic = SignLeftHand->CreateDynamicMaterialInstance(0);
@@ -219,6 +231,8 @@ void ACAVEOverlayController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 double ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Position) const
 {
+	// Calculate opacity value depending on how far we are from the walls. Further away == lower opacity,
+	// fully opaque when WallFadeDistance away from the wall. Could just use a lerp here..
 	return FMath::Max(
 		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0),
 		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0)
@@ -227,11 +241,20 @@ double ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Posit
 
 bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) const
 {
-	//Overlap both sides 10cm
-	return FMath::IsWithinInclusive(-Position.X, WallDistance + 10 - 20 - WallCloseDistance, WallDistance + 10)
-		//Overlap one side 10cm
-		&& FMath::IsWithinInclusive(-Position.Y, WallDistance + 10 - DoorCurrentOpeningWidthAbsolute,
-		                            WallDistance + 10);
+	// The position of the corner with 10cm of buffer. In negative direction because the door is in negative direction of the cave
+	const float CornerValue = -(WallDistance + 10);
+
+	// Check whether our X position is within the door zone. This zone starts 10cm further away from the wall
+	// than the WallCloseDistance, and ends 10cm outside of the wall (door). As the door is in negative X direction,
+	// the signs need to be negated.
+	const bool bXWithinDoor = FMath::IsWithinInclusive(Position.X, CornerValue,
+	                                                   -(WallDistance - WallCloseDistance - 10));
+
+	// Checks whether our Y position is between the lower corner with some overlap and
+	// the door corner (CornerValue + DoorCurrentOpeningWidthAbsolute)
+	const bool bYWithinDoor = FMath::IsWithinInclusive(Position.Y, CornerValue,
+	                                                   CornerValue + DoorCurrentOpeningWidthAbsolute);
+	return bXWithinDoor && bYWithinDoor;
 }
 
 void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const FVector& HandPosition,
@@ -253,11 +276,10 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const F
 		const double Y = bXWallCloser ? HandPosition.Y : FMath::Sign(HandPosition.Y) * WallDistance;
 		const double Z = HandPosition.Z;
 
+		// Rotate the sign by 90° if we're on a side wall
 		const auto Rot = bXWallCloser ? FRotator(0, 0, 0) : FRotator(0, 90, 0);
 		const auto Pos = FVector(X, Y, Z);
 		Sign->SetRelativeLocationAndRotation(Pos, Rot);
-
-		UE_LOGFMT(LogCAVEOverlay, Log, "HandPos: {Hand} vs SignPos: {Sign}", HandPosition.ToString(), Pos.ToString());
 	}
 	else
 	{
@@ -269,29 +291,35 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If we're not yet initialized, do nothing. This shouldn't really happen as we only spawn on the cave anyway
 	if (!bInitialized)
 	{
 		return;
 	}
 
-	//Head/Tape Logic
+	// Head/Tape Logic
 	const FVector HeadPosition = VRPawn->HeadCameraComponent->GetRelativeTransform().GetLocation();
 	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(HeadPosition.GetAbsMax(),
 	                                                         WallDistance - WallCloseDistance, WallDistance);
+
+	// Only show the tape when close to a wall and not within the door opening
 	if (bHeadIsCloseToWall && !PositionInDoorOpening(HeadPosition))
 	{
 		Tape->SetVisibility(true);
-		Tape->SetRelativeLocation(HeadPosition * FVector(0, 0, 1)); //Only apply Z
+
+		// Offset the tape in z direction to always be at head height
+		Tape->SetRelativeLocation(HeadPosition * FVector(0, 0, 1));
 
 		TapeMaterialDynamic->SetScalarParameterValue("BarrierOpacity", CalculateOpacityFromPosition(HeadPosition));
 
 		if (FMath::IsWithin(FVector2D(HeadPosition).GetAbsMax(), WallDistance - WallWarningDistance, WallDistance))
 		{
-			//in warning distance == red tape
+			// in warning distance == red tape
 			TapeMaterialDynamic->SetVectorParameterValue("StripeColor", FVector(1, 0, 0));
 		}
 		else
 		{
+			// otherwise we're just yellow
 			TapeMaterialDynamic->SetVectorParameterValue("StripeColor", FVector(1, 1, 0));
 		}
 	}
@@ -304,6 +332,7 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 	const FVector RightPosition = VRPawn->RightHand->GetRelativeTransform().GetLocation();
 	const FVector LeftPosition = VRPawn->LeftHand->GetRelativeTransform().GetLocation();
 
+	// Set the position rotation, opacity, visibility of the hand warning signs.
 	SetSignsForHand(SignRightHand, RightPosition, RightSignMaterialDynamic);
 	SetSignsForHand(SignLeftHand, LeftPosition, LeftSignMaterialDynamic);
 }
