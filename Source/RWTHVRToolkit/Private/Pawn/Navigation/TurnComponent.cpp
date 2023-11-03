@@ -87,16 +87,22 @@ void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 
 	if (TurnValue.X != 0.f)
 	{
-		RotateCameraAndPawn(TurnRateFactor * TurnValue.X);
+		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
+		{
+			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
+		} else
+		{
+			RotateCameraAndPawn(TurnRateFactor * TurnValue.X);
+		}
 	}
 	
-	/*if (TurnValue.Y != 0.f)
+	if (TurnValue.Y != 0.f)
 	{
 		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 		{
 			VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
 		}
-	}*/
+	}
 }
 
 void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
@@ -114,6 +120,7 @@ void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 		RotateCameraAndPawn(-SnapTurnAngle);
 	}
 }
+
 
 void UTurnComponent::RotateCameraAndPawn(float Yaw)
 {

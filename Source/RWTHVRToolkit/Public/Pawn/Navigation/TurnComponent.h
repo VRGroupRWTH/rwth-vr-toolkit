@@ -70,6 +70,10 @@ private:
 	UPROPERTY()
 	class UInputMappingContext* IMCTurn;
 
+	/**
+	 * If we just use VRPawn->AddControllerYawInput(Yaw), rotation is around tracking origin instead of the actual player position
+	 * This function updates the pawns rotation and location to result in a rotation around the users tracked position.
+	 */
 	void RotateCameraAndPawn(float Yaw);
 	bool bApplyDesktopRotation;
 };
