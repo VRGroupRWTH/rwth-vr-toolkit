@@ -11,20 +11,21 @@
 void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
-	
+
 	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
 	{
 		return;
 	}
 
 	// simple way of changing the handedness
-	if(bTurnWithLeftHand)
+	if (bTurnWithLeftHand)
 	{
 		RotationHand = VRPawn->LeftHand;
 		// we use the same IMC for movement and turning
 		// therefore if we move with the right hand, we turn with the left hand
 		IMCTurn = IMCMovement_Right;
-	} else
+	}
+	else
 	{
 		RotationHand = VRPawn->RightHand;
 		// we use the same IMC for movement and turning
@@ -90,12 +91,13 @@ void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
 		{
 			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
-		} else
+		}
+		else
 		{
 			RotateCameraAndPawn(TurnRateFactor * TurnValue.X);
 		}
 	}
-	
+
 	if (TurnValue.Y != 0.f)
 	{
 		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
@@ -126,19 +128,19 @@ void UTurnComponent::RotateCameraAndPawn(float Yaw)
 {
 	FVector NewLocation;
 	FRotator NewRotation;
-	
+
 	FVector OrigLocation = VRPawn->GetActorLocation();
 	FVector PivotPoint = VRPawn->GetActorTransform().InverseTransformPosition(OrigLocation);
 	PivotPoint.Z = 0.0f;
 
 	FRotator OrigRotation = VRPawn->GetActorRotation();
 
-	NewRotation = FRotator(0,VRPawn->GetActorRotation().Yaw+Yaw,0);
+	NewRotation = FRotator(0, VRPawn->GetActorRotation().Yaw + Yaw, 0);
 
 	NewLocation = OrigLocation + OrigRotation.RotateVector(PivotPoint);
 
 	VRPawn->Controller->SetControlRotation(NewRotation);
-	VRPawn->SetActorLocationAndRotation(NewLocation,NewRotation);
-	
+	VRPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
+
 	//FVector MovedBy = NewLocation - OrigLocation;
 }

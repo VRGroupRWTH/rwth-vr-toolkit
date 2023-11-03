@@ -20,11 +20,9 @@ public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 protected:
-
 	UPROPERTY()
 	AVirtualRealityPawn* VRPawn;
 
 	UPROPERTY()
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;
-
 };

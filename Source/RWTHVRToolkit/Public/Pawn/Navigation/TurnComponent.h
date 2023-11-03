@@ -12,15 +12,15 @@ class RWTHVRTOOLKIT_API UTurnComponent : public UMovementComponentBase
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bTurnWithLeftHand = true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bAllowTurning = true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
 		meta = (EditCondition = "bAllowTurning"))
 	bool bSnapTurn = false;
@@ -38,7 +38,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	class UInputAction* DesktopRotation;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCMovement_Left;
 
