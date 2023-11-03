@@ -9,7 +9,8 @@
 
 class AVirtualRealityPawn;
 /**
- * 
+ * Base component for specialized MovementComponents. Currently only saves pointers to pawn and input system.
+ * Might be used for common replication later on.
  */
 UCLASS(Blueprintable)
 class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent, public IInputExtensionInterface
@@ -17,6 +18,7 @@ class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent, public 
 	GENERATED_BODY()
 
 public:
+	// Already sets up VRPawn and InputSubsystem properties that can be used by child classes.
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 protected:
