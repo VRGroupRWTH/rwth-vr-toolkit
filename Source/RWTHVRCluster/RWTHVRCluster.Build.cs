@@ -21,7 +21,7 @@ public class RWTHVRCluster : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"DeveloperSettings",
-				"InputCore",
+				"EnhancedInput",
 				"UMG",
 				"Slate",
 				"SlateCore",

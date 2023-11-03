@@ -119,6 +119,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "CAVEOverlay")
 	TSubclassOf<UDoorOverlayData> OverlayClass;
 
+	// UI Overlay
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "CAVEOverlay")
+	UInputAction* CycleDoorTypeInputAction;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="CAVEOverlay")
+	UInputMappingContext* IMCCaveOverlayInputMapping;
+
 	UPROPERTY()
 	UDoorOverlayData* Overlay;
 

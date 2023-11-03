@@ -1,6 +1,8 @@
 #include "CAVEOverlay/CAVEOverlayController.h"
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "IDisplayCluster.h"
 #include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
@@ -154,7 +156,27 @@ void ACAVEOverlayController::BeginPlay()
 		return;
 
 	//Input config
-	//InputComponent->BindKey(EKeys::F10, EInputEvent::IE_Pressed, this, &ACAVEOverlayController::CycleDoorType);
+	if (UVirtualRealityUtilities::IsMaster())
+	{
+		if (CycleDoorTypeInputAction == nullptr || IMCCaveOverlayInputMapping == nullptr)
+		{
+			UE_LOGFMT(LogCAVEOverlay, Error, "Input action and mapping not set in CaveOverlayController!");
+			return;
+		}
+
+		UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+		Input->BindAction(CycleDoorTypeInputAction, ETriggerEvent::Triggered, this,
+		                  &ACAVEOverlayController::CycleDoorType);
+
+		if (const ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<
+				UEnhancedInputLocalPlayerSubsystem>())
+			{
+				InputSystem->AddMappingContext(IMCCaveOverlayInputMapping, 0);
+			}
+		}
+	}
 
 	// Bind the cluster events that manage the door state.
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
