@@ -164,7 +164,7 @@ void ACAVEOverlayController::BeginPlay()
 			return;
 		}
 
-		UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+		UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PC->InputComponent);
 		Input->BindAction(CycleDoorTypeInputAction, ETriggerEvent::Triggered, this,
 		                  &ACAVEOverlayController::CycleDoorType);
 
