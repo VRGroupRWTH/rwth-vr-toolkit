@@ -124,20 +124,17 @@ void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 }
 
 
-void UTurnComponent::RotateCameraAndPawn(float Yaw)
+void UTurnComponent::RotateCameraAndPawn(float Yaw) const
 {
-	FVector NewLocation;
-	FRotator NewRotation;
-
-	FVector OrigLocation = VRPawn->GetActorLocation();
+	const FVector OrigLocation = VRPawn->GetActorLocation();
 	FVector PivotPoint = VRPawn->GetActorTransform().InverseTransformPosition(OrigLocation);
 	PivotPoint.Z = 0.0f;
 
-	FRotator OrigRotation = VRPawn->GetActorRotation();
+	const FRotator OrigRotation = VRPawn->GetActorRotation();
 
-	NewRotation = FRotator(0, VRPawn->GetActorRotation().Yaw + Yaw, 0);
+	const FRotator NewRotation = FRotator(0, VRPawn->GetActorRotation().Yaw + Yaw, 0);
 
-	NewLocation = OrigLocation + OrigRotation.RotateVector(PivotPoint);
+	const FVector NewLocation = OrigLocation + OrigRotation.RotateVector(PivotPoint);
 
 	VRPawn->Controller->SetControlRotation(NewRotation);
 	VRPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
