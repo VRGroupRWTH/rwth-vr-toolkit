@@ -1,13 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/Interactees/OnClickGrabBehavior.h"
-
-#include "Interaction/Interactees/InteractableBase.h"
+#include "Interaction/Interactables/GrabBehavior.h"
+#include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
 
-UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
+UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
 	TargetActor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
@@ -24,7 +23,7 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetFirstComponentSimulatingPhysics(co
 }
 
 // recursively goes up the hierarchy and returns the highest parent simulating physics
-UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
+UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp)
 {
 	if (Cast<UPrimitiveComponent>(Comp->GetAttachParent()) && Comp->GetAttachParent()->IsSimulatingPhysics())
 	{
@@ -36,7 +35,8 @@ UPrimitiveComponent* UOnClickGrabBehavior::GetHighestParentSimulatingPhysics(UPr
 	}
 }
 
-void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
+void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+                                  const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
@@ -59,16 +59,17 @@ void UOnClickGrabBehavior::OnClickStart(USceneComponent* TriggeredComponent, con
 
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables;
-		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
-		for (UInteractableBase* Interactable : Interactables)
+		TArray<UInteractableComponent*> Interactables;
+		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
+		for (UInteractableComponent* Interactable : Interactables)
 		{
 			Interactable->RestrictInteractionToComponent(TriggeredComponent);
 		}
 	}
 }
 
-void UOnClickGrabBehavior::OnClickEnd(USceneComponent* TriggeredComponent, const FInputActionValue& Value)
+void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+                                const FInputActionValue& Value)
 {
 	if (MyPhysicsComponent)
 	{
@@ -82,9 +83,9 @@ void UOnClickGrabBehavior::OnClickEnd(USceneComponent* TriggeredComponent, const
 
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
-		TArray<UInteractableBase*> Interactables;
-		GetOwner()->GetComponents<UInteractableBase>(Interactables, false);
-		for (UInteractableBase* Interactable : Interactables)
+		TArray<UInteractableComponent*> Interactables;
+		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
+		for (UInteractableComponent* Interactable : Interactables)
 		{
 			Interactable->ResetRestrictInteraction();
 		}

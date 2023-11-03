@@ -5,7 +5,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interaction/Interactees/GrabbableComponent.h"
+#include "Interaction/Interactables/InteractableComponent.h"
+#include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -24,7 +25,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
-	TArray<UGrabbableComponent*> CurrentGrabCompsInRange;
+	TArray<UInteractableComponent*> CurrentGrabCompsInRange;
 
 	TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> OutHits;
@@ -42,8 +43,8 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			UGrabbableComponent* Grabbable = HitActor->FindComponentByClass<UGrabbableComponent>();
-			if (Grabbable && Grabbable->IsInteractable)
+			UInteractableComponent* Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
+			if (Grabbable && Grabbable->HasInteractionTypeFlag(EInteractorType::Grab) && Grabbable->IsInteractable)
 			{
 				Grabbable->HitResult = Hit;
 				CurrentGrabCompsInRange.Add(Grabbable);
@@ -54,28 +55,28 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	CurrentGrabbableInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
-	for (UGrabbableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
+	for (UInteractableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
 	{
 		if (!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
 		{
 			PreviousGrabbablesInRange.Add(CurrentGrabbale);
-			CurrentGrabbale->HandleOnHoverStartEvents(this);
+			CurrentGrabbale->HandleOnHoverStartEvents(this, EInteractorType::Grab);
 		}
 	}
 
-	TArray<UGrabbableComponent*> ComponentsToRemove;
+	TArray<UInteractableComponent*> ComponentsToRemove;
 
 	// Call hover end events on all components that were previously in range, but not anymore
-	for (UGrabbableComponent* PrevGrabbale : PreviousGrabbablesInRange)
+	for (UInteractableComponent* PrevGrabbale : PreviousGrabbablesInRange)
 	{
 		if (!CurrentGrabCompsInRange.Contains(PrevGrabbale))
 		{
 			ComponentsToRemove.Add(PrevGrabbale);
-			PrevGrabbale->HandleOnHoverEndEvents(this);
+			PrevGrabbale->HandleOnHoverEndEvents(this, EInteractorType::Grab);
 		}
 	}
 
-	for (UGrabbableComponent* CompToRemove : ComponentsToRemove)
+	for (UInteractableComponent* CompToRemove : ComponentsToRemove)
 	{
 		PreviousGrabbablesInRange.Remove(CompToRemove);
 	}
@@ -106,16 +107,16 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
-	for (UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
+	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
-		Grabbale->HandleOnClickStartEvents(this, Value);
+		Grabbale->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
 }
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for (UGrabbableComponent* Grabbale : CurrentGrabbableInRange)
+	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
-		Grabbale->HandleOnClickEndEvents(this, Value);
+		Grabbale->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
 }
