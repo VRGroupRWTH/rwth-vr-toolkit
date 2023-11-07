@@ -66,6 +66,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	}
 }
 
+// A separate button has to be pressed, for when mouse movement should contribute to turning
 void UTurnComponent::StartDesktopRotation()
 {
 	bApplyDesktopRotation = true;
@@ -138,6 +139,4 @@ void UTurnComponent::RotateCameraAndPawn(float Yaw) const
 
 	VRPawn->Controller->SetControlRotation(NewRotation);
 	VRPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
-
-	//FVector MovedBy = NewLocation - OrigLocation;
 }

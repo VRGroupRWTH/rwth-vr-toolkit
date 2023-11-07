@@ -44,19 +44,27 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCMovement_Right;
-
+	
+	/**Input Mapping Context that maps buttons for desktop mode*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCDesktopRotation;
 
-	/*Movement Input*/
+	/**
+	 * Called every tick as long as stick input is received to allow for continuous turning
+	 * @param Value Stick input value determines turn direction and turn speed
+	 */
 	UFUNCTION(BlueprintCallable)
 	void OnBeginTurn(const FInputActionValue& Value);
 
+	/**
+	* Called once if stick input is received to rotate player at constant value
+	* @param Value Stick input value determines turn direction
+	*/
 	UFUNCTION(BlueprintCallable)
 	void OnBeginSnapTurn(const FInputActionValue& Value);
 
-	/*Desktop Testing*/
-	// the idea is that you have to hold the right mouse button to do rotations
+
+	// A separate button has to be pressed, for when mouse movement should contribute to turning
 	UFUNCTION()
 	void StartDesktopRotation();
 
