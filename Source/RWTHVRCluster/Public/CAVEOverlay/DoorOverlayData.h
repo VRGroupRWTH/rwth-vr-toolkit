@@ -24,7 +24,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UBorder* BlackBox;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* FPS;
 };

@@ -5,13 +5,13 @@ public class RWTHVRCluster : ModuleRules
 	public RWTHVRCluster(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PrivateIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PublicDependencyModuleNames.AddRange(
@@ -21,11 +21,12 @@ public class RWTHVRCluster : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"DeveloperSettings",
-				"InputCore",
+				"EnhancedInput",
 				"UMG",
 				"Slate",
 				"SlateCore",
-				"RWTHVRToolkit"
+				"RWTHVRToolkit",
+				"LiveLink"
 			}
 		);
 
@@ -38,7 +39,7 @@ public class RWTHVRCluster : ModuleRules
 				}
 			);
 		}
-		
+
 		if (IsPluginEnabledForTarget("DTrackPlugin", base.Target))
 		{
 			PublicDependencyModuleNames.AddRange(
@@ -51,7 +52,7 @@ public class RWTHVRCluster : ModuleRules
 		}
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		DynamicallyLoadedModuleNames.AddRange(

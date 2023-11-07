@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CAVEOverlay/CAVEOverlay.h"
 #include "Modules/ModuleManager.h"
 #include "ClusterConsole.h"
 
@@ -13,5 +12,4 @@ public:
 
 private:
 	FClusterConsole ClusterConsole;
-	FCAVEOverlay CAVEOverlay;
 };
