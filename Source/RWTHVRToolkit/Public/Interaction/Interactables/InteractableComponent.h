@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsInteractable = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Bitmask, BitmaskEnum = EInteractorType))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Bitmask, BitmaskEnum = "/Script/RWTHVRToolkit.EInteractorType"))
 	int32 InteractorFilter = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
