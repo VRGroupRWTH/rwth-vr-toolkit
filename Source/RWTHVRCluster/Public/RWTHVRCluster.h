@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "ClusterConsole.h"
+#include "ClusterConsole/ClusterConsole.h"
 
 class FRWTHVRClusterModule : public IModuleInterface
 {
