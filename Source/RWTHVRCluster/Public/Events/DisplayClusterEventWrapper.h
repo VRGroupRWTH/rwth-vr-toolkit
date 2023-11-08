@@ -5,7 +5,6 @@
 #include "Cluster/DisplayClusterClusterEvent.h"
 #include "DisplayClusterEventParameterHelper.h"
 #include "Templates/IsInvocable.h"
-#include "Templates/RemoveCV.h"
 
 static constexpr int32 CLUSTER_EVENT_WRAPPER_EVENT_ID = 1337420;
 
@@ -69,7 +68,7 @@ public:
 					// Create a tuple that holds all arguments. This assumes that all
 					// argument types are default constructible. However, all
 					// types that overload the FArchive "<<" operator probably are.
-					TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+					TTuple<typename std::remove_cv_t<typename TRemoveReference<ArgTypes>::Type>...> ArgumentTuple;
 
 					// This call will deserialze the values and fill all values in the tuple appropriately.
 					FillArgumentTuple<0>(&MemoryReader, &ArgumentTuple);
