@@ -88,26 +88,6 @@ protected:
 	/* Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller. */
 	void ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData) const;
 
-	/* Interaction */
-	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
-	void OnBeginFire(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintCallable, Category = "Pawn|Interaction")
-	void OnEndFire(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintCallable)
-	void OnToggleNavigationMode(const FInputActionValue& Value);
-
-	/* Input */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
-	UInputMappingContext* IMCBase;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
-	UInputAction* Fire;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pawn|Input")
-	UInputAction* ToggleNavigationMode;
-
 	/* Fixes camera rotation in desktop mode. */
 	void SetCameraOffset() const;
 	void UpdateRightHandForDesktopInteraction() const;
