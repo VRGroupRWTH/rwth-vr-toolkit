@@ -81,8 +81,8 @@ bool UVirtualRealityUtilities::IsRolv()
 #endif
 }
 
-/* Return true on the Master in cluster mode and in a normal desktop session. Otherwise false */
-bool UVirtualRealityUtilities::IsMaster()
+/* Return true on the Primary in cluster mode and in a normal desktop session. Otherwise false */
+bool UVirtualRealityUtilities::IsPrimaryNode()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	if (!IDisplayCluster::IsAvailable())
@@ -92,7 +92,7 @@ bool UVirtualRealityUtilities::IsMaster()
 	IDisplayClusterClusterManager* Manager = IDisplayCluster::Get().GetClusterMgr();
 	if (Manager == nullptr)
 	{
-		return true; // if we are not in cluster mode, we are always the master
+		return true; // if we are not in cluster mode, we are always the primary node
 	}
 	return Manager->IsPrimary() || !Manager->IsSecondary();
 #else
@@ -100,9 +100,9 @@ bool UVirtualRealityUtilities::IsMaster()
 #endif
 }
 
-bool UVirtualRealityUtilities::IsSlave()
+bool UVirtualRealityUtilities::IsSecondaryNode()
 {
-	return !IsMaster();
+	return !IsPrimaryNode();
 }
 
 FString UVirtualRealityUtilities::GetNodeName()
