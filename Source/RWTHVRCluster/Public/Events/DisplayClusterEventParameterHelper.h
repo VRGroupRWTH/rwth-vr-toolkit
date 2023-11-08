@@ -45,7 +45,7 @@ inline RetType CallDelegateWithParameterMap(
 {
 	// Create a tuple that holds all arguments. This assumes that all argument types are default constructible. However, all
 	// types that overload the FArchive "<<" operator probably are.
-	TTuple<typename std::remove_cv_t<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+	TTuple<typename std::remove_cv_t<typename TRemoveReference<ArgTypes>::Type>...> ArgumentTuple;
 
 	// This call will parse the string map and fill all values in the tuple appropriately.
 	FillArgumentTuple<0>(&ArgumentTuple, Parameters);
