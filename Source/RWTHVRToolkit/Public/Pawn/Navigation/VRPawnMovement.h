@@ -75,7 +75,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UCapsuleComponent* CapsuleColliderComponent = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Transient, DuplicateTransient)
 	USceneComponent* HeadComponent = nullptr;
 
 	float VerticalSpeed = 0.0f;
@@ -83,6 +83,6 @@ private:
 	FVector LastSteeringCollisionVector;
 
 	//just stored for performance gains;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Transient, DuplicateTransient)
 	TArray<AActor*> ActorsToIgnore;
 };
