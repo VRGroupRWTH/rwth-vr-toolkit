@@ -69,9 +69,9 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
 	{
-		// Only do this for the master or when we're running in standalone
-		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsMaster() || GetNetMode()) ==
-			NM_Standalone)
+		// Only do this for the primary node or when we're running in standalone
+		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsPrimaryNode() || GetNetMode())
+			== NM_Standalone)
 		{
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.

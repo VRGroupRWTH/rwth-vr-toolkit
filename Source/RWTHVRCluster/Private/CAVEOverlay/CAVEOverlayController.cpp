@@ -156,7 +156,7 @@ void ACAVEOverlayController::BeginPlay()
 		return;
 
 	//Input config
-	if (UVirtualRealityUtilities::IsMaster())
+	if (UVirtualRealityUtilities::IsPrimaryNode())
 	{
 		if (CycleDoorTypeInputAction == nullptr || IMCCaveOverlayInputMapping == nullptr)
 		{

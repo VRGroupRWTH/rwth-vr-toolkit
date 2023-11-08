@@ -63,9 +63,9 @@ public:
 	static bool IsRolv();
 
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
-	static bool IsMaster();
+	static bool IsPrimaryNode();
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
-	static bool IsSlave();
+	static bool IsSecondaryNode();
 
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
 	static FString GetNodeName();

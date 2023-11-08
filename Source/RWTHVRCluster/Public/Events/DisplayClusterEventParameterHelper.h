@@ -2,12 +2,13 @@
 
 #include "Serialization/MemoryReader.h"
 #include "Serialization/MemoryWriter.h"
+#include "type_traits"
 
 template <typename ParameterType, typename... RemainingParameterTypes>
 inline void SerializeParameters(FMemoryWriter* MemoryWriter, ParameterType&& Parameter,
                                 RemainingParameterTypes&&... RemainingParameters)
 {
-	using NonConstType = typename TRemoveCV<typename TRemoveReference<ParameterType>::Type>::Type;
+	using NonConstType = typename std::remove_cv_t<typename TRemoveReference<ParameterType>::Type>;
 	// const_cast because the same operator (<<) is used for reading and writing
 	(*MemoryWriter) << const_cast<NonConstType&>(Parameter);
 	SerializeParameters(MemoryWriter, Forward<RemainingParameterTypes>(RemainingParameters)...);
@@ -44,7 +45,7 @@ inline RetType CallDelegateWithParameterMap(
 {
 	// Create a tuple that holds all arguments. This assumes that all argument types are default constructible. However, all
 	// types that overload the FArchive "<<" operator probably are.
-	TTuple<typename TRemoveCV<typename TRemoveReference<ArgTypes>::Type>::Type...> ArgumentTuple;
+	TTuple<typename std::remove_cv_t<typename TRemoveReference<ArgTypes>::Type>...> ArgumentTuple;
 
 	// This call will parse the string map and fill all values in the tuple appropriately.
 	FillArgumentTuple<0>(&ArgumentTuple, Parameters);

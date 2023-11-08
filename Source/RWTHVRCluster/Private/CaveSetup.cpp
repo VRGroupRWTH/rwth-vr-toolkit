@@ -39,9 +39,9 @@ void ACaveSetup::BeginPlay()
 		}
 	}
 
-	// Apply the DTrack LiveLink Preset. Only do this if we are the master
+	// Apply the DTrack LiveLink Preset. Only do this if we are the primaryNode
 
-	if (UVirtualRealityUtilities::IsMaster())
+	if (UVirtualRealityUtilities::IsPrimaryNode())
 	{
 		if (LiveLinkPresetToApplyOnCave && LiveLinkPresetToApplyOnCave->IsValidLowLevelFast())
 		{
