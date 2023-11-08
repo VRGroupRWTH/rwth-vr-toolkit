@@ -6,7 +6,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
-#include "Pawn/VRPawnInputConfig.h"
 #include "Utility/VirtualRealityUtilities.h"
 #include "MotionControllerComponent.h"
 
