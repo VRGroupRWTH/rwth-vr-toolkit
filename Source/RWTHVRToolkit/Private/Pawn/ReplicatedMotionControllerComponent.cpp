@@ -16,8 +16,7 @@ UReplicatedMotionControllerComponent::UReplicatedMotionControllerComponent()
 	ControllerNetUpdateCount = 0.0f;
 }
 
-// Naive direct transform replication (replace with input rep?)
-
+// See UClientTransformReplication::UpdateState
 void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 {
 	if (GetOwner()->HasLocalNetOwner())
@@ -36,7 +35,7 @@ void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
-					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
+					if (GetNetMode() == NM_Client)
 					{
 						ServerSendControllerTransformRpc(ReplicatedTransform);
 					}
@@ -58,6 +57,7 @@ void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	// Disable the basic built in replication of relative transform data, as we are using our own transform sync/state update
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeLocation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeRotation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);
@@ -67,6 +67,7 @@ void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(
 	DOREPLIFETIME(UReplicatedMotionControllerComponent, ControllerNetUpdateRate);
 }
 
+// See UClientTransformReplication::ServerSendControllerTransformRpc_Implementation
 void UReplicatedMotionControllerComponent::ServerSendControllerTransformRpc_Implementation(
 	FVRTransformRep NewTransform)
 {

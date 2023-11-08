@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
 	FVRTransformRep ReplicatedTransform;
 
+	/*
+	 *  See UClientTransformReplication for a description of the replication functions, they work exactly the same way.
+	 */
 	void UpdateState(float DeltaTime);
 
 	UFUNCTION()

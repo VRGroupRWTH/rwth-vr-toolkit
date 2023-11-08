@@ -60,6 +60,8 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
  * The alternative would be to do this only on the server on possess and check for player state/type,
  * as connections now send their playertype over.
  */
+// This pawn's controller has changed! This is called on both server and owning client. If we are the owning client
+// and the master, request that the DCRA is attached to us.
 void AVirtualRealityPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
@@ -71,6 +73,8 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsMaster() || GetNetMode()) ==
 			NM_Standalone)
 		{
+			// If we are also the authority (standalone or listen server), directly attach it to us.
+			// If we are not (client), ask the server to do it.
 			if (HasAuthority())
 				AttachDCRAtoPawn();
 			else
@@ -205,6 +209,8 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction() const
 }
 
 // Todo rewrite this in some other way or attach it differently, this is horrible
+// Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
+// It is only executed on the server because attachments are synced to all clients, but not from client to server.
 void AVirtualRealityPawn::AttachDCRAtoPawn()
 {
 	if (!CaveSetupActorClass || !CaveSetupActorClass->IsValidLowLevelFast())
@@ -212,6 +218,8 @@ void AVirtualRealityPawn::AttachDCRAtoPawn()
 		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor class set in pawn!");
 		return;
 	}
+
+	// Find our CaveSetup actor
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), CaveSetupActorClass, FoundActors);
 
@@ -249,8 +257,10 @@ void AVirtualRealityPawn::SetupMotionControllerSources()
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
 }
 
+// Requests the server to perform the attachment, as only the server can sync this to all the other clients.
 void AVirtualRealityPawn::ServerAttachDCRAtoPawnRpc_Implementation()
 {
+	// We're on the server here - attach the actor to the pawn.
 	AttachDCRAtoPawn();
 }
 

@@ -24,6 +24,10 @@ protected:
 	// Full transform update replication
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/*
+	*  See UClientTransformReplication for a description of the replication functions, they work exactly the same way.
+	*/
+
 	// Rate to update the position to the server, 100htz is default (same as replication rate, should also hit every tick).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Networking",
 		meta = (ClampMin = "0", UIMin = "0"))

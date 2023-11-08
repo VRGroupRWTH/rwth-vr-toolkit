@@ -46,7 +46,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
 	FVRTransformRep ReplicatedTransform;
 
-	// Called whenever ReplicatedTransform is replicated to clients. Not called on Server/Owning client
+	// Called whenever ReplicatedTransform is replicated to clients. Not called on Owning client, manually called on server
 	UFUNCTION()
 	virtual void OnRep_ReplicatedTransform()
 	{
@@ -61,6 +61,7 @@ protected:
 	UFUNCTION(Unreliable, Server, WithValidation)
 	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
 
+	// Function called each tick that checks if we need to send a new state from our local net owner to the server.
 	void UpdateState(float DeltaTime);
 
 public:
