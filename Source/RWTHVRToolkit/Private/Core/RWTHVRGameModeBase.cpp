@@ -48,6 +48,15 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	if (const ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayer->PlayerState); State != nullptr)
 	{
+		// Do we already have an auto-possessing pawn possessed?
+		if (NewPlayer->GetPawn() && NewPlayer->GetPawn()->IsValidLowLevelFast())
+		{
+			UE_LOGFMT(Toolkit, Display,
+			          "ARWTHVRGameModeBase::PostLogin: New player already auto-possessed a pawn, not spawning new one");
+			Super::PostLogin(NewPlayer);
+			return;
+		}
+
 		// If the new player is a secondary nDisplay node, spawn it only as a Spectator
 		// Potentially we can use MustSpectate instead.
 		UClass* PawnClass;
