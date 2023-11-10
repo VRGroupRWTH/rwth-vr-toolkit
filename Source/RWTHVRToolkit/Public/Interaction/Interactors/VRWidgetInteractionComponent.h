@@ -56,6 +56,7 @@ private:
 
 	UFUNCTION()
 	void OnEndClick(const FInputActionValue& Value);
+	void CreateInteractionRay();
 
 	void SetupInteractionRay();
 };

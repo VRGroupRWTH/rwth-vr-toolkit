@@ -77,7 +77,7 @@ void UVRWidgetInteractionComponent::OnEndClick(const FInputActionValue& Value)
 	ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
-void UVRWidgetInteractionComponent::SetupInteractionRay()
+void UVRWidgetInteractionComponent::CreateInteractionRay()
 {
 	// Only create a new static mesh component if we haven't gotten one already
 	if (!InteractionRay)
@@ -111,25 +111,28 @@ void UVRWidgetInteractionComponent::SetupInteractionRay()
 			}
 		}
 	}
+}
 
-	if (InteractionRay)
+void UVRWidgetInteractionComponent::SetupInteractionRay()
+{
+	// Create the InteractionRay component and attach it to us.
+	CreateInteractionRay();
+
+	// Setup the interaction ray.
+	// The static mesh reference is set in the blueprint, avoid ConstructorHelpers and hardcoded paths!
+	// this ray model has an inlayed cross with flipped normals so it can be seen as a cross in desktop mode
+	// where the right hand is attached to the head
+
+	if (InteractionRayMesh)
 	{
-		// Setup the interaction ray.
-		// The static mesh reference is set in the blueprint, avoid ConstructorHelpers and hardcoded paths!
-		// this ray model has an inlayed cross with flipped normals so it can be seen as a cross in desktop mode
-		// where the right hand is attached to the head
-
-		if (InteractionRayMesh)
-		{
-			InteractionRay->SetStaticMesh(InteractionRayMesh);
-		}
-
-		InteractionRay->SetCastShadow(false);
-		// turns off collisions as the InteractionRay is only meant to visualize the ray
-		InteractionRay->SetCollisionProfileName(TEXT("NoCollision"));
-
-		//the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
-		InteractionRay->SetRelativeScale3D(FVector(InteractionDistance / 100.0f, 0.5f, 0.5f));
-		SetInteractionRayVisibility(InteractionRayVisibility);
+		InteractionRay->SetStaticMesh(InteractionRayMesh);
 	}
+
+	InteractionRay->SetCastShadow(false);
+	// turns off collisions as the InteractionRay is only meant to visualize the ray
+	InteractionRay->SetCollisionProfileName(TEXT("NoCollision"));
+
+	//the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
+	InteractionRay->SetRelativeScale3D(FVector(InteractionDistance / 100.0f, 0.5f, 0.5f));
+	SetInteractionRayVisibility(InteractionRayVisibility);
 }
