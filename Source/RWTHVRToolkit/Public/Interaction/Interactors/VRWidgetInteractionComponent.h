@@ -41,10 +41,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UStaticMeshComponent* InteractionRay;
 
-	// Enable this if you want to interact with Targetable classes or use EInteractionRayVisibility::VisibleOnHoverOnly
-	UPROPERTY(EditAnywhere)
-	bool bCanRaytraceEveryTick = false;
-
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
 

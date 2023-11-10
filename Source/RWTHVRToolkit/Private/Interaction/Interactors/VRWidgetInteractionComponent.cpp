@@ -7,7 +7,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactors/GrabComponent.h"
 #include "Misc/Optional.h"
-#include "Utility/VirtualRealityUtilities.h"
 
 UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
 {
@@ -46,10 +45,6 @@ void UVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// only raytrace for targetable objects if user wants to enable this feature
-	if (!bCanRaytraceEveryTick)
-		return;
-
 	// Disable/enable ray on hover
 	if (InteractionRayVisibility == EInteractionRayVisibility::VisibleOnHoverOnly)
 	{
@@ -68,20 +63,6 @@ void UVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteractionRayV
 {
 	InteractionRayVisibility = NewVisibility;
 	InteractionRay->SetVisibility(NewVisibility == Visible);
-
-	if (InteractionRayVisibility == EInteractionRayVisibility::VisibleOnHoverOnly && !bCanRaytraceEveryTick)
-	{
-		UE_LOG(Toolkit, Warning,
-		       TEXT("VisibleOnHoverOnly needs bCanRaytraceEveryTick=true, so this is forcibly set!"));
-		bCanRaytraceEveryTick = true;
-	}
-	if (InteractionRayVisibility == EInteractionRayVisibility::Visible && !bCanRaytraceEveryTick)
-	{
-		UE_LOG(Toolkit, Warning,
-		       TEXT(
-			       "VisibleOnHoverOnly will need two clicks to interact with widgets if bCanRaytraceEveryTick is not set!"
-		       ));
-	}
 }
 
 // Forward the click to the WidgetInteraction
