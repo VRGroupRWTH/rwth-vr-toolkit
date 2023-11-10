@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "BasicVRInteractionComponent.h"
 #include "CoreMinimal.h"
 #include "LiveLinkRole.h"
 #include "Pawn/Navigation/VRPawnMovement.h"
@@ -34,10 +33,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* LeftHand;
-
-	/* Interaction */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Interaction")
-	UBasicVRInteractionComponent* BasicVRInteraction;
 
 	/* Movement */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")

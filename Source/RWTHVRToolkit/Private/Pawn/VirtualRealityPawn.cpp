@@ -36,9 +36,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
-
-	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
-	BasicVRInteraction->Initialize(RightHand);
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -121,7 +118,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
 	}
-	
+
 	// Set up mappings on input extension components, need to do this nicely
 
 	for (UActorComponent* Comp : GetComponentsByInterface(UInputExtensionInterface::StaticClass()))
