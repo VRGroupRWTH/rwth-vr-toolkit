@@ -6,7 +6,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactors/GrabComponent.h"
+#include "Logging/StructuredLog.h"
 #include "Misc/Optional.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
 {
@@ -18,9 +20,19 @@ void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInpu
 	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
 	const APawn* Pawn = Cast<APawn>(GetOwner());
-	if (!Pawn)
-		return;
 
+	// Check if our owner is a Pawn. Currently we call this function from our Pawn, so this is kind of a given.
+	// In the future, we might want to support other actors as well.
+	if (!Pawn)
+	{
+		UE_LOGFMT(Toolkit, Warning,
+		          "UVRWidgetInteractionComponent::SetupPlayerInput requires a Pawn as Owner, which is not the case. Not setting up any input actions.")
+		;
+		return;
+	}
+
+	// We can be owned by a pawn, but not be the locally controlled pawn in a MP setting. In that case, just return and
+	// don't set up any inputs.
 	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
 	if (!InputSubsystem)
 		return;
@@ -32,8 +44,13 @@ void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInpu
 	InputSubsystem->AddMappingContext(IMCWidgetInteraction, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
-	if (EI == nullptr)
+	if (!EI)
+	{
+		UE_LOGFMT(Toolkit, Warning,
+		          "UVRWidgetInteractionComponent::SetupPlayerInput: Cannot cast Pawn's InputComponent to UEnhancedInputComponent! Not binding any actions!")
+		;
 		return;
+	}
 
 	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this, &UVRWidgetInteractionComponent::OnBeginClick);
 	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this, &UVRWidgetInteractionComponent::OnEndClick);
