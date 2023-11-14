@@ -4,8 +4,6 @@
 
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "ILiveLinkClient.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,7 +12,6 @@
 #include "Pawn/Navigation/VRPawnMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
-#include "Pawn/VRPawnInputConfig.h"
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/VirtualRealityUtilities.h"
 
@@ -39,9 +36,6 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
-
-	BasicVRInteraction = CreateDefaultSubobject<UBasicVRInteractionComponent>(TEXT("Basic VR Interaction"));
-	BasicVRInteraction->Initialize(RightHand);
 }
 
 void AVirtualRealityPawn::Tick(float DeltaSeconds)
@@ -100,16 +94,6 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// There is probably a checkbox or way of spawning that prevents that in a better way that this, change if found.
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 
-	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LP
-		                                                     ? LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()
-		                                                     : nullptr;
-	if (!InputSubsystem)
-	{
-		UE_LOG(Toolkit, Error, TEXT("[VirtualRealiytPawn.cpp] InputSubsystem IS NOT VALID"));
-		return;
-	}
-
 	SetupMotionControllerSources();
 
 	// Should not do this here but on connection or on possess I think.
@@ -134,19 +118,6 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
 	}
-
-	InputSubsystem->ClearAllMappings();
-
-	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCBase, 0);
-
-	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-
-	// old function bindings for grabbing and releasing
-	EI->BindAction(Fire, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnBeginFire);
-	EI->BindAction(Fire, ETriggerEvent::Completed, this, &AVirtualRealityPawn::OnEndFire);
-
-	EI->BindAction(ToggleNavigationMode, ETriggerEvent::Started, this, &AVirtualRealityPawn::OnToggleNavigationMode);
 
 	// Set up mappings on input extension components, need to do this nicely
 
@@ -272,44 +243,6 @@ void AVirtualRealityPawn::SetCameraOffset() const
 	FRotator Rotation;
 	GetActorEyesViewPoint(Location, Rotation);
 	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-// legacy grabbing
-void AVirtualRealityPawn::OnBeginFire(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Warning, TEXT("BeginFire"));
-	BasicVRInteraction->BeginInteraction();
-}
-
-// legacy grabbing
-void AVirtualRealityPawn::OnEndFire(const FInputActionValue& Value)
-{
-	UE_LOG(Toolkit, Log, TEXT("EndFire"));
-	BasicVRInteraction->EndInteraction();
-}
-
-void AVirtualRealityPawn::OnToggleNavigationMode(const FInputActionValue& Value)
-{
-	switch (PawnMovement->NavigationMode)
-	{
-	case EVRNavigationModes::NAV_FLY:
-		PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
-		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to WALK"));
-		break;
-
-	case EVRNavigationModes::NAV_WALK:
-		PawnMovement->NavigationMode = EVRNavigationModes::NAV_GHOST;
-		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to GHOST"));
-		break;
-	case EVRNavigationModes::NAV_GHOST:
-		PawnMovement->NavigationMode = EVRNavigationModes::NAV_FLY;
-		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to FLY"));
-		break;
-	default:
-		PawnMovement->NavigationMode = EVRNavigationModes::NAV_WALK;
-		UE_LOG(Toolkit, Log, TEXT("Changed Nav mode to WALK"));
-		break;
-	}
 }
 
 void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform,
