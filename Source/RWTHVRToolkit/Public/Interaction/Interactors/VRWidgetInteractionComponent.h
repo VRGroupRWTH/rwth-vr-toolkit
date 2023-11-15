@@ -13,7 +13,7 @@ enum EInteractionRayVisibility
 	Visible UMETA(DisplayName = "Interaction ray visible"),
 	VisibleOnHoverOnly UMETA(
 		DisplayName =
-		"Interaction ray only visible when hovering over Clickable or Targetable objects, or interactable widgets"),
+		"Interaction ray only visible when hovering over interactable world UI widgets"),
 	Invisible UMETA(DisplayName = "Interaction ray invisible")
 };
 
