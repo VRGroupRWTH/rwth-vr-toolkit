@@ -12,7 +12,16 @@
 
 UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bTickEvenWhenPaused = false;
+	// Only start ticking once we're initialized
+	PrimaryComponentTick.bStartWithTickEnabled = false;
+	// Input only, don't tick on DS
+	PrimaryComponentTick.bAllowTickOnDedicatedServer = false;
+	PrimaryComponentTick.SetTickFunctionEnable(false);
+
+	// we have to set this to false, otherwise the component starts ticking on the server
+	// it seems like AutoActivation just overrides whatever default tick values I set
+	bAutoActivate = false;
 }
 
 void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
@@ -60,10 +69,20 @@ void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInpu
 void UVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                                   FActorComponentTickFunction* ThisTickFunction)
 {
+	// We should only tick on the local owner (the controlling client). Not on the server, not on any other pawn.
+	// In theory, this should never happen as we only activate the component for the local player anyway.
+	// But sometimes Unreal is strange and this still slips through, catch it if it happens.
+	if (!GetOwner() || !GetOwner()->HasLocalNetOwner())
+	{
+		UE_LOGFMT(Toolkit, Error, "VRWidgetInteraction Ticking on non-owner! Deactivating!");
+		SetComponentTickEnabled(false);
+		Deactivate();
+	}
+
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Disable/enable ray on hover
-	if (InteractionRayVisibility == EInteractionRayVisibility::VisibleOnHoverOnly)
+	// Disable/enable ray on hover - SetVisibility is smart enough to check for change
+	if (InteractionRayVisibility == EInteractionRayVisibility::VisibleOnHoverOnly && InteractionRay)
 	{
 		if (IsOverInteractableWidget())
 		{
@@ -79,7 +98,12 @@ void UVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick Ti
 void UVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility)
 {
 	InteractionRayVisibility = NewVisibility;
-	InteractionRay->SetVisibility(NewVisibility == Visible);
+
+	if (InteractionRay)
+		InteractionRay->SetVisibility(NewVisibility == Visible);
+	else
+		UE_LOGFMT(Toolkit, Error,
+	          "UVRWidgetInteractionComponent::SetInteractionRayVisibility: InteractionRay not set yet!");
 }
 
 // Forward the click to the WidgetInteraction
@@ -152,4 +176,9 @@ void UVRWidgetInteractionComponent::SetupInteractionRay()
 	//the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
 	InteractionRay->SetRelativeScale3D(FVector(InteractionDistance / 100.0f, 0.5f, 0.5f));
 	SetInteractionRayVisibility(InteractionRayVisibility);
+
+	// We are set up, enable ticking
+	// As we disabled auto activation, we need to activate the component manually here.
+	Activate();
+	SetComponentTickEnabled(true);
 }
