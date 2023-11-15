@@ -64,8 +64,8 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	if (IsLocallyControlled())
 	{
 		// Only do this for the primary node or when we're running in standalone
-		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsPrimaryNode() || GetNetMode())
-			== NM_Standalone)
+		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsPrimaryNode() ||
+			GetNetMode() == NM_Standalone))
 		{
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.
@@ -200,6 +200,7 @@ void AVirtualRealityPawn::AttachDCRAtoPawn()
 		FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
 		AttachmentRules.RotationRule = EAttachmentRule::KeepWorld;
 		CaveSetupActor->AttachToActor(this, AttachmentRules);
+		UE_LOGFMT(Toolkit, Display, "VirtualRealityPawn: Attaching CaveSetup to our pawn!");
 	}
 	else
 	{
