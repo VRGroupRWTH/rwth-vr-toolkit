@@ -42,7 +42,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (UVirtualRealityUtilities::IsDesktopMode() && IsLocallyControlled())
 	{
 		SetCameraOffset();
 		UpdateRightHandForDesktopInteraction();
@@ -135,7 +135,6 @@ void AVirtualRealityPawn::EvaluateLivelink() const
 		{
 			return;
 		}
-
 
 		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
 		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(
