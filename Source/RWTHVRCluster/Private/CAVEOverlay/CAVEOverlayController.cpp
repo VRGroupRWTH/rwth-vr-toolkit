@@ -147,10 +147,18 @@ void ACAVEOverlayController::BeginPlay()
 	if (GetNetMode() == NM_DedicatedServer)
 		return;
 
+	// Currently, there is no support for multi-user systems in general, as we only depend on the local pawn.
+	// In a MU setting, the relevant pawn isn't our local one, but the primary node's pawn.
+	if (GetNetMode() != NM_Standalone)
+		return;
+
 	// This should return the respective client's local playercontroller or, if we're a listen server, our own PC.
 	auto* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 
-	const bool bValidPC = PC != nullptr;
+	// it can happen that the PC is valid, but we have no player attached to it yet.
+	// Check for this - however, we should work around it by somehow getting notified when that happens.
+	// Not sure which place would be best...
+	const bool bValidPC = PC && PC->GetLocalPlayer();
 
 	if (!bValidPC || !UVirtualRealityUtilities::IsRoomMountedMode())
 		return;
@@ -211,6 +219,7 @@ void ACAVEOverlayController::BeginPlay()
 		UE_LOGFMT(LogCAVEOverlay, Error, "OverlayClass not set in CaveOverlayController!");
 		return;
 	}
+
 	Overlay = CreateWidget<UDoorOverlayData>(PC, OverlayClass);
 	Overlay->AddToViewport(0);
 
