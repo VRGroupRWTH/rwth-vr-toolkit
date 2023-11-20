@@ -28,6 +28,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	TArray<UInteractableComponent*> CurrentGrabCompsInRange;
 
 	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(GetOwner());
 	TArray<FHitResult> OutHits;
 	const ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_PhysicsBody);
 
@@ -43,6 +44,10 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
+			if(HitActor->IsChildActor())
+			{
+				HitActor = HitActor->GetParentActor();// search at parent if found actor is a child actor
+			}
 			UInteractableComponent* Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 			if (Grabbable && Grabbable->HasInteractionTypeFlag(EInteractorType::Grab) && Grabbable->IsInteractable)
 			{
