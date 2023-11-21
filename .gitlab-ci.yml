@@ -49,7 +49,7 @@ Generate_Project:
         RUN_SETUP: "false"
         GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
-            [develop@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
 
 Build_Windows:
