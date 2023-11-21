@@ -91,7 +91,7 @@ Deploy_Windows:
 
 Deploy_CAVE:
     only: ['web', 'schedules']
-    extends: .Deploy_CAVE_
+    extends: .Deploy_vrdemo_
     needs:
         - job: "Build_Linux"
           artifacts: true
