@@ -44,7 +44,8 @@ bool UVirtualRealityUtilities::IsHeadMountedMode()
 bool UVirtualRealityUtilities::IsCave()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if (!IsRoomMountedMode()) return false;
+	if (!IsRoomMountedMode())
+		return false;
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
@@ -57,7 +58,8 @@ bool UVirtualRealityUtilities::IsCave()
 bool UVirtualRealityUtilities::IsRolv()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	if (!IsRoomMountedMode()) return false;
+	if (!IsRoomMountedMode())
+		return false;
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
@@ -109,7 +111,7 @@ float UVirtualRealityUtilities::GetEyeDistance()
 	else
 	{
 #if PLATFORM_SUPPORTS_NDISPLAY
-		ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+		const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 		return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0.0f;
 #else
 	    return 0.0f;
@@ -120,7 +122,7 @@ float UVirtualRealityUtilities::GetEyeDistance()
 EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
-	ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 	return static_cast<EEyeStereoOffset>((RootActor)
 		                                     ? RootActor->GetDefaultCamera()->GetStereoOffset()
 		                                     : EDisplayClusterEyeStereoOffset::None);
@@ -143,21 +145,33 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 {
 	switch (Component)
 	{
-	case ENamedClusterComponent::NCC_CAVE_ORIGIN: return GetClusterComponent("cave_origin");
-	case ENamedClusterComponent::NCC_CAVE_CENTER: return GetClusterComponent("cave_center");
-	case ENamedClusterComponent::NCC_CAVE_LHT: return GetClusterComponent("left_hand_target");
-	case ENamedClusterComponent::NCC_CAVE_RHT: return GetClusterComponent("right_hand_target");
-	case ENamedClusterComponent::NCC_SHUTTERGLASSES: return GetClusterComponent("shutter_glasses");
-	case ENamedClusterComponent::NCC_ROLV_ORIGIN: return GetClusterComponent("rolv_origin");
-	case ENamedClusterComponent::NCC_FLYSTICK: return GetClusterComponent("flystick");
-	case ENamedClusterComponent::NCC_CALIBRATIO: return GetClusterComponent("calibratio");
+	case ENamedClusterComponent::NCC_CAVE_ORIGIN:
+		return GetClusterComponent("cave_origin");
+	case ENamedClusterComponent::NCC_CAVE_CENTER:
+		return GetClusterComponent("cave_center");
+	case ENamedClusterComponent::NCC_CAVE_LHT:
+		return GetClusterComponent("left_hand_target");
+	case ENamedClusterComponent::NCC_CAVE_RHT:
+		return GetClusterComponent("right_hand_target");
+	case ENamedClusterComponent::NCC_SHUTTERGLASSES:
+		return GetClusterComponent("shutter_glasses");
+	case ENamedClusterComponent::NCC_ROLV_ORIGIN:
+		return GetClusterComponent("rolv_origin");
+	case ENamedClusterComponent::NCC_FLYSTICK:
+		return GetClusterComponent("flystick");
+	case ENamedClusterComponent::NCC_CALIBRATIO:
+		return GetClusterComponent("calibratio");
 	case ENamedClusterComponent::NCC_TRACKING_ORIGIN:
 		USceneComponent* Result;
-		if ((Result = GetClusterComponent("cave_origin"))) return Result;
-		if ((Result = GetClusterComponent("rolv_origin"))) return Result;
-		if ((Result = GetClusterComponent("tdw_origin_floor"))) return Result;
+		if ((Result = GetClusterComponent("cave_origin")))
+			return Result;
+		if ((Result = GetClusterComponent("rolv_origin")))
+			return Result;
+		if ((Result = GetClusterComponent("tdw_origin_floor")))
+			return Result;
 		return nullptr;
-	default: return nullptr;
+	default:
+		return nullptr;
 	}
 }
 
