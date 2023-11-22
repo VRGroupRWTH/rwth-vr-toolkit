@@ -5,6 +5,7 @@
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
@@ -38,6 +39,8 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
                                   const FInputActionValue& Value)
 {
+	if(bObjectGrabbed) return;
+	
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
@@ -49,15 +52,15 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 	if (MyPhysicsComponent)
 	{
 		MyPhysicsComponent->SetSimulatePhysics(false);
-		MyPhysicsComponent->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(Hand, Rules);
 	}
 	else
 	{
-		GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
 	}
 
 
-	if (bBlockOtherInteractionsWhileGrabbed)
+	if (bBlockOtherInteractionsWhileGrabbed && bObjectGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;
 		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
@@ -66,19 +69,20 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 			Interactable->RestrictInteractionToComponent(TriggeredComponent);
 		}
 	}
+
+	if(bObjectGrabbed)
+	{
+		OnGrabStartEvent.Broadcast(MyPhysicsComponent);
+	}
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
                                 const FInputActionValue& Value)
 {
-	if (MyPhysicsComponent)
+
+	if(TryRelease())
 	{
-		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		MyPhysicsComponent->SetSimulatePhysics(true);
-	}
-	else
-	{
-		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		OnGrabEndEvent.Broadcast(MyPhysicsComponent);
 	}
 
 	if (bBlockOtherInteractionsWhileGrabbed)
@@ -90,4 +94,21 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 			Interactable->ResetRestrictInteraction();
 		}
 	}
+}
+
+bool UGrabBehavior::TryRelease()
+{
+	if(!bObjectGrabbed) return false;
+	
+	if (MyPhysicsComponent)
+    {
+    	MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    	MyPhysicsComponent->SetSimulatePhysics(true);
+    }
+    else
+    {
+    	GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    }
+	bObjectGrabbed = false;
+	return true;
 }

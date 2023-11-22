@@ -8,6 +8,10 @@
 #include "GrabBehavior.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrabStart, UPrimitiveComponent*, HeldComponent);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrabEnd, UPrimitiveComponent*, HeldComponent);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 {
@@ -22,6 +26,20 @@ public:
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 	                         const FInputActionValue& Value) override;
 
+
+	/**
+	* TriggeredComponent: Component that triggered this event (e.g. GrabComponent, RayCastComponent attached at the VRPawn)
+	* Hit: Hit Result of the trace to get access to e.g. contact point/normals etc.
+	*/
+	UPROPERTY(BlueprintAssignable)
+	FOnGrabStart OnGrabStartEvent;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGrabEnd OnGrabEndEvent;
+	
+	UFUNCTION(BlueprintCallable)
+	bool TryRelease();
+
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
 	// recursively goes up the hierarchy and returns the highest parent simulating physics
@@ -29,4 +47,14 @@ public:
 
 	UPROPERTY()
 	UPrimitiveComponent* MyPhysicsComponent;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsObjectGrabbed()
+	{
+		return bObjectGrabbed;
+	}
+
+private:
+	UPROPERTY()
+	bool bObjectGrabbed = false;
 };
