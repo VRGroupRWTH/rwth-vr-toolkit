@@ -14,7 +14,7 @@
 #include "Logging/StructuredLog.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Pawn/VirtualRealityPawn.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 
 DEFINE_LOG_CATEGORY(LogCAVEOverlay);
@@ -160,11 +160,11 @@ void ACAVEOverlayController::BeginPlay()
 	// Not sure which place would be best...
 	const bool bValidPC = PC && PC->GetLocalPlayer();
 
-	if (!bValidPC || !UVirtualRealityUtilities::IsRoomMountedMode())
+	if (!bValidPC || !URWTHVRUtilities::IsRoomMountedMode())
 		return;
 
 	//Input config
-	if (UVirtualRealityUtilities::IsPrimaryNode())
+	if (URWTHVRUtilities::IsPrimaryNode())
 	{
 		if (CycleDoorTypeInputAction == nullptr || IMCCaveOverlayInputMapping == nullptr)
 		{

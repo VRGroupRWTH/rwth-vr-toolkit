@@ -1,4 +1,4 @@
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 #if PLATFORM_SUPPORTS_NDISPLAY
 #include "DisplayClusterConfigurationTypes.h"
@@ -20,12 +20,12 @@
 
 DEFINE_LOG_CATEGORY(Toolkit);
 
-bool UVirtualRealityUtilities::IsDesktopMode()
+bool URWTHVRUtilities::IsDesktopMode()
 {
 	return !IsRoomMountedMode() && !IsHeadMountedMode();
 }
 
-bool UVirtualRealityUtilities::IsRoomMountedMode()
+bool URWTHVRUtilities::IsRoomMountedMode()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	return IDisplayCluster::Get().GetOperationMode() == EDisplayClusterOperationMode::Cluster;
@@ -34,14 +34,14 @@ bool UVirtualRealityUtilities::IsRoomMountedMode()
 #endif
 }
 
-bool UVirtualRealityUtilities::IsHeadMountedMode()
+bool URWTHVRUtilities::IsHeadMountedMode()
 {
 	// In editor builds: checks for EdEngine->IsVRPreviewActive()
 	// In packaged builds: checks for `-vr` in commandline or bStartInVR in UGeneralProjectSettings
 	return FAudioDevice::CanUseVRAudioDevice();
 }
 
-bool UVirtualRealityUtilities::IsCave()
+bool URWTHVRUtilities::IsCave()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	if (!IsRoomMountedMode())
@@ -55,7 +55,7 @@ bool UVirtualRealityUtilities::IsCave()
 #endif
 }
 
-bool UVirtualRealityUtilities::IsRolv()
+bool URWTHVRUtilities::IsRolv()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	if (!IsRoomMountedMode())
@@ -70,7 +70,7 @@ bool UVirtualRealityUtilities::IsRolv()
 }
 
 /* Return true on the Primary in cluster mode and in a normal desktop session. Otherwise false */
-bool UVirtualRealityUtilities::IsPrimaryNode()
+bool URWTHVRUtilities::IsPrimaryNode()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	if (!IDisplayCluster::IsAvailable())
@@ -88,12 +88,12 @@ bool UVirtualRealityUtilities::IsPrimaryNode()
 #endif
 }
 
-bool UVirtualRealityUtilities::IsSecondaryNode()
+bool URWTHVRUtilities::IsSecondaryNode()
 {
 	return !IsPrimaryNode();
 }
 
-FString UVirtualRealityUtilities::GetNodeName()
+FString URWTHVRUtilities::GetNodeName()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	return IsRoomMountedMode() ? IDisplayCluster::Get().GetClusterMgr()->GetNodeId() : FString(TEXT("Localhost"));
@@ -102,7 +102,7 @@ FString UVirtualRealityUtilities::GetNodeName()
 #endif
 }
 
-float UVirtualRealityUtilities::GetEyeDistance()
+float URWTHVRUtilities::GetEyeDistance()
 {
 	if (IsHeadMountedMode())
 	{
@@ -119,7 +119,7 @@ float UVirtualRealityUtilities::GetEyeDistance()
 	}
 }
 
-EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
+EEyeStereoOffset URWTHVRUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
@@ -131,7 +131,7 @@ EEyeStereoOffset UVirtualRealityUtilities::GetNodeEyeType()
 #endif
 }
 
-USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Name)
+USceneComponent* URWTHVRUtilities::GetClusterComponent(const FString& Name)
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
@@ -141,7 +141,7 @@ USceneComponent* UVirtualRealityUtilities::GetClusterComponent(const FString& Na
 #endif
 }
 
-USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamedClusterComponent& Component)
+USceneComponent* URWTHVRUtilities::GetNamedClusterComponent(const ENamedClusterComponent& Component)
 {
 	switch (Component)
 	{
@@ -175,7 +175,7 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	}
 }
 
-void UVirtualRealityUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
+void URWTHVRUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
 {
 	UE_LOG(Toolkit, Error, TEXT("%s"), *Message)
 #if WITH_EDITOR

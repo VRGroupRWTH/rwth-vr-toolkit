@@ -4,7 +4,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 
-#include "VirtualRealityUtilities.generated.h"
+#include "RWTHVRUtilities.generated.h"
 
 
 /**
@@ -40,7 +40,7 @@ enum class EEyeStereoOffset
 };
 
 UCLASS()
-class RWTHVRTOOLKIT_API UVirtualRealityUtilities : public UBlueprintFunctionLibrary
+class RWTHVRTOOLKIT_API URWTHVRUtilities : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

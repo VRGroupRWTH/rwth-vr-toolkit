@@ -8,7 +8,7 @@
 #include "Interaction/Interactors/GrabComponent.h"
 #include "Logging/StructuredLog.h"
 #include "Misc/Optional.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
 {
