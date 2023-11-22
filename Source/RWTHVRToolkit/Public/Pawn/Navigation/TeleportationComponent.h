@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStaticsTypes.h"
 #include "Pawn/Navigation/MovementComponentBase.h"

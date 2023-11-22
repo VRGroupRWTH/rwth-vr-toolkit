@@ -7,7 +7,7 @@
 #include "Pawn/InputExtensionInterface.h"
 #include "MovementComponentBase.generated.h"
 
-class AVirtualRealityPawn;
+class ARWTHVRPawn;
 /**
  * Base component for specialized MovementComponents. Currently only saves pointers to pawn and input system.
  * Might be used for common replication later on.
@@ -23,7 +23,7 @@ public:
 
 protected:
 	UPROPERTY()
-	AVirtualRealityPawn* VRPawn;
+	ARWTHVRPawn* VRPawn;
 
 	UPROPERTY()
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;

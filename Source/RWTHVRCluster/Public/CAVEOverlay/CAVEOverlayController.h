@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "CAVEOverlay/DoorOverlayData.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "CAVEOverlayController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCAVEOverlay, Log, All);
@@ -86,7 +86,7 @@ private:
 
 	// Reference to the currently active pawn that we're tracking positions of.
 	UPROPERTY()
-	AVirtualRealityPawn* VRPawn;
+	ARWTHVRPawn* VRPawn;
 
 	// Cluster Events
 	FOnClusterEventJsonListener ClusterEventListenerDelegate;

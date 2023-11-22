@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
 void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
