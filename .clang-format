@@ -35,6 +35,7 @@ IncludeCategories:
   - Regex: '.*'
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
+PointerAlignment: Left
 IndentCaseBlocks: true
 IndentWidth: 4
 MacroBlockBegin: ''
