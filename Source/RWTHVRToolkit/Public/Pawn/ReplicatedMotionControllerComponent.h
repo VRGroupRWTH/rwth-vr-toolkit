@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MotionControllerComponent.h"
-#include "Core/VRTransformRep.h"
+#include "Core/ReplicatedTransform.h"
 #include "ReplicatedMotionControllerComponent.generated.h"
 
 /**
@@ -33,7 +33,7 @@ protected:
 	float ControllerNetUpdateCount;
 
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
-	FVRTransformRep ReplicatedTransform;
+	FReplicatedTransform ReplicatedTransform;
 
 	/*
 	 *  See UClientTransformReplication for a description of the replication functions, they work exactly the same way.
@@ -48,7 +48,7 @@ protected:
 	}
 
 	UFUNCTION(Unreliable, Server, WithValidation)
-	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
+	void ServerSendControllerTransformRpc(FReplicatedTransform NewTransform);
 
 public:
 	// Called every frame

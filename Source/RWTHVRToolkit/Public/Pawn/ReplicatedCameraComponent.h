@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
-#include "Core/VRTransformRep.h"
+#include "Core/ReplicatedTransform.h"
 #include "ReplicatedCameraComponent.generated.h"
 
 /**
@@ -37,7 +37,7 @@ protected:
 	float ControllerNetUpdateCount;
 
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
-	FVRTransformRep ReplicatedTransform;
+	FReplicatedTransform ReplicatedTransform;
 
 	void UpdateState(float DeltaTime);
 
@@ -50,7 +50,7 @@ protected:
 	}
 
 	UFUNCTION(Unreliable, Server, WithValidation)
-	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
+	void ServerSendControllerTransformRpc(FReplicatedTransform NewTransform);
 
 public:
 	// Called every frame
