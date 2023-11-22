@@ -13,7 +13,7 @@
 #include "Engine/CollisionProfile.h"
 #include "Logging/StructuredLog.h"
 #include "Materials/MaterialInstanceDynamic.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
 
@@ -230,7 +230,7 @@ void ACAVEOverlayController::BeginPlay()
 	Overlay->CornerText->SetText(FText::FromString(""));
 
 	// Get the pawn so we can have access to head and hand positions
-	VRPawn = Cast<AVirtualRealityPawn>(PC->GetPawnOrSpectator());
+	VRPawn = Cast<ARWTHVRPawn>(PC->GetPawnOrSpectator());
 	if (VRPawn)
 	{
 		// we're good to go!

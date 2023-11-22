@@ -6,14 +6,14 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
 void UMovementComponentBase::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
-	VRPawn = Cast<AVirtualRealityPawn>(GetOwner());
+	VRPawn = Cast<ARWTHVRPawn>(GetOwner());
 
 	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{

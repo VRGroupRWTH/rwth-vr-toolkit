@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
@@ -9,13 +9,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
 #include "Pawn/InputExtensionInterface.h"
-#include "Pawn/Navigation/VRPawnMovement.h"
+#include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
-AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
+ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	BaseEyeHeight = 160.0f;
@@ -27,7 +27,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
 	//so it is rendered correctly in editor
 
-	PawnMovement = CreateDefaultSubobject<UVRPawnMovement>(TEXT("Pawn Movement"));
+	PawnMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
 	PawnMovement->SetHeadComponent(HeadCameraComponent);
 
@@ -38,7 +38,7 @@ AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitial
 	LeftHand->SetupAttachment(RootComponent);
 }
 
-void AVirtualRealityPawn::Tick(float DeltaSeconds)
+void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -56,7 +56,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
  */
 // This pawn's controller has changed! This is called on both server and owning client. If we are the owning client
 // and the master, request that the DCRA is attached to us.
-void AVirtualRealityPawn::NotifyControllerChanged()
+void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
@@ -77,7 +77,7 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	}
 }
 
-void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -127,7 +127,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
-void AVirtualRealityPawn::EvaluateLivelink() const
+void ARWTHVRPawn::EvaluateLivelink() const
 {
 	if (URWTHVRUtilities::IsRoomMountedMode() && IsLocallyControlled())
 	{
@@ -158,7 +158,7 @@ void AVirtualRealityPawn::EvaluateLivelink() const
 	}
 }
 
-void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction() const
+void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 {
 	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
@@ -181,7 +181,7 @@ void AVirtualRealityPawn::UpdateRightHandForDesktopInteraction() const
 // Todo rewrite this in some other way or attach it differently, this is horrible
 // Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
-void AVirtualRealityPawn::AttachDCRAtoPawn()
+void ARWTHVRPawn::AttachDCRAtoPawn()
 {
 	if (!CaveSetupActorClass || !CaveSetupActorClass->IsValidLowLevelFast())
 	{
@@ -208,7 +208,7 @@ void AVirtualRealityPawn::AttachDCRAtoPawn()
 	}
 }
 
-void AVirtualRealityPawn::SetupMotionControllerSources()
+void ARWTHVRPawn::SetupMotionControllerSources()
 {
 	// Setup Motion Controllers
 
@@ -229,13 +229,13 @@ void AVirtualRealityPawn::SetupMotionControllerSources()
 }
 
 // Requests the server to perform the attachment, as only the server can sync this to all the other clients.
-void AVirtualRealityPawn::ServerAttachDCRAtoPawnRpc_Implementation()
+void ARWTHVRPawn::ServerAttachDCRAtoPawnRpc_Implementation()
 {
 	// We're on the server here - attach the actor to the pawn.
 	AttachDCRAtoPawn();
 }
 
-void AVirtualRealityPawn::SetCameraOffset() const
+void ARWTHVRPawn::SetCameraOffset() const
 {
 	// this also incorporates the BaseEyeHeight, if set as static offset,
 	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
@@ -245,7 +245,7 @@ void AVirtualRealityPawn::SetCameraOffset() const
 	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
-void AVirtualRealityPawn::ApplyLiveLinkTransform(const FTransform& Transform,
+void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
                                                  const FLiveLinkTransformStaticData& StaticData) const
 {
 	if (StaticData.bIsLocationSupported)

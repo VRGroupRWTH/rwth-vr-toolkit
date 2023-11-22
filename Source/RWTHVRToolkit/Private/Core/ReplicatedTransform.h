@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "VRTransformRep.generated.h"
+#include "ReplicatedTransform.generated.h"
 
 // Simple custom transform struct for more efficient repliation, from VRE Plugin
 USTRUCT()
-struct RWTHVRTOOLKIT_API FVRTransformRep
+struct RWTHVRTOOLKIT_API FReplicatedTransform
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -16,7 +16,7 @@ public:
 	UPROPERTY(Transient)
 	FRotator Rotation;
 
-	FVRTransformRep()
+	FReplicatedTransform()
 	{
 		Position = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;

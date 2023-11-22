@@ -77,7 +77,7 @@ void UClientTransformReplication::GetLifetimeReplicatedProps(TArray<class FLifet
 }
 
 // Apply the state update on the server
-void UClientTransformReplication::ServerSendControllerTransformRpc_Implementation(FVRTransformRep NewTransform)
+void UClientTransformReplication::ServerSendControllerTransformRpc_Implementation(FReplicatedTransform NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;
@@ -90,7 +90,7 @@ void UClientTransformReplication::ServerSendControllerTransformRpc_Implementatio
 		OnRep_ReplicatedTransform();
 }
 
-bool UClientTransformReplication::ServerSendControllerTransformRpc_Validate(FVRTransformRep NewTransform)
+bool UClientTransformReplication::ServerSendControllerTransformRpc_Validate(FReplicatedTransform NewTransform)
 {
 	return true;
 	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?

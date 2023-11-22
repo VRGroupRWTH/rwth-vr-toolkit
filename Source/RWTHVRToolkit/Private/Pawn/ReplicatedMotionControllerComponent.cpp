@@ -69,7 +69,7 @@ void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(
 
 // See UClientTransformReplication::ServerSendControllerTransformRpc_Implementation
 void UReplicatedMotionControllerComponent::ServerSendControllerTransformRpc_Implementation(
-	FVRTransformRep NewTransform)
+	FReplicatedTransform NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;
@@ -78,7 +78,7 @@ void UReplicatedMotionControllerComponent::ServerSendControllerTransformRpc_Impl
 		OnRep_ReplicatedTransform();
 }
 
-bool UReplicatedMotionControllerComponent::ServerSendControllerTransformRpc_Validate(FVRTransformRep NewTransform)
+bool UReplicatedMotionControllerComponent::ServerSendControllerTransformRpc_Validate(FReplicatedTransform NewTransform)
 {
 	return true;
 	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?

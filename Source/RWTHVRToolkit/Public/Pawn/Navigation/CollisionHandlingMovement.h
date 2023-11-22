@@ -4,7 +4,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
 
-#include "VRPawnMovement.generated.h"
+#include "CollisionHandlingMovement.generated.h"
 
 /*
  * This Movement component is needed since in VR not only the pawn itself (UpdatedComponent) is moved but also the
@@ -28,7 +28,7 @@ enum class EVRNavigationModes : uint8
 };
 
 UCLASS()
-class RWTHVRTOOLKIT_API UVRPawnMovement : public UFloatingPawnMovement
+class RWTHVRTOOLKIT_API UCollisionHandlingMovement : public UFloatingPawnMovement
 {
 	GENERATED_UCLASS_BODY()
 

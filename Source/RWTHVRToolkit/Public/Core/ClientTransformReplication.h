@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Core/VRTransformRep.h"
+#include "Core/ReplicatedTransform.h"
 #include "ClientTransformReplication.generated.h"
 
 
@@ -44,7 +44,7 @@ protected:
 
 	// Replicated transform property - used to replicate from server to all non-owning clients
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_ReplicatedTransform, Category = "Networking")
-	FVRTransformRep ReplicatedTransform;
+	FReplicatedTransform ReplicatedTransform;
 
 	// Called whenever ReplicatedTransform is replicated to clients. Not called on Owning client, manually called on server
 	UFUNCTION()
@@ -59,7 +59,7 @@ protected:
 
 	// Unreliable Server RPC that sends the transform from owning client to the server
 	UFUNCTION(Unreliable, Server, WithValidation)
-	void ServerSendControllerTransformRpc(FVRTransformRep NewTransform);
+	void ServerSendControllerTransformRpc(FReplicatedTransform NewTransform);
 
 	// Function called each tick that checks if we need to send a new state from our local net owner to the server.
 	void UpdateState(float DeltaTime);
