@@ -22,13 +22,13 @@ class UHoverBehaviour;
  *
  * The Interactable can be filtered.
  * Currently we filter on the InteractorType, e.g.: Raycast, Spherecast, etc.
- * 
+ *
  * Action and Hover Behaviours can be manually added via Blueprints on a per-Interactable basis.
  * If no Action and Hover Behaviours are set manually, all Action and Hover behaviours that are
  * attached to the Actor are used.
  *
  */
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -47,14 +47,12 @@ public:
 	TArray<UActionBehaviour*> OnActionBehaviours;
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type)
-	{
-		return type & InteractorFilter;
-	}
+	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type) { return type & InteractorFilter; }
 
 	/**
-	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other components)
-	 * @param Components 
+	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other
+	 * components)
+	 * @param Components
 	 */
 	UFUNCTION()
 	void RestrictInteractionToComponents(const TArray<USceneComponent*>& Components);
@@ -73,11 +71,9 @@ public:
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-	                               const FInputActionValue& Value,
-	                               const EInteractorType Interactor);
+								   const FInputActionValue& Value, const EInteractorType Interactor);
 	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-	                             const FInputActionValue& Value,
-	                             const EInteractorType Interactor);
+								 const FInputActionValue& Value, const EInteractorType Interactor);
 
 	/**
 	 * @brief If click and grab behaviors are not explicitly specified, load all existing ones

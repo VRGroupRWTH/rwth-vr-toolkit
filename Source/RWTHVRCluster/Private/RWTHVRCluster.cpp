@@ -2,15 +2,9 @@
 
 #define LOCTEXT_NAMESPACE "FRWTHVRClusterModule"
 
-void FRWTHVRClusterModule::StartupModule()
-{
-	ClusterConsole.Register();
-}
+void FRWTHVRClusterModule::StartupModule() { ClusterConsole.Register(); }
 
-void FRWTHVRClusterModule::ShutdownModule()
-{
-	ClusterConsole.Unregister();
-}
+void FRWTHVRClusterModule::ShutdownModule() { ClusterConsole.Unregister(); }
 
 #undef LOCTEXT_NAMESPACE
 

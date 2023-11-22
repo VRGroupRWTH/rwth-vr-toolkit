@@ -19,7 +19,7 @@ class RWTHVRTOOLKIT_API ARWTHVRPlayerState : public APlayerState
 
 private:
 	/** Replicated player type for this player*/
-	UPROPERTY(Replicated, Category=PlayerState, BlueprintGetter=GetPlayerType, meta=(AllowPrivateAccess))
+	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetPlayerType, meta = (AllowPrivateAccess))
 	EPlayerType PlayerType = EPlayerType::Desktop;
 
 	UFUNCTION(Reliable, Server)
@@ -29,10 +29,7 @@ private:
 
 public:
 	UFUNCTION(BlueprintGetter)
-	EPlayerType GetPlayerType() const
-	{
-		return PlayerType;
-	}
+	EPlayerType GetPlayerType() const { return PlayerType; }
 
 	UFUNCTION(BlueprintCallable)
 	void RequestSetPlayerType(EPlayerType NewPlayerType);

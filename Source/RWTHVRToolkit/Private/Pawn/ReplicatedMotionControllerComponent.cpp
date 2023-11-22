@@ -46,7 +46,7 @@ void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 }
 
 void UReplicatedMotionControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                         FActorComponentTickFunction* ThisTickFunction)
+														 FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateState(DeltaTime);
@@ -57,7 +57,8 @@ void UReplicatedMotionControllerComponent::GetLifetimeReplicatedProps(
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Disable the basic built in replication of relative transform data, as we are using our own transform sync/state update
+	// Disable the basic built in replication of relative transform data, as we are using our own transform sync/state
+	// update
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeLocation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeRotation);
 	DISABLE_REPLICATED_PRIVATE_PROPERTY(USceneComponent, RelativeScale3D);

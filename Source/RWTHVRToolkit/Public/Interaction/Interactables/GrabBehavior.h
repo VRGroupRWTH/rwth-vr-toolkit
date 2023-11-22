@@ -8,19 +8,19 @@
 #include "GrabBehavior.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category="Grabbing")
+	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
 	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                           const FInputActionValue& Value) override;
+							   const FInputActionValue& Value) override;
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                         const FInputActionValue& Value) override;
+							 const FInputActionValue& Value) override;
 
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 

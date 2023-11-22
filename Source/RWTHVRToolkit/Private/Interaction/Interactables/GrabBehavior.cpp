@@ -36,7 +36,7 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 }
 
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                  const FInputActionValue& Value)
+								  const FInputActionValue& Value)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
@@ -69,7 +69,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                const FInputActionValue& Value)
+								const FInputActionValue& Value)
 {
 	if (MyPhysicsComponent)
 	{

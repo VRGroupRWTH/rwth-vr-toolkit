@@ -46,7 +46,7 @@ ACAVEOverlayController::ACAVEOverlayController()
 	PrimaryActorTick.bCanEverTick = true;
 	bAllowTickBeforeBeginPlay = false;
 
-	//Creation of sub-components
+	// Creation of sub-components
 	Root = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
 	SetRootComponent(Root);
 
@@ -73,8 +73,8 @@ void ACAVEOverlayController::CycleDoorType()
 
 void ACAVEOverlayController::HandleClusterEvent(const FDisplayClusterClusterEventJson& Event)
 {
-	if (Event.Category.Equals("CAVEOverlay") && Event.Type.Equals("DoorChange") && Event.Parameters.Contains(
-		"NewDoorState"))
+	if (Event.Category.Equals("CAVEOverlay") && Event.Type.Equals("DoorChange") &&
+		Event.Parameters.Contains("NewDoorState"))
 	{
 		SetDoorMode(static_cast<EDoorMode>(FCString::Atoi(*Event.Parameters["NewDoorState"])));
 	}
@@ -91,8 +91,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 		if (ScreenType == SCREEN_DOOR)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 		if (ScreenType == SCREEN_DOOR_PARTIAL)
-			Overlay->BlackBox->
-			         SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
+			Overlay->BlackBox->SetRenderScale(FVector2D(DoorOpeningWidthRelative, 1));
 		if (ScreenType == SCREEN_PRIMARY)
 			Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
@@ -120,7 +119,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 
 		Overlay->BlackBox->SetVisibility(ESlateVisibility::Hidden);
 		break;
-	default: ;
+	default:;
 	}
 
 	// On the secondary nodes that are not the door, hide the overlay completely
@@ -129,7 +128,7 @@ void ACAVEOverlayController::SetDoorMode(const EDoorMode NewMode)
 		Overlay->BlackBox->SetRenderScale(FVector2D(0, 1));
 
 	UE_LOGFMT(LogCAVEOverlay, Log, "Switched door state to {State}. New opening width is {Width}.",
-	          *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
+			  *DoorModeNames[DoorCurrentMode], DoorCurrentOpeningWidthAbsolute);
 
 	// On the primary node, show which door mode is currently active.
 	if (ScreenType == SCREEN_PRIMARY)
@@ -163,7 +162,7 @@ void ACAVEOverlayController::BeginPlay()
 	if (!bValidPC || !URWTHVRUtilities::IsRoomMountedMode())
 		return;
 
-	//Input config
+	// Input config
 	if (URWTHVRUtilities::IsPrimaryNode())
 	{
 		if (CycleDoorTypeInputAction == nullptr || IMCCaveOverlayInputMapping == nullptr)
@@ -174,12 +173,12 @@ void ACAVEOverlayController::BeginPlay()
 
 		UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PC->InputComponent);
 		Input->BindAction(CycleDoorTypeInputAction, ETriggerEvent::Triggered, this,
-		                  &ACAVEOverlayController::CycleDoorType);
+						  &ACAVEOverlayController::CycleDoorType);
 
 		if (const ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
 		{
-			if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<
-				UEnhancedInputLocalPlayerSubsystem>())
+			if (UEnhancedInputLocalPlayerSubsystem* InputSystem =
+					LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 			{
 				InputSystem->AddMappingContext(IMCCaveOverlayInputMapping, 0);
 			}
@@ -190,8 +189,8 @@ void ACAVEOverlayController::BeginPlay()
 	IDisplayClusterClusterManager* ClusterManager = IDisplayCluster::Get().GetClusterMgr();
 	if (ClusterManager && !ClusterEventListenerDelegate.IsBound())
 	{
-		ClusterEventListenerDelegate = FOnClusterEventJsonListener::CreateUObject(
-			this, &ACAVEOverlayController::HandleClusterEvent);
+		ClusterEventListenerDelegate =
+			FOnClusterEventJsonListener::CreateUObject(this, &ACAVEOverlayController::HandleClusterEvent);
 		ClusterManager->AddClusterEventJsonListener(ClusterEventListenerDelegate);
 	}
 
@@ -226,7 +225,7 @@ void ACAVEOverlayController::BeginPlay()
 	// Set the default door mode (partially open)
 	SetDoorMode(DoorCurrentMode);
 
-	//Set Text to "" until someone presses the key for the first time
+	// Set Text to "" until someone presses the key for the first time
 	Overlay->CornerText->SetText(FText::FromString(""));
 
 	// Get the pawn so we can have access to head and hand positions
@@ -241,7 +240,7 @@ void ACAVEOverlayController::BeginPlay()
 		UE_LOGFMT(LogCAVEOverlay, Error, "No VirtualRealityPawn found which we could attach to!");
 	}
 
-	//Create dynamic materials at runtime
+	// Create dynamic materials at runtime
 	TapeMaterialDynamic = Tape->CreateDynamicMaterialInstance(0);
 	RightSignMaterialDynamic = SignRightHand->CreateDynamicMaterialInstance(0);
 	LeftSignMaterialDynamic = SignLeftHand->CreateDynamicMaterialInstance(0);
@@ -266,38 +265,37 @@ double ACAVEOverlayController::CalculateOpacityFromPosition(const FVector& Posit
 	// fully opaque when WallFadeDistance away from the wall. Could just use a lerp here..
 	return FMath::Max(
 		FMath::Clamp((FMath::Abs(Position.X) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0),
-		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0)
-	);
+		FMath::Clamp((FMath::Abs(Position.Y) - (WallDistance - WallCloseDistance)) / WallFadeDistance, 0.0, 1.0));
 }
 
 bool ACAVEOverlayController::PositionInDoorOpening(const FVector& Position) const
 {
-	// The position of the corner with 10cm of buffer. In negative direction because the door is in negative direction of the cave
+	// The position of the corner with 10cm of buffer. In negative direction because the door is in negative direction
+	// of the cave
 	const float CornerValue = -(WallDistance + 10);
 
 	// Check whether our X position is within the door zone. This zone starts 10cm further away from the wall
 	// than the WallCloseDistance, and ends 10cm outside of the wall (door). As the door is in negative X direction,
 	// the signs need to be negated.
-	const bool bXWithinDoor = FMath::IsWithinInclusive(Position.X, CornerValue,
-	                                                   -(WallDistance - WallCloseDistance - 10));
+	const bool bXWithinDoor =
+		FMath::IsWithinInclusive(Position.X, CornerValue, -(WallDistance - WallCloseDistance - 10));
 
 	// Checks whether our Y position is between the lower corner with some overlap and
 	// the door corner (CornerValue + DoorCurrentOpeningWidthAbsolute)
-	const bool bYWithinDoor = FMath::IsWithinInclusive(Position.Y, CornerValue,
-	                                                   CornerValue + DoorCurrentOpeningWidthAbsolute);
+	const bool bYWithinDoor =
+		FMath::IsWithinInclusive(Position.Y, CornerValue, CornerValue + DoorCurrentOpeningWidthAbsolute);
 	return bXWithinDoor && bYWithinDoor;
 }
 
 void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const FVector& HandPosition,
-                                             UMaterialInstanceDynamic* HandMaterial) const
+											 UMaterialInstanceDynamic* HandMaterial) const
 {
-	const bool bHandIsCloseToWall = FMath::IsWithinInclusive(HandPosition.GetAbsMax(),
-	                                                         WallDistance - WallCloseDistance, WallDistance);
+	const bool bHandIsCloseToWall =
+		FMath::IsWithinInclusive(HandPosition.GetAbsMax(), WallDistance - WallCloseDistance, WallDistance);
 	if (bHandIsCloseToWall && !PositionInDoorOpening(HandPosition))
 	{
 		Sign->SetVisibility(true);
-		HandMaterial->SetScalarParameterValue("SignOpacity",
-		                                      CalculateOpacityFromPosition(HandPosition));
+		HandMaterial->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(HandPosition));
 
 		// Which wall are we closest to? This is the wall we project the sign onto
 		const bool bXWallCloser = FMath::Abs(HandPosition.X) > FMath::Abs(HandPosition.Y);
@@ -330,8 +328,8 @@ void ACAVEOverlayController::Tick(float DeltaTime)
 
 	// Head/Tape Logic
 	const FVector HeadPosition = VRPawn->HeadCameraComponent->GetRelativeTransform().GetLocation();
-	const bool bHeadIsCloseToWall = FMath::IsWithinInclusive(HeadPosition.GetAbsMax(),
-	                                                         WallDistance - WallCloseDistance, WallDistance);
+	const bool bHeadIsCloseToWall =
+		FMath::IsWithinInclusive(HeadPosition.GetAbsMax(), WallDistance - WallCloseDistance, WallDistance);
 
 	// Only show the tape when close to a wall and not within the door opening
 	if (bHeadIsCloseToWall && !PositionInDoorOpening(HeadPosition))

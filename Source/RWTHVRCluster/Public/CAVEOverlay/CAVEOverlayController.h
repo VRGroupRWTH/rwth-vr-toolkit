@@ -13,7 +13,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCAVEOverlay, Log, All);
  * Actor which controls the cave overlay. The overlay displays a warning tape around the cave
  * when the user moves their head too close to the wall, and a warning sign when the hands are
  * too close.
-*/
+ */
 UCLASS()
 class RWTHVRCLUSTER_API ACAVEOverlayController : public AActor
 {
@@ -44,28 +44,33 @@ private:
 	EScreen_Type ScreenType = SCREEN_NORMAL;
 
 	// which additional node names define the screens that cover the door
-	const TArray<FString> ScreensDoor = {
-		"node_bul_left_eye", "node_bul_right_eye", "node_bll_left_eye", "node_bll_right_eye"
-	};
+	const TArray<FString> ScreensDoor = {"node_bul_left_eye", "node_bul_right_eye", "node_bll_left_eye",
+										 "node_bll_right_eye"};
 
 	// which node names define the screens that cover the partial door
-	const TArray<FString> ScreensDoorPartial = {
-		"node_bur_left_eye", "node_bur_right_eye", "node_blr_left_eye", "node_blr_right_eye"
-	};
+	const TArray<FString> ScreensDoorPartial = {"node_bur_left_eye", "node_bur_right_eye", "node_blr_left_eye",
+												"node_blr_right_eye"};
 
 	const FString ScreenMain = "node_main";
 
-	//Door Mode
-	enum EDoorMode { DOOR_PARTIALLY_OPEN = 0, DOOR_OPEN = 1, DOOR_CLOSED = 2, DOOR_DEBUG = 3, DOOR_NUM_MODES = 4 };
+	// Door Mode
+	enum EDoorMode
+	{
+		DOOR_PARTIALLY_OPEN = 0,
+		DOOR_OPEN = 1,
+		DOOR_CLOSED = 2,
+		DOOR_DEBUG = 3,
+		DOOR_NUM_MODES = 4
+	};
 
 	const FString DoorModeNames[DOOR_NUM_MODES] = {"Partially Open", "Open", "Closed", "Debug"};
 	EDoorMode DoorCurrentMode = DOOR_PARTIALLY_OPEN;
 	const float DoorOpeningWidthRelative = 0.522; //%, used for the overlay width on the screen
-	const float DoorOpeningWidthAbsolute = 165; //cm, used for the non tape part at the door
-	const float WallDistance = 262.5; //cm, distance from center to a wall, *2 = wall width
-	const float WallCloseDistance = 75; //cm, the distance considered to be too close to the walls
-	const float WallFadeDistance = 35; //cm, the distance over which the tape is faded
-	const float WallWarningDistance = 40; //cm, distance on which the tape turns red, measured from wall
+	const float DoorOpeningWidthAbsolute = 165; // cm, used for the non tape part at the door
+	const float WallDistance = 262.5; // cm, distance from center to a wall, *2 = wall width
+	const float WallCloseDistance = 75; // cm, the distance considered to be too close to the walls
+	const float WallFadeDistance = 35; // cm, the distance over which the tape is faded
+	const float WallWarningDistance = 40; // cm, distance on which the tape turns red, measured from wall
 	float DoorCurrentOpeningWidthAbsolute = 0;
 
 	// Helper function to create a mesh component in the constructor
@@ -79,7 +84,7 @@ private:
 
 	// Sets the position, orientation and opacity/visibility of the Sign according to the HandPosition.
 	void SetSignsForHand(UStaticMeshComponent* Sign, const FVector& HandPosition,
-	                     UMaterialInstanceDynamic* HandMaterial) const;
+						 UMaterialInstanceDynamic* HandMaterial) const;
 
 	// Only calculate positions and material values when we're fully initialized.
 	bool bInitialized = false;
@@ -123,7 +128,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "CAVEOverlay")
 	UInputAction* CycleDoorTypeInputAction;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="CAVEOverlay")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "CAVEOverlay")
 	UInputMappingContext* IMCCaveOverlayInputMapping;
 
 	UPROPERTY()

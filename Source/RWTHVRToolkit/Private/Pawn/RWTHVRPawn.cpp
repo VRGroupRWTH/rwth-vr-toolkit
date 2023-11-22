@@ -15,8 +15,7 @@
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
-ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	BaseEyeHeight = 160.0f;
 
@@ -25,7 +24,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer)
 	HeadCameraComponent = CreateDefaultSubobject<UReplicatedCameraComponent>(TEXT("Camera"));
 	HeadCameraComponent->SetupAttachment(RootComponent);
 	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
-	//so it is rendered correctly in editor
+	// so it is rendered correctly in editor
 
 	PawnMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Pawn Movement"));
 	PawnMovement->SetUpdatedComponent(RootComponent);
@@ -64,8 +63,8 @@ void ARWTHVRPawn::NotifyControllerChanged()
 	if (IsLocallyControlled())
 	{
 		// Only do this for the primary node or when we're running in standalone
-		if (URWTHVRUtilities::IsRoomMountedMode() && (URWTHVRUtilities::IsPrimaryNode() ||
-			GetNetMode() == NM_Standalone))
+		if (URWTHVRUtilities::IsRoomMountedMode() &&
+			(URWTHVRUtilities::IsPrimaryNode() || GetNetMode() == NM_Standalone))
 		{
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.
@@ -88,10 +87,10 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		return;
 	}
 
-	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets possessed,
-	// the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here such that
-	// bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially.
-	// There is probably a checkbox or way of spawning that prevents that in a better way that this, change if found.
+	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets
+	// possessed, the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here
+	// such that bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially. There is
+	// probably a checkbox or way of spawning that prevents that in a better way that this, change if found.
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 
 	SetupMotionControllerSources();
@@ -137,16 +136,17 @@ void ARWTHVRPawn::EvaluateLivelink() const
 		}
 
 		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
-		ILiveLinkClient& LiveLinkClient = IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(
-			ILiveLinkClient::ModularFeatureName);
+		ILiveLinkClient& LiveLinkClient =
+			IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
 		FLiveLinkSubjectFrameData SubjectData;
-		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(
-			HeadSubjectRepresentation.Subject, HeadSubjectRepresentation.Role, SubjectData);
+		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject,
+																		  HeadSubjectRepresentation.Role, SubjectData);
 
 		if (!bHasValidData)
 			return;
 
-		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and could be further improved.
+		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and
+		// could be further improved.
 		const FLiveLinkTransformStaticData* StaticData = SubjectData.StaticData.Cast<FLiveLinkTransformStaticData>();
 		const FLiveLinkTransformFrameData* FrameData = SubjectData.FrameData.Cast<FLiveLinkTransformFrameData>();
 
@@ -204,7 +204,7 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 	else
 	{
 		UE_LOGFMT(Toolkit, Warning,
-		          "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
+				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
 }
 
@@ -246,19 +246,19 @@ void ARWTHVRPawn::SetCameraOffset() const
 }
 
 void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
-                                                 const FLiveLinkTransformStaticData& StaticData) const
+										 const FLiveLinkTransformStaticData& StaticData) const
 {
 	if (StaticData.bIsLocationSupported)
 	{
 		if (bWorldTransform)
 		{
 			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr,
-			                                      ETeleportType::TeleportPhysics);
+												  ETeleportType::TeleportPhysics);
 		}
 		else
 		{
 			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr,
-			                                         ETeleportType::TeleportPhysics);
+													 ETeleportType::TeleportPhysics);
 		}
 	}
 
@@ -267,12 +267,12 @@ void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
 		if (bWorldTransform)
 		{
 			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr,
-			                                      ETeleportType::TeleportPhysics);
+												  ETeleportType::TeleportPhysics);
 		}
 		else
 		{
 			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr,
-			                                         ETeleportType::TeleportPhysics);
+													 ETeleportType::TeleportPhysics);
 		}
 	}
 
