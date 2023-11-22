@@ -7,7 +7,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "Pawn/VirtualRealityPawn.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 void UMovementComponentBase::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {

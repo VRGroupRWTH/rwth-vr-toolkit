@@ -13,7 +13,7 @@
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Roles/LiveLinkTransformTypes.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 AVirtualRealityPawn::AVirtualRealityPawn(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -42,7 +42,7 @@ void AVirtualRealityPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (UVirtualRealityUtilities::IsDesktopMode() && IsLocallyControlled())
+	if (URWTHVRUtilities::IsDesktopMode() && IsLocallyControlled())
 	{
 		SetCameraOffset();
 		UpdateRightHandForDesktopInteraction();
@@ -64,7 +64,7 @@ void AVirtualRealityPawn::NotifyControllerChanged()
 	if (IsLocallyControlled())
 	{
 		// Only do this for the primary node or when we're running in standalone
-		if (UVirtualRealityUtilities::IsRoomMountedMode() && (UVirtualRealityUtilities::IsPrimaryNode() ||
+		if (URWTHVRUtilities::IsRoomMountedMode() && (URWTHVRUtilities::IsPrimaryNode() ||
 			GetNetMode() == NM_Standalone))
 		{
 			// If we are also the authority (standalone or listen server), directly attach it to us.
@@ -105,14 +105,14 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		// Don't do anything with the type if it's been set to clustertype or anything.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
 
-		if (!bClusterType && UVirtualRealityUtilities::IsHeadMountedMode())
+		if (!bClusterType && URWTHVRUtilities::IsHeadMountedMode())
 		{
 			// Could be too early to call this RPC...
 			State->RequestSetPlayerType(Type);
 		}
 	}
 
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (URWTHVRUtilities::IsDesktopMode())
 	{
 		PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
@@ -129,7 +129,7 @@ void AVirtualRealityPawn::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void AVirtualRealityPawn::EvaluateLivelink() const
 {
-	if (UVirtualRealityUtilities::IsRoomMountedMode() && IsLocallyControlled())
+	if (URWTHVRUtilities::IsRoomMountedMode() && IsLocallyControlled())
 	{
 		if (bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
 		{
@@ -214,12 +214,12 @@ void AVirtualRealityPawn::SetupMotionControllerSources()
 
 	FName MotionControllerSourceLeft = EName::None;
 	FName MotionControllerSourceRight = EName::None;
-	if (UVirtualRealityUtilities::IsHeadMountedMode())
+	if (URWTHVRUtilities::IsHeadMountedMode())
 	{
 		MotionControllerSourceLeft = FName("Left");
 		MotionControllerSourceRight = FName("Right");
 	}
-	if (UVirtualRealityUtilities::IsRoomMountedMode())
+	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		MotionControllerSourceLeft = LeftSubjectRepresentation.Subject;
 		MotionControllerSourceRight = RightSubjectRepresentation.Subject;

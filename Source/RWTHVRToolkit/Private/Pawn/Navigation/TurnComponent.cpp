@@ -6,7 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Pawn/VirtualRealityPawn.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
@@ -34,7 +34,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	}
 
 	// add Input Mapping context
-	InputSubsystem->AddMappingContext(UVirtualRealityUtilities::IsDesktopMode() ? IMCDesktopRotation : IMCTurn, 0);
+	InputSubsystem->AddMappingContext(URWTHVRUtilities::IsDesktopMode() ? IMCDesktopRotation : IMCTurn, 0);
 
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -48,7 +48,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	if (bAllowTurning)
 	{
 		// no snap turning for desktop mode
-		if (bSnapTurn && !UVirtualRealityUtilities::IsDesktopMode())
+		if (bSnapTurn && !URWTHVRUtilities::IsDesktopMode())
 		{
 			EI->BindAction(Turn, ETriggerEvent::Started, this, &UTurnComponent::OnBeginSnapTurn);
 		}
@@ -59,7 +59,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	}
 
 	// bind additional functions for desktop rotations
-	if (UVirtualRealityUtilities::IsDesktopMode())
+	if (URWTHVRUtilities::IsDesktopMode())
 	{
 		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UTurnComponent::StartDesktopRotation);
 		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UTurnComponent::EndDesktopRotation);
@@ -79,7 +79,7 @@ void UTurnComponent::EndDesktopRotation()
 
 void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 {
-	if (UVirtualRealityUtilities::IsDesktopMode() && !bApplyDesktopRotation)
+	if (URWTHVRUtilities::IsDesktopMode() && !bApplyDesktopRotation)
 		return;
 
 	if (!VRPawn || !VRPawn->Controller)
@@ -89,7 +89,7 @@ void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 
 	if (TurnValue.X != 0.f)
 	{
-		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
+		if (URWTHVRUtilities::IsDesktopMode() && bApplyDesktopRotation)
 		{
 			VRPawn->AddControllerYawInput(TurnRateFactor * TurnValue.X);
 		}
@@ -101,7 +101,7 @@ void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 
 	if (TurnValue.Y != 0.f)
 	{
-		if (UVirtualRealityUtilities::IsDesktopMode() && bApplyDesktopRotation)
+		if (URWTHVRUtilities::IsDesktopMode() && bApplyDesktopRotation)
 		{
 			VRPawn->AddControllerPitchInput(TurnRateFactor * -TurnValue.Y);
 		}

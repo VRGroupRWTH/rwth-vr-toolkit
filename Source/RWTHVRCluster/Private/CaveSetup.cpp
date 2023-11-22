@@ -4,7 +4,7 @@
 #include "CaveSetup.h"
 
 #include "Logging/StructuredLog.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 
 
 // Sets default values
@@ -22,7 +22,7 @@ void ACaveSetup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!UVirtualRealityUtilities::IsRoomMountedMode())
+	if (!URWTHVRUtilities::IsRoomMountedMode())
 	{
 		return;
 	}
@@ -41,7 +41,7 @@ void ACaveSetup::BeginPlay()
 
 	// Apply the DTrack LiveLink Preset. Only do this if we are the primaryNode
 
-	if (UVirtualRealityUtilities::IsPrimaryNode())
+	if (URWTHVRUtilities::IsPrimaryNode())
 	{
 		if (LiveLinkPresetToApplyOnCave && LiveLinkPresetToApplyOnCave->IsValidLowLevelFast())
 		{
