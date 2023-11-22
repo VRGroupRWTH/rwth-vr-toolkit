@@ -54,20 +54,6 @@ bool UVirtualRealityUtilities::IsCave()
 #endif
 }
 
-bool UVirtualRealityUtilities::IsTdw()
-{
-#if PLATFORM_SUPPORTS_NDISPLAY
-	if (!IsRoomMountedMode()) return false;
-
-	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
-	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
-		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals(
-			"TiledDisplayWall", ESearchCase::IgnoreCase);
-#else
-	return false;
-#endif
-}
-
 bool UVirtualRealityUtilities::IsRolv()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
@@ -164,8 +150,6 @@ USceneComponent* UVirtualRealityUtilities::GetNamedClusterComponent(const ENamed
 	case ENamedClusterComponent::NCC_SHUTTERGLASSES: return GetClusterComponent("shutter_glasses");
 	case ENamedClusterComponent::NCC_ROLV_ORIGIN: return GetClusterComponent("rolv_origin");
 	case ENamedClusterComponent::NCC_FLYSTICK: return GetClusterComponent("flystick");
-	case ENamedClusterComponent::NCC_TDW_ORIGIN: return GetClusterComponent("tdw_origin_floor");
-	case ENamedClusterComponent::NCC_TDW_CENTER: return GetClusterComponent("tdw_center");
 	case ENamedClusterComponent::NCC_CALIBRATIO: return GetClusterComponent("calibratio");
 	case ENamedClusterComponent::NCC_TRACKING_ORIGIN:
 		USceneComponent* Result;
