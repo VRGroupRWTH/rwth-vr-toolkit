@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/Interactors/VRWidgetInteractionComponent.h"
+#include "Interaction/Interactors/RWTHVRWidgetInteractionComponent.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -10,7 +10,7 @@
 #include "Misc/Optional.h"
 #include "Utility/RWTHVRUtilities.h"
 
-UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
+URWTHVRWidgetInteractionComponent::URWTHVRWidgetInteractionComponent()
 {
 	PrimaryComponentTick.bTickEvenWhenPaused = false;
 	// Only start ticking once we're initialized
@@ -24,7 +24,7 @@ UVRWidgetInteractionComponent::UVRWidgetInteractionComponent()
 	bAutoActivate = false;
 }
 
-void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
+void URWTHVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
@@ -35,7 +35,7 @@ void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInpu
 	if (!Pawn)
 	{
 		UE_LOGFMT(Toolkit, Warning,
-		          "UVRWidgetInteractionComponent::SetupPlayerInput requires a Pawn as Owner, which is not the case. Not setting up any input actions.")
+		          "URWTHVRWidgetInteractionComponent::SetupPlayerInput requires a Pawn as Owner, which is not the case. Not setting up any input actions.")
 		;
 		return;
 	}
@@ -56,17 +56,17 @@ void UVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInpu
 	if (!EI)
 	{
 		UE_LOGFMT(Toolkit, Warning,
-		          "UVRWidgetInteractionComponent::SetupPlayerInput: Cannot cast Pawn's InputComponent to UEnhancedInputComponent! Not binding any actions!")
+		          "URWTHVRWidgetInteractionComponent::SetupPlayerInput: Cannot cast Pawn's InputComponent to UEnhancedInputComponent! Not binding any actions!")
 		;
 		return;
 	}
 
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this, &UVRWidgetInteractionComponent::OnBeginClick);
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this, &UVRWidgetInteractionComponent::OnEndClick);
+	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this, &URWTHVRWidgetInteractionComponent::OnBeginClick);
+	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this, &URWTHVRWidgetInteractionComponent::OnEndClick);
 }
 
 // Called every frame
-void UVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+void URWTHVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                                   FActorComponentTickFunction* ThisTickFunction)
 {
 	// We should only tick on the local owner (the controlling client). Not on the server, not on any other pawn.
@@ -95,7 +95,7 @@ void UVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 }
 
-void UVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility)
+void URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility)
 {
 	InteractionRayVisibility = NewVisibility;
 
@@ -103,22 +103,22 @@ void UVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteractionRayV
 		InteractionRay->SetVisibility(NewVisibility == Visible);
 	else
 		UE_LOGFMT(Toolkit, Error,
-	          "UVRWidgetInteractionComponent::SetInteractionRayVisibility: InteractionRay not set yet!");
+	          "URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility: InteractionRay not set yet!");
 }
 
 // Forward the click to the WidgetInteraction
-void UVRWidgetInteractionComponent::OnBeginClick(const FInputActionValue& Value)
+void URWTHVRWidgetInteractionComponent::OnBeginClick(const FInputActionValue& Value)
 {
 	PressPointerKey(EKeys::LeftMouseButton);
 }
 
 // Forward the end click to the WidgetInteraction
-void UVRWidgetInteractionComponent::OnEndClick(const FInputActionValue& Value)
+void URWTHVRWidgetInteractionComponent::OnEndClick(const FInputActionValue& Value)
 {
 	ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
-void UVRWidgetInteractionComponent::CreateInteractionRay()
+void URWTHVRWidgetInteractionComponent::CreateInteractionRay()
 {
 	// Only create a new static mesh component if we haven't gotten one already
 	if (!InteractionRay)
@@ -154,7 +154,7 @@ void UVRWidgetInteractionComponent::CreateInteractionRay()
 	}
 }
 
-void UVRWidgetInteractionComponent::SetupInteractionRay()
+void URWTHVRWidgetInteractionComponent::SetupInteractionRay()
 {
 	// Create the InteractionRay component and attach it to us.
 	CreateInteractionRay();

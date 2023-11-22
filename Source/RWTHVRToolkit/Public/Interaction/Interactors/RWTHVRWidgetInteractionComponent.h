@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Pawn/InputExtensionInterface.h"
-#include "VRWidgetInteractionComponent.generated.h"
+#include "RWTHVRWidgetInteractionComponent.generated.h"
 
 UENUM()
 enum EInteractionRayVisibility
@@ -19,13 +19,13 @@ enum EInteractionRayVisibility
 
 
 UCLASS(Blueprintable, Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class RWTHVRTOOLKIT_API UVRWidgetInteractionComponent : public UWidgetInteractionComponent,
+class RWTHVRTOOLKIT_API URWTHVRWidgetInteractionComponent : public UWidgetInteractionComponent,
                                                         public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
 public:
-	UVRWidgetInteractionComponent();
+	URWTHVRWidgetInteractionComponent();
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
