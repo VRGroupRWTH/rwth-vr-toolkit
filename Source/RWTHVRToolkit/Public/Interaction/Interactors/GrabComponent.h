@@ -33,8 +33,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bShowDebugTrace = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	bool bOnlyGrabClosestActor = false;
+
+	/** 
+	 * Look for UInteractableComponent at child actor if this is set to true
+	 * in the case where the grab sphere hits the geometry of a child actor.
+	 * Look at the parent level if this is set to false.
+	 * E.g. If child actor should not be grabbable, but is part of a grabbable parent actor, set this to false.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	bool bIncludeChildActor = true;
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
+	
 
 private:
 	UFUNCTION()
@@ -47,5 +60,8 @@ private:
 	TArray<UInteractableComponent*> PreviousGrabbablesInRange;
 
 	UPROPERTY()
-	TArray<UInteractableComponent*> CurrentGrabbableInRange;
+	TArray<UInteractableComponent*> CurrentGrabbablesInRange;
+
+	UPROPERTY()
+	TArray<UInteractableComponent*> GrabbbedGrabbables;
 };

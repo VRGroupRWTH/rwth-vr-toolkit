@@ -9,6 +9,7 @@
 #include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
@@ -23,7 +24,6 @@ UGrabComponent::UGrabComponent()
 void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 
 	TArray<UInteractableComponent*> CurrentGrabCompsInRange;
 
@@ -44,27 +44,28 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			if(HitActor->IsChildActor())
+
+			if (HitActor->IsChildActor() && !bIncludeChildActor)
 			{
-				HitActor = HitActor->GetParentActor();// search at parent if found actor is a child actor
+				HitActor = HitActor->GetParentActor(); // search at parent actor for UInteractableComponent 
 			}
 			UInteractableComponent* Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 			if (Grabbable && Grabbable->HasInteractionTypeFlag(EInteractorType::Grab) && Grabbable->IsInteractable)
 			{
 				Grabbable->HitResult = Hit;
-				CurrentGrabCompsInRange.Add(Grabbable);
+				CurrentGrabCompsInRange.AddUnique(Grabbable);
 			}
 		}
 	}
 
-	CurrentGrabbableInRange = CurrentGrabCompsInRange;
+	CurrentGrabbablesInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
 	for (UInteractableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
 	{
 		if (!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
 		{
-			PreviousGrabbablesInRange.Add(CurrentGrabbale);
+			PreviousGrabbablesInRange.AddUnique(CurrentGrabbale);
 			CurrentGrabbale->HandleOnHoverStartEvents(this, EInteractorType::Grab);
 		}
 	}
@@ -76,7 +77,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	{
 		if (!CurrentGrabCompsInRange.Contains(PrevGrabbale))
 		{
-			ComponentsToRemove.Add(PrevGrabbale);
+			ComponentsToRemove.AddUnique(PrevGrabbale);
 			PrevGrabbale->HandleOnHoverEndEvents(this, EInteractorType::Grab);
 		}
 	}
@@ -112,16 +113,47 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
-	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
+	UInteractableComponent* ClosestGrabbable;
+	float DistanceToClosestGrabbable;
+	float DistanceToCurrentGrabbable;
+	const FVector GrabLocation = GetAttachParent()->GetComponentLocation();
+	
+	if (CurrentGrabbablesInRange.IsEmpty()) return;
+	
+	ClosestGrabbable = CurrentGrabbablesInRange.Last();
+	FVector ClosestGrabbableLocation = ClosestGrabbable->GetOwner()->GetActorLocation();
+	DistanceToClosestGrabbable = FVector(ClosestGrabbableLocation - GrabLocation).Size();
+	
+	for (UInteractableComponent* Grabbable : CurrentGrabbablesInRange)
 	{
-		Grabbale->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		if (bOnlyGrabClosestActor)
+		{
+			// find closest grabbable
+			FVector CurrentGrabbableLocation = Grabbable->GetOwner()->GetActorLocation();
+			DistanceToCurrentGrabbable = FVector(CurrentGrabbableLocation - GrabLocation).Size();
+
+			if (DistanceToCurrentGrabbable < DistanceToClosestGrabbable)
+			{
+				DistanceToClosestGrabbable = DistanceToCurrentGrabbable;
+				ClosestGrabbable = Grabbable;
+			}
+			
+		} else
+		{
+			Grabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		}
+	}
+	
+	if (bOnlyGrabClosestActor)
+	{
+		ClosestGrabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
 }
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
+	for (UInteractableComponent* Grabbable : CurrentGrabbablesInRange)
 	{
-		Grabbale->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		Grabbable->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
 }
