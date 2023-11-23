@@ -11,7 +11,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 #include "MotionControllerComponent.h"
 
 

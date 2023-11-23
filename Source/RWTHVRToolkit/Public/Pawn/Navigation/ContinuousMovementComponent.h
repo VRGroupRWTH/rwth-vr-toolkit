@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Pawn/VirtualRealityPawn.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "Pawn/Navigation/MovementComponentBase.h"
 #include "Components/ActorComponent.h"
 #include "ContinuousMovementComponent.generated.h"

@@ -6,7 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
-#include "Utility/VirtualRealityUtilities.h"
+#include "Utility/RWTHVRUtilities.h"
 #include "MotionControllerComponent.h"
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
@@ -54,7 +54,7 @@ void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
 	if (!VRPawn || !VRPawn->Controller)
 		return;
 
-	const bool bGazeDirected = UVirtualRealityUtilities::IsDesktopMode() || SteeringMode ==
+	const bool bGazeDirected = URWTHVRUtilities::IsDesktopMode() || SteeringMode ==
 		EVRSteeringModes::STEER_GAZE_DIRECTED;
 
 	const FVector ForwardDir = bGazeDirected

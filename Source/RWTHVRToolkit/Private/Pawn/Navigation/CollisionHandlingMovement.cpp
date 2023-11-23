@@ -1,8 +1,8 @@
-﻿#include "Pawn/Navigation/VRPawnMovement.h"
+﻿#include "Pawn/Navigation/CollisionHandlingMovement.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
-UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UCollisionHandlingMovement::UCollisionHandlingMovement(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// the capsule is used to store the players size and position, e.g., for other interactions and as starting point
 	// for the capsule trace (which however not use the capsule component directly)
@@ -19,7 +19,7 @@ UVRPawnMovement::UVRPawnMovement(const FObjectInitializer& ObjectInitializer) : 
 	Deceleration = 2000.f;
 }
 
-void UVRPawnMovement::BeginPlay()
+void UCollisionHandlingMovement::BeginPlay()
 {
 	Super::BeginPlay();
 	LastSteeringCollisionVector = FVector(0, 0, 0);
@@ -29,7 +29,7 @@ void UVRPawnMovement::BeginPlay()
 }
 
 
-void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
+void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
                                     FActorComponentTickFunction* ThisTickFunction)
 {
 	SetCapsuleColliderToUserSize();
@@ -84,7 +84,7 @@ void UVRPawnMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
+void UCollisionHandlingMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 {
 	HeadComponent = NewHeadComponent;
 	CapsuleColliderComponent->SetupAttachment(HeadComponent);
@@ -93,7 +93,7 @@ void UVRPawnMovement::SetHeadComponent(USceneComponent* NewHeadComponent)
 	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f, -HalfHeight));
 }
 
-void UVRPawnMovement::SetCapsuleColliderToUserSize() const
+void UCollisionHandlingMovement::SetCapsuleColliderToUserSize() const
 {
 	// the collider should be placed
 	//	between head and floor + MaxStepHeight
@@ -139,7 +139,7 @@ void UVRPawnMovement::SetCapsuleColliderToUserSize() const
 	CapsuleColliderComponent->SetWorldRotation(FRotator::ZeroRotator);
 }
 
-void UVRPawnMovement::CheckAndRevertCollisionSinceLastTick()
+void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()
 {
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 
@@ -165,7 +165,7 @@ void UVRPawnMovement::CheckAndRevertCollisionSinceLastTick()
 	}
 }
 
-void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
+void UCollisionHandlingMovement::MoveOutOfNewDynamicCollisions()
 {
 	TOptional<FVector> ResolveDirectionOptional = GetOverlapResolveDirection();
 
@@ -179,7 +179,7 @@ void UVRPawnMovement::MoveOutOfNewDynamicCollisions()
 	}
 }
 
-void UVRPawnMovement::CheckForPhysWalkingCollision()
+void UCollisionHandlingMovement::CheckForPhysWalkingCollision()
 {
 	if (!LastCollisionFreeCapsulePosition.IsSet())
 	{
@@ -199,7 +199,7 @@ void UVRPawnMovement::CheckForPhysWalkingCollision()
 	}
 }
 
-FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime)
+FVector UCollisionHandlingMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector, float DeltaTime)
 {
 	// if we were in a collision in the last step already (so no LastCollisionFreeCapsulePosition is set)
 	// we allow movement to resole this collision (otherwise you wold be stuck forever)
@@ -243,7 +243,7 @@ FVector UVRPawnMovement::GetCollisionSafeVirtualSteeringVec(FVector InputVector,
 	return SafeInput;
 }
 
-void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
+void UCollisionHandlingMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 {
 	const FVector DownTraceStart = CapsuleColliderComponent->GetComponentLocation();
 	const float DownTraceDist = MaxFallingDepth < 0.0f ? 1000.0f : MaxFallingDepth;
@@ -282,7 +282,7 @@ void UVRPawnMovement::MoveByGravityOrStepUp(float DeltaSeconds)
 	}
 }
 
-void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds)
+void UCollisionHandlingMovement::ShiftVertically(float Distance, float VerticalAcceleration, float DeltaSeconds)
 {
 	VerticalSpeed += VerticalAcceleration * DeltaSeconds;
 	if (abs(VerticalSpeed * DeltaSeconds) < abs(Distance))
@@ -296,7 +296,7 @@ void UVRPawnMovement::ShiftVertically(float Distance, float VerticalAcceleration
 	}
 }
 
-FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector& Start, const FVector& End, const bool DrawDebug) const
+FHitResult UCollisionHandlingMovement::CreateCapsuleTrace(const FVector& Start, const FVector& End, const bool DrawDebug) const
 {
 	const EDrawDebugTrace::Type DrawType = DrawDebug ? EDrawDebugTrace::Type::ForDuration : EDrawDebugTrace::Type::None;
 
@@ -310,7 +310,7 @@ FHitResult UVRPawnMovement::CreateCapsuleTrace(const FVector& Start, const FVect
 	return Hit;
 }
 
-TOptional<FVector> UVRPawnMovement::GetOverlapResolveDirection() const
+TOptional<FVector> UCollisionHandlingMovement::GetOverlapResolveDirection() const
 {
 	TArray<UPrimitiveComponent*> OverlappingComponents;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;

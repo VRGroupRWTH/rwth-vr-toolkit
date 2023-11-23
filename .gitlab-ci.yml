@@ -38,9 +38,31 @@ include:
 # with a generated project.
 
 stages:
+  - analyze
   - generate
   - build
   - deploy
+
+clang-format:
+    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/unreal-development/plugins/rwth-vr-toolkit/alpine-analyze:latest
+    tags:
+        - docker-executor
+        - linux
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    variables:
+        GIT_STRATEGY: fetch
+        GIT_CHECKOUT: "true"
+        GIT_DEPTH: "2"
+    stage: analyze
+    allow_failure: false
+    script:
+        - clang-format --version
+        - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME --depth 1
+        - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
+        - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
+        - echo "$linter_errors"
+        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
 
 Generate_Project:
     only: ['web', 'schedules']
@@ -49,7 +71,7 @@ Generate_Project:
         RUN_SETUP: "false"
         GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
-            [develop@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
 
 Build_Windows:
@@ -91,8 +113,7 @@ Deploy_Windows:
 
 Deploy_CAVE:
     only: ['web', 'schedules']
-    extends: .Deploy_CAVE_
+    extends: .Deploy_vrdemo_
     needs:
         - job: "Build_Linux"
           artifacts: true
-

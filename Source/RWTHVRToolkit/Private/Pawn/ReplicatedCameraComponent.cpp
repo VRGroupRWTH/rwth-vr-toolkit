@@ -66,7 +66,7 @@ void UReplicatedCameraComponent::GetLifetimeReplicatedProps(TArray<class FLifeti
 	DOREPLIFETIME(UReplicatedCameraComponent, ControllerNetUpdateRate);
 }
 
-void UReplicatedCameraComponent::ServerSendControllerTransformRpc_Implementation(FVRTransformRep NewTransform)
+void UReplicatedCameraComponent::ServerSendControllerTransformRpc_Implementation(FReplicatedTransform NewTransform)
 {
 	// Store new transform and trigger OnRep_Function
 	ReplicatedTransform = NewTransform;
@@ -75,7 +75,7 @@ void UReplicatedCameraComponent::ServerSendControllerTransformRpc_Implementation
 		OnRep_ReplicatedTransform();
 }
 
-bool UReplicatedCameraComponent::ServerSendControllerTransformRpc_Validate(FVRTransformRep NewTransform)
+bool UReplicatedCameraComponent::ServerSendControllerTransformRpc_Validate(FReplicatedTransform NewTransform)
 {
 	return true;
 	// Optionally check to make sure that player is inside of their bounds and deny it if they aren't?
