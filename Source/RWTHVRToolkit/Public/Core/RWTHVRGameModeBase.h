@@ -22,11 +22,11 @@ protected:
 	 * If we are, set the player types correspondingly.
 	 */
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
-	                              const FString& Options, const FString& Portal) override;
+								  const FString& Options, const FString& Portal) override;
 
 	/**
-	 * Checks the player type of the NewPlayer. If it has been set to nDisplaySecondary, spawn a spectator pawn and possess.
-	 * If not, spawn a DefaultPawnClass Pawn and Possess it (Should be BP_VirtualRealityPawn to make sense).
+	 * Checks the player type of the NewPlayer. If it has been set to nDisplaySecondary, spawn a spectator pawn and
+	 * possess. If not, spawn a DefaultPawnClass Pawn and Possess it (Should be BP_VirtualRealityPawn to make sense).
 	 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

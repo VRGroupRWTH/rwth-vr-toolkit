@@ -24,18 +24,9 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 		return;
 	}
 
-	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation
-	(
-		GetWorld(),
-		TeleportTraceSystem,
-		VRPawn->GetActorLocation(),
-		FRotator(0),
-		FVector(1),
-		true,
-		true,
-		ENCPoolMethod::AutoRelease,
-		true
-	);
+	TeleportTraceComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(), TeleportTraceSystem, VRPawn->GetActorLocation(), FRotator(0), FVector(1), true, true,
+		ENCPoolMethod::AutoRelease, true);
 
 	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
 	SpawnParameters.Name = "TeleportVisualizer";
@@ -43,7 +34,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	if (BPTeleportVisualizer)
 	{
 		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(),
-		                                                    VRPawn->GetActorRotation(), SpawnParameters);
+															VRPawn->GetActorRotation(), SpawnParameters);
 	}
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
@@ -62,7 +53,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 		IMCMovement = IMCTeleportLeft;
 	}
 
-	// add Input Mapping context 
+	// add Input Mapping context
 	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -99,14 +90,8 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 
 	TArray<AActor> ActorsToIgnore;
 
-	FPredictProjectilePathParams PredictParams = FPredictProjectilePathParams
-	(
-		TeleportProjectileRadius,
-		StartPosition,
-		TeleportLaunchSpeed * ForwardVector,
-		5.0,
-		ECC_WorldStatic
-	);
+	FPredictProjectilePathParams PredictParams = FPredictProjectilePathParams(
+		TeleportProjectileRadius, StartPosition, TeleportLaunchSpeed * ForwardVector, 5.0, ECC_WorldStatic);
 
 	PredictParams.ActorsToIgnore.Add(VRPawn);
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
@@ -147,7 +132,7 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 		PathPoints.Add(PData.Location);
 	}
 	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(TeleportTraceComponent, FName("User.PointArray"),
-	                                                                 PathPoints);
+																	 PathPoints);
 }
 
 bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVector& ProjectedLocation) const
@@ -155,8 +140,9 @@ bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVe
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	const FNavAgentProperties& AgentProps = FNavAgentProperties(15, 160);
 	FNavLocation ProjectedNavLocation;
-	const bool bProjectPoint = (NavSys && NavSys->ProjectPointToNavigation(
-		Hit.Location, ProjectedNavLocation, INVALID_NAVEXTENT, &AgentProps));
+	const bool bProjectPoint =
+		(NavSys &&
+		 NavSys->ProjectPointToNavigation(Hit.Location, ProjectedNavLocation, INVALID_NAVEXTENT, &AgentProps));
 	ProjectedLocation = ProjectedNavLocation.Location;
 	return bProjectPoint /*&& Hit.IsValidBlockingHit()*/;
 }

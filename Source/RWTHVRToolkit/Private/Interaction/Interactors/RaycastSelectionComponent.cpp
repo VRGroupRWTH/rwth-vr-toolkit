@@ -11,8 +11,8 @@
 // Sets default values for this component's properties
 URaycastSelectionComponent::URaycastSelectionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these
+	// features off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
@@ -20,7 +20,7 @@ URaycastSelectionComponent::URaycastSelectionComponent()
 
 // Called every frame
 void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                               FActorComponentTickFunction* ThisTickFunction)
+											   FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -35,9 +35,8 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TraceStart, TraceEnd
-	                                      , TraceType, true, ActorsToIgnore, DebugTrace,
-	                                      Hit, true, FColor::Green);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceType, true, ActorsToIgnore, DebugTrace,
+										  Hit, true, FColor::Green);
 
 	AActor* HitActor = Hit.GetActor();
 	if (HitActor)
@@ -66,15 +65,13 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 void URaycastSelectionComponent::OnBeginSelect(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionStartEvents(this, RayCastSelectInputAction, Value,
-		                                               EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionStartEvents(this, RayCastSelectInputAction, Value, EInteractorType::Raycast);
 }
 
 void URaycastSelectionComponent::OnEndSelect(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionEndEvents(this, RayCastSelectInputAction, Value,
-		                                             EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionEndEvents(this, RayCastSelectInputAction, Value, EInteractorType::Raycast);
 }
 
 void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
@@ -89,7 +86,7 @@ void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputCo
 	if (!InputSubsystem)
 		return;
 
-	// add Input Mapping context 
+	// add Input Mapping context
 	InputSubsystem->AddMappingContext(IMCRaycastSelection, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);

@@ -67,15 +67,9 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 }
 
 // A separate button has to be pressed, for when mouse movement should contribute to turning
-void UTurnComponent::StartDesktopRotation()
-{
-	bApplyDesktopRotation = true;
-}
+void UTurnComponent::StartDesktopRotation() { bApplyDesktopRotation = true; }
 
-void UTurnComponent::EndDesktopRotation()
-{
-	bApplyDesktopRotation = false;
-}
+void UTurnComponent::EndDesktopRotation() { bApplyDesktopRotation = false; }
 
 void UTurnComponent::OnBeginTurn(const FInputActionValue& Value)
 {

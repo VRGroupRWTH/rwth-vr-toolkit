@@ -9,19 +9,21 @@ void FClusterConsole::Register()
 	ClusterConsoleCommand = IConsoleManager::Get().RegisterConsoleCommand(
 		TEXT("ClusterExecute"),
 		TEXT("<Your Command> - Execute commands on every node of the nDisplay cluster by prepending ClusterExecute"),
-		FConsoleCommandWithArgsDelegate::CreateLambda([](const TArray<FString>& Args)
-		{
-			if (IDisplayCluster::Get().GetClusterMgr() == nullptr || Args.Num() == 0) return;
+		FConsoleCommandWithArgsDelegate::CreateLambda(
+			[](const TArray<FString>& Args)
+			{
+				if (IDisplayCluster::Get().GetClusterMgr() == nullptr || Args.Num() == 0)
+					return;
 
-			/* Emitting cluster event */
-			FDisplayClusterClusterEventJson ClusterEvent;
-			ClusterEvent.Name = "ClusterExecute " + Args[0];
-			ClusterEvent.Type = Args[0];
-			ClusterEvent.Category = "NDisplayClusterExecute";
-			ClusterEvent.Parameters.Add("Command", FString::Join(Args, TEXT(" ")));
+				/* Emitting cluster event */
+				FDisplayClusterClusterEventJson ClusterEvent;
+				ClusterEvent.Name = "ClusterExecute " + Args[0];
+				ClusterEvent.Type = Args[0];
+				ClusterEvent.Category = "NDisplayClusterExecute";
+				ClusterEvent.Parameters.Add("Command", FString::Join(Args, TEXT(" ")));
 
-			IDisplayCluster::Get().GetClusterMgr()->EmitClusterEventJson(ClusterEvent, false);
-		}));
+				IDisplayCluster::Get().GetClusterMgr()->EmitClusterEventJson(ClusterEvent, false);
+			}));
 
 	/* Register cluster event handling */
 	const IDisplayCluster* DisplayCluster = FModuleManager::LoadModulePtr<IDisplayCluster>(IDisplayCluster::ModuleName);

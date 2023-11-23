@@ -32,7 +32,7 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 		IMCMovement = IMCMovementLeft;
 	}
 
-	// add Input Mapping context 
+	// add Input Mapping context
 	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -54,15 +54,13 @@ void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
 	if (!VRPawn || !VRPawn->Controller)
 		return;
 
-	const bool bGazeDirected = URWTHVRUtilities::IsDesktopMode() || SteeringMode ==
-		EVRSteeringModes::STEER_GAZE_DIRECTED;
+	const bool bGazeDirected =
+		URWTHVRUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
 
-	const FVector ForwardDir = bGazeDirected
-		                           ? VRPawn->HeadCameraComponent->GetForwardVector()
-		                           : MovementHand->GetForwardVector();
-	const FVector RightDir = bGazeDirected
-		                         ? VRPawn->HeadCameraComponent->GetRightVector()
-		                         : MovementHand->GetRightVector();
+	const FVector ForwardDir =
+		bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
+	const FVector RightDir =
+		bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
 
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 
@@ -85,6 +83,6 @@ void UContinuousMovementComponent::OnMoveUp(const FInputActionValue& Value)
 		return;
 
 	const float MoveValue = Value.Get<FVector2D>().X;
-	//the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
+	// the right hand is rotated on desktop to follow the cursor so it's forward is also changing with cursor position
 	VRPawn->AddMovementInput(FVector::UpVector, MoveValue);
 }

@@ -11,13 +11,12 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActionBegin, USceneComponent*, TriggeredComponent,
-                                               const UInputAction*,
-                                               InputAction, const FInputActionValue&, Value);
+											   const UInputAction*, InputAction, const FInputActionValue&, Value);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActionEnd, USceneComponent*, TriggeredComponent, const UInputAction*,
-                                               InputAction, const FInputActionValue&, Value);
+											   InputAction, const FInputActionValue&, Value);
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UActionBehaviour : public USceneComponent
 {
 	GENERATED_BODY()
@@ -35,14 +34,14 @@ public:
 protected:
 	UFUNCTION()
 	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                           const FInputActionValue& Value);
+							   const FInputActionValue& Value);
 
 	UFUNCTION()
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                         const FInputActionValue& Value);
+							 const FInputActionValue& Value);
 
 	virtual void BeginPlay() override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+							   FActorComponentTickFunction* ThisTickFunction) override;
 };

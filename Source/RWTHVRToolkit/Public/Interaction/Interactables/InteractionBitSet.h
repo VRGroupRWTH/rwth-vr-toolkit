@@ -1,7 +1,7 @@
 #pragma once
 
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum EInteractorType: int
+enum EInteractorType : int
 {
 	None = 0 UMETA(Hidden),
 	Raycast = 1 << 0,

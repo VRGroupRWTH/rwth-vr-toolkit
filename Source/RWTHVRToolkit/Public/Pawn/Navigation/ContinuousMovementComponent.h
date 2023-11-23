@@ -17,7 +17,7 @@ enum class EVRSteeringModes : uint8
 };
 
 /**
- * 
+ *
  */
 UCLASS(Blueprintable)
 class RWTHVRTOOLKIT_API UContinuousMovementComponent : public UMovementComponentBase
