@@ -9,7 +9,6 @@
 #include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Utility/VirtualRealityUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
