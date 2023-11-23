@@ -5,7 +5,6 @@
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
-#include "Utility/VirtualRealityUtilities.h"
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
