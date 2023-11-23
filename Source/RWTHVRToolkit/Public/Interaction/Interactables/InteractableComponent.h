@@ -70,17 +70,19 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
 	                               const FInputActionValue& Value,
 	                               const EInteractorType Interactor);
+
 	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
 	                             const FInputActionValue& Value,
 	                             const EInteractorType Interactor);
 
 	/**
-	 * @brief If click and grab behaviors are not explicitly specified, load all existing ones
+	 * @brief If hover and action behaviors are not explicitly specified, load all existing ones
 	 */
 	void InitDefaultBehaviourReferences();
 
@@ -95,7 +97,4 @@ public:
 	TArray<USceneComponent*> AllowedComponents;
 
 	bool IsComponentAllowed(USceneComponent* Component) const;
-
-private:
-	bool bInitOnce = true;
 };
