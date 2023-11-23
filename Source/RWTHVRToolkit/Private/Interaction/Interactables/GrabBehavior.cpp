@@ -51,6 +51,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 
 	if (MyPhysicsComponent)
 	{
+		bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
 		MyPhysicsComponent->SetSimulatePhysics(false);
 		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(Hand, Rules);
 	}
@@ -72,7 +73,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 
 	if(bObjectGrabbed)
 	{
-		OnGrabStartEvent.Broadcast(MyPhysicsComponent);
+		OnGrabStartEvent.Broadcast(Hand,MyPhysicsComponent);
 	}
 }
 
@@ -80,9 +81,11 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
                                 const FInputActionValue& Value)
 {
 
+	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
+
 	if(TryRelease())
 	{
-		OnGrabEndEvent.Broadcast(MyPhysicsComponent);
+		OnGrabEndEvent.Broadcast(Hand, MyPhysicsComponent);
 	}
 
 	if (bBlockOtherInteractionsWhileGrabbed)
@@ -103,7 +106,7 @@ bool UGrabBehavior::TryRelease()
 	if (MyPhysicsComponent)
     {
     	MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-    	MyPhysicsComponent->SetSimulatePhysics(true);
+    	MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
     }
     else
     {

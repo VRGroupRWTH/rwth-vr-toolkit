@@ -8,9 +8,9 @@
 #include "GrabBehavior.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrabStart, UPrimitiveComponent*, HeldComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, Hand, UPrimitiveComponent*, HeldComponent);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGrabEnd, UPrimitiveComponent*, HeldComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabEnd, USceneComponent*, Hand, UPrimitiveComponent*, HeldComponent);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
@@ -26,17 +26,23 @@ public:
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 	                         const FInputActionValue& Value) override;
 
-
 	/**
-	* TriggeredComponent: Component that triggered this event (e.g. GrabComponent, RayCastComponent attached at the VRPawn)
-	* Hit: Hit Result of the trace to get access to e.g. contact point/normals etc.
-	*/
+	 * Called after the object was successfully attached to the hand
+	 */
 	UPROPERTY(BlueprintAssignable)
 	FOnGrabStart OnGrabStartEvent;
 
+	/**
+	 * Called after the object was successfully detached from the hand
+	 */
 	UPROPERTY(BlueprintAssignable)
 	FOnGrabEnd OnGrabEndEvent;
-	
+
+	/**
+	 * Try to detach the object from the hand.
+	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before, return false.
+	 */
+
 	UFUNCTION(BlueprintCallable)
 	bool TryRelease();
 
@@ -48,8 +54,8 @@ public:
 	UPROPERTY()
 	UPrimitiveComponent* MyPhysicsComponent;
 
-	UFUNCTION(BlueprintCallable)
-	bool IsObjectGrabbed()
+	UFUNCTION(BlueprintPure)
+	bool IsObjectGrabbed() const
 	{
 		return bObjectGrabbed;
 	}
@@ -57,4 +63,7 @@ public:
 private:
 	UPROPERTY()
 	bool bObjectGrabbed = false;
+
+	UPROPERTY()
+	bool bWasSimulatingPhysics;
 };
