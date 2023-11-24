@@ -17,8 +17,8 @@ class RWTHVRCLUSTER_API UDoorOverlayData : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	//These declarations are magically bound to the UMG blueprints elements,
-	//if they are named the same
+	// These declarations are magically bound to the UMG blueprints elements,
+	// if they are named the same
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* CornerText;
 

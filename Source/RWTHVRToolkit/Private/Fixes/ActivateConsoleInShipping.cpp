@@ -4,7 +4,8 @@
 void FActivateConsoleInShipping::Register()
 {
 	/* Should only enable console in shipping */
-	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping) return;
+	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping)
+		return;
 
 	On_Post_World_Initialization_Delegate.BindRaw(this, &FActivateConsoleInShipping::OnSessionStart);
 	StartHandle = FWorldDelegates::OnPostWorldInitialization.Add(On_Post_World_Initialization_Delegate);
@@ -12,7 +13,8 @@ void FActivateConsoleInShipping::Register()
 
 void FActivateConsoleInShipping::Unregister() const
 {
-	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping) return;
+	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping)
+		return;
 
 	FWorldDelegates::OnPostWorldInitialization.Remove(StartHandle);
 }

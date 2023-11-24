@@ -41,15 +41,17 @@ void UInteractableComponent::BeginPlay()
 
 // This functions dispatches the HoverStart Event to the attached Hover Behaviour Components
 void UInteractableComponent::HandleOnHoverStartEvents(USceneComponent* TriggerComponent,
-                                                      const EInteractorType Interactor)
+													  const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
+		return;
 
 	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent)) return;
+	if (!IsComponentAllowed(TriggerComponent))
+		return;
 
-	//Broadcast event to all HoverBehaviours
+	// Broadcast event to all HoverBehaviours
 	for (const UHoverBehaviour* b : OnHoverBehaviours)
 	{
 		b->OnHoverStartEvent.Broadcast(TriggerComponent, HitResult);
@@ -60,12 +62,14 @@ void UInteractableComponent::HandleOnHoverStartEvents(USceneComponent* TriggerCo
 void UInteractableComponent::HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
+		return;
 
 	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent)) return;
+	if (!IsComponentAllowed(TriggerComponent))
+		return;
 
-	//Broadcast event to all HoverBehaviours
+	// Broadcast event to all HoverBehaviours
 	for (const UHoverBehaviour* b : OnHoverBehaviours)
 	{
 		b->OnHoverEndEvent.Broadcast(TriggerComponent);
@@ -74,17 +78,18 @@ void UInteractableComponent::HandleOnHoverEndEvents(USceneComponent* TriggerComp
 
 // This functions dispatches the ActionStart Event to the attached Action Behaviour Components
 void UInteractableComponent::HandleOnActionStartEvents(USceneComponent* TriggerComponent,
-                                                       const UInputAction* InputAction,
-                                                       const FInputActionValue& Value,
-                                                       const EInteractorType Interactor)
+													   const UInputAction* InputAction, const FInputActionValue& Value,
+													   const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
+		return;
 
 	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent)) return;
+	if (!IsComponentAllowed(TriggerComponent))
+		return;
 
-	//Broadcast event to all ActionBehaviours
+	// Broadcast event to all ActionBehaviours
 	for (const UActionBehaviour* b : OnActionBehaviours)
 	{
 		b->OnActionBeginEvent.Broadcast(TriggerComponent, InputAction, Value);
@@ -93,16 +98,17 @@ void UInteractableComponent::HandleOnActionStartEvents(USceneComponent* TriggerC
 
 // This functions dispatches the ActionEnd Event to the attached Action Behaviour Components
 void UInteractableComponent::HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-                                                     const FInputActionValue& Value,
-                                                     const EInteractorType Interactor)
+													 const FInputActionValue& Value, const EInteractorType Interactor)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor)) return;
+	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
+		return;
 
 	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent)) return;
+	if (!IsComponentAllowed(TriggerComponent))
+		return;
 
-	//Broadcast event to all ActionBehaviours
+	// Broadcast event to all ActionBehaviours
 	for (const UActionBehaviour* b : OnActionBehaviours)
 	{
 		b->OnActionEndEvent.Broadcast(TriggerComponent, InputAction, Value);
@@ -116,7 +122,7 @@ void UInteractableComponent::InitDefaultBehaviourReferences()
 	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
 	if (OnHoverBehaviours.IsEmpty())
 	{
-		//Selecting
+		// Selecting
 		TInlineComponentArray<UHoverBehaviour*> AttachedHoverBehaviours;
 		GetOwner()->GetComponents(AttachedHoverBehaviours, true);
 
@@ -126,7 +132,7 @@ void UInteractableComponent::InitDefaultBehaviourReferences()
 	// only do this if empty, otherwise the user has explicitly stated, which behaviors to include
 	if (OnActionBehaviours.IsEmpty())
 	{
-		//Clicking
+		// Clicking
 		TInlineComponentArray<UActionBehaviour*> AttachedClickBehaviours;
 		GetOwner()->GetComponents(AttachedClickBehaviours, true);
 

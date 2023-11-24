@@ -11,7 +11,7 @@
 
 
 FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
-                                           const FString& Options, const FString& Portal)
+										   const FString& Options, const FString& Portal)
 {
 	// Used by the DisplayClusterNetDriver/Connection to handshake nodes. Could use their types directly
 	// but I don't really want to introduce a hard dependency here.
@@ -31,12 +31,11 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 			// When the primary node is a listen server, it apparently doesn't get the node option...
 			// Could additionally check for listen, but this should be save enough.
 			const FString NodeName = UGameplayStatics::HasOption(Options, NodeNameKey)
-				                         ? UGameplayStatics::ParseOption(Options, NodeNameKey)
-				                         : PrimaryNodeId;
+				? UGameplayStatics::ParseOption(Options, NodeNameKey)
+				: PrimaryNodeId;
 
-			const EPlayerType Type = NodeName == PrimaryNodeId
-				                         ? EPlayerType::nDisplayPrimary
-				                         : EPlayerType::nDisplaySecondary;
+			const EPlayerType Type =
+				NodeName == PrimaryNodeId ? EPlayerType::nDisplayPrimary : EPlayerType::nDisplaySecondary;
 			State->RequestSetPlayerType(Type);
 		}
 	}
@@ -52,7 +51,7 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 		if (NewPlayer->GetPawn() && NewPlayer->GetPawn()->IsValidLowLevelFast())
 		{
 			UE_LOGFMT(Toolkit, Display,
-			          "ARWTHVRGameModeBase::PostLogin: New player already auto-possessed a pawn, not spawning new one");
+					  "ARWTHVRGameModeBase::PostLogin: New player already auto-possessed a pawn, not spawning new one");
 			Super::PostLogin(NewPlayer);
 			return;
 		}

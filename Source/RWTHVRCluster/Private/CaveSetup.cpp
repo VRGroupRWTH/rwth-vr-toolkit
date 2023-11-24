@@ -35,7 +35,7 @@ void ACaveSetup::BeginPlay()
 			const auto Actor = World->SpawnActor(ActorClass);
 			Actor->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			UE_LOGFMT(LogTemp, Display, "CaveSetup: Spawned Actor {Actor} on the Cave and attached it.",
-			          Actor->GetName());
+					  Actor->GetName());
 		}
 	}
 
@@ -48,7 +48,7 @@ void ACaveSetup::BeginPlay()
 			LiveLinkPresetToApplyOnCave->ApplyToClientLatent();
 
 			UE_LOGFMT(LogTemp, Display, "CaveSetup: Applied LiveLinkPreset {Preset} to Client.",
-			          LiveLinkPresetToApplyOnCave->GetName());
+					  LiveLinkPresetToApplyOnCave->GetName());
 		}
 	}
 }

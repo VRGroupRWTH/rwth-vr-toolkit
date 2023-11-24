@@ -3,13 +3,9 @@
 
 #include "Interaction/Interactables/HoverBehaviour.h"
 
-void UHoverBehaviour::OnHoverStart(const USceneComponent* TriggeredComponent, FHitResult Hit)
-{
-}
+void UHoverBehaviour::OnHoverStart(const USceneComponent* TriggeredComponent, FHitResult Hit) {}
 
-void UHoverBehaviour::OnHoverEnd(const USceneComponent* TriggeredComponent)
-{
-}
+void UHoverBehaviour::OnHoverEnd(const USceneComponent* TriggeredComponent) {}
 
 void UHoverBehaviour::BeginPlay()
 {

@@ -8,8 +8,9 @@
 /**
  * The ClusterConsole provides the console command "ClusterExecute"
  * The code catches your command, broadcasts it to every nDisplay node and executes it everywhere
- * 
- * This class has to be registered and unregistered. This can easily be done in every StartupModule/ShutdownModule functions.
+ *
+ * This class has to be registered and unregistered. This can easily be done in every StartupModule/ShutdownModule
+ * functions.
  */
 USTRUCT()
 struct RWTHVRCLUSTER_API FClusterConsole

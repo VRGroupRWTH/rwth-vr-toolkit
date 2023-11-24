@@ -13,8 +13,8 @@
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these
+	// features off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
@@ -34,9 +34,8 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetAttachParent()->GetComponentLocation(),
-	                                       GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
-	                                       ActorsToIgnore, DebugTrace,
-	                                       OutHits, true, FColor::Green);
+										   GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
+										   ActorsToIgnore, DebugTrace, OutHits, true, FColor::Green);
 
 	for (FHitResult Hit : OutHits)
 	{
@@ -99,7 +98,7 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	if (!InputSubsystem)
 		return;
 
-	// add Input Mapping context 
+	// add Input Mapping context
 	InputSubsystem->AddMappingContext(IMCGrab, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);

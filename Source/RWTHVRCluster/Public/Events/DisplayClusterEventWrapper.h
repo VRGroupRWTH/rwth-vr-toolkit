@@ -11,8 +11,8 @@ static constexpr int32 CLUSTER_EVENT_WRAPPER_EVENT_ID = 1337420;
 template <typename MemberFunctionType, MemberFunctionType MemberFunction>
 class ClusterEventWrapperEvent;
 
-template <typename ObjectType, typename ReturnType, typename... ArgTypes, ReturnType (ObjectType::*
-	          MemberFunction)(ArgTypes...)>
+template <typename ObjectType, typename ReturnType, typename... ArgTypes,
+		  ReturnType (ObjectType::*MemberFunction)(ArgTypes...)>
 class ClusterEventWrapperEvent<ReturnType (ObjectType::*)(ArgTypes...), MemberFunction>
 {
 	static_assert(TIsDerivedFrom<ObjectType, UObject>::IsDerived, "Object needs to derive from UObject");
@@ -20,9 +20,7 @@ class ClusterEventWrapperEvent<ReturnType (ObjectType::*)(ArgTypes...), MemberFu
 public:
 	using MemberFunctionType = decltype(MemberFunction);
 
-	ClusterEventWrapperEvent(const TCHAR* MethodName) : MethodName{MethodName}
-	{
-	}
+	ClusterEventWrapperEvent(const TCHAR* MethodName) : MethodName{MethodName} {}
 
 	void Attach(ObjectType* NewObject)
 	{
@@ -58,7 +56,7 @@ public:
 
 					FString EventMethodName;
 					// This reads the value!
-					MemoryReader << EventMethodName; 
+					MemoryReader << EventMethodName;
 					if (EventMethodName != MethodName)
 					{
 						// This event does not belong to this method.
@@ -74,9 +72,7 @@ public:
 					FillArgumentTuple<0>(&MemoryReader, &ArgumentTuple);
 
 					ArgumentTuple.ApplyBefore([this](const ArgTypes&... Arguments)
-					{
-						(Object->*MemberFunction)(Forward<const ArgTypes&>(Arguments)...);
-					});
+											  { (Object->*MemberFunction)(Forward<const ArgTypes&>(Arguments)...); });
 				});
 			ClusterManager->AddClusterEventBinaryListener(ClusterEventListenerDelegate);
 		}
@@ -134,8 +130,9 @@ private:
 #define DCEW_STRINGIFY(x) #x
 #define DCEW_TOSTRING(x) DCEW_STRINGIFY(x)
 
-#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                          \
-	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier> MethodIdentifier##Event \
-	{                                                                                                                        \
-		TEXT(DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier))                                                      \
+#define DECLARE_DISPLAY_CLUSTER_EVENT(OwningType, MethodIdentifier)                                                    \
+	ClusterEventWrapperEvent<decltype(&OwningType::MethodIdentifier), &OwningType::MethodIdentifier>                   \
+		MethodIdentifier##Event                                                                                        \
+	{                                                                                                                  \
+		TEXT(DCEW_TOSTRING(OwningType) DCEW_TOSTRING(MethodIdentifier))                                                \
 	}

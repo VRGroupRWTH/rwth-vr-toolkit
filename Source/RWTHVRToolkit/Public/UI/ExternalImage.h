@@ -26,7 +26,7 @@ private:
 
 	bool LoadCompressedDataIntoTexture2D(const TArray<uint8>& InCompressedData, UTexture2D*& OutTexture);
 	static void LoadDataFromURL(const FString& ImageURL, TArray<uint8>& OutCompressedData,
-	                            TFunction<void()> OnSuccessCallback);
+								TFunction<void()> OnSuccessCallback);
 	static void LoadDataFromFile(const FString& ImagePath, TArray<uint8>& OutCompressedData,
-	                             TFunction<void()> OnSuccessCallback);
+								 TFunction<void()> OnSuccessCallback);
 };

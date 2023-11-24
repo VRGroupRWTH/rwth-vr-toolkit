@@ -22,15 +22,15 @@ public:
 	bool bAllowTurning = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta = (EditCondition = "bAllowTurning"))
+			  meta = (EditCondition = "bAllowTurning"))
 	bool bSnapTurn = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta = (EditCondition = "!bSnapTurn && bAllowTurning"))
+			  meta = (EditCondition = "!bSnapTurn && bAllowTurning"))
 	float TurnRateFactor = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Turning",
-		meta = (EditCondition = "bSnapTurn && bAllowTurning", ClampMin = 0, ClampMax = 360))
+			  meta = (EditCondition = "bSnapTurn && bAllowTurning", ClampMin = 0, ClampMax = 360))
 	float SnapTurnAngle = 22.5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
@@ -44,7 +44,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCMovement_Right;
-	
+
 	/**Input Mapping Context that maps buttons for desktop mode*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
 	class UInputMappingContext* IMCDesktopRotation;
@@ -57,9 +57,9 @@ public:
 	void OnBeginTurn(const FInputActionValue& Value);
 
 	/**
-	* Called once if stick input is received to rotate player at constant value
-	* @param Value Stick input value determines turn direction
-	*/
+	 * Called once if stick input is received to rotate player at constant value
+	 * @param Value Stick input value determines turn direction
+	 */
 	UFUNCTION(BlueprintCallable)
 	void OnBeginSnapTurn(const FInputActionValue& Value);
 
@@ -79,8 +79,9 @@ private:
 	class UInputMappingContext* IMCTurn;
 
 	/**
-	 * If we just use VRPawn->AddControllerYawInput(Yaw), rotation is around tracking origin instead of the actual player position
-	 * This function updates the pawns rotation and location to result in a rotation around the users tracked position.
+	 * If we just use VRPawn->AddControllerYawInput(Yaw), rotation is around tracking origin instead of the actual
+	 * player position This function updates the pawns rotation and location to result in a rotation around the users
+	 * tracked position.
 	 */
 	void RotateCameraAndPawn(float Yaw) const;
 	bool bApplyDesktopRotation;

@@ -4,18 +4,15 @@
 #include "Interaction/Interactables/ActionBehaviour.h"
 
 // We disable ticking here, as we are mainly interested in the events
-UActionBehaviour::UActionBehaviour()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UActionBehaviour::UActionBehaviour() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UActionBehaviour::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                     const FInputActionValue& Value)
+									 const FInputActionValue& Value)
 {
 }
 
 void UActionBehaviour::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-                                   const FInputActionValue& Value)
+								   const FInputActionValue& Value)
 {
 }
 
@@ -29,7 +26,7 @@ void UActionBehaviour::BeginPlay()
 
 // Called every frame
 void UActionBehaviour::TickComponent(float DeltaTime, ELevelTick TickType,
-                                     FActorComponentTickFunction* ThisTickFunction)
+									 FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }

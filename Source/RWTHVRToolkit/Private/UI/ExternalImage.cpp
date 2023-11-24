@@ -5,9 +5,7 @@
 #include "Misc/FileHelper.h"
 #include "Runtime/ImageWrapper/Public/IImageWrapperModule.h"
 
-UExternalImage::UExternalImage()
-{
-}
+UExternalImage::UExternalImage() {}
 
 void UExternalImage::LoadImageFromURL(const FString& ImageURL)
 {
@@ -76,7 +74,7 @@ bool UExternalImage::LoadCompressedDataIntoTexture2D(const TArray<uint8>& InComp
 }
 
 void UExternalImage::LoadDataFromURL(const FString& ImageURL, TArray<uint8>& OutCompressedData,
-                                     TFunction<void()> OnSuccessCallback)
+									 TFunction<void()> OnSuccessCallback)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 
@@ -92,7 +90,7 @@ void UExternalImage::LoadDataFromURL(const FString& ImageURL, TArray<uint8>& Out
 			else
 			{
 				UE_LOG(LogTemp, Log, TEXT("UExternalyLoadedImage Request unsucessful (%d): %s"),
-				       Response->GetResponseCode(), *Request->GetURL());
+					   Response->GetResponseCode(), *Request->GetURL());
 			}
 		});
 
@@ -102,7 +100,8 @@ void UExternalImage::LoadDataFromURL(const FString& ImageURL, TArray<uint8>& Out
 }
 
 void UExternalImage::LoadDataFromFile(const FString& ImagePath, TArray<uint8>& OutCompressedData,
-                                      TFunction<void()> OnSuccessCallback)
+									  TFunction<void()> OnSuccessCallback)
 {
-	if (FFileHelper::LoadFileToArray(OutCompressedData, *ImagePath)) OnSuccessCallback();
+	if (FFileHelper::LoadFileToArray(OutCompressedData, *ImagePath))
+		OnSuccessCallback();
 }

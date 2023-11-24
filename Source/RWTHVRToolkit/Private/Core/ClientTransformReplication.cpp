@@ -39,7 +39,7 @@ void UClientTransformReplication::UpdateState(float DeltaTime)
 					ControllerNetUpdateCount = 0.0f;
 
 					// The local state has changed and we're within the update rate. Apply the new local state to the
-					// replicated variable - this just saves the new local state on the local net owner. 
+					// replicated variable - this just saves the new local state on the local net owner.
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
 
@@ -57,7 +57,7 @@ void UClientTransformReplication::UpdateState(float DeltaTime)
 }
 
 void UClientTransformReplication::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                FActorComponentTickFunction* ThisTickFunction)
+												FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
