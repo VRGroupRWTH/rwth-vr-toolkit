@@ -35,6 +35,12 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
+
+	// add a nDisplay
+	SyncComponent =
+		CreateDefaultSubobject<UDisplayClusterSceneComponentSyncParent>(TEXT("Parent Display Cluster Sync Component"));
+	SyncComponent->SetupAttachment(RootComponent);
+
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
