@@ -40,7 +40,6 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	SyncComponent =
 		CreateDefaultSubobject<UDisplayClusterSceneComponentSyncParent>(TEXT("Parent Display Cluster Sync Component"));
 	SyncComponent->SetupAttachment(RootComponent);
-
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
