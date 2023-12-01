@@ -26,9 +26,9 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
 	// so it is rendered correctly in editor
 
-	PawnMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Pawn Movement"));
-	PawnMovement->SetUpdatedComponent(RootComponent);
-	PawnMovement->SetHeadComponent(HeadCameraComponent);
+	CollisionHandlingMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Collision Handling Movement"));
+	CollisionHandlingMovement->SetUpdatedComponent(RootComponent);
+	CollisionHandlingMovement->SetHeadComponent(HeadCameraComponent);
 
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
