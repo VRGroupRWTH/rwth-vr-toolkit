@@ -92,9 +92,11 @@ Build_Windows:
 Build_Linux:
     only: ['web', 'schedules']
     extends: .Build_Linux_
+    image: ghcr.io/epicgames/unreal-engine:dev-5.3
     tags:
         - linux
-        - unreal-5.3
+        - unreal
+        - docker-executor
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
