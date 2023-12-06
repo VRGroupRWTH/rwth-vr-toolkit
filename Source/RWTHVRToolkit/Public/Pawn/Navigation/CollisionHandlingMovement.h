@@ -85,4 +85,8 @@ private:
 	// just stored for performance gains;
 	UPROPERTY(VisibleAnywhere, Transient, DuplicateTransient)
 	TArray<AActor*> ActorsToIgnore;
+
+	// if a collision happens and cannot be resolved (e.g. the user crouched, walked under something and stood up)
+	// we remporarily deactivate all checks until the user is in a collision free situation again
+	bool bCollisionChecksTemporarilyDeactivated = false;
 };

@@ -67,13 +67,21 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 			}
 		}
 
+		// in case we are in a collision and collision checks are temporarily deactivated, we only allow physical
+		// movement without any checks, otherwise check collision during physical movement
+		if (bCollisionChecksTemporarilyDeactivated)
+		{
+			ConsumeInputVector();
+		}
+		else
+		{
+			// so we add stepping-up (for both walk and fly)
+			// and gravity for walking only
+			MoveByGravityOrStepUp(DeltaTime);
 
-		// so we add stepping-up (for both walk and fly)
-		// and gravity for walking only
-		MoveByGravityOrStepUp(DeltaTime);
-
-		// if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
-		CheckForPhysWalkingCollision();
+			// if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
+			CheckForPhysWalkingCollision();
+		}
 	}
 
 	if (NavigationMode == EVRNavigationModes::NAV_NONE)
@@ -150,6 +158,7 @@ void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()
 		if (!CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
 		{
 			LastCollisionFreeCapsulePosition = CapsuleLocation;
+			bCollisionChecksTemporarilyDeactivated = false;
 		}
 		return;
 	}
@@ -157,8 +166,17 @@ void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()
 	// check whether we are in a collision at the current position
 	if (CreateCapsuleTrace(CapsuleLocation, CapsuleLocation).bBlockingHit)
 	{
-		// if so move back to last position
-		UpdatedComponent->AddWorldOffset(LastCollisionFreeCapsulePosition.GetValue() - CapsuleLocation);
+		// if so move back to last position, but only if that position is still collision free
+		// since the user might have moveed physically in between
+		FVector LastCapsulePos = LastCollisionFreeCapsulePosition.GetValue();
+		if (!CreateCapsuleTrace(LastCapsulePos, LastCapsulePos).bBlockingHit)
+		{
+			UpdatedComponent->AddWorldOffset(LastCapsulePos - CapsuleLocation);
+		}
+		else
+		{
+			bCollisionChecksTemporarilyDeactivated = true;
+		}
 	}
 	else
 	{
@@ -174,6 +192,13 @@ void UCollisionHandlingMovement::MoveOutOfNewDynamicCollisions()
 	{
 		FVector ResolveDirection = 1.5f * ResolveDirectionOptional.GetValue(); // scale it up for security distance
 		UpdatedComponent->AddWorldOffset(ResolveDirection);
+
+		// check whether this helped in resolving the collision, and if not deactivate collision checks temporarily
+		if (CreateCapsuleTrace(UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentLocation())
+				.bBlockingHit)
+		{
+			bCollisionChecksTemporarilyDeactivated = true;
+		}
 
 		// invalidate the last collision-free position, since apparently something changed so we got into this collision
 		LastCollisionFreeCapsulePosition.Reset();
@@ -195,8 +220,8 @@ void UCollisionHandlingMovement::CheckForPhysWalkingCollision()
 	if (HitResult.bBlockingHit)
 	{
 		const FVector MoveOutVector = HitResult.Location - CapsuleLocation;
-		// move it out twice as far, to avoid getting stuck situations
-		UpdatedComponent->AddWorldOffset(2 * MoveOutVector);
+		// move it out a bit farther, to avoid getting stuck situations
+		UpdatedComponent->AddWorldOffset(1.2f * MoveOutVector);
 	}
 }
 
