@@ -2,6 +2,7 @@
 
 #include "Pawn/RWTHVRPawn.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
@@ -131,6 +132,37 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	for (UActorComponent* Comp : GetComponentsByInterface(UInputExtensionInterface::StaticClass()))
 	{
 		Cast<IInputExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
+	}
+
+	// bind the current mapping contexts
+	AddInputMappingContext(PlayerController, CurrentGeneralInputMappingContext);
+	AddInputMappingContext(PlayerController, CurrentMovementInputMappingContext);
+}
+
+void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const
+{
+	if (Context)
+	{
+		if (const ULocalPlayer* LP = PC->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* InputSub = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				InputSub->AddMappingContext(Context, 0);
+			}
+			else
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "ARWTHVRPawn::AddInputMappingContext: UEnhancedInputLocalPlayerSubsystem is nullptr!");
+			}
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::AddInputMappingContext: LocalPlayer is nullptr!");
+		}
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::AddInputMappingContext: Context is nullptr!");
 	}
 }
 

@@ -4,7 +4,6 @@
 #include "Interaction/Interactors/GrabComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/InteractionBitSet.h"
 
@@ -88,13 +87,6 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	const APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn)
 		return;
-
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
-	if (!InputSubsystem)
-		return;
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCGrab, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (EI == nullptr)

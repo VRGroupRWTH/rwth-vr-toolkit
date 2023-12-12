@@ -4,7 +4,6 @@
 #include "Pawn/Navigation/TurnComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -12,7 +11,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
 
-	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
@@ -21,21 +20,11 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	if (bTurnWithLeftHand)
 	{
 		RotationHand = VRPawn->LeftHand;
-		// we use the same IMC for movement and turning
-		// therefore if we move with the right hand, we turn with the left hand
-		IMCTurn = IMCMovement_Right;
 	}
 	else
 	{
 		RotationHand = VRPawn->RightHand;
-		// we use the same IMC for movement and turning
-		// therefore if we move with the left hand, we turn with the right hand
-		IMCTurn = IMCMovement_Left;
 	}
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(URWTHVRUtilities::IsDesktopMode() ? IMCDesktopRotation : IMCTurn, 0);
-
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)
