@@ -9,7 +9,6 @@
 #include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Utility/RWTHVRUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
@@ -155,7 +154,7 @@ void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 {
 	UInteractableComponent* Grabbable = nullptr;
-	if(!HitActor)
+	if (!HitActor)
 	{
 		return Grabbable;
 	}
@@ -166,15 +165,15 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 
 		// if Grabbable is not valid search at parent
-		if(!Grabbable)
+		if (!Grabbable)
 		{
 			HitActor = HitActor->GetParentActor();
-			if(HitActor)
+			if (HitActor)
 			{
 				return SearchForInteractable(HitActor);
 			}
 		}
-	}else if(!HitActor->IsChildActor())
+	} else if (!HitActor->IsChildActor())
 	{
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 	}

@@ -3,7 +3,6 @@
 
 #include "Interaction/Interactables/GrabBehavior.h"
 #include "Interaction/Interactables/InteractableComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -39,9 +38,7 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 								  const FInputActionValue& Value)
 {
-	if(bObjectGrabbed) return;
-	
-	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (bObjectGrabbed) return;
 
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
@@ -60,7 +57,6 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
 	}
 
-
 	if (bBlockOtherInteractionsWhileGrabbed && bObjectGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;
@@ -71,7 +67,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 		}
 	}
 
-	if(bObjectGrabbed)
+	if (bObjectGrabbed)
 	{
 		OnGrabStartEvent.Broadcast(Hand,MyPhysicsComponent);
 	} else
@@ -86,7 +82,7 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
-	if(TryRelease())
+	if (TryRelease())
 	{
 		OnGrabEndEvent.Broadcast(Hand, MyPhysicsComponent);
 	}
@@ -104,7 +100,7 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 
 bool UGrabBehavior::TryRelease()
 {
-	if(!bObjectGrabbed) return false;
+	if (!bObjectGrabbed) return false;
 	
 	if (MyPhysicsComponent)
     {
