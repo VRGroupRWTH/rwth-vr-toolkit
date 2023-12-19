@@ -56,7 +56,10 @@ protected:
 		// For now, directly apply the transforms:
 		auto* OwningActor = GetOwner();
 		if (OwningActor && OwningActor->HasValidRootComponent())
+		{
 			OwningActor->SetActorLocationAndRotation(ReplicatedTransform.Position, ReplicatedTransform.Rotation);
+			OwningActor->SetActorScale3D(ReplicatedTransform.Scale);
+		}
 	}
 
 	// Unreliable Server RPC that sends the transform from owning client to the server

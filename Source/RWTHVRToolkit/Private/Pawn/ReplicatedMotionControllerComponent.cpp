@@ -25,8 +25,10 @@ void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 		{
 			const FVector Loc = GetRelativeLocation();
 			const FRotator Rot = GetRelativeRotation();
-
-			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
+			const FVector Scale = GetRelativeScale3D();
+            
+			// Only update state if the local state changed
+			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation) || !Scale.Equals(ReplicatedTransform.Scale))
 			{
 				ControllerNetUpdateCount += DeltaTime;
 				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
@@ -35,6 +37,8 @@ void UReplicatedMotionControllerComponent::UpdateState(float DeltaTime)
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
+					ReplicatedTransform.Scale = Scale;
+					
 					if (GetNetMode() == NM_Client)
 					{
 						ServerSendControllerTransformRpc(ReplicatedTransform);

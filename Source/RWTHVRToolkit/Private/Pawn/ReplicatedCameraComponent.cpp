@@ -26,8 +26,9 @@ void UReplicatedCameraComponent::UpdateState(float DeltaTime)
 		{
 			const FVector Loc = GetRelativeLocation();
 			const FRotator Rot = GetRelativeRotation();
+			const FVector Scale = GetRelativeScale3D();
 
-			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
+			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation) || Scale.Equals(ReplicatedTransform.Scale))
 			{
 				ControllerNetUpdateCount += DeltaTime;
 				if (ControllerNetUpdateCount >= (1.0f / ControllerNetUpdateRate)) // todo save inverse?
@@ -36,6 +37,7 @@ void UReplicatedCameraComponent::UpdateState(float DeltaTime)
 
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
+					ReplicatedTransform.Scale = Scale;
 					if (GetNetMode() == NM_Client) // why do we differentiate here between netmode and authority?
 					{
 						ServerSendControllerTransformRpc(ReplicatedTransform);

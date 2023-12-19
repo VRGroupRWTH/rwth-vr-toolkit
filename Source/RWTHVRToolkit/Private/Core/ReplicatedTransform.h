@@ -16,10 +16,14 @@ public:
 	UPROPERTY(Transient)
 	FRotator Rotation;
 
+	UPROPERTY(Transient)
+	FVector Scale;
+
 	FReplicatedTransform()
 	{
 		Position = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
+		Scale = FVector::OneVector;
 	}
 
 	/**
@@ -38,6 +42,7 @@ public:
 		bOutSuccess = true;
 		bOutSuccess &= SerializePackedVector<1, 24>(Position, Ar);
 		Rotation.SerializeCompressed(Ar);
+		bOutSuccess &= SerializePackedVector<1, 24>(Scale, Ar);
 		return bOutSuccess;
 	}
 };

@@ -28,9 +28,10 @@ void UClientTransformReplication::UpdateState(float DeltaTime)
 		{
 			const FVector Loc = OwningActor->GetActorLocation();
 			const FRotator Rot = OwningActor->GetActorRotation();
+			const FVector Scale = OwningActor->GetActorScale();
 
 			// Only update state if the local state changed
-			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
+			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation) || !Scale.Equals(ReplicatedTransform.Scale))
 			{
 				// Factor in NetUpdateRate
 				ControllerNetUpdateCount += DeltaTime;
@@ -42,6 +43,7 @@ void UClientTransformReplication::UpdateState(float DeltaTime)
 					// replicated variable - this just saves the new local state on the local net owner.
 					ReplicatedTransform.Position = Loc;
 					ReplicatedTransform.Rotation = Rot;
+					ReplicatedTransform.Scale = Scale;
 
 					// If we are running as a client, push the state to the server by calling the respective RPC.
 					// This is required in case we are both the server and the local net owner, in which case simply

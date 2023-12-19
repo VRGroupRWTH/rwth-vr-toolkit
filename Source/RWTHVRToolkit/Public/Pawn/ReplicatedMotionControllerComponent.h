@@ -46,6 +46,7 @@ protected:
 	{
 		// For now, directly apply the transforms:
 		SetRelativeLocationAndRotation(ReplicatedTransform.Position, ReplicatedTransform.Rotation);
+		SetRelativeScale3D(ReplicatedTransform.Scale);
 	}
 
 	UFUNCTION(Unreliable, Server, WithValidation)

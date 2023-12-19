@@ -208,8 +208,7 @@ FVector UCollisionHandlingMovement::GetCollisionSafeVirtualSteeringVec(FVector I
 	{
 		return InputVector;
 	}
-
-
+	
 	const float SafetyFactor = 3.0f; // so we detect collision a bit earlier
 	const FVector CapsuleLocation = CapsuleColliderComponent->GetComponentLocation();
 	FVector ProbePosition = SafetyFactor * InputVector.GetSafeNormal() * GetMaxSpeed() * DeltaTime + CapsuleLocation;

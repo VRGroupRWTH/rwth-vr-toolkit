@@ -17,13 +17,14 @@
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	// Scaling eye height by our Z scale, as apparently it is reset to a fixed value?
 	BaseEyeHeight = 160.0f;
-
+	
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Origin")));
 
 	HeadCameraComponent = CreateDefaultSubobject<UReplicatedCameraComponent>(TEXT("Camera"));
 	HeadCameraComponent->SetupAttachment(RootComponent);
-	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
+	HeadCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight * GetActorScale3D().Z));
 	// so it is rendered correctly in editor
 
 	CollisionHandlingMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Collision Handling Movement"));
@@ -247,9 +248,9 @@ void ARWTHVRPawn::SetCameraOffset() const
 {
 	// this also incorporates the BaseEyeHeight, if set as static offset,
 	// rotations are still around the center of the pawn (on the floor), so pitch rotations look weird
-	FVector Location;
-	FRotator Rotation;
-	GetActorEyesViewPoint(Location, Rotation);
+	const FVector Location = GetActorLocation() + FVector(0.f,0.f,BaseEyeHeight * GetActorScale3D().Z);
+	const FRotator Rotation = GetViewRotation();
+	// GetActorEyesViewPoint(Location, Rotation);
 	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
 }
 
