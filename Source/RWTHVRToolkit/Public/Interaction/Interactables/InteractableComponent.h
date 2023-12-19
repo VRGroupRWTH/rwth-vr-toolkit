@@ -77,9 +77,9 @@ public:
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-	                               const FInputActionValue& Value, const EInteractorType Interactor);
+								   const FInputActionValue& Value, const EInteractorType Interactor);
 	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-	                             const FInputActionValue& Value, const EInteractorType Interactor);
+								 const FInputActionValue& Value, const EInteractorType Interactor);
 
 	/**
 	 * @brief If hover and action behaviors are not explicitly specified, load all existing ones

@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, Han
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabEnd, USceneComponent*, Hand, UPrimitiveComponent*, HeldComponent);
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 {
 	GENERATED_BODY()
@@ -22,9 +22,9 @@ public:
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
 	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                           const FInputActionValue& Value) override;
+							   const FInputActionValue& Value) override;
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-	                         const FInputActionValue& Value) override;
+							 const FInputActionValue& Value) override;
 
 
 	/**

@@ -34,8 +34,8 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetAttachParent()->GetComponentLocation(),
-	                                       GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
-	                                       ActorsToIgnore, DebugTrace, OutHits, true, FColor::Green);
+										   GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
+										   ActorsToIgnore, DebugTrace, OutHits, true, FColor::Green);
 
 	for (FHitResult Hit : OutHits)
 	{
@@ -131,7 +131,6 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 				DistanceToClosestGrabbable = DistanceToCurrentGrabbable;
 				ClosestGrabbable = Grabbable;
 			}
-
 		}
 		else
 		{
