@@ -22,9 +22,9 @@ public:
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
 	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							   const FInputActionValue& Value) override;
+	                           const FInputActionValue& Value) override;
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							 const FInputActionValue& Value) override;
+	                         const FInputActionValue& Value) override;
 
 	/**
 	 * Called after the object was successfully attached to the hand

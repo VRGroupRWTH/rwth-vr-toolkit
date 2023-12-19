@@ -34,8 +34,8 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetAttachParent()->GetComponentLocation(),
-										   GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
-										   ActorsToIgnore, DebugTrace, OutHits, true, FColor::Green);
+	                                       GetAttachParent()->GetComponentLocation(), GrabSphereRadius, TraceType, true,
+	                                       ActorsToIgnore, DebugTrace, OutHits, true, FColor::Green);
 
 	for (FHitResult Hit : OutHits)
 	{
@@ -110,14 +110,14 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 	float DistanceToClosestGrabbable;
 	float DistanceToCurrentGrabbable;
 	const FVector GrabLocation = GetAttachParent()->GetComponentLocation();
-	
+
 	if (CurrentGrabbablesInRange.IsEmpty())
 		return;
-	
+
 	ClosestGrabbable = CurrentGrabbablesInRange.Last();
 	FVector ClosestGrabbableLocation = ClosestGrabbable->GetOwner()->GetActorLocation();
 	DistanceToClosestGrabbable = FVector(ClosestGrabbableLocation - GrabLocation).Size();
-	
+
 	for (UInteractableComponent* Grabbable : CurrentGrabbablesInRange)
 	{
 		if (bOnlyGrabClosestActor)
@@ -131,14 +131,14 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 				DistanceToClosestGrabbable = DistanceToCurrentGrabbable;
 				ClosestGrabbable = Grabbable;
 			}
-			
+
 		}
 		else
 		{
 			Grabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 		}
 	}
-	
+
 	if (bOnlyGrabClosestActor)
 	{
 		ClosestGrabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
@@ -160,7 +160,7 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	{
 		return Grabbable;
 	}
-	
+
 	if (HitActor->IsChildActor())
 	{
 		// search for UInteractable upwards from hit geometry and return first one found
@@ -180,6 +180,6 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	{
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 	}
-	
+
 	return Grabbable;
 }

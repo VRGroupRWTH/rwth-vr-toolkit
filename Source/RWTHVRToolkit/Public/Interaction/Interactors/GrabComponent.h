@@ -20,7 +20,7 @@ public:
 	UGrabComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-							   FActorComponentTickFunction* ThisTickFunction) override;
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMCGrab;
@@ -33,7 +33,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bShowDebugTrace = false;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bOnlyGrabClosestActor = false;
 

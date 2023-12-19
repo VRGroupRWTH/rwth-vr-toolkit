@@ -36,9 +36,10 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 }
 
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-								  const FInputActionValue& Value)
+                                  const FInputActionValue& Value)
 {
-	if (bObjectGrabbed) return;
+	if (bObjectGrabbed)
+		return;
 
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
@@ -78,7 +79,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-								const FInputActionValue& Value)
+                                const FInputActionValue& Value)
 {
 
 	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
@@ -103,16 +104,16 @@ bool UGrabBehavior::TryRelease()
 {
 	if (!bObjectGrabbed)
 		return false;
-	
+
 	if (MyPhysicsComponent)
-    {
-    	MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-    	MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
-    }
-    else
-    {
-    	GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-    }
+	{
+		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
+	}
+	else
+	{
+		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
 	bObjectGrabbed = false;
 	return true;
 }
