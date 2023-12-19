@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "LiveLinkRole.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
+
+#include "Components/DisplayClusterSceneComponentSyncParent.h"
+
 #include "RWTHVRPawn.generated.h"
 
 class UInputMappingContext;
@@ -36,7 +39,7 @@ public:
 
 	/* Movement */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Movement")
-	UCollisionHandlingMovement* PawnMovement;
+	UCollisionHandlingMovement* CollisionHandlingMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|Desktop Movement")
 	bool bMoveRightHandWithMouse = true;
@@ -47,6 +50,9 @@ public:
 	/* CameraComponent */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* HeadCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
+	UDisplayClusterSceneComponentSyncParent* SyncComponent;
 
 	// LiveLink functionality
 
@@ -80,7 +86,8 @@ protected:
 	/* LiveLink helper function called on tick */
 	void EvaluateLivelink() const;
 
-	/* Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller. */
+	/* Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller.
+	 */
 	void ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData) const;
 
 	/* Fixes camera rotation in desktop mode. */
