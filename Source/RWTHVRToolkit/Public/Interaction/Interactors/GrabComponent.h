@@ -38,7 +38,6 @@ public:
 	bool bOnlyGrabClosestActor = false;
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
-	
 
 private:
 	UFUNCTION()

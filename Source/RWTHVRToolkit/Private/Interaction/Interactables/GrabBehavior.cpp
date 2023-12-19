@@ -69,8 +69,9 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 
 	if (bObjectGrabbed)
 	{
-		OnGrabStartEvent.Broadcast(Hand,MyPhysicsComponent);
-	} else
+		OnGrabStartEvent.Broadcast(Hand, MyPhysicsComponent);
+	}
+	else
 	{
 		UE_LOG(Toolkit, Warning, TEXT("Grab failed! Cannot attach grabbed component to hand"))
 	}
@@ -100,7 +101,8 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 
 bool UGrabBehavior::TryRelease()
 {
-	if (!bObjectGrabbed) return false;
+	if (!bObjectGrabbed)
+		return false;
 	
 	if (MyPhysicsComponent)
     {

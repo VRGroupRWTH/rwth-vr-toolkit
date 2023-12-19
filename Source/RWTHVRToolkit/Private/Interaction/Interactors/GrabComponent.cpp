@@ -111,7 +111,8 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 	float DistanceToCurrentGrabbable;
 	const FVector GrabLocation = GetAttachParent()->GetComponentLocation();
 	
-	if (CurrentGrabbablesInRange.IsEmpty()) return;
+	if (CurrentGrabbablesInRange.IsEmpty())
+		return;
 	
 	ClosestGrabbable = CurrentGrabbablesInRange.Last();
 	FVector ClosestGrabbableLocation = ClosestGrabbable->GetOwner()->GetActorLocation();
@@ -131,7 +132,8 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 				ClosestGrabbable = Grabbable;
 			}
 			
-		} else
+		}
+		else
 		{
 			Grabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 		}
@@ -161,7 +163,7 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	
 	if (HitActor->IsChildActor())
 	{
-		//search for UInteractable upwards from hit geometry and return first one found
+		// search for UInteractable upwards from hit geometry and return first one found
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 
 		// if Grabbable is not valid search at parent
@@ -173,7 +175,8 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 				return SearchForInteractable(HitActor);
 			}
 		}
-	} else if (!HitActor->IsChildActor())
+	}
+	else if (!HitActor->IsChildActor())
 	{
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 	}

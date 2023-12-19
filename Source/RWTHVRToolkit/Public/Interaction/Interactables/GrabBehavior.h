@@ -40,7 +40,8 @@ public:
 
 	/**
 	 * Try to detach the object from the hand.
-	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before, return false.
+	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
+	 * return false.
 	 */
 
 	UFUNCTION(BlueprintCallable)
@@ -55,10 +56,7 @@ public:
 	UPrimitiveComponent* MyPhysicsComponent;
 
 	UFUNCTION(BlueprintPure)
-	bool IsObjectGrabbed() const
-	{
-		return bObjectGrabbed;
-	}
+	bool IsObjectGrabbed() const { return bObjectGrabbed; }
 
 private:
 	UPROPERTY()
