@@ -56,4 +56,6 @@ private:
 	TArray<UInteractableComponent*> GrabbbedGrabbables;
 
 	UInteractableComponent* SearchForInteractable(AActor* HitActor);
+
+	bool bSearchAtParent = false;
 };

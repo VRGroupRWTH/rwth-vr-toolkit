@@ -165,13 +165,13 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	{
 		// search for UInteractable upwards from hit geometry and return first one found
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
-
 		// if Grabbable is not valid search at parent
 		if (!Grabbable)
 		{
 			HitActor = HitActor->GetParentActor();
 			if (HitActor)
 			{
+				bSearchAtParent = true;
 				return SearchForInteractable(HitActor);
 			}
 		}
@@ -181,5 +181,15 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
 	}
 
+	if (Grabbable)
+	{
+		// in the case, were we had to iterate up the hierarchy, check if we are allowed
+		// to grab the parent via child geometry
+		if (bSearchAtParent && !Grabbable->bAllowGrabFromChildGeometry)
+		{
+			Grabbable = nullptr;
+		}
+	}
+	bSearchAtParent = false;
 	return Grabbable;
 }

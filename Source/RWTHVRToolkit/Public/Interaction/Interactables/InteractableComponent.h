@@ -46,6 +46,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UActionBehaviour*> OnActionBehaviours;
 
+	/**
+	 * If true, allow a grab to be triggered by the geometry of a child actor.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAllowGrabFromChildGeometry = true;
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type) { return type & InteractorFilter; }
 
@@ -68,13 +74,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
 	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
 	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-								   const FInputActionValue& Value, const EInteractorType Interactor);
+	                               const FInputActionValue& Value, const EInteractorType Interactor);
 	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-								 const FInputActionValue& Value, const EInteractorType Interactor);
+	                             const FInputActionValue& Value, const EInteractorType Interactor);
 
 	/**
 	 * @brief If hover and action behaviors are not explicitly specified, load all existing ones
