@@ -5,6 +5,7 @@
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/JsonTypes.h"
+#include "Utility/RWTHVRUtilities.h"
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
@@ -73,6 +74,9 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 	if(bObjectGrabbed)
 	{
 		OnGrabStartEvent.Broadcast(Hand,MyPhysicsComponent);
+	} else
+	{
+		UE_LOG(Toolkit, Warning, TEXT("Grab failed! Cannot attach grabbed component to hand"))
 	}
 }
 

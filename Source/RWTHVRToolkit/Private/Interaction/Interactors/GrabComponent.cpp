@@ -9,6 +9,7 @@
 #include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Utility/RWTHVRUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
@@ -42,12 +43,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-
-			if (HitActor->IsChildActor() && !bIncludeChildActor)
-			{
-				HitActor = HitActor->GetParentActor(); // search at parent actor for UInteractableComponent 
-			}
-			UInteractableComponent* Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
+			UInteractableComponent* Grabbable = SearchForInteractable(HitActor);
 			if (Grabbable && Grabbable->HasInteractionTypeFlag(EInteractorType::Grab) && Grabbable->IsInteractable)
 			{
 				Grabbable->HitResult = Hit;
@@ -154,4 +150,34 @@ void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 	{
 		Grabbable->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
+}
+
+UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
+{
+	UInteractableComponent* Grabbable = nullptr;
+	if(!HitActor)
+	{
+		return Grabbable;
+	}
+	
+	if (HitActor->IsChildActor())
+	{
+		//search for UInteractable upwards from hit geometry and return first one found
+		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
+
+		// if Grabbable is not valid search at parent
+		if(!Grabbable)
+		{
+			HitActor = HitActor->GetParentActor();
+			if(HitActor)
+			{
+				return SearchForInteractable(HitActor);
+			}
+		}
+	}else if(!HitActor->IsChildActor())
+	{
+		Grabbable = HitActor->FindComponentByClass<UInteractableComponent>();
+	}
+	
+	return Grabbable;
 }
