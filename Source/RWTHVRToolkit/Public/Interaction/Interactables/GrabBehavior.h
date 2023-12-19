@@ -26,6 +26,7 @@ public:
 	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 	                         const FInputActionValue& Value) override;
 
+
 	/**
 	 * Called after the object was successfully attached to the hand
 	 */
