@@ -33,8 +33,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bShowDebugTrace = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	bool bReplicateInput = true;
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(Reliable,Server)
+	void OnBeginGrabRPC(const FInputActionValue& Value);
 
 private:
 	UFUNCTION()

@@ -106,6 +106,24 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp,Warning,TEXT("OnBeginGrab Call"))
+	if(bReplicateInput)
+	{
+		OnBeginGrabRPC(Value);
+		UE_LOG(LogTemp,Warning,TEXT("OnBeginGrab with rep"))
+	}
+	else
+	{
+		for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
+		{
+			Grabbale->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		}
+	}
+}
+
+void UGrabComponent::OnBeginGrabRPC_Implementation(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp,Warning,TEXT("OnBeginGrabRPC_Impl"))
 	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
