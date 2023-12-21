@@ -130,10 +130,28 @@ void UGrabComponent::OnBeginGrabRPC_Implementation(const FInputActionValue& Valu
 	}
 }
 
-void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
+void UGrabComponent::OnEndGrabRPC_Implementation(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp,Warning,TEXT("OnEndGrabRPC_Impl"))
 	for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
 	{
 		Grabbale->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+	}
+}
+
+void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp,Warning,TEXT("OnBeginGrab Call"))
+	if(bReplicateInput)
+	{
+		OnEndGrabRPC(Value);
+		UE_LOG(LogTemp,Warning,TEXT("OnBeginGrab with rep"))
+	}
+	else
+	{
+		for (UInteractableComponent* Grabbale : CurrentGrabbableInRange)
+		{
+			Grabbale->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		}
 	}
 }

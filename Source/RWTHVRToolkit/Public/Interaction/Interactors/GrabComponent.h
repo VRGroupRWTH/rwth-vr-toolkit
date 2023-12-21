@@ -42,6 +42,9 @@ public:
 	UFUNCTION(Reliable,Server)
 	void OnBeginGrabRPC(const FInputActionValue& Value);
 
+	UFUNCTION(Reliable,Server)
+	void OnEndGrabRPC(const FInputActionValue& Value);
+
 private:
 	UFUNCTION()
 	void OnBeginGrab(const FInputActionValue& Value);
