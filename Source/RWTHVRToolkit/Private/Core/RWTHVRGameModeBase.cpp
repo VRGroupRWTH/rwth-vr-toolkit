@@ -65,12 +65,12 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 			PawnClass = SpectatorClass;
 		}
 		else
-			PawnClass = DefaultPawnClass;
+			PawnClass = GetDefaultPawnClassForController(NewPlayer);
 
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.Instigator = GetInstigator();
 		SpawnInfo.ObjectFlags |= RF_Transient;
-		const AActor* StartSpot = FindPlayerStart(NewPlayer);
+		const AActor* StartSpot = FindPlayerStart(NewPlayer, PawnClass->GetDisplayNameText().ToString());
 
 		// If a start spot wasn't found,
 		if (StartSpot == nullptr)
@@ -87,7 +87,6 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 		APawn* ResultPawn = GetWorld()->SpawnActor<APawn>(PawnClass, StartSpot->GetTransform(), SpawnInfo);
 		NewPlayer->Possess(ResultPawn);
 	}
-
 
 	Super::PostLogin(NewPlayer);
 }
