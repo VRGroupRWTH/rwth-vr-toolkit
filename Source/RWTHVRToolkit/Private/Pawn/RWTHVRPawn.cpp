@@ -2,6 +2,7 @@
 
 #include "Pawn/RWTHVRPawn.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
@@ -77,9 +78,13 @@ void ARWTHVRPawn::NotifyControllerChanged()
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.
 			if (HasAuthority())
+			{
 				AttachDCRAtoPawn();
+			}
 			else
+			{
 				ServerAttachDCRAtoPawnRpc();
+			}
 		}
 	}
 }
@@ -132,6 +137,39 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	{
 		Cast<IInputExtensionInterface>(Comp)->SetupPlayerInput(PlayerInputComponent);
 	}
+
+	// bind the current mapping contexts
+	for (const auto& Mapping : InputMappingContexts)
+	{
+		AddInputMappingContext(PlayerController, Mapping);
+	}
+}
+
+void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const
+{
+	if (Context)
+	{
+		if (const ULocalPlayer* LP = PC->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* InputSub = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				InputSub->AddMappingContext(Context, 0);
+			}
+			else
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "ARWTHVRPawn::AddInputMappingContext: UEnhancedInputLocalPlayerSubsystem is nullptr!");
+			}
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::AddInputMappingContext: LocalPlayer is nullptr!");
+		}
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::AddInputMappingContext: Context is nullptr!");
+	}
 }
 
 void ARWTHVRPawn::EvaluateLivelink() const
@@ -151,7 +189,9 @@ void ARWTHVRPawn::EvaluateLivelink() const
 																		  HeadSubjectRepresentation.Role, SubjectData);
 
 		if (!bHasValidData)
+		{
 			return;
+		}
 
 		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and
 		// could be further improved.

@@ -31,12 +31,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	bool bMoveWithRightHand = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	UInputMappingContext* IMCMovementLeft;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	UInputMappingContext* IMCMovementRight;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	UInputAction* Move;
 
@@ -53,9 +47,6 @@ public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
-	UPROPERTY()
-	class UInputMappingContext* IMCMovement;
-
 	UPROPERTY()
 	UMotionControllerComponent* MovementHand;
 

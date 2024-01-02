@@ -4,7 +4,6 @@
 #include "Interaction/Interactors/RaycastSelectionComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -81,13 +80,6 @@ void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputCo
 	const APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn)
 		return;
-
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
-	if (!InputSubsystem)
-		return;
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCRaycastSelection, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (!EI)
