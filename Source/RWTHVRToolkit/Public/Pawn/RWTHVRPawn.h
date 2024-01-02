@@ -32,10 +32,7 @@ public:
 	virtual void NotifyControllerChanged() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Input")
-	UInputMappingContext* CurrentGeneralInputMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Input")
-	UInputMappingContext* CurrentMovementInputMappingContext;
+	TArray<UInputMappingContext*> InputMappingContexts;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;

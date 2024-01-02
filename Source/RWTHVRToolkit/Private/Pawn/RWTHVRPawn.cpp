@@ -78,9 +78,13 @@ void ARWTHVRPawn::NotifyControllerChanged()
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.
 			if (HasAuthority())
+			{
 				AttachDCRAtoPawn();
+			}
 			else
+			{
 				ServerAttachDCRAtoPawnRpc();
+			}
 		}
 	}
 }
@@ -135,8 +139,10 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 
 	// bind the current mapping contexts
-	AddInputMappingContext(PlayerController, CurrentGeneralInputMappingContext);
-	AddInputMappingContext(PlayerController, CurrentMovementInputMappingContext);
+	for (const auto& Mapping : InputMappingContexts)
+	{
+		AddInputMappingContext(PlayerController, Mapping);
+	}
 }
 
 void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const
@@ -183,7 +189,9 @@ void ARWTHVRPawn::EvaluateLivelink() const
 																		  HeadSubjectRepresentation.Role, SubjectData);
 
 		if (!bHasValidData)
+		{
 			return;
+		}
 
 		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and
 		// could be further improved.
