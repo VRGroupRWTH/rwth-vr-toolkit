@@ -91,13 +91,6 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	if (!Pawn)
 		return;
 
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
-	if (!InputSubsystem)
-		return;
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCGrab, 0);
-
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (EI == nullptr)
 		return;
