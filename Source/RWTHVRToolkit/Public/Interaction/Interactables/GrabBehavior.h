@@ -39,15 +39,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGrabEnd OnGrabEndEvent;
 
-	/**
-	 * Try to detach the object from the hand.
-	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
-	 * return false.
-	 */
-
-	UFUNCTION(BlueprintCallable)
-	bool TryRelease();
-
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
 	// recursively goes up the hierarchy and returns the highest parent simulating physics
@@ -60,9 +51,14 @@ public:
 	bool IsObjectGrabbed() const { return bObjectGrabbed; }
 
 private:
-	UPROPERTY()
+	/**
+	 * Try to detach the object from the hand. Keep this private for now as this does not broadcast correctly.
+	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
+	 * return false.
+	 */
+	bool TryRelease();
+
 	bool bObjectGrabbed = false;
 
-	UPROPERTY()
 	bool bWasSimulatingPhysics;
 };

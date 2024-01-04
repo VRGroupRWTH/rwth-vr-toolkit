@@ -3,6 +3,7 @@
 
 #include "Interaction/Interactables/GrabBehavior.h"
 #include "Interaction/Interactables/InteractableComponent.h"
+#include "Logging/StructuredLog.h"
 #include "Serialization/JsonTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -43,7 +44,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 		return;
 	}
 
-	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
+	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 
@@ -53,11 +54,11 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 	{
 		bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
 		MyPhysicsComponent->SetSimulatePhysics(false);
-		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(CurrentAttachParent, Rules);
 	}
 	else
 	{
-		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(CurrentAttachParent, Rules);
 	}
 
 	if (bBlockOtherInteractionsWhileGrabbed && bObjectGrabbed)
@@ -72,11 +73,12 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 
 	if (bObjectGrabbed)
 	{
-		OnGrabStartEvent.Broadcast(Hand, MyPhysicsComponent);
+		OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
 	}
 	else
 	{
-		UE_LOG(Toolkit, Warning, TEXT("Grab failed! Cannot attach grabbed component to hand"))
+		UE_LOGFMT(Toolkit, Warning, "Grab failed! Cannot attach grabbed component to attach parent ({Parent})",
+				  CurrentAttachParent->GetName());
 	}
 }
 
@@ -84,11 +86,17 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 								const FInputActionValue& Value)
 {
 
-	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
+	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
-	if (TryRelease())
+	if (!TryRelease())
 	{
-		OnGrabEndEvent.Broadcast(Hand, MyPhysicsComponent);
+		OnGrabEndEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Display,
+				  "UGrabBehavior::OnActionEnd: TryRelease failed to release with AttachParent {Parent}",
+				  CurrentAttachParent->GetName());
 	}
 
 	if (bBlockOtherInteractionsWhileGrabbed)

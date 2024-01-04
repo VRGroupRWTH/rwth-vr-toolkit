@@ -50,7 +50,7 @@ public:
 	 * If true, allow a grab to be triggered by the geometry of a child actor.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bAllowGrabFromChildGeometry = true;
+	bool bAllowInteractionFromChildGeometry = true;
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type) { return type & InteractorFilter; }

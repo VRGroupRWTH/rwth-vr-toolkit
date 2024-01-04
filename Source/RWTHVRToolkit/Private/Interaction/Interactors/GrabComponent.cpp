@@ -9,6 +9,8 @@
 #include "Interaction/Interactables/InteractionBitSet.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Logging/StructuredLog.h"
+#include "Utility/RWTHVRUtilities.h"
 
 // Sets default values for this component's properties
 UGrabComponent::UGrabComponent()
@@ -51,14 +53,14 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		}
 	}
 
-	CurrentGrabbablesInRange = CurrentGrabCompsInRange;
+	CurrentGrabBehavioursInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
 	for (UInteractableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
 	{
-		if (!PreviousGrabbablesInRange.Contains(CurrentGrabbale))
+		if (!PreviousGrabBehavioursInRange.Contains(CurrentGrabbale))
 		{
-			PreviousGrabbablesInRange.AddUnique(CurrentGrabbale);
+			PreviousGrabBehavioursInRange.AddUnique(CurrentGrabbale);
 			CurrentGrabbale->HandleOnHoverStartEvents(this, EInteractorType::Grab);
 		}
 	}
@@ -66,7 +68,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	TArray<UInteractableComponent*> ComponentsToRemove;
 
 	// Call hover end events on all components that were previously in range, but not anymore
-	for (UInteractableComponent* PrevGrabbale : PreviousGrabbablesInRange)
+	for (UInteractableComponent* PrevGrabbale : PreviousGrabBehavioursInRange)
 	{
 		if (!CurrentGrabCompsInRange.Contains(PrevGrabbale))
 		{
@@ -77,7 +79,7 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	for (UInteractableComponent* CompToRemove : ComponentsToRemove)
 	{
-		PreviousGrabbablesInRange.Remove(CompToRemove);
+		PreviousGrabBehavioursInRange.Remove(CompToRemove);
 	}
 }
 
@@ -111,14 +113,14 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 	float DistanceToCurrentGrabbable;
 	const FVector GrabLocation = GetAttachParent()->GetComponentLocation();
 
-	if (CurrentGrabbablesInRange.IsEmpty())
+	if (CurrentGrabBehavioursInRange.IsEmpty())
 		return;
 
-	ClosestGrabbable = CurrentGrabbablesInRange.Last();
+	ClosestGrabbable = CurrentGrabBehavioursInRange.Last();
 	FVector ClosestGrabbableLocation = ClosestGrabbable->GetOwner()->GetActorLocation();
 	DistanceToClosestGrabbable = FVector(ClosestGrabbableLocation - GrabLocation).Size();
 
-	for (UInteractableComponent* Grabbable : CurrentGrabbablesInRange)
+	for (UInteractableComponent* Grabbable : CurrentGrabBehavioursInRange)
 	{
 		if (bOnlyGrabClosestActor)
 		{
@@ -146,7 +148,7 @@ void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for (UInteractableComponent* Grabbable : CurrentGrabbablesInRange)
+	for (UInteractableComponent* Grabbable : CurrentGrabBehavioursInRange)
 	{
 		Grabbable->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
 	}
@@ -157,7 +159,8 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	UInteractableComponent* Grabbable = nullptr;
 	if (!HitActor)
 	{
-		return Grabbable;
+		UE_LOGFMT(Toolkit, Warning, "UGrabComponent::SearchForInteractable: HitActor was nullptr, returning nullptr");
+		return nullptr;
 	}
 
 	if (HitActor->IsChildActor())
@@ -184,7 +187,7 @@ UInteractableComponent* UGrabComponent::SearchForInteractable(AActor* HitActor)
 	{
 		// in the case, were we had to iterate up the hierarchy, check if we are allowed
 		// to grab the parent via child geometry
-		if (bSearchAtParent && !Grabbable->bAllowGrabFromChildGeometry)
+		if (bSearchAtParent && !Grabbable->bAllowInteractionFromChildGeometry)
 		{
 			Grabbable = nullptr;
 		}
