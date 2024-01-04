@@ -49,6 +49,8 @@ private:
 	UPROPERTY()
 	TArray<UInteractableComponent*> CurrentGrabBehavioursInRange;
 
+	TArray<TWeakObjectPtr<UInteractableComponent>> CurrentlyGrabbedComponents;
+
 	UInteractableComponent* SearchForInteractable(AActor* HitActor);
 
 	bool bSearchAtParent = false;

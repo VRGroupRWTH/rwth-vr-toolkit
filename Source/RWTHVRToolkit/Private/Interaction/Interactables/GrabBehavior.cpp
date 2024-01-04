@@ -30,10 +30,8 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 	{
 		return GetHighestParentSimulatingPhysics(Cast<UPrimitiveComponent>(Comp->GetAttachParent()));
 	}
-	else
-	{
-		return Comp;
-	}
+
+	return Comp;
 }
 
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
@@ -45,12 +43,9 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 	}
 
 	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
-
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 
-	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
-
-	if (MyPhysicsComponent)
+	if (MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner()); MyPhysicsComponent != nullptr)
 	{
 		bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
 		MyPhysicsComponent->SetSimulatePhysics(false);
@@ -61,7 +56,17 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(CurrentAttachParent, Rules);
 	}
 
-	if (bBlockOtherInteractionsWhileGrabbed && bObjectGrabbed)
+	if (!bObjectGrabbed)
+	{
+		UE_LOGFMT(Toolkit, Warning, "Grab failed! Cannot attach grabbed component to attach parent ({Parent})",
+				  CurrentAttachParent->GetName());
+		return;
+	}
+
+	// If we want to restrict other interactions while this component is grabbed we add the component
+	// that triggered the interaction to the whitelist of all interactables that are attached to the
+	// affected actor
+	if (bBlockOtherInteractionsWhileGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;
 		GetOwner()->GetComponents<UInteractableComponent>(Interactables, false);
@@ -71,15 +76,7 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 		}
 	}
 
-	if (bObjectGrabbed)
-	{
-		OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
-	}
-	else
-	{
-		UE_LOGFMT(Toolkit, Warning, "Grab failed! Cannot attach grabbed component to attach parent ({Parent})",
-				  CurrentAttachParent->GetName());
-	}
+	OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
@@ -88,17 +85,18 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 
 	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 
+	// We try to release the attached component. If it is not succesful we log and return. Otherwise, we continue.
 	if (!TryRelease())
-	{
-		OnGrabEndEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
-	}
-	else
 	{
 		UE_LOGFMT(Toolkit, Display,
 				  "UGrabBehavior::OnActionEnd: TryRelease failed to release with AttachParent {Parent}",
 				  CurrentAttachParent->GetName());
+		return;
 	}
 
+	OnGrabEndEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
+
+	// Release the interation restriction on all component
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;

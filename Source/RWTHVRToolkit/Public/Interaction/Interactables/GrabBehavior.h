@@ -8,9 +8,11 @@
 #include "GrabBehavior.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, Hand, UPrimitiveComponent*, HeldComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, NewAttachParent, UPrimitiveComponent*,
+											 HeldComponent);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabEnd, USceneComponent*, Hand, UPrimitiveComponent*, HeldComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabEnd, USceneComponent*, PreviousAttachParent, UPrimitiveComponent*,
+											 HeldComponent);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
@@ -52,7 +54,8 @@ public:
 
 private:
 	/**
-	 * Try to detach the object from the hand. Keep this private for now as this does not broadcast correctly.
+	 * Try to detach the object from the hand. Keep this private for now as this does not broadcast the GrabEnd Event
+	 * correctly.
 	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
 	 * return false.
 	 */

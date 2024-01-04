@@ -56,12 +56,12 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	CurrentGrabBehavioursInRange = CurrentGrabCompsInRange;
 
 	// Call hover start events on all components that were not in range before
-	for (UInteractableComponent* CurrentGrabbale : CurrentGrabCompsInRange)
+	for (UInteractableComponent* CurrentGrabbable : CurrentGrabCompsInRange)
 	{
-		if (!PreviousGrabBehavioursInRange.Contains(CurrentGrabbale))
+		if (!PreviousGrabBehavioursInRange.Contains(CurrentGrabbable))
 		{
-			PreviousGrabBehavioursInRange.AddUnique(CurrentGrabbale);
-			CurrentGrabbale->HandleOnHoverStartEvents(this, EInteractorType::Grab);
+			PreviousGrabBehavioursInRange.AddUnique(CurrentGrabbable);
+			CurrentGrabbable->HandleOnHoverStartEvents(this, EInteractorType::Grab);
 		}
 	}
 
@@ -101,49 +101,38 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 
 void UGrabComponent::OnBeginGrab(const FInputActionValue& Value)
 {
-	UInteractableComponent* ClosestGrabbable;
-	float DistanceToClosestGrabbable;
-	float DistanceToCurrentGrabbable;
 	const FVector GrabLocation = GetAttachParent()->GetComponentLocation();
 
 	if (CurrentGrabBehavioursInRange.IsEmpty())
 		return;
 
-	ClosestGrabbable = CurrentGrabBehavioursInRange.Last();
-	FVector ClosestGrabbableLocation = ClosestGrabbable->GetOwner()->GetActorLocation();
-	DistanceToClosestGrabbable = FVector(ClosestGrabbableLocation - GrabLocation).Size();
-
-	for (UInteractableComponent* Grabbable : CurrentGrabBehavioursInRange)
-	{
-		if (bOnlyGrabClosestActor)
-		{
-			// find closest grabbable
-			FVector CurrentGrabbableLocation = Grabbable->GetOwner()->GetActorLocation();
-			DistanceToCurrentGrabbable = FVector(CurrentGrabbableLocation - GrabLocation).Size();
-
-			if (DistanceToCurrentGrabbable < DistanceToClosestGrabbable)
-			{
-				DistanceToClosestGrabbable = DistanceToCurrentGrabbable;
-				ClosestGrabbable = Grabbable;
-			}
-		}
-		else
-		{
-			Grabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
-		}
-	}
-
 	if (bOnlyGrabClosestActor)
 	{
-		ClosestGrabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		auto MinElement = *Algo::MinElementBy(
+			CurrentGrabBehavioursInRange,
+			[&](auto Element) { return FVector(Element->GetOwner()->GetActorLocation() - GrabLocation).Size(); });
+		MinElement->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		CurrentlyGrabbedComponents = {MinElement};
+	}
+	else
+	{
+		CurrentlyGrabbedComponents.Reserve(CurrentlyGrabbedComponents.Num() + CurrentGrabBehavioursInRange.Num());
+		for (UInteractableComponent* Grabbable : CurrentGrabBehavioursInRange)
+		{
+			Grabbable->HandleOnActionStartEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+			CurrentlyGrabbedComponents.Add(Grabbable);
+		}
 	}
 }
 
 void UGrabComponent::OnEndGrab(const FInputActionValue& Value)
 {
-	for (UInteractableComponent* Grabbable : CurrentGrabBehavioursInRange)
+	for (auto& Component : CurrentlyGrabbedComponents)
 	{
-		Grabbable->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		if (Component.IsValid())
+		{
+			Component->HandleOnActionEndEvents(this, GrabInputAction, Value, EInteractorType::Grab);
+		}
 	}
 }
 
