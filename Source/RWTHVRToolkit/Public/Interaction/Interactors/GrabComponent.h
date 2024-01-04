@@ -47,13 +47,10 @@ private:
 	void OnEndGrab(const FInputActionValue& Value);
 
 	UPROPERTY()
-	TArray<UInteractableComponent*> PreviousGrabbablesInRange;
+	TArray<UInteractableComponent*> PreviousGrabBehavioursInRange;
 
 	UPROPERTY()
-	TArray<UInteractableComponent*> CurrentGrabbablesInRange;
-
-	UPROPERTY()
-	TArray<UInteractableComponent*> GrabbbedGrabbables;
+	TArray<UInteractableComponent*> CurrentGrabBehavioursInRange;
 
 	UInteractableComponent* SearchForInteractable(AActor* HitActor);
 
