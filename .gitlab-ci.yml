@@ -37,9 +37,6 @@ include:
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
 
-variables:
-    UNREAL_VERSION: "5.3"
-
 stages:
   - analyze
   - generate
@@ -96,7 +93,7 @@ Build_Linux:
     extends: .Build_Linux_
     tags:
         - linux
-        - unreal
+        - unreal-4.27
         - docker-executor
     variables:
         GIT_STRATEGY: none   
