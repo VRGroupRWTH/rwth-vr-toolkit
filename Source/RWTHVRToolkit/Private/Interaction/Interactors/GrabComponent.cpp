@@ -4,7 +4,6 @@
 #include "Interaction/Interactors/GrabComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/InteractionBitSet.h"
 
