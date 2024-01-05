@@ -24,7 +24,4 @@ public:
 protected:
 	UPROPERTY()
 	ARWTHVRPawn* VRPawn;
-
-	UPROPERTY()
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;
 };

@@ -4,7 +4,6 @@
 #include "Pawn/Navigation/TeleportationComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "NavigationSystem.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
@@ -19,7 +18,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
 
-	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
@@ -44,17 +43,12 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	{
 		TeleportationHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
-		IMCMovement = IMCTeleportRight;
 	}
 	else
 	{
 		TeleportationHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
-		IMCMovement = IMCTeleportLeft;
 	}
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)

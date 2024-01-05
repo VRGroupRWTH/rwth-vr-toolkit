@@ -58,7 +58,7 @@ clang-format:
     allow_failure: false
     script:
         - clang-format --version
-        - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME --depth 1
+        - git fetch --depth 1 origin $CI_MERGE_REQUEST_DIFF_BASE_SHA
         - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
         - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
         - echo "$linter_errors"
@@ -92,9 +92,11 @@ Build_Windows:
 Build_Linux:
     only: ['web', 'schedules']
     extends: .Build_Linux_
+    image: ghcr.io/epicgames/unreal-engine:dev-5.3
     tags:
         - linux
-        - unreal-5.3
+        - unreal
+        - docker-executor
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"

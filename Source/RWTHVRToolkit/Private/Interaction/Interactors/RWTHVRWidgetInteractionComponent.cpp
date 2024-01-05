@@ -4,7 +4,6 @@
 #include "Interaction/Interactors/RWTHVRWidgetInteractionComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactors/GrabComponent.h"
 #include "Logging/StructuredLog.h"
 #include "Misc/Optional.h"
@@ -35,39 +34,32 @@ void URWTHVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* Player
 	if (!Pawn)
 	{
 		UE_LOGFMT(Toolkit, Warning,
-		          "URWTHVRWidgetInteractionComponent::SetupPlayerInput requires a Pawn as Owner, which is not the case. Not setting up any input actions.")
-		;
+				  "URWTHVRWidgetInteractionComponent::SetupPlayerInput requires a Pawn as Owner, which is not the "
+				  "case. Not setting up any input actions.");
 		return;
 	}
 
-	// We can be owned by a pawn, but not be the locally controlled pawn in a MP setting. In that case, just return and
-	// don't set up any inputs.
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
-	if (!InputSubsystem)
-		return;
-
 	// Because we cannot use the regular debug ray (only works in editor), we set up our own (mesh) ray.
 	SetupInteractionRay();
-
-	// add Input Mapping context 
-	InputSubsystem->AddMappingContext(IMCWidgetInteraction, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (!EI)
 	{
 		UE_LOGFMT(Toolkit, Warning,
-		          "URWTHVRWidgetInteractionComponent::SetupPlayerInput: Cannot cast Pawn's InputComponent to UEnhancedInputComponent! Not binding any actions!")
-		;
+				  "URWTHVRWidgetInteractionComponent::SetupPlayerInput: Cannot cast Pawn's InputComponent to "
+				  "UEnhancedInputComponent! Not binding any actions!");
 		return;
 	}
 
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this, &URWTHVRWidgetInteractionComponent::OnBeginClick);
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this, &URWTHVRWidgetInteractionComponent::OnEndClick);
+	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this,
+				   &URWTHVRWidgetInteractionComponent::OnBeginClick);
+	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this,
+				   &URWTHVRWidgetInteractionComponent::OnEndClick);
 }
 
 // Called every frame
 void URWTHVRWidgetInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                  FActorComponentTickFunction* ThisTickFunction)
+													  FActorComponentTickFunction* ThisTickFunction)
 {
 	// We should only tick on the local owner (the controlling client). Not on the server, not on any other pawn.
 	// In theory, this should never happen as we only activate the component for the local player anyway.
@@ -103,7 +95,7 @@ void URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteraction
 		InteractionRay->SetVisibility(NewVisibility == Visible);
 	else
 		UE_LOGFMT(Toolkit, Error,
-	          "URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility: InteractionRay not set yet!");
+				  "URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility: InteractionRay not set yet!");
 }
 
 // Forward the click to the WidgetInteraction
@@ -173,7 +165,7 @@ void URWTHVRWidgetInteractionComponent::SetupInteractionRay()
 	// turns off collisions as the InteractionRay is only meant to visualize the ray
 	InteractionRay->SetCollisionProfileName(TEXT("NoCollision"));
 
-	//the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
+	// the ray model has a length of 100cm (and is a bit too big in Y/Z dir)
 	InteractionRay->SetRelativeScale3D(FVector(InteractionDistance / 100.0f, 0.5f, 0.5f));
 	SetInteractionRayVisibility(InteractionRayVisibility);
 
