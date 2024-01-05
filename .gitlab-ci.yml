@@ -81,7 +81,7 @@ Build_Windows:
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.3
+        - unreal
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
