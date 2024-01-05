@@ -1,4 +1,5 @@
-# 🚨🚨🚨 The Unreal 5.0 branch is deprecated, please update to the latest Unreal Version for active development. 🚨🚨🚨
+# 🚨 DEPRECATED 🚨 
+The Unreal 5.0 branch is deprecated, please update to the latest Unreal Version for active development.
 
 
 # :card_index_dividers: RWTH VR Toolkit
