@@ -46,14 +46,18 @@ stages:
   - deploy
 
 Generate_Project:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
         GEN_TEMPLATE_BRANCH: "4.26"
 
 Build_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Build_Windows_
     tags:
         - windows
@@ -68,7 +72,9 @@ Build_Windows:
           artifacts: true
     
 Build_Linux:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Build_Linux_
     # override image from base script as there is no official 4.26 image
     image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/unreal-development/unreal-docker-ci-images/4-26_linux
@@ -85,14 +91,18 @@ Build_Linux:
           artifacts: true
 
 Deploy_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_VRDev_
     needs:
         - job: "Build_Windows"
           artifacts: true          
 
 Deploy_CAVE:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_CAVE_
     needs:
         - job: "Build_Linux"
