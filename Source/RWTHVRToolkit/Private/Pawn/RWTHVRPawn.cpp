@@ -245,7 +245,6 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 	{
 		const auto CaveSetupActor = FoundActors[0];
 		FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
-		AttachmentRules.RotationRule = EAttachmentRule::KeepWorld;
 		CaveSetupActor->AttachToActor(this, AttachmentRules);
 		UE_LOGFMT(Toolkit, Display, "VirtualRealityPawn: Attaching CaveSetup to our pawn!");
 	}
