@@ -71,6 +71,9 @@ Generate_Project:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
@@ -82,6 +85,9 @@ Build_Windows:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Windows_
     tags:
         - windows
@@ -99,6 +105,9 @@ Build_Linux:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Linux_
     tags:
         - linux
