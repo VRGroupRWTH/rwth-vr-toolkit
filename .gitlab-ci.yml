@@ -7,7 +7,7 @@
 
 include:
   - project: '${UNREAL_CI_PROJECT}'
-    ref: master 
+    ref: master
     file: '/shared_scripts.yml'
     
 # In this file you are able to configure your plugins pipeline.
@@ -36,6 +36,9 @@ include:
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
+
+variables:
+    UNREAL_VERSION: "5.3"
 
 stages:
   - analyze
@@ -69,7 +72,6 @@ Generate_Project:
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
@@ -79,7 +81,7 @@ Build_Windows:
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.3
+        - unreal
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -92,7 +94,6 @@ Build_Windows:
 Build_Linux:
     only: ['web', 'schedules']
     extends: .Build_Linux_
-    image: ghcr.io/epicgames/unreal-engine:dev-5.3
     tags:
         - linux
         - unreal
