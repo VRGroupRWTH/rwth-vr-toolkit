@@ -68,7 +68,9 @@ clang-format:
         - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
 
 Generate_Project:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
@@ -77,7 +79,9 @@ Generate_Project:
 
 
 Build_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Build_Windows_
     tags:
         - windows
@@ -92,7 +96,9 @@ Build_Windows:
           artifacts: true
     
 Build_Linux:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Build_Linux_
     tags:
         - linux
@@ -108,14 +114,18 @@ Build_Linux:
           artifacts: true
 
 Deploy_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_VRDev_
     needs:
         - job: "Build_Windows"
           artifacts: true          
 
 Deploy_CAVE:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_vrdemo_
     needs:
         - job: "Build_Linux"
