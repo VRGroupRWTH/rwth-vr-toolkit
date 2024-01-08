@@ -17,7 +17,6 @@ UGrabComponent::UGrabComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these
 	// features off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 	// ...
 }
 
@@ -27,8 +26,6 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	TArray<UInteractableComponent*> CurrentGrabCompsInRange;
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
 	TArray<FHitResult> OutHits;
 	const ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_PhysicsBody);
 
@@ -89,6 +86,9 @@ void UGrabComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	const APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn)
 		return;
+
+	// Probably not the best place to add this.
+	ActorsToIgnore.AddUnique(GetOwner());
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (EI == nullptr)

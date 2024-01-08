@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bOnlyGrabClosestActor = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	TArray<AActor*> ActorsToIgnore;
+
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
