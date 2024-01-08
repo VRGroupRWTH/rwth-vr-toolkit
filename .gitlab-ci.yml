@@ -79,7 +79,7 @@ Build_Windows:
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.3
+        - unreal
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -94,7 +94,8 @@ Build_Linux:
     extends: .Build_Linux_
     tags:
         - linux
-        - unreal-5.3
+        - unreal
+        - docker-executor
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
