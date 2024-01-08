@@ -38,7 +38,7 @@ include:
 # with a generated project.
 
 variables:
-    UNREAL_VERSION: "5.3"
+    UNREAL_VERSION: "4.26"
 
 stages:
   - generate
