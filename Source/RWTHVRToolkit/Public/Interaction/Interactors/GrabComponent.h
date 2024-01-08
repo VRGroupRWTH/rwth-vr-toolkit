@@ -31,6 +31,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
 	bool bShowDebugTrace = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	bool bOnlyGrabClosestActor = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
+	TArray<AActor*> ActorsToIgnore;
+
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
@@ -41,8 +47,14 @@ private:
 	void OnEndGrab(const FInputActionValue& Value);
 
 	UPROPERTY()
-	TArray<UInteractableComponent*> PreviousGrabbablesInRange;
+	TArray<UInteractableComponent*> PreviousGrabBehavioursInRange;
 
 	UPROPERTY()
-	TArray<UInteractableComponent*> CurrentGrabbableInRange;
+	TArray<UInteractableComponent*> CurrentGrabBehavioursInRange;
+
+	TArray<TWeakObjectPtr<UInteractableComponent>> CurrentlyGrabbedComponents;
+
+	UInteractableComponent* SearchForInteractable(AActor* HitActor);
+
+	bool bSearchAtParent = false;
 };
