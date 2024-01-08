@@ -7,7 +7,7 @@
 
 include:
   - project: '${UNREAL_CI_PROJECT}'
-    ref: remove_tags 
+    ref: master
     file: '/shared_scripts.yml'
     
 # In this file you are able to configure your plugins pipeline.
