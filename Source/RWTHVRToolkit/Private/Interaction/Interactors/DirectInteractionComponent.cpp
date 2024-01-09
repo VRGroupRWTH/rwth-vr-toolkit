@@ -42,7 +42,8 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		if (HitActor)
 		{
 			UInteractableComponent* InteractableComp = SearchForInteractable(HitActor);
-			if (InteractableComp && InteractableComp->HasInteractionTypeFlag(EInteractorType::Direct) && InteractableComp->IsInteractable)
+			if (InteractableComp && InteractableComp->HasInteractionTypeFlag(EInteractorType::Direct) &&
+				InteractableComp->IsInteractable)
 			{
 				InteractableComp->HitResult = Hit;
 				CurrentInteractableCompsInRange.AddUnique(InteractableComp);
@@ -112,7 +113,8 @@ void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Va
 	{
 		auto MinElement = *Algo::MinElementBy(
 			CurrentInteractableComponentsInRange,
-			[&](auto Element) { return FVector(Element->GetOwner()->GetActorLocation() - InteractionLocation).Size(); });
+			[&](auto Element)
+			{ return FVector(Element->GetOwner()->GetActorLocation() - InteractionLocation).Size(); });
 		MinElement->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
 		CurrentlyInteractedComponents = {MinElement};
 	}
