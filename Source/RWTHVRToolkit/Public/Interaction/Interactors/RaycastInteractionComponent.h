@@ -6,24 +6,24 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "RaycastSelectionComponent.generated.h"
+#include "RaycastInteractionComponent.generated.h"
 
 
 UCLASS(Abstract, Blueprintable)
-class RWTHVRTOOLKIT_API URaycastSelectionComponent : public USceneComponent, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API URaycastInteractionComponent : public USceneComponent, public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	URaycastSelectionComponent();
+	URaycastInteractionComponent();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	class UInputAction* RayCastSelectInputAction;
+	class UInputAction* InteractionInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
 	float TraceLength = 3000.0;
@@ -32,10 +32,10 @@ public:
 
 private:
 	UFUNCTION()
-	void OnBeginSelect(const FInputActionValue& Value);
+	void OnBeginInteraction(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void OnEndSelect(const FInputActionValue& Value);
+	void OnEndInteraction(const FInputActionValue& Value);
 
 public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
