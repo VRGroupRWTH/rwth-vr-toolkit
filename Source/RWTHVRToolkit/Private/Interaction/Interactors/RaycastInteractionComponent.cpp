@@ -23,7 +23,7 @@ void URaycastInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UInteractableComponent* CurrentSelectable = nullptr;
+	UInteractableComponent* NewInteractableComponent = nullptr;
 
 
 	TArray<AActor*> ActorsToIgnore;
@@ -40,15 +40,15 @@ void URaycastInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	AActor* HitActor = Hit.GetActor();
 	if (HitActor)
 	{
-		UInteractableComponent* Selectable = HitActor->FindComponentByClass<UInteractableComponent>();
-		if (Selectable && Selectable->IsInteractable)
+		UInteractableComponent* InteractableComponent = HitActor->FindComponentByClass<UInteractableComponent>();
+		if (InteractableComponent && InteractableComponent->IsInteractable)
 		{
-			CurrentSelectable = Selectable;
-			Selectable->HitResult = Hit;
+			NewInteractableComponent = InteractableComponent;
+			InteractableComponent->HitResult = Hit;
 		}
 	}
 
-	CurrentInteractable = CurrentSelectable;
+	CurrentInteractable = NewInteractableComponent;
 
 	if (CurrentInteractable != PreviousInteractable)
 	{
