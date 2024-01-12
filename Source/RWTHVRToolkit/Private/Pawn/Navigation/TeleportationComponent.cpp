@@ -27,14 +27,15 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 		GetWorld(), TeleportTraceSystem, VRPawn->GetActorLocation(), FRotator(0), FVector(1), true, true,
 		ENCPoolMethod::AutoRelease, true);
 
-	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
-	SpawnParameters.Name = "TeleportVisualizer";
-
-	if (BPTeleportVisualizer)
+	if (!BPTeleportVisualizer)
 	{
-		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(),
-															VRPawn->GetActorRotation(), SpawnParameters);
+		UE_LOG(Toolkit, Error, TEXT("SetupPlayerInput: BPTeleportVisualizer must be set to a blueprint"));												
+		return;
 	}
+
+	TeleportVisualizer =
+		GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(), VRPawn->GetActorRotation());
+
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 
