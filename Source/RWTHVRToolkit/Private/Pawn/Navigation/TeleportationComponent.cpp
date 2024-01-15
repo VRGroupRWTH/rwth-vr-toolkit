@@ -29,7 +29,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 
 	if (!BPTeleportVisualizer)
 	{
-		UE_LOG(Toolkit, Error, TEXT("SetupPlayerInput: BPTeleportVisualizer must be set to a blueprint"));
+		UE_LOG(Toolkit, Error, TEXT("SetupPlayerInput: BPTeleportVisualizer must be set to an Actor class that can be spawned!"));
 		return;
 	}
 
