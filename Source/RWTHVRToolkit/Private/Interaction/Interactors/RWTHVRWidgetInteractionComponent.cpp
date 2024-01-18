@@ -4,7 +4,7 @@
 #include "Interaction/Interactors/RWTHVRWidgetInteractionComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "Interaction/Interactors/GrabComponent.h"
+#include "Interaction/Interactors/DirectInteractionComponent.h"
 #include "Logging/StructuredLog.h"
 #include "Misc/Optional.h"
 #include "Utility/RWTHVRUtilities.h"
