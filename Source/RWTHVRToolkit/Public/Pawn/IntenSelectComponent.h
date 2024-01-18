@@ -9,7 +9,6 @@
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "Interaction/GrabbingBehaviorComponent.h"
 #include "Interaction/IntenSelectable.h"
 #include "IntenSelectComponent.generated.h"
 #pragma endregion
@@ -44,8 +43,6 @@ private:
 		UIntenSelectable* LastKnownSelection;
 	UPROPERTY()
 		FVector LastKnownGrabPoint;
-	UPROPERTY()
-		UGrabbingBehaviorComponent* GrabbedActorBehaviourComponent;
 	UPROPERTY()
 		UStaticMeshComponent* DebugConeMeshComponent;
 	UPROPERTY()
@@ -185,7 +182,7 @@ public:
 	UIntenSelectComponent(const FObjectInitializer& ObjectInitializer);
 
 #pragma region /** SELECTION */
-	void SelectObject(UGrabbingBehaviorComponent* GrabbingBehaviourComponent, UIntenSelectable* SelectableComponent, AActor* SelectedBy);
+	void SelectObject(UIntenSelectable* SelectableComponent, AActor* SelectedBy);
 	void Unselect();
 #pragma endregion 
 

@@ -2,7 +2,6 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
-#include "Interaction/Targetable.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
@@ -412,6 +411,8 @@ void UIntenSelectComponent::HandleWidgetInteraction()
 	UWidgetComponent* FocusedWidget = Cast<UWidgetComponent>(Hit.GetValue().GetComponent());
 	IsWidgetInFocus = (FocusedWidget != nullptr);
 
+
+	/*
 	if(IsWidgetInFocus)
 	{
 		if (FocusedWidget != LastFocusedWidget)
@@ -445,7 +446,7 @@ void UIntenSelectComponent::HandleWidgetInteraction()
 		{
 			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Black, "C++ Pos not available");
 		}
-	}
+	}*/
 }
 
 TOptional<FHitResult> UIntenSelectComponent::RaytraceForFirstHit(const FVector& Start, const FVector& End) const
@@ -564,7 +565,7 @@ void UIntenSelectComponent::OnFireUp()
 
 //				SELECTION-HANDLING
 
-void UIntenSelectComponent::SelectObject(UGrabbingBehaviorComponent* GrabbingBehaviourComponent, UIntenSelectable* SelectableComponent, AActor* SelectedBy) {
+void UIntenSelectComponent::SelectObject(UIntenSelectable* SelectableComponent, AActor* SelectedBy) {
 	CurrentSelection = SelectableComponent;
 }
 

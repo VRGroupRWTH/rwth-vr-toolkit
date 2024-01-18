@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HoverBehaviour.h"
 #include "InputActionValue.h"
 #include "Components/ActorComponent.h"
+#include "Interactables/ActionBehaviour.h"
+#include "Interactables/HoverBehaviour.h"
 #include "IntenSelectable.generated.h"
 
 
@@ -30,7 +31,7 @@ public:
 	TArray<UHoverBehaviour*> OnSelectBehaviours;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UClickBehaviour*> OnClickBehaviours;
+	TArray<UActionBehaviour*> OnClickBehaviours;
 	
 
 public:

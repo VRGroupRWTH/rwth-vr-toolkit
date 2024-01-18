@@ -2,9 +2,7 @@
 
 
 #include "Interaction/IntenSelectable.h"
-#include "Interaction/ClickBehaviour.h"
 #include "Interaction/IntenSelectableSinglePointScoring.h"
-#include "Interaction/HoverBehaviour.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"
@@ -40,18 +38,20 @@ void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* Inte
 
 void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect)
 {
-	for(const UClickBehaviour* b : OnClickBehaviours)
+	for(const UActionBehaviour* b : OnClickBehaviours)
 	{
-		FInputActionValue v;
-		b->OnClickStartEvent.Broadcast(IntenSelect, v);
+		FInputActionValue v{};
+		const UInputAction* a{};
+		b->OnActionBeginEvent.Broadcast(IntenSelect, a, v);
 	}
 }
 
 void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
 {
-	for(const UClickBehaviour* b : OnClickBehaviours)
+	for(const UActionBehaviour* b : OnClickBehaviours)
 	{
-		b->OnClickEndEvent.Broadcast(IntenSelect, InputValue);
+		const UInputAction* a{};
+		b->OnActionEndEvent.Broadcast(IntenSelect, a, InputValue);
 	}
 }
 
@@ -75,7 +75,7 @@ void UIntenSelectable::InitDefaultBehaviourReferences()
 	this->OnSelectBehaviours = AttachedSelectionBehaviours;
 
 	//Clicking
-	TInlineComponentArray<UClickBehaviour*> AttachedClickBehaviours;
+	TInlineComponentArray<UActionBehaviour*> AttachedClickBehaviours;
 	GetOwner()->GetComponents(AttachedClickBehaviours, true);
 
 	this->OnClickBehaviours = AttachedClickBehaviours;
