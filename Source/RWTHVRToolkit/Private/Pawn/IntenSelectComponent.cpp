@@ -1,5 +1,6 @@
 #include "Pawn/IntenSelectComponent.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Interaction/Targetable.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
@@ -70,6 +71,15 @@ void UIntenSelectComponent::BeginPlay()
 }
 
 void UIntenSelectComponent::InitInputBindings(){
+	const APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+	
+	// Clear out existing mapping, and add our mapping
+	Subsystem->ClearAllMappings();
+	Subsystem->AddMappingContext(InputMapping, 0);
+
+	
 	// const auto InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	// if(!InputComponent)
 	// {
@@ -104,7 +114,7 @@ void UIntenSelectComponent::InitSplineComponent()
 		const FString Message = "Error while spawning SplineComponent!";
 		#if WITH_EDITOR
 			const FText Title = FText::FromString(FString("ERROR"));
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), &Title);
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
 		#endif
 		
 		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
