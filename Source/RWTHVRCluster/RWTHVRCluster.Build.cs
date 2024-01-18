@@ -5,37 +5,65 @@ public class RWTHVRCluster : ModuleRules
 	public RWTHVRCluster(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PrivateIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-			"Core",
-			"CoreUObject",
-			"Engine",
-			"RWTHVRToolkit",
-			"DisplayCluster",
-			"DeveloperSettings",
-            "InputCore",
-            "UMG",
-            "Slate",
-            "SlateCore"
+				"Core",
+				"CoreUObject",
+				"Engine",
+				"DeveloperSettings",
+				"EnhancedInput",
+				"UMG",
+				"Slate",
+				"SlateCore",
+				"RWTHVRToolkit",
+				"LiveLink"
 			}
 		);
 
+		if (IsPluginEnabledForTarget("nDisplay", base.Target))
+		{
+			PublicDependencyModuleNames.AddRange(
+				new string[]
+				{
+					"DisplayCluster"
+				}
+			);
+		}
+
+		if (IsPluginEnabledForTarget("DTrackPlugin", base.Target))
+		{
+			PublicDependencyModuleNames.AddRange(
+				new string[]
+				{
+					"DTrackPlugin",
+					"DTrackInput"
+				}
+			);
+		}
+
 		PrivateDependencyModuleNames.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
-        DynamicallyLoadedModuleNames.AddRange(
-            new string[] { }
-        );
-    }
+		DynamicallyLoadedModuleNames.AddRange(
+			new string[] { }
+		);
+	}
+
+	private static bool IsPluginEnabledForTarget(string PluginName, ReadOnlyTargetRules Target)
+	{
+		var PL = Plugins.GetPlugin(PluginName);
+		return PL != null && Target.ProjectFile != null && Plugins.IsPluginEnabledForTarget(PL,
+			ProjectDescriptor.FromFile(Target.ProjectFile), Target.Platform, Target.Configuration, Target.Type);
+	}
 }

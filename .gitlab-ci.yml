@@ -7,7 +7,7 @@
 
 include:
   - project: '${UNREAL_CI_PROJECT}'
-    ref: master 
+    ref: master
     file: '/shared_scripts.yml'
     
 # In this file you are able to configure your plugins pipeline.
@@ -37,27 +37,61 @@ include:
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
 
+variables:
+    UNREAL_VERSION: "5.3"
+
 stages:
+  - analyze
   - generate
   - build
   - deploy
 
+clang-format:
+    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/unreal-development/plugins/rwth-vr-toolkit/alpine-analyze:latest
+    tags:
+        - docker-executor
+        - linux
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    variables:
+        GIT_STRATEGY: fetch
+        GIT_CHECKOUT: "true"
+        GIT_DEPTH: "2"
+    stage: analyze
+    allow_failure: false
+    script:
+        - clang-format --version
+        - git fetch --depth 1 origin $CI_MERGE_REQUEST_DIFF_BASE_SHA
+        - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
+        - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
+        - echo "$linter_errors"
+        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
+
 Generate_Project:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
-            [develop@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
 
 Build_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.3
+        - unreal
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -68,11 +102,17 @@ Build_Windows:
           artifacts: true
     
 Build_Linux:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Linux_
     tags:
         - linux
-        - unreal-5.3
+        - unreal
+        - docker-executor
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -83,16 +123,19 @@ Build_Linux:
           artifacts: true
 
 Deploy_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_VRDev_
     needs:
         - job: "Build_Windows"
           artifacts: true          
 
 Deploy_CAVE:
-    only: ['web', 'schedules']
-    extends: .Deploy_CAVE_
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+    extends: .Deploy_vrdemo_
     needs:
         - job: "Build_Linux"
           artifacts: true
-

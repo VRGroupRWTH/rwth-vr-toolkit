@@ -10,7 +10,7 @@ enum DefaultActivationType
 	DefaultActivationType_ON UMETA(DisplayName = "On by default")
 };
 
-UCLASS(config=Game, defaultconfig, meta=(DisplayName="CAVE Overlay"))
+UCLASS(config = Game, defaultconfig, meta = (DisplayName = "CAVE Overlay"))
 class RWTHVRCLUSTER_API UCAVEOverlaySettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -19,6 +19,6 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "General", meta = (DisplayName = "Default Activation Type"))
 	TEnumAsByte<DefaultActivationType> DefaultActivationType = DefaultActivationType_ON;
 
-	UPROPERTY(EditAnywhere, config, Category = Maps, meta=(AllowedClasses="World"))
-	TArray<FSoftObjectPath> excludedMaps;
+	UPROPERTY(EditAnywhere, config, Category = Maps, meta = (AllowedClasses = "/Script/Engine.World"))
+	TArray<FSoftObjectPath> ExcludedMaps;
 };

@@ -36,7 +36,10 @@ public class RWTHVRToolkit : ModuleRules
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[]{}
+			new string[]
+			{
+				"NetCore"
+			}
 		);
 		if (Target.bBuildEditor == true)
 		{
