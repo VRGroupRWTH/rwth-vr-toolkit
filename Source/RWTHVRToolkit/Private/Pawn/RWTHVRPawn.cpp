@@ -93,6 +93,8 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	ThisPlayerInputComponent = PlayerInputComponent;
+
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (!PlayerController)
 	{
@@ -144,6 +146,12 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		AddInputMappingContext(PlayerController, Mapping);
 	}
 }
+
+UInputComponent* ARWTHVRPawn::GetPlayerInputComponent() 
+{ 
+	return ThisPlayerInputComponent;
+}
+
 
 void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const
 {
