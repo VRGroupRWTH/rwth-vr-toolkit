@@ -16,15 +16,6 @@
 	"EnabledByDefault": true,
 	"Modules": [
 		{
-			"Name": "RWTHVRCluster",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Linux"
-			]
-		},
-		{
 			"Name": "RWTHVRToolkit",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
@@ -37,21 +28,8 @@
 	],
 	"Plugins": [
 		{
-			"Name": "nDisplay",
-			"Enabled": true
-		},
-		{
 			"Name": "LiveLink",
 			"Enabled": true
-		},
-		{
-			"Name": "LiveLinkOvernDisplay",
-			"Enabled": true
-		},
-		{
-			"Name": "DTrackPlugin",
-			"Enabled": true,
-			"Optional": true
 		},
 		{
 			"Name": "EnhancedInput",
@@ -60,11 +38,6 @@
 		{
 			"Name": "Niagara",
 			"Enabled": true
-		},
-		{
-			"Name": "Switchboard",
-			"Enabled": true,
-			"Optional": true
 		}
 	]
 }

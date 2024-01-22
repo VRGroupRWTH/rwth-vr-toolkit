@@ -127,7 +127,7 @@ EEyeStereoOffset URWTHVRUtilities::GetNodeEyeType()
 		                                     ? RootActor->GetDefaultCamera()->GetStereoOffset()
 		                                     : EDisplayClusterEyeStereoOffset::None);
 #else
-	return EDisplayClusterEyeStereoOffset::None;
+	return EEyeStereoOffset::None;
 #endif
 }
 
