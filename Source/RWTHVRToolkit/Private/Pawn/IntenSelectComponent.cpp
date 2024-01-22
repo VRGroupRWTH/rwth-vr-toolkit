@@ -1,8 +1,10 @@
 #include "Pawn/IntenSelectComponent.h"
 
+#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
+#include "Materials/MaterialExpressionStrata.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Misc/MessageDialog.h"
@@ -49,6 +51,8 @@ UIntenSelectComponent::UIntenSelectComponent(const FObjectInitializer& ObjectIni
 	
 	ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultForwardRayTransparencyCurve(TEXT("CurveFloat'/RWTHVRToolkit/IntenSelect/ForwardRayTransparencyCurve.ForwardRayTransparencyCurve'"));
 	this->ForwardRayTransparencyCurve = DefaultForwardRayTransparencyCurve.Object;
+	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(TEXT("IntenSelectClick'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
+	this->InputClick = InputActionClick.Object;
 }
 
 // Called when the game starts
@@ -73,10 +77,17 @@ void UIntenSelectComponent::InitInputBindings(){
 	const APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+
+	UInputComponent* PlayerInputComponent = PC->InputComponent;
+	UEnhancedInputComponent* PEI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	
+	// Bind the actions
+	PEI->BindAction(InputClick, ETriggerEvent::Started, this, &UIntenSelectComponent::OnFireDown);
+	PEI->BindAction(InputClick, ETriggerEvent::Completed, this, &UIntenSelectComponent::OnFireUp);
+
 	// Clear out existing mapping, and add our mapping
-	Subsystem->ClearAllMappings();
-	Subsystem->AddMappingContext(InputMapping, 0);
+	//Subsystem->ClearAllMappings();
+	//Subsystem->AddMappingContext(InputMapping, 0);
 
 	
 	// const auto InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();

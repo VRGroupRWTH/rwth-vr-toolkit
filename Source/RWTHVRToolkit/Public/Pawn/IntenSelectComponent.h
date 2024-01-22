@@ -7,8 +7,10 @@
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "CoreMinimal.h"
+#include "InputAction.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
 #include "IntenSelectComponent.generated.h"
 #pragma endregion
 
@@ -114,9 +116,11 @@ public:
 
 
 #pragma region /** Input */
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
-	class UInputMappingContext* InputMapping;
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+		class UInputMappingContext* InputMapping;
+	UPROPERTY(EditAnywhere, Category = "Input")
+		UInputAction* InputClick;
  
 #pragma endregion
 	
