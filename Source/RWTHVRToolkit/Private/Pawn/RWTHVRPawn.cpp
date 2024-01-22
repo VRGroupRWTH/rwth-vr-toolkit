@@ -36,7 +36,8 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
-
+	
+#if 0	
 	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
 	// This is required because for collision based movement, it can happen that the physics engine
 	// for some reason acts different on the nodes, therefore leading to a potential desync when
@@ -44,6 +45,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	SyncComponent =
 		CreateDefaultSubobject<UDisplayClusterSceneComponentSyncParent>(TEXT("Parent Display Cluster Sync Component"));
 	SyncComponent->SetupAttachment(RootComponent);
+#endif
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)

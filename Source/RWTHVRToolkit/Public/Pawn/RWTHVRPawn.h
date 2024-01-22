@@ -6,7 +6,9 @@
 #include "LiveLinkRole.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 
+#if 0
 #include "Components/DisplayClusterSceneComponentSyncParent.h"
+#endif
 
 #include "RWTHVRPawn.generated.h"
 
@@ -55,7 +57,7 @@ public:
 	UCameraComponent* HeadCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
-	UDisplayClusterSceneComponentSyncParent* SyncComponent;
+	USceneComponent* SyncComponent;
 
 	// LiveLink functionality
 
