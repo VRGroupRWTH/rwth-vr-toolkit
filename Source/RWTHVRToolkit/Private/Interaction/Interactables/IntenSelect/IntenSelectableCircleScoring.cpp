@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableCircleScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableCircleScoring.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"

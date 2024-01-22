@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableCubeScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableCubeScoring.h"
+
 #include "DrawDebugHelpers.h"
 #include "Intersection/IntrRay3AxisAlignedBox3.h"
 #include "Kismet/KismetMathLibrary.h"

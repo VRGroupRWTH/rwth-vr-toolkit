@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "Components/ActorComponent.h"
-#include "Interactables/ActionBehaviour.h"
-#include "Interactables/HoverBehaviour.h"
 #include "IntenSelectable.generated.h"
 
 

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableSphereScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableSphereScoring.h"
 
 #include "DrawDebugHelpers.h"
 #include "Algo/IndexOf.h"

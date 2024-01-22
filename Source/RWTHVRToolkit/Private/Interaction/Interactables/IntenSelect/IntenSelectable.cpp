@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
 
-#include "Interaction/IntenSelectable.h"
-#include "Interaction/IntenSelectableSinglePointScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"

@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableScoring.h"
+
+#include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 
 float UIntenSelectableScoring::GetScore(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
-	const float ConeBackwardShiftDistance, const float ConeAngle, const FVector& TestPoint, const float LastValue,
-	const float DeltaTime)
+                                        const float ConeBackwardShiftDistance, const float ConeAngle, const FVector& TestPoint, const float LastValue,
+                                        const float DeltaTime)
 {
 	const FVector ShiftedConeOrigin = ConeOrigin - (ConeForwardDirection * ConeBackwardShiftDistance);
 	

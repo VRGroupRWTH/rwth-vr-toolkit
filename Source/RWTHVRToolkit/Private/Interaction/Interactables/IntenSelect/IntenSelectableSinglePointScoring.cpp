@@ -1,4 +1,4 @@
-#include "Interaction/IntenSelectableSinglePointScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
 
 UIntenSelectableSinglePointScoring::UIntenSelectableSinglePointScoring()
 {

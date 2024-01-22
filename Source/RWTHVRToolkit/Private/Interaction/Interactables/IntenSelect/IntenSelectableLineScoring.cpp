@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableLineScoring.h"
+#include "Interaction/Interactables/IntenSelect/IntenSelectableLineScoring.h"
+
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 

@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Interaction/IntenSelectableCylinderScoring.h"
+
+#include "Interaction/Interactables/IntenSelect/IntenSelectableCylinderScoring.h"
+
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 

@@ -9,7 +9,6 @@
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "Interaction/IntenSelectable.h"
 #include "IntenSelectComponent.generated.h"
 #pragma endregion
 
