@@ -117,9 +117,7 @@ public:
 
 #pragma region /** Input */
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-		class UInputMappingContext* InputMapping;
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "IntenSelect|Input")
 		UInputAction* InputClick;
  
 #pragma endregion

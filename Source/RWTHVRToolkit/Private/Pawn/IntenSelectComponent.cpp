@@ -51,7 +51,8 @@ UIntenSelectComponent::UIntenSelectComponent(const FObjectInitializer& ObjectIni
 	
 	ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultForwardRayTransparencyCurve(TEXT("CurveFloat'/RWTHVRToolkit/IntenSelect/ForwardRayTransparencyCurve.ForwardRayTransparencyCurve'"));
 	this->ForwardRayTransparencyCurve = DefaultForwardRayTransparencyCurve.Object;
-	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(TEXT("IntenSelectClick'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
+	
+	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(TEXT("/Script/EnhancedInput.InputAction'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
 	this->InputClick = InputActionClick.Object;
 }
 
@@ -80,32 +81,23 @@ void UIntenSelectComponent::InitInputBindings(){
 
 	UInputComponent* PlayerInputComponent = PC->InputComponent;
 	UEnhancedInputComponent* PEI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+
+	if(!PEI){
+		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
+		
+		#if WITH_EDITOR
+			const FText Title = FText::FromString(FString("ERROR"));
+			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
+		#endif
+			
+		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
+		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
+		return;
+		}
 	
 	// Bind the actions
 	PEI->BindAction(InputClick, ETriggerEvent::Started, this, &UIntenSelectComponent::OnFireDown);
 	PEI->BindAction(InputClick, ETriggerEvent::Completed, this, &UIntenSelectComponent::OnFireUp);
-
-	// Clear out existing mapping, and add our mapping
-	//Subsystem->ClearAllMappings();
-	//Subsystem->AddMappingContext(InputMapping, 0);
-
-	
-	// const auto InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	// if(!InputComponent)
-	// {
-	// 	const FString Message = "There is no InputComponent attached to the same Actor as IntenSelect!";
-	// #if WITH_EDITOR
-	// 	const FText Title = FText::FromString(FString("ERROR"));
-	// 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), &Title);
-	// #endif
-	// 	
-	// 	UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
-	// 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
-	// 	return;
-	// }
-	
-	// InputComponent->BindAction("Fire", IE_Pressed, this, &UIntenSelectComponent::OnFireDown);
-	// InputComponent->BindAction("Fire", IE_Released, this, &UIntenSelectComponent::OnFireUp);
 }
 
 void UIntenSelectComponent::InitSplineComponent()
