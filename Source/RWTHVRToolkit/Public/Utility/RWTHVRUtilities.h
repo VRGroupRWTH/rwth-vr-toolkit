@@ -17,17 +17,17 @@ class RWTHVRTOOLKIT_API URWTHVRUtilities : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit|Platform")
 	static bool IsDesktopMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit|Platform")
 	static bool IsHeadMountedMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit|Platform")
 	static bool IsRoomMountedMode();
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster|Platform")
+	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit|Platform")
 	static bool IsPrimaryNode();
 
 	/* Distance in meters */
-	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
+	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit")
 	static float GetEyeDistance();
 
 	UFUNCTION(BlueprintCallable)
