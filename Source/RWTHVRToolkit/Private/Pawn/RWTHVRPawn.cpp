@@ -16,6 +16,10 @@
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "Components/DisplayClusterSceneComponentSyncParent.h"
+#endif
+
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	BaseEyeHeight = 160.0f;
@@ -36,15 +40,19 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
-	
-#if 0	
+}
+void ARWTHVRPawn::BeginPlay()
+{
+	Super::BeginPlay();
+
+#if PLATFORM_SUPPORTS_CLUSTER
 	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
 	// This is required because for collision based movement, it can happen that the physics engine
 	// for some reason acts different on the nodes, therefore leading to a potential desync when
 	// e.g. colliding with an object while moving.
-	SyncComponent =
-		CreateDefaultSubobject<UDisplayClusterSceneComponentSyncParent>(TEXT("Parent Display Cluster Sync Component"));
+	SyncComponent = NewObject<UDisplayClusterSceneComponentSyncParent>();
 	SyncComponent->SetupAttachment(RootComponent);
+	SyncComponent->RegisterComponent();
 #endif
 }
 

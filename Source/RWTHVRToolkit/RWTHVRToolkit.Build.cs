@@ -50,9 +50,16 @@ public class RWTHVRToolkit : ModuleRules
 			new string[]{}
 		);
 
-		PublicDefinitions.Add(IsPluginEnabledForTarget("nDisplay", base.Target)
-			? "PLATFORM_SUPPORTS_NDISPLAY=1"
-			: "PLATFORM_SUPPORTS_NDISPLAY=0");
+		if (IsPluginEnabledForTarget("RWTHVRCluster", base.Target))
+		{
+			PrivateDependencyModuleNames.Add("RWTHVRCluster");
+			PrivateDependencyModuleNames.Add("DisplayCluster");
+			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=1");
+		}
+		else
+		{			
+			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=0");
+		}
 	}
 	
 	private static bool IsPluginEnabledForTarget(string PluginName, ReadOnlyTargetRules Target)
