@@ -78,8 +78,16 @@ Generate_Project:
     variables:
         RUN_SETUP: "false"
         GEN_DEPENDENCIES: "(
-            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            [dev/5.3@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
+            )"
 
+Generate_Project_Without_Cluster:
+    extends: Generate_Project
+    variables:
+        GEN_DEPENDENCIES: "(
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            )"
 
 Build_Windows:
     rules: 
@@ -120,6 +128,12 @@ Build_Linux:
         CLIENT_CONFIG: "DebugGame"
     needs:
         - job: "Generate_Project"
+          artifacts: true
+
+Build_Linux_Without_Cluster:
+    extends: Build_Linux
+    needs:
+        - job: "Generate_Project_Without_Cluster"
           artifacts: true
 
 Deploy_Windows:
