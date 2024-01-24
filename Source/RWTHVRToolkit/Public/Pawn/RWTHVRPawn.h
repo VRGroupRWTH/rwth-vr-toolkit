@@ -114,5 +114,5 @@ protected:
 	void SetupMotionControllerSources();
 
 private:
-	UInputComponent* ThisPlayerInputComponent;
+	UInputComponent* ActivePlayerInputComponent;
 };
