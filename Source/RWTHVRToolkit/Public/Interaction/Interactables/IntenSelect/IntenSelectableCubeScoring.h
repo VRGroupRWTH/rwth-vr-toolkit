@@ -28,14 +28,14 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool OnlyOutline = false;
 
-	UPROPERTY(EditAnywhere)
-	float XLength = 100;
+	//UPROPERTY(EditAnywhere)
+	//float XLength = 100;
 	
-	UPROPERTY(EditAnywhere)
-	float YLength = 100;
+	//UPROPERTY(EditAnywhere)
+	//float YLength = 100;
 
-	UPROPERTY(EditAnywhere)
-	float ZLength = 100;
+	//UPROPERTY(EditAnywhere)
+	//float ZLength = 100;
 	
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 

@@ -37,6 +37,8 @@ public:
 
 	FVector GetCurrentVectorWorld() const;
 
+	virtual bool ShowWhenSelected() override;
+	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click) override;
 	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) override;
 	virtual void EndEditing() override;

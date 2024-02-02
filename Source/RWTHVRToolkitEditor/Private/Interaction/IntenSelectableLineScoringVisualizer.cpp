@@ -24,6 +24,16 @@ FVector FIntenSelectableLineScoringVisualizer::GetCurrentVectorWorld() const
 	return LineBehavior->GetComponentTransform().TransformPosition(LineBehavior->LinePoints[CurrentLineSelectionIndex]);
 }
 
+bool FIntenSelectableLineScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableLineScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableLineScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
                                                                 HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {

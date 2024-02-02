@@ -23,8 +23,18 @@ FVector FIntenSelectableMultiPointScoringVisualizer::GetCurrentVectorWorld() con
 	return MultiPointBehaviour->GetComponentTransform().TransformPosition(MultiPointBehaviour->PointsToSelect[CurrentSelectionIndex]);
 }
 
+bool FIntenSelectableMultiPointScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableMultiPointScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableMultiPointScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
-                                                                HComponentVisProxy* VisProxy, const FViewportClick& Click)
+                                                                      HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {
 	bool bEditing = false;
 

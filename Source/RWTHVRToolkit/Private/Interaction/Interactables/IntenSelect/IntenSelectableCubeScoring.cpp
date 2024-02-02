@@ -137,9 +137,10 @@ bool UIntenSelectableCubeScoring::LineToLineIntersection(const FVector& FromA, c
 
 FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& RayOrigin, const FVector& RayDirection)
 {
-	const FVector X = this->GetForwardVector() * XLength;
-	const FVector Y = this->GetRightVector() * YLength;
-	const FVector Z = this->GetUpVector() * ZLength;
+	auto Scale = GetRelativeTransform().GetScale3D();
+	const FVector X = this->GetForwardVector() * Scale.X;
+	const FVector Y = this->GetRightVector() * Scale.Y;
+	const FVector Z = this->GetUpVector() * Scale.Z;
 
 	TArray<FPlane> CubeSides;
 	
@@ -200,17 +201,18 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 		
 		
 		FVector CurrentPoint = FMath::RayPlaneIntersection(RayOrigin, RayDirection, Plane);
-		FVector CurrentPointLocal = GetComponentTransform().InverseTransformPosition(CurrentPoint);
-		
-		CurrentPointLocal.X = FMath::Clamp(CurrentPointLocal.X, -XLength / 2, XLength / 2);
-		CurrentPointLocal.Y = FMath::Clamp(CurrentPointLocal.Y, -YLength / 2, YLength / 2);
-		CurrentPointLocal.Z = FMath::Clamp(CurrentPointLocal.Z, -ZLength / 2, ZLength / 2);
+		FVector CurrentPointLocal = GetComponentTransform().InverseTransformPositionNoScale(CurrentPoint);
+
+		Scale = GetRelativeTransform().GetScale3D();
+		CurrentPointLocal.X = FMath::Clamp(CurrentPointLocal.X, -Scale.X / 2, Scale.X / 2);
+		CurrentPointLocal.Y = FMath::Clamp(CurrentPointLocal.Y, -Scale.Y / 2, Scale.Y / 2);
+		CurrentPointLocal.Z = FMath::Clamp(CurrentPointLocal.Z, -Scale.Z / 2, Scale.Z / 2);
 
 		if(OnlyOutline)
 		{
-			const float XSnapDist = (XLength/2) - FMath::Abs(CurrentPointLocal.X);
-			const float YSnapDist = (YLength/2) - FMath::Abs(CurrentPointLocal.Y);
-			const float ZSnapDist = (ZLength/2) - FMath::Abs(CurrentPointLocal.Z);
+			const float XSnapDist = (Scale.X/2) - FMath::Abs(CurrentPointLocal.X);
+			const float YSnapDist = (Scale.Y/2) - FMath::Abs(CurrentPointLocal.Y);
+			const float ZSnapDist = (Scale.Z/2) - FMath::Abs(CurrentPointLocal.Z);
 
 			bool SnapX = true;
 			bool SnapY = true;
@@ -245,40 +247,42 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 					SnapY = false;
 				}
 			}
+
+
 			
 			if(SnapX)
 			{
 				if(CurrentPointLocal.X > 0)
 				{
-					CurrentPointLocal.X = XLength / 2;
+					CurrentPointLocal.X = Scale.X / 2;
 				}else
 				{
-					CurrentPointLocal.X = -XLength / 2;
+					CurrentPointLocal.X = -Scale.X / 2;
 				}
 			}
 			if(SnapY)
 			{
 				if(CurrentPointLocal.Y > 0)
 				{
-					CurrentPointLocal.Y = YLength / 2;
+					CurrentPointLocal.Y = Scale.Y / 2;
 				}else
 				{
-					CurrentPointLocal.Y = -YLength / 2;
+					CurrentPointLocal.Y = -Scale.Y / 2;
 				}
 			}
 			if(SnapZ)
 			{
 				if(CurrentPointLocal.Z > 0)
 				{
-					CurrentPointLocal.Z = ZLength / 2;
+					CurrentPointLocal.Z = Scale.Z / 2;
 				}else
 				{
-					CurrentPointLocal.Z = -ZLength / 2;
+					CurrentPointLocal.Z = -Scale.Z / 2;
 				}
 			}
 		}
 
-		CurrentPoint = GetComponentTransform().TransformPosition(CurrentPointLocal);
+		CurrentPoint = GetComponentTransform().TransformPositionNoScale(CurrentPointLocal);
 
 		const float Distance = FMath::PointDistToLine(CurrentPoint, RayDirection, RayOrigin);
 
@@ -315,7 +319,7 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 		}		
 	}
 
-	if(DrawDebug) DrawDebugBox(GetWorld(), GetComponentLocation(), FVector(XLength, YLength, ZLength) / 2, GetComponentRotation().Quaternion(), FColor::Green, false, -1, 0, 2);
+	if(DrawDebug) DrawDebugBox(GetWorld(), GetComponentLocation(), FVector(Scale.X, Scale.Y, Scale.Z) /2, GetComponentRotation().Quaternion(), FColor::Green, false, -1, 0, 2);
 	return ClosestPoint;
 }
 

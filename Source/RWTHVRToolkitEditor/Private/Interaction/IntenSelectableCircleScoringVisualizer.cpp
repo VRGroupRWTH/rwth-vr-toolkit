@@ -34,8 +34,18 @@ FVector FIntenSelectableCircleScoringVisualizer::GetCurrentVectorWorld() const
 	}
 }
 
+bool FIntenSelectableCircleScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableCircleScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
-                                                                HComponentVisProxy* VisProxy, const FViewportClick& Click)
+                                                                  HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {
 	bool bEditing = false;
 

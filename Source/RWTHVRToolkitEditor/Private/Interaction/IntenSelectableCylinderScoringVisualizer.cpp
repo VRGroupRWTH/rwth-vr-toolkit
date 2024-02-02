@@ -1,13 +1,12 @@
 #include "Interaction/IntenSelectableCylinderScoringVisualizer.h"
 
 #include "SceneManagement.h"
-#include "Materials/MaterialRenderProxy.h"
 
 IMPLEMENT_HIT_PROXY(FCylinderPointProxy, HComponentVisProxy);
 
 FIntenSelectableCylinderScoringVisualizer::FIntenSelectableCylinderScoringVisualizer() : DebugMaterial(FColoredMaterialRenderProxy(GEngine->ConstraintLimitMaterial->GetRenderProxy(), FColor::Green))
 {
-	
+
 }
 
 FIntenSelectableCylinderScoringVisualizer::~FIntenSelectableCylinderScoringVisualizer()
@@ -24,8 +23,18 @@ FVector FIntenSelectableCylinderScoringVisualizer::GetCurrentVectorWorld() const
 	return CylinderBehavior->GetComponentTransform().TransformPosition(CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex]);
 }
 
+bool FIntenSelectableCylinderScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableCylinderScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableCylinderScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
-                                                                HComponentVisProxy* VisProxy, const FViewportClick& Click)
+                                                                    HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {
 	bool bEditing = false;
 
@@ -79,8 +88,9 @@ void FIntenSelectableCylinderScoringVisualizer::DrawVisualization(const UActorCo
 
 void FIntenSelectableCylinderScoringVisualizer::EndEditing()
 {
-	CylinderBehavior->MarkRenderStateDirty();
-	GEditor->RedrawLevelEditingViewports(true);
+	CurrentCylinderSelectionIndex = INDEX_NONE;
+	//CylinderBehavior->MarkRenderStateDirty();
+	//GEditor->RedrawLevelEditingViewports(true);
 }
 
 UActorComponent* FIntenSelectableCylinderScoringVisualizer::GetEditedComponent() const
@@ -95,14 +105,28 @@ bool FIntenSelectableCylinderScoringVisualizer::HandleInputDelta(FEditorViewport
 
 	if (CurrentCylinderSelectionIndex != INDEX_NONE)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Current Delta: %s"), *DeltaTranslate.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Current Index: %d"), CurrentCylinderSelectionIndex);
 		
 		const FVector WorldSelection = CylinderBehavior->GetComponentTransform().TransformPosition(CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex]);
 		const FVector NewWorldPos = CylinderBehavior->GetComponentTransform().InverseTransformPosition(WorldSelection + DeltaTranslate);
-		CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] = NewWorldPos;
+		//CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] = NewWorldPos;
+		CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
+		LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
+
+		UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *(CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex]).ToString());
+		UE_LOG(LogTemp, Warning, TEXT("self: %s"), *(LinePoints[CurrentCylinderSelectionIndex]).ToString());
+				
+		//CylinderBehavior->MarkRenderStateDirty();
+		//GEditor->RedrawLevelEditingViewports(true);
+
+		const FVector Average = (LinePoints[0] + LinePoints[1])/ 2;
+		const FVector ShiftToMiddle = Average;
+
+		CylinderBehavior->SetWorldLocation(CylinderBehavior->GetComponentTransform().TransformPositionNoScale(Average));
+		CylinderBehavior->LinePoints[0] -= ShiftToMiddle;
+		CylinderBehavior->LinePoints[1] -= ShiftToMiddle;
 		
-		CylinderBehavior->MarkRenderStateDirty();
-		GEditor->RedrawLevelEditingViewports(true);
 		bHandled = true;
 	}else
 	{
@@ -115,7 +139,7 @@ bool FIntenSelectableCylinderScoringVisualizer::HandleInputDelta(FEditorViewport
 bool FIntenSelectableCylinderScoringVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient,
 	FVector& OutLocation) const
 {
-	if (CurrentCylinderSelectionIndex != INDEX_NONE)
+	if (GetEditedComponent() && CurrentCylinderSelectionIndex != INDEX_NONE)
 	{
 		OutLocation = GetCurrentVectorWorld();
         

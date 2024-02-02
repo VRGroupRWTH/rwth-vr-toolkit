@@ -53,6 +53,16 @@ FVector FIntenSelectableRectangleScoringVisualizer::GetCurrentVectorWorld() cons
 	}
 }
 
+bool FIntenSelectableRectangleScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableRectangleScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableRectangleScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {
 	bool bEditing = false;

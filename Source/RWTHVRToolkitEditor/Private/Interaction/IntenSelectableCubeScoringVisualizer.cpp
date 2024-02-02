@@ -25,6 +25,16 @@ FVector FIntenSelectableCubeScoringVisualizer::GetCurrentVectorWorld() const
 	return CubeBehaviour->GetComponentLocation();
 }
 
+bool FIntenSelectableCubeScoringVisualizer::ShowWhenSelected()
+{
+	return false;
+}
+
+bool FIntenSelectableCubeScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
+{
+	return false;
+}
+
 bool FIntenSelectableCubeScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
                                                                 HComponentVisProxy* VisProxy, const FViewportClick& Click)
 {
@@ -64,7 +74,8 @@ void FIntenSelectableCubeScoringVisualizer::DrawVisualization(const UActorCompon
 	if (ComponentCasted != nullptr)
 	{
 		PDI->SetHitProxy(new FCubeProxy(Component, 0));
-		const FVector Radii{ComponentCasted->XLength, ComponentCasted->YLength, ComponentCasted->ZLength};
+		const auto Scale = ComponentCasted->GetRelativeTransform().GetScale3D();
+		const FVector Radii{Scale.X, Scale.Y, Scale.Z};
 		DrawBox(PDI, ComponentCasted->GetComponentTransform().ToMatrixNoScale(), Radii / 2, &DebugMaterial, 0);
 		PDI->DrawPoint(ComponentCasted->GetComponentLocation(), FColor::Green, 20, 0);
 		PDI->SetHitProxy(nullptr);
@@ -95,9 +106,13 @@ bool FIntenSelectableCubeScoringVisualizer::HandleInputDelta(FEditorViewportClie
 		CubeBehaviour->SetWorldLocation(NewCenter);
 		CubeBehaviour->AddWorldRotation(DeltaRotate);
 
-		CubeBehaviour->XLength += DeltaScale.X * 3;
-		CubeBehaviour->YLength += DeltaScale.Y * 3;
-		CubeBehaviour->ZLength += DeltaScale.Z * 3;
+		auto Scale = CubeBehaviour->GetRelativeTransform().GetScale3D();
+		
+		Scale.X += DeltaScale.X * 3;
+		Scale.Y += DeltaScale.Y * 3;
+		Scale.Z += DeltaScale.Z * 3;
+		
+		CubeBehaviour->GetRelativeTransform().SetScale3D(Scale);
 		bHandled = true;
 	}else
 	{
