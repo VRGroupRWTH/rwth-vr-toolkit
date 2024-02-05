@@ -112,15 +112,15 @@ bool FIntenSelectableCylinderScoringVisualizer::HandleInputDelta(FEditorViewport
 		const FVector NewWorldPos = CylinderBehavior->GetComponentTransform().InverseTransformPosition(WorldSelection + DeltaTranslate);
 		//CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] = NewWorldPos;
 		CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
-		LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
+		//CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
 
 		UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *(CylinderBehavior->LinePoints[CurrentCylinderSelectionIndex]).ToString());
-		UE_LOG(LogTemp, Warning, TEXT("self: %s"), *(LinePoints[CurrentCylinderSelectionIndex]).ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("self: %s"), *(LinePoints[CurrentCylinderSelectionIndex]).ToString());
 				
 		//CylinderBehavior->MarkRenderStateDirty();
 		//GEditor->RedrawLevelEditingViewports(true);
 
-		const FVector Average = (LinePoints[0] + LinePoints[1])/ 2;
+		const FVector Average = (CylinderBehavior->LinePoints[0] + CylinderBehavior->LinePoints[1])/ 2;
 		const FVector ShiftToMiddle = Average;
 
 		CylinderBehavior->SetWorldLocation(CylinderBehavior->GetComponentTransform().TransformPositionNoScale(Average));

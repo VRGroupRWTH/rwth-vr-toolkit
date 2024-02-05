@@ -69,8 +69,16 @@ void FIntenSelectableLineScoringVisualizer::DrawVisualization(const UActorCompon
 	
 	if (ComponentCasted != nullptr)
 	{
+		if(ComponentCasted->LinePoints.Num() < 2)
+		{
+			return;
+		}
 		for(int i = 0; i < ComponentCasted->LinePoints.Num(); i++)
 		{
+			if(i > 1)
+			{
+				break;
+			}
 			PDI->SetHitProxy(new FLinePointProxy(Component, i));
 			
 			FVector PointWorld = ComponentCasted->GetComponentTransform().TransformPosition(ComponentCasted->LinePoints[i]);

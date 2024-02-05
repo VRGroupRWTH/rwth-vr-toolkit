@@ -57,7 +57,7 @@ private:
 	UIntenSelectableCylinderScoring* CylinderBehavior;
 	FColoredMaterialRenderProxy DebugMaterial;
 
-	TArray<FVector> LinePoints{FVector::ZeroVector, FVector::ZeroVector};
+	//TArray<FVector> LinePoints{FVector::ZeroVector, FVector::ZeroVector};
 
 public:
 	FIntenSelectableCylinderScoringVisualizer();
