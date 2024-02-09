@@ -176,6 +176,7 @@ void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()
 		else
 		{
 			bCollisionChecksTemporarilyDeactivated = true;
+			LastCollisionFreeCapsulePosition.Reset();
 		}
 	}
 	else
