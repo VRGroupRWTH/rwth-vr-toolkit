@@ -10,6 +10,7 @@
 UIntenSelectableCubeScoring::UIntenSelectableCubeScoring()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetRelativeScale3D(FVector::One() * 100);
 }
 
 TPair<FHitResult, float> UIntenSelectableCubeScoring::GetBestPointScorePair(const FVector& ConeOrigin,
