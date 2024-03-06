@@ -8,6 +8,7 @@
 UIntenSelectableMultiPointScoring::UIntenSelectableMultiPointScoring()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	//PointsToSelect = TArray<FVector>{FVector::UpVector * 100, FVector::DownVector * 100, FVector::RightVector * 100, FVector::LeftVector * 100};
 }
 
 TPair<FHitResult, float> UIntenSelectableMultiPointScoring::GetBestPointScorePair(const FVector& ConeOrigin,

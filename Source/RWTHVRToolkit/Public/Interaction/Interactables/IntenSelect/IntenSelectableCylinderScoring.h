@@ -25,8 +25,8 @@ public:
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-		TArray<FVector> LinePoints{FVector::ZeroVector, FVector::ZeroVector};
+		TArray<FVector> LinePoints{FVector::UpVector * 50, FVector::DownVector * 50};
 
 	UPROPERTY(EditAnywhere)
-		float Radius = 10;
+		float Radius = 50;
 };
