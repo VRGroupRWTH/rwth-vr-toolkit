@@ -7,7 +7,7 @@
 
 include:
   - project: '${UNREAL_CI_PROJECT}'
-    ref: master 
+    ref: master
     file: '/shared_scripts.yml'
     
 # In this file you are able to configure your plugins pipeline.
@@ -36,6 +36,11 @@ include:
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
+#
+# Use the UNREAL_VERSION variable to adjust to your preferred Unreal version.
+
+variables:
+    UNREAL_VERSION: "5.3"
 
 stages:
   - analyze
@@ -65,21 +70,30 @@ clang-format:
         - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
 
 Generate_Project:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
 
 Build_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Windows_
     tags:
         - windows
-        - unreal-5.3
+        - unreal
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
@@ -90,9 +104,13 @@ Build_Windows:
           artifacts: true
     
 Build_Linux:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Linux_
-    image: ghcr.io/epicgames/unreal-engine:dev-5.3
     tags:
         - linux
         - unreal
@@ -106,15 +124,21 @@ Build_Linux:
         - job: "Generate_Project"
           artifacts: true
 
+# Deploys to vrdev
 Deploy_Windows:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_VRDev_
     needs:
         - job: "Build_Windows"
           artifacts: true          
 
+# Deploys to vrdemo instead of av006de. Use extends: .Deploy_CAVE_ to deploy to legacy av006de
 Deploy_CAVE:
-    only: ['web', 'schedules']
+    rules: 
+      - if: $CI_PIPELINE_SOURCE == "web"
+      - if: $CI_PIPELINE_SOURCE == "schedule"
     extends: .Deploy_vrdemo_
     needs:
         - job: "Build_Linux"

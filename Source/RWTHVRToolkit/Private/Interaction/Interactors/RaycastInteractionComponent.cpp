@@ -1,15 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interaction/Interactors/RaycastSelectionComponent.h"
+#include "Interaction/Interactors/RaycastInteractionComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
-URaycastSelectionComponent::URaycastSelectionComponent()
+URaycastInteractionComponent::URaycastInteractionComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these
 	// features off to improve performance if you don't need them.
@@ -19,12 +18,12 @@ URaycastSelectionComponent::URaycastSelectionComponent()
 }
 
 // Called every frame
-void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-											   FActorComponentTickFunction* ThisTickFunction)
+void URaycastInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+												 FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UInteractableComponent* CurrentSelectable = nullptr;
+	UInteractableComponent* NewInteractableComponent = nullptr;
 
 
 	TArray<AActor*> ActorsToIgnore;
@@ -41,15 +40,15 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	AActor* HitActor = Hit.GetActor();
 	if (HitActor)
 	{
-		UInteractableComponent* Selectable = HitActor->FindComponentByClass<UInteractableComponent>();
-		if (Selectable && Selectable->IsInteractable)
+		UInteractableComponent* InteractableComponent = HitActor->FindComponentByClass<UInteractableComponent>();
+		if (InteractableComponent && InteractableComponent->IsInteractable)
 		{
-			CurrentSelectable = Selectable;
-			Selectable->HitResult = Hit;
+			NewInteractableComponent = InteractableComponent;
+			InteractableComponent->HitResult = Hit;
 		}
 	}
 
-	CurrentInteractable = CurrentSelectable;
+	CurrentInteractable = NewInteractableComponent;
 
 	if (CurrentInteractable != PreviousInteractable)
 	{
@@ -62,19 +61,19 @@ void URaycastSelectionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	PreviousInteractable = CurrentInteractable;
 }
 
-void URaycastSelectionComponent::OnBeginSelect(const FInputActionValue& Value)
+void URaycastInteractionComponent::OnBeginInteraction(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionStartEvents(this, RayCastSelectInputAction, Value, EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Raycast);
 }
 
-void URaycastSelectionComponent::OnEndSelect(const FInputActionValue& Value)
+void URaycastInteractionComponent::OnEndInteraction(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionEndEvents(this, RayCastSelectInputAction, Value, EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionEndEvents(this, InteractionInputAction, Value, EInteractorType::Raycast);
 }
 
-void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
+void URaycastInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
@@ -82,17 +81,12 @@ void URaycastSelectionComponent::SetupPlayerInput(UInputComponent* PlayerInputCo
 	if (!Pawn)
 		return;
 
-	auto* InputSubsystem = GetEnhancedInputLocalPlayerSubsystem(Pawn);
-	if (!InputSubsystem)
-		return;
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCRaycastSelection, 0);
-
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (!EI)
 		return;
 
-	EI->BindAction(RayCastSelectInputAction, ETriggerEvent::Started, this, &URaycastSelectionComponent::OnBeginSelect);
-	EI->BindAction(RayCastSelectInputAction, ETriggerEvent::Completed, this, &URaycastSelectionComponent::OnEndSelect);
+	EI->BindAction(InteractionInputAction, ETriggerEvent::Started, this,
+				   &URaycastInteractionComponent::OnBeginInteraction);
+	EI->BindAction(InteractionInputAction, ETriggerEvent::Completed, this,
+				   &URaycastInteractionComponent::OnEndInteraction);
 }

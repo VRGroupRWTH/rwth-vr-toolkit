@@ -6,7 +6,7 @@ enum EInteractorType : int
 	None = 0 UMETA(Hidden),
 	Raycast = 1 << 0,
 	Spherecast = 1 << 1,
-	Grab = 1 << 2,
+	Direct = 1 << 2,
 	Reserved2 = 1 << 3,
 	Reserved3 = 1 << 4,
 	Reserved4 = 1 << 5,
