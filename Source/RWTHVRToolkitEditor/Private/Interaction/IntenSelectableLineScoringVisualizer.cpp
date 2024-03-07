@@ -26,7 +26,7 @@ FVector FIntenSelectableLineScoringVisualizer::GetCurrentVectorWorld() const
 
 bool FIntenSelectableLineScoringVisualizer::ShowWhenSelected()
 {
-	return false;
+	return true;
 }
 
 bool FIntenSelectableLineScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
@@ -88,7 +88,7 @@ void FIntenSelectableLineScoringVisualizer::DrawVisualization(const UActorCompon
 		}
 		const FVector Start = ComponentCasted->GetComponentTransform().TransformPosition(ComponentCasted->LinePoints[0]);
 		const FVector End = ComponentCasted->GetComponentTransform().TransformPosition(ComponentCasted->LinePoints[1]);
-		PDI->DrawLine(Start, End, FColor::Green, SDPG_World);
+		PDI->DrawLine(Start, End, FColor::Green, SDPG_World, 10);
 	}
 }
 
@@ -130,7 +130,7 @@ bool FIntenSelectableLineScoringVisualizer::HandleInputDelta(FEditorViewportClie
 bool FIntenSelectableLineScoringVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient,
 	FVector& OutLocation) const
 {
-	if (CurrentLineSelectionIndex != INDEX_NONE)
+	if (LineBehavior && CurrentLineSelectionIndex != INDEX_NONE)
 	{
 		OutLocation = GetCurrentVectorWorld();
         
