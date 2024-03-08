@@ -3,6 +3,7 @@
 #include "Interaction/Interactables/IntenSelect/IntenSelectableMultiPointScoring.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/Core/PushModel/PushModel.h"
 
 // Sets default values for this component's properties
 UIntenSelectableMultiPointScoring::UIntenSelectableMultiPointScoring()
@@ -19,6 +20,11 @@ TPair<FHitResult, float> UIntenSelectableMultiPointScoring::GetBestPointScorePai
 	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
 	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
 	return TPair<FHitResult, float>{Result, Score};
+}
+
+void UIntenSelectableMultiPointScoring::UpdatePoints()
+{
+
 }
 
 FVector UIntenSelectableMultiPointScoring::GetClosestSelectionPointTo(const FVector& Point, const FVector& Direction) const

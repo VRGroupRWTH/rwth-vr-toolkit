@@ -1,8 +1,15 @@
 #include "Interaction/IntenSelectableMultiPointScoringVisualizer.h"
 
 #include "ActorEditorUtils.h"
+#include "AsyncTreeDifferences.h"
 #include "SceneManagement.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableMultiPointScoring.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Net/Core/PushModel/PushModel.h"
+
+void UMyComponentVisualizerSelectionState::Reset()
+{
+}
 
 IMPLEMENT_HIT_PROXY(FMultiPointProxy, HComponentVisProxy);
 
@@ -21,12 +28,12 @@ FVector FIntenSelectableMultiPointScoringVisualizer::GetCurrentVectorWorld() con
 	{
 		return FVector::ZeroVector;
 	}
-	return MultiPointBehaviour->GetComponentTransform().TransformPosition(MultiPointBehaviour->PointsToSelect[CurrentSelectionIndex]);
+	return GetEditedScoringComponent()->GetComponentTransform().TransformPosition(GetEditedScoringComponent()->PointsToSelect[CurrentSelectionIndex]);
 }
 
 bool FIntenSelectableMultiPointScoringVisualizer::IsVisualizingArchetype() const
 {
-	return (MultiPointBehaviour && MultiPointBehaviour->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(MultiPointBehaviour->GetOwner()));
+	return (GetEditedScoringComponent() && GetEditedScoringComponent()->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner()));
 }
 
 bool FIntenSelectableMultiPointScoringVisualizer::ShowWhenSelected()
@@ -51,7 +58,10 @@ bool FIntenSelectableMultiPointScoringVisualizer::VisProxyHandleClick(FEditorVie
 		if (VisProxy->IsA(FMultiPointProxy::StaticGetType()))
 		{
 			const UIntenSelectableMultiPointScoring* T = Cast<const UIntenSelectableMultiPointScoring>(VisProxy->Component.Get());
-			MultiPointBehaviour = const_cast<UIntenSelectableMultiPointScoring*>(T);
+			//GetEditedScoringComponent() = const_cast<UIntenSelectableMultiPointScoring*>(T);
+			SplinePropertyPath = FComponentPropertyPath(T);
+
+			
 			FMultiPointProxy* Proxy = (FMultiPointProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
 			UE_LOG(LogTemp, Warning, TEXT("Handling Click %i"), CurrentSelectionIndex);
@@ -71,14 +81,17 @@ bool FIntenSelectableMultiPointScoringVisualizer::VisProxyHandleClick(FEditorVie
 	return bEditing;
 }
 
-
-// Fill out your copyright notice in the Description page of Project Settings.
-
 void FIntenSelectableMultiPointScoringVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
 	const UIntenSelectableMultiPointScoring* ComponentCasted = Cast<UIntenSelectableMultiPointScoring>(Component);
 	
 	if (ComponentCasted != nullptr)
 	{
+
+		if(IsVisualizingArchetype())
+		{
+			//SplinePropertyPath = FComponentPropertyPath(Component);
+		}
+		
 		for(int i = 0; i < ComponentCasted->PointsToSelect.Num(); i++)
 		{
 			PDI->SetHitProxy(new FMultiPointProxy(Component, i));
@@ -93,13 +106,13 @@ void FIntenSelectableMultiPointScoringVisualizer::DrawVisualization(const UActor
 
 void FIntenSelectableMultiPointScoringVisualizer::EndEditing()
 {
-	//MultiPointBehaviour->MarkRenderStateDirty();
+	//GetEditedScoringComponent()->MarkRenderStateDirty();
 	//GEditor->RedrawLevelEditingViewports(true);
 }
 
 UActorComponent* FIntenSelectableMultiPointScoringVisualizer::GetEditedComponent() const
 {
-	return MultiPointBehaviour;
+	return GetEditedScoringComponent();
 }
 
 bool FIntenSelectableMultiPointScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport,
@@ -109,23 +122,32 @@ bool FIntenSelectableMultiPointScoringVisualizer::HandleInputDelta(FEditorViewpo
 
 	if (CurrentSelectionIndex != INDEX_NONE)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+		GetEditedScoringComponent()->Modify();
 		
-		const FVector WorldSelection = MultiPointBehaviour->GetComponentTransform().TransformPosition(MultiPointBehaviour->PointsToSelect[CurrentSelectionIndex]);
-		const FVector NewWorldPos = MultiPointBehaviour->GetComponentTransform().InverseTransformPosition(WorldSelection + DeltaTranslate);
-		MultiPointBehaviour->PointsToSelect[CurrentSelectionIndex] = NewWorldPos;
+		const FVector WorldSelection = GetEditedScoringComponent()->GetComponentTransform().TransformPosition(GetEditedScoringComponent()->PointsToSelect[CurrentSelectionIndex]);
+		const FVector NewWorldPos = GetEditedScoringComponent()->GetComponentTransform().InverseTransformPosition(WorldSelection + DeltaTranslate);
+		GetEditedScoringComponent()->PointsToSelect[CurrentSelectionIndex] = NewWorldPos;
+
+		UE_LOG(LogTemp, Warning, TEXT("New Pos: %s"), *GetEditedScoringComponent()->PointsToSelect[CurrentSelectionIndex].ToString());
+
 		
-		MultiPointBehaviour->MarkRenderStateDirty();
+		GetEditedScoringComponent()->MarkRenderStateDirty();
 		bHandled = true;
-		//NotifyPropertyModified(MultiPointBehaviour, PointsProperty, EPropertyChangeType::Interactive);
 		
 		TArray<FProperty*> Properties;
 		Properties.Add(PointsProperty);
-		MyNotifyPropertiesModified(MultiPointBehaviour, Properties, EPropertyChangeType::Interactive);
+		
+		
+		//GetEditedScoringComponent()->UpdatePoints();
+		MyNotifyPropertiesModified(GetEditedScoringComponent(), Properties, EPropertyChangeType::ValueSet);
+		
+		
+		GEditor->RedrawLevelEditingViewports(false);
 
-		
-		
-		GEditor->RedrawLevelEditingViewports(true);
+		if (GetEditedScoringComponent()->GetOwner() && GetEditedScoringComponent()->GetOwner()->GetClass()->IsInBlueprint())
+		{
+			FBlueprintEditorUtils::MarkBlueprintAsModified(Cast<UBlueprint>(GetEditedScoringComponent()->GetOwner()->GetClass()->ClassGeneratedBy));
+		}
 
 	}else
 	{
@@ -135,7 +157,7 @@ bool FIntenSelectableMultiPointScoringVisualizer::HandleInputDelta(FEditorViewpo
 	return bHandled;
 }
 
-void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(UActorComponent* Component, const TArray<FProperty*>& Properties, EPropertyChangeType::Type PropertyChangeType)
+void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(USceneComponent* Component, const TArray<FProperty*>& Properties, EPropertyChangeType::Type PropertyChangeType)
 {
 	if (Component == nullptr)
 	{
@@ -157,8 +179,20 @@ void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(UAc
 		// So we can go through all archetype instances, and if they hold the (old) archetype value, update it to the new value.
 
 		// Get archetype
-		UActorComponent* Archetype = Cast<UActorComponent>(Component->GetArchetype());
+		USceneComponent* Archetype = Cast<USceneComponent>(Component->GetArchetype());
 		check(Archetype);
+		
+		
+
+		for (FProperty* Property : Properties)
+		{
+			uint8* ArchetypePtr = Property->ContainerPtrToValuePtr<uint8>(Archetype);
+			uint8* PreviewPtr = Property->ContainerPtrToValuePtr<uint8>(Component);
+			Property->CopyCompleteValue(ArchetypePtr, PreviewPtr);
+
+			FPropertyChangedEvent PropertyChangedEvent(Property);
+			Archetype->PostEditChangeProperty(PropertyChangedEvent);
+		}
 
 		// Get all archetype instances (the preview actor passed in should be amongst them)
 		TArray<UObject*> ArchetypeInstances;
@@ -169,16 +203,17 @@ void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(UAc
 		// and thus need the new value to be propagated to them
 		struct FInstanceDefaultProperties
 		{
-			UActorComponent* ArchetypeInstance;
+			USceneComponent* ArchetypeInstance;
 			TArray<FProperty*, TInlineAllocator<8>> Properties;
 		};
 
 		TArray<FInstanceDefaultProperties> InstanceDefaultProperties;
 		InstanceDefaultProperties.Reserve(ArchetypeInstances.Num());
 
+		
 		for (UObject* ArchetypeInstance : ArchetypeInstances)
 		{
-			UActorComponent* InstanceComp = Cast<UActorComponent>(ArchetypeInstance);
+			USceneComponent* InstanceComp = Cast<USceneComponent>(ArchetypeInstance);
 			if (InstanceComp != Component)
 			{
 				FInstanceDefaultProperties Entry;
@@ -199,7 +234,6 @@ void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(UAc
 				}
 			}
 		}
-
 		// Propagate all modified properties to the archetype
 		Archetype->SetFlags(RF_Transactional);
 		Archetype->Modify();
@@ -257,10 +291,15 @@ void FIntenSelectableMultiPointScoringVisualizer::MyNotifyPropertiesModified(UAc
 	}
 }
 
-bool FIntenSelectableMultiPointScoringVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient,
-	FVector& OutLocation) const
+UIntenSelectableMultiPointScoring* FIntenSelectableMultiPointScoringVisualizer::GetEditedScoringComponent() const
 {
-	if (MultiPointBehaviour && CurrentSelectionIndex != INDEX_NONE)
+	return Cast<UIntenSelectableMultiPointScoring>(SplinePropertyPath.GetComponent());
+}
+
+bool FIntenSelectableMultiPointScoringVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient,
+                                                                    FVector& OutLocation) const
+{
+	if (GetEditedScoringComponent() && CurrentSelectionIndex != INDEX_NONE)
 	{
 		OutLocation = GetCurrentVectorWorld();
         
