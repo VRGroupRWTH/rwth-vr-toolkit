@@ -28,22 +28,27 @@ class RWTHVRTOOLKITEDITOR_API FIntenSelectableRectangleScoringVisualizer : publi
 {
 private:
 	int CurrentSelectionIndex;
-
-	UIntenSelectableRectangleScoring* RectangleBehaviour;
+	FProperty* XLengthProperty;
+	FProperty* YLengthProperty;
+	FComponentPropertyPath ScoringBehaviourPropertyPath;
 	
 public:
 	FIntenSelectableRectangleScoringVisualizer();
 	~FIntenSelectableRectangleScoringVisualizer();
-
-	FVector GetCurrentVectorWorld() const;
-
+	
+	virtual bool IsVisualizingArchetype() const override;
 	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
+	
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click) override;
 	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) override;
-	virtual void EndEditing() override;
-	virtual UActorComponent* GetEditedComponent() const override;
 	virtual bool HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport, FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale) override;
+
+	FVector GetCurrentVectorWorld() const;
 	virtual bool GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const override;
 	
+	virtual UActorComponent* GetEditedComponent() const override;
+	UIntenSelectableRectangleScoring* GetEditedScoringComponent() const;
+	
+	virtual void EndEditing() override;
 };

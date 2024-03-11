@@ -1,14 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "ComponentVisualizer.h"
 #include "Materials/MaterialRenderProxy.h"
+
 class UIntenSelectableSphereScoring;
-/**
- * 
- */
 class FPrimitiveDrawInterface;
 class FSceneView;
 
@@ -29,23 +25,30 @@ class RWTHVRTOOLKITEDITOR_API FIntenSelectableSphereScoringVisualizer : public F
 {
 private:
 	int CurrentSelectionIndex;
-
 	FColoredMaterialRenderProxy DebugMaterial;
-	UIntenSelectableSphereScoring* SphereBehaviour;
+	FProperty* PointsProperty;
+	FComponentPropertyPath ScoringBehaviourPropertyPath;
 	
 public:
 	FIntenSelectableSphereScoringVisualizer();
 	~FIntenSelectableSphereScoringVisualizer();
 
-	FVector GetCurrentVectorWorld() const;
 
+	virtual bool IsVisualizingArchetype() const override;
 	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
+	
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click) override;
 	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) override;
-	virtual void EndEditing() override;
-	virtual UActorComponent* GetEditedComponent() const override;
 	virtual bool HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport, FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale) override;
+
+	virtual UActorComponent* GetEditedComponent() const override;
+	UIntenSelectableSphereScoring* GetEditedScoringComponent() const;
+
+	FVector GetCurrentVectorWorld() const;
 	virtual bool GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const override;
+
+	virtual void EndEditing() override;
+
 	
 };

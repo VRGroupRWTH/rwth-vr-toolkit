@@ -1,14 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "ComponentVisualizer.h"
 #include "Materials/MaterialRenderProxy.h"
+
 class UIntenSelectableCubeScoring;
-/**
- * 
- */
 class FPrimitiveDrawInterface;
 class FSceneView;
 
@@ -31,13 +27,17 @@ private:
 	int CurrentSelectionIndex;
 
 	FColoredMaterialRenderProxy DebugMaterial;
-	UIntenSelectableCubeScoring* CubeBehaviour;
+	FProperty* PointsProperty;
+	FComponentPropertyPath ScoringBehaviourPropertyPath;
 	
 public:
 	FIntenSelectableCubeScoringVisualizer();
 	~FIntenSelectableCubeScoringVisualizer();
 
 	FVector GetCurrentVectorWorld() const;
+
+	virtual bool IsVisualizingArchetype() const override;
+	UIntenSelectableCubeScoring* GetEditedScoringComponent() const;
 
 	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;

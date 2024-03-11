@@ -1,5 +1,6 @@
 #include "Interaction/IntenSelectableCircleScoringVisualizer.h"
 
+#include "ActorEditorUtils.h"
 #include "SceneManagement.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableCircleScoring.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -8,7 +9,7 @@ IMPLEMENT_HIT_PROXY(FCircleProxy, HComponentVisProxy);
 
 FIntenSelectableCircleScoringVisualizer::FIntenSelectableCircleScoringVisualizer()
 {
-	
+	PointsProperty = FindFProperty<FProperty>(UIntenSelectableCircleScoring::StaticClass(), GET_MEMBER_NAME_CHECKED(UIntenSelectableCircleScoring, Radius));
 }
 
 FIntenSelectableCircleScoringVisualizer::~FIntenSelectableCircleScoringVisualizer()
@@ -20,18 +21,28 @@ FVector FIntenSelectableCircleScoringVisualizer::GetCurrentVectorWorld() const
 	switch (CurrentSelectionIndex)
 	{
 		case 0:
-			return CircleBehaviour->GetComponentLocation();
+			return GetEditedScoringComponent()->GetComponentLocation();
 		case 1:
 			{
-				const FVector CenterWorld = CircleBehaviour->GetComponentLocation();
-				const FVector NormalWorldPoint = CircleBehaviour->GetComponentTransform().TransformPosition(FVector::ForwardVector);
+				const FVector CenterWorld = GetEditedScoringComponent()->GetComponentLocation();
+				const FVector NormalWorldPoint = GetEditedScoringComponent()->GetComponentTransform().TransformPosition(FVector::ForwardVector);
 				const FVector WorldNormalDir = NormalWorldPoint - CenterWorld;
-				const FVector Y = WorldNormalDir.RotateAngleAxis(90, CircleBehaviour->GetRightVector()).GetSafeNormal() * CircleBehaviour->Radius;
+				const FVector Y = WorldNormalDir.RotateAngleAxis(90, GetEditedScoringComponent()->GetRightVector()).GetSafeNormal() * GetEditedScoringComponent()->Radius;
 				return CenterWorld + Y;
 			}
 	default:
 		return FVector::ZeroVector;
 	}
+}
+
+bool FIntenSelectableCircleScoringVisualizer::IsVisualizingArchetype() const
+{
+	return GetEditedScoringComponent() && GetEditedScoringComponent()->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner());
+}
+
+UIntenSelectableCircleScoring* FIntenSelectableCircleScoringVisualizer::GetEditedScoringComponent() const
+{
+	return Cast<UIntenSelectableCircleScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
 bool FIntenSelectableCircleScoringVisualizer::ShowWhenSelected()
@@ -58,7 +69,8 @@ bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 		if (VisProxy->IsA(FCircleProxy::StaticGetType()))
 		{
 			const UIntenSelectableCircleScoring* T = Cast<const UIntenSelectableCircleScoring>(VisProxy->Component.Get());
-			CircleBehaviour = const_cast<UIntenSelectableCircleScoring*>(T);
+			ScoringBehaviourPropertyPath = FComponentPropertyPath(T);
+			
 			FCircleProxy* Proxy = (FCircleProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
 		}else
@@ -74,15 +86,13 @@ bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 	return bEditing;
 }
 
-
-// Fill out your copyright notice in the Description page of Project Settings.
-
 void FIntenSelectableCircleScoringVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
 	const UIntenSelectableCircleScoring* ComponentCasted = Cast<UIntenSelectableCircleScoring>(Component);
 	
 	if (ComponentCasted != nullptr)
 	{
 		PDI->SetHitProxy(new FCircleProxy(Component, 0));
+		
 		const FVector CenterWorld = ComponentCasted->GetComponentLocation();
 		PDI->DrawPoint(CenterWorld, FColor::Green, 20.f, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
@@ -93,6 +103,7 @@ void FIntenSelectableCircleScoringVisualizer::DrawVisualization(const UActorComp
 		const FVector Y = WorldNormalDir.RotateAngleAxis(90, ComponentCasted->GetRightVector());
 		const FVector Z = FVector::CrossProduct(Y.GetSafeNormal(), WorldNormalDir);
 		DrawCircle(PDI, CenterWorld, Y.GetSafeNormal(), Z.GetSafeNormal(), FColor::Green, ComponentCasted->Radius, 100, SDPG_Foreground, 2);
+
 		PDI->SetHitProxy(nullptr);
 
 	}
@@ -105,7 +116,7 @@ void FIntenSelectableCircleScoringVisualizer::EndEditing()
 
 UActorComponent* FIntenSelectableCircleScoringVisualizer::GetEditedComponent() const
 {
-	return CircleBehaviour;
+	return GetEditedScoringComponent();
 }
 
 bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport,
@@ -119,23 +130,27 @@ bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportCl
 
 		if(CurrentSelectionIndex == 0)
 		{
-			const FVector LocalCenter = CircleBehaviour->GetComponentLocation();
+			const FVector LocalCenter = GetEditedScoringComponent()->GetComponentLocation();
 			const FVector NewCenter = LocalCenter + DeltaTranslate;
-			CircleBehaviour->SetWorldLocation(NewCenter);
-			CircleBehaviour->AddWorldRotation(DeltaRotate);
+			GetEditedScoringComponent()->SetWorldLocation(NewCenter);
+			GetEditedScoringComponent()->AddWorldRotation(DeltaRotate);
 			
 			bHandled = true;
 		}else if(CurrentSelectionIndex == 1)
 		{
-			const FVector CenterWorld = CircleBehaviour->GetComponentLocation();
-			const FVector NormalWorldPoint = CircleBehaviour->GetComponentTransform().TransformPosition(FVector::ForwardVector);
+			const FVector CenterWorld = GetEditedScoringComponent()->GetComponentLocation();
+			const FVector NormalWorldPoint = GetEditedScoringComponent()->GetComponentTransform().TransformPosition(FVector::ForwardVector);
 			const FVector WorldNormalDir = NormalWorldPoint - CenterWorld;
-			const FVector RadiusVector = WorldNormalDir.RotateAngleAxis(90, CircleBehaviour->GetRightVector()).GetSafeNormal() * CircleBehaviour->Radius;
+			const FVector RadiusVector = WorldNormalDir.RotateAngleAxis(90, GetEditedScoringComponent()->GetRightVector()).GetSafeNormal() * GetEditedScoringComponent()->Radius;
 
 			const FVector ClampedTranslate = DeltaTranslate.Size() > 100 ? DeltaTranslate.GetSafeNormal() * 100 : DeltaTranslate;
-			CircleBehaviour->Radius = FVector::Distance(CenterWorld, CenterWorld + RadiusVector + ClampedTranslate);
+			GetEditedScoringComponent()->Radius = FVector::Distance(CenterWorld, CenterWorld + RadiusVector + ClampedTranslate);
 			bHandled = true;
 		}
+
+		TArray<FProperty*> Properties;
+		Properties.Add(PointsProperty);
+		NotifyPropertiesModified(GetEditedScoringComponent(), Properties, EPropertyChangeType::ValueSet);
 	}else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));

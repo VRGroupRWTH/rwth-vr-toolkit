@@ -9,6 +9,14 @@
 UIntenSelectableLineScoring::UIntenSelectableLineScoring()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	if(this->LinePoints.Num() == 2)
+	{
+		const FVector Average = (this->LinePoints[0] + this->LinePoints[1]) / 2;
+
+		this->SetWorldLocation(this->GetComponentTransform().TransformPositionNoScale(Average));
+		this->LinePoints[0] -= Average;
+		this->LinePoints[1] -= Average;
+	}
 }
 
 TPair<FHitResult, float> UIntenSelectableLineScoring::GetBestPointScorePair(const FVector& ConeOrigin,

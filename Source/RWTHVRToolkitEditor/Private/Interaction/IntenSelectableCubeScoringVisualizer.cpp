@@ -1,11 +1,10 @@
 #include "Interaction/IntenSelectableCubeScoringVisualizer.h"
 
+#include "ActorEditorUtils.h"
 #include "DrawDebugHelpers.h"
-
 #include "SceneManagement.h"
 #include "MaterialShared.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableCubeScoring.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialRenderProxy.h"
 
@@ -22,7 +21,17 @@ FIntenSelectableCubeScoringVisualizer::~FIntenSelectableCubeScoringVisualizer()
 
 FVector FIntenSelectableCubeScoringVisualizer::GetCurrentVectorWorld() const
 {
-	return CubeBehaviour->GetComponentLocation();
+	return GetEditedScoringComponent()->GetComponentLocation();
+}
+
+bool FIntenSelectableCubeScoringVisualizer::IsVisualizingArchetype() const
+{
+	return GetEditedScoringComponent() && GetEditedScoringComponent()->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner());
+}
+
+UIntenSelectableCubeScoring* FIntenSelectableCubeScoringVisualizer::GetEditedScoringComponent() const
+{
+	return Cast<UIntenSelectableCubeScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
 bool FIntenSelectableCubeScoringVisualizer::ShowWhenSelected()
@@ -49,7 +58,8 @@ bool FIntenSelectableCubeScoringVisualizer::VisProxyHandleClick(FEditorViewportC
 		if (VisProxy->IsA(FCubeProxy::StaticGetType()))
 		{
 			const UIntenSelectableCubeScoring* T = Cast<const UIntenSelectableCubeScoring>(VisProxy->Component.Get());
-			CubeBehaviour = const_cast<UIntenSelectableCubeScoring*>(T);
+			ScoringBehaviourPropertyPath = FComponentPropertyPath(T);
+			
 			FCubeProxy* Proxy = (FCubeProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
 		}else
@@ -65,19 +75,18 @@ bool FIntenSelectableCubeScoringVisualizer::VisProxyHandleClick(FEditorViewportC
 	return bEditing;
 }
 
-
-// Fill out your copyright notice in the Description page of Project Settings.
-
 void FIntenSelectableCubeScoringVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
 	const UIntenSelectableCubeScoring* ComponentCasted = Cast<UIntenSelectableCubeScoring>(Component);
 	
 	if (ComponentCasted != nullptr)
 	{
 		PDI->SetHitProxy(new FCubeProxy(Component, 0));
+		
 		const auto Scale = ComponentCasted->GetRelativeTransform().GetScale3D();
 		const FVector Radii{Scale.X, Scale.Y, Scale.Z};
 		DrawBox(PDI, ComponentCasted->GetComponentTransform().ToMatrixNoScale(), Radii / 2, &DebugMaterial, 0);
 		PDI->DrawPoint(ComponentCasted->GetComponentLocation(), FColor::Green, 20, 0);
+		
 		PDI->SetHitProxy(nullptr);
 	}
 }
@@ -89,7 +98,7 @@ void FIntenSelectableCubeScoringVisualizer::EndEditing()
 
 UActorComponent* FIntenSelectableCubeScoringVisualizer::GetEditedComponent() const
 {
-	return CubeBehaviour;
+	return GetEditedScoringComponent();
 }
 
 bool FIntenSelectableCubeScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport,
@@ -101,18 +110,18 @@ bool FIntenSelectableCubeScoringVisualizer::HandleInputDelta(FEditorViewportClie
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 
-		const FVector LocalCenter = CubeBehaviour->GetComponentLocation();
+		const FVector LocalCenter = GetEditedScoringComponent()->GetComponentLocation();
 		const FVector NewCenter = LocalCenter + DeltaTranslate;
-		CubeBehaviour->SetWorldLocation(NewCenter);
-		CubeBehaviour->AddWorldRotation(DeltaRotate);
+		GetEditedScoringComponent()->SetWorldLocation(NewCenter);
+		GetEditedScoringComponent()->AddWorldRotation(DeltaRotate);
 
-		auto Scale = CubeBehaviour->GetRelativeTransform().GetScale3D();
+		auto Scale = GetEditedScoringComponent()->GetRelativeTransform().GetScale3D();
 		
 		Scale.X += DeltaScale.X * 3;
 		Scale.Y += DeltaScale.Y * 3;
 		Scale.Z += DeltaScale.Z * 3;
 		
-		CubeBehaviour->GetRelativeTransform().SetScale3D(Scale);
+		GetEditedScoringComponent()->GetRelativeTransform().SetScale3D(Scale);
 		bHandled = true;
 	}else
 	{

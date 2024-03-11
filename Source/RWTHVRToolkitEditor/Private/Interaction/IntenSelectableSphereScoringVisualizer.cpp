@@ -1,4 +1,6 @@
 #include "Interaction/IntenSelectableSphereScoringVisualizer.h"
+
+#include "ActorEditorUtils.h"
 #include "SceneManagement.h"
 #include "MaterialShared.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSphereScoring.h"
@@ -9,16 +11,21 @@ IMPLEMENT_HIT_PROXY(FSphereProxy, HComponentVisProxy);
 
 FIntenSelectableSphereScoringVisualizer::FIntenSelectableSphereScoringVisualizer() : DebugMaterial(FColoredMaterialRenderProxy(GEngine->ConstraintLimitMaterial->GetRenderProxy(), FColor::Green))
 {
-	
+	PointsProperty = FindFProperty<FProperty>(UIntenSelectableSphereScoring::StaticClass(), GET_MEMBER_NAME_CHECKED(UIntenSelectableSphereScoring, Radius));
 }
 
 FIntenSelectableSphereScoringVisualizer::~FIntenSelectableSphereScoringVisualizer()
 {
 }
 
+bool FIntenSelectableSphereScoringVisualizer::IsVisualizingArchetype() const
+{
+	return GetEditedScoringComponent() && GetEditedScoringComponent()->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner());
+}
+
 FVector FIntenSelectableSphereScoringVisualizer::GetCurrentVectorWorld() const
 {
-	return SphereBehaviour->GetComponentLocation();
+	return GetEditedScoringComponent()->GetComponentLocation();
 }
 
 bool FIntenSelectableSphereScoringVisualizer::ShowWhenSelected()
@@ -45,7 +52,8 @@ bool FIntenSelectableSphereScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 		if (VisProxy->IsA(FSphereProxy::StaticGetType()))
 		{
 			const UIntenSelectableSphereScoring* T = Cast<const UIntenSelectableSphereScoring>(VisProxy->Component.Get());
-			SphereBehaviour = const_cast<UIntenSelectableSphereScoring*>(T);
+			ScoringBehaviourPropertyPath = FComponentPropertyPath(T);
+			
 			FSphereProxy* Proxy = (FSphereProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
 		}else
@@ -61,16 +69,15 @@ bool FIntenSelectableSphereScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 	return bEditing;
 }
 
-
-// Fill out your copyright notice in the Description page of Project Settings.
-
 void FIntenSelectableSphereScoringVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) {
 	const UIntenSelectableSphereScoring* ComponentCasted = Cast<UIntenSelectableSphereScoring>(Component);
 	
 	if (ComponentCasted != nullptr)
 	{
 		PDI->SetHitProxy(new FSphereProxy(Component, 0));
+		
 		DrawSphere(PDI, ComponentCasted->GetComponentLocation(), FRotator::ZeroRotator, FVector::OneVector * ComponentCasted->Radius, 50, 50, &DebugMaterial, 0, false);
+
 		PDI->SetHitProxy(nullptr);
 	}
 }
@@ -82,26 +89,56 @@ void FIntenSelectableSphereScoringVisualizer::EndEditing()
 
 UActorComponent* FIntenSelectableSphereScoringVisualizer::GetEditedComponent() const
 {
-	return SphereBehaviour;
+	return GetEditedScoringComponent();
+}
+
+UIntenSelectableSphereScoring* FIntenSelectableSphereScoringVisualizer::GetEditedScoringComponent() const
+{
+	return Cast<UIntenSelectableSphereScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
 bool FIntenSelectableSphereScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport,
-                                                             FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale)
+                                                               FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale)
 {
 	bool bHandled = false;
 
-	if (CurrentSelectionIndex != INDEX_NONE)
+	if (true || CurrentSelectionIndex != INDEX_NONE)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 
-		if(CurrentSelectionIndex == 0)
+		if((true || CurrentSelectionIndex == 0 )&& GetEditedComponent())
 		{
-			const FVector LocalCenter = SphereBehaviour->GetComponentLocation();
-			const FVector NewCenter = LocalCenter + DeltaTranslate;
-			SphereBehaviour->SetWorldLocation(NewCenter);
-			SphereBehaviour->AddWorldRotation(DeltaRotate);
-			SphereBehaviour->Radius += (DeltaScale.X + DeltaScale.Y + DeltaScale.Z) * 2;
+			UIntenSelectableSphereScoring* ScoringComponent = GetEditedScoringComponent();
+			ScoringComponent->Modify();
 			
+			const FVector LocalCenter = ScoringComponent->GetComponentLocation();
+			const FVector NewCenter = LocalCenter + DeltaTranslate;
+			
+			ScoringComponent->SetWorldLocation(NewCenter);
+			ScoringComponent->AddWorldRotation(DeltaRotate);
+			
+			const float AverageScaleFactor = (DeltaScale.X + DeltaScale.Y + DeltaScale.Z) / 3.0f;
+
+			// Apply the average scale factor to the original radius
+			float NewRadius;
+			if (AverageScaleFactor > 0)
+			{
+				// Scale up: Increase the radius
+				NewRadius = ScoringComponent->Radius * (1.0f + FMath::Abs(AverageScaleFactor));
+			}
+			else
+			{
+				// Scale down: Decrease the radius, ensuring not to reduce it below a minimum threshold (e.g., not making it negative)
+				NewRadius = ScoringComponent->Radius * FMath::Max(0.1f, 1.0f + AverageScaleFactor);
+			}
+			ScoringComponent->Radius = NewRadius;
+
+			TArray<FProperty*> Properties;
+			Properties.Add(PointsProperty);
+			NotifyPropertiesModified(ScoringComponent, Properties, EPropertyChangeType::ValueSet);
+
+			ScoringComponent->MarkRenderStateDirty();
+			GEditor->RedrawLevelEditingViewports(false);
 			bHandled = true;
 		}
 	}else

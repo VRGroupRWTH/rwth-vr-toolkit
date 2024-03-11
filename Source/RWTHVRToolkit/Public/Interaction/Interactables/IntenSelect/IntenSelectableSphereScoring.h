@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -27,7 +25,7 @@ public:
 	float Radius = 50;
 	
 	UPROPERTY(EditAnywhere)
-	bool DrawDebug = false;
+	bool DrawDebug = true;
 	
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 

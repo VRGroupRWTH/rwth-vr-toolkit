@@ -1,18 +1,24 @@
+#include "ActorEditorUtils.h"
 #include "Interaction/IntenSelectableRectangleScoringVisualizer.h"
-
 #include "SceneManagement.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableRectangleScoring.h"
-#include "Kismet/KismetMathLibrary.h"
 
 IMPLEMENT_HIT_PROXY(FRectangleProxy, HComponentVisProxy);
 
 FIntenSelectableRectangleScoringVisualizer::FIntenSelectableRectangleScoringVisualizer()
 {
-	
+	XLengthProperty = FindFProperty<FProperty>(UIntenSelectableRectangleScoring::StaticClass(), GET_MEMBER_NAME_CHECKED(UIntenSelectableRectangleScoring, XLength));
+	YLengthProperty = FindFProperty<FProperty>(UIntenSelectableRectangleScoring::StaticClass(), GET_MEMBER_NAME_CHECKED(UIntenSelectableRectangleScoring, YLength));
 }
 
 FIntenSelectableRectangleScoringVisualizer::~FIntenSelectableRectangleScoringVisualizer()
 {
+}
+
+bool FIntenSelectableRectangleScoringVisualizer::IsVisualizingArchetype() const
+{
+	return GetEditedScoringComponent() && GetEditedScoringComponent()->GetOwner() && FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner());
+
 }
 
 FVector FIntenSelectableRectangleScoringVisualizer::GetCurrentVectorWorld() const
@@ -22,10 +28,10 @@ FVector FIntenSelectableRectangleScoringVisualizer::GetCurrentVectorWorld() cons
 		return FVector::ZeroVector;
 	}
 
-	const FVector X = RectangleBehaviour->GetRightVector() * RectangleBehaviour->XLength;
-	const FVector Y = RectangleBehaviour->GetUpVector() * RectangleBehaviour->YLength;
+	const FVector X = GetEditedScoringComponent()->GetRightVector() * GetEditedScoringComponent()->XLength;
+	const FVector Y = GetEditedScoringComponent()->GetUpVector() * GetEditedScoringComponent()->YLength;
 
-	const FVector CornerWorld00 = RectangleBehaviour->GetComponentTransform().TransformPosition(FVector::ZeroVector) - (X / 2) - (Y / 2);
+	const FVector CornerWorld00 = GetEditedScoringComponent()->GetComponentTransform().TransformPosition(FVector::ZeroVector) - (X / 2) - (Y / 2);
 	const FVector CornerWorld10 = CornerWorld00 + X;
 	const FVector CornerWorld01 = CornerWorld00 + Y;
 	const FVector CornerWorld11 = CornerWorld00 + X + Y;
@@ -74,7 +80,8 @@ bool FIntenSelectableRectangleScoringVisualizer::VisProxyHandleClick(FEditorView
 		if (VisProxy->IsA(FRectangleProxy::StaticGetType()))
 		{
 			const UIntenSelectableRectangleScoring* T = Cast<const UIntenSelectableRectangleScoring>(VisProxy->Component.Get());
-			RectangleBehaviour = const_cast<UIntenSelectableRectangleScoring*>(T);
+			ScoringBehaviourPropertyPath = FComponentPropertyPath(T);
+			
 			FRectangleProxy* Proxy = (FRectangleProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
 		}else
@@ -139,76 +146,99 @@ void FIntenSelectableRectangleScoringVisualizer::EndEditing()
 
 UActorComponent* FIntenSelectableRectangleScoringVisualizer::GetEditedComponent() const
 {
-	return RectangleBehaviour;
+	return GetEditedScoringComponent();
+}
+
+UIntenSelectableRectangleScoring* FIntenSelectableRectangleScoringVisualizer::GetEditedScoringComponent() const
+{
+	return Cast<UIntenSelectableRectangleScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
 bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport,
-                                                             FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale)
+                                                                  FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale)
 {
+	bool bHandled = false;
+	
 	if (CurrentSelectionIndex != INDEX_NONE)
 	{
+		UIntenSelectableRectangleScoring* ScoringComponent = GetEditedScoringComponent();
+		ScoringComponent->Modify();
+		
 		switch (CurrentSelectionIndex)
 		{
 		case 0:
 			//bottom
-			RectangleBehaviour->YLength -= DeltaTranslate.Z;
-			if(RectangleBehaviour->YLength < 0.1)
+			ScoringComponent->YLength -= DeltaTranslate.Z;
+			if(ScoringComponent->YLength < 0.1)
 			{
-				RectangleBehaviour->YLength = 0.1;
+				ScoringComponent->YLength = 0.1;
 			}else
 			{
-				RectangleBehaviour->AddLocalOffset(FVector::UpVector * DeltaTranslate.Z / 2);
+				ScoringComponent->AddLocalOffset(FVector::UpVector * DeltaTranslate.Z / 2);
 			}
-			return true;
+			bHandled = true;
+			break;
 		case 1:
 			//left
-			RectangleBehaviour->XLength -= DeltaTranslate.Y;
-			if(RectangleBehaviour->XLength < 0.1)
+			ScoringComponent->XLength -= DeltaTranslate.Y;
+			if(ScoringComponent->XLength < 0.1)
 			{
-				RectangleBehaviour->XLength = 0.1;
+				ScoringComponent->XLength = 0.1;
 			}else
 			{
-				RectangleBehaviour->AddLocalOffset(FVector::RightVector * DeltaTranslate.Y / 2);
+				ScoringComponent->AddLocalOffset(FVector::RightVector * DeltaTranslate.Y / 2);
 			}
-			return true;
+			bHandled = true;
+			break;
 		case 2:
 			//top
-			RectangleBehaviour->YLength += DeltaTranslate.Z;
-			if(RectangleBehaviour->YLength < 0.1)
+			ScoringComponent->YLength += DeltaTranslate.Z;
+			if(ScoringComponent->YLength < 0.1)
 			{
-				RectangleBehaviour->YLength = 0.1;
+				ScoringComponent->YLength = 0.1;
 			}else
 			{
-				RectangleBehaviour->AddLocalOffset(FVector::UpVector * DeltaTranslate.Z / 2);
+				ScoringComponent->AddLocalOffset(FVector::UpVector * DeltaTranslate.Z / 2);
 			}
-			return true;
+			bHandled = true;
+			break;
 		case 3:
 			//right
-			RectangleBehaviour->XLength += DeltaTranslate.Y;
-			if(RectangleBehaviour->XLength < 0.1)
+			ScoringComponent->XLength += DeltaTranslate.Y;
+			if(ScoringComponent->XLength < 0.1)
 			{
-				RectangleBehaviour->XLength = 0.1;
+				ScoringComponent->XLength = 0.1;
 			}else
 			{
-				RectangleBehaviour->AddLocalOffset(FVector::RightVector * DeltaTranslate.Y / 2);
+				ScoringComponent->AddLocalOffset(FVector::RightVector * DeltaTranslate.Y / 2);
 			}
-			return true;
+			bHandled = true;
+			break;
 		case 4:
 			{
 				//middle
-				const FVector WorldCenter = RectangleBehaviour->GetComponentLocation();
+				const FVector WorldCenter = ScoringComponent->GetComponentLocation();
 				const FVector NewWorldCenter = WorldCenter + DeltaTranslate;
-				RectangleBehaviour->SetWorldLocation(NewWorldCenter);
-				RectangleBehaviour->AddWorldRotation(DeltaRotate);
+				ScoringComponent->SetWorldLocation(NewWorldCenter);
+				ScoringComponent->AddWorldRotation(DeltaRotate);
 				
-				const FVector LocalScaleDelta = RectangleBehaviour->GetComponentTransform().InverseTransformVector(DeltaScale);
-				RectangleBehaviour->XLength += LocalScaleDelta.Y * 4;
-				RectangleBehaviour->YLength += LocalScaleDelta.Z * 4;
-				return true;
+				const FVector LocalScaleDelta = ScoringComponent->GetComponentTransform().InverseTransformVector(DeltaScale);
+				ScoringComponent->XLength += LocalScaleDelta.Y * 4;
+				ScoringComponent->YLength += LocalScaleDelta.Z * 4;
+				bHandled = true;
+				break;
 			}
 		default:
-			return false;
+			bHandled = false;
+			break;
 		}
+
+		TArray<FProperty*> Properties;
+		Properties.Add(XLengthProperty);
+		Properties.Add(YLengthProperty);
+		NotifyPropertiesModified(ScoringComponent, Properties, EPropertyChangeType::ValueSet);
+		
+		return bHandled;
 	}else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));

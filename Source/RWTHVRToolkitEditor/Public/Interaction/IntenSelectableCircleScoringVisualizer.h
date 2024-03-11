@@ -28,8 +28,8 @@ class RWTHVRTOOLKITEDITOR_API FIntenSelectableCircleScoringVisualizer : public F
 {
 private:
 	int CurrentSelectionIndex;
-
-	UIntenSelectableCircleScoring* CircleBehaviour;
+	FProperty* PointsProperty;
+	FComponentPropertyPath ScoringBehaviourPropertyPath;
 	
 public:
 	FIntenSelectableCircleScoringVisualizer();
@@ -37,6 +37,9 @@ public:
 
 	FVector GetCurrentVectorWorld() const;
 
+	virtual bool IsVisualizingArchetype() const override;
+	UIntenSelectableCircleScoring* GetEditedScoringComponent() const;
+	
 	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click) override;
