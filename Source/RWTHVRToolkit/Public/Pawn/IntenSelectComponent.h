@@ -3,12 +3,10 @@
 #pragma once
 
 #pragma region /** Includes */
-#include "Kismet/KismetSystemLibrary.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "CoreMinimal.h"
 #include "InputAction.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
 #include "IntenSelectComponent.generated.h"
@@ -16,14 +14,14 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNewComponent);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectComponent : public UWidgetInteractionComponent
 {
 	GENERATED_BODY()
 
-	
-//	VARIABLES
-	
+
+	//	VARIABLES
+
 #pragma region /** INTERNAL VARIABLES */
 private:
 	float SphereCastRadius;
@@ -33,104 +31,104 @@ private:
 	FVector WidgetFocusPoint;
 
 	UPROPERTY()
-		UWidgetComponent* LastFocusedWidget;
+	UWidgetComponent* LastFocusedWidget;
 	UPROPERTY()
-		TMap<UIntenSelectable*, float> ScoreMap;
+	TMap<UIntenSelectable*, float> ScoreMap;
 	UPROPERTY()
-		TMap<UIntenSelectable*, FHitResult> ContactPointMap;
+	TMap<UIntenSelectable*, FHitResult> ContactPointMap;
 	UPROPERTY()
-		UIntenSelectable* CurrentSelection;
+	UIntenSelectable* CurrentSelection;
 	UPROPERTY()
-		UIntenSelectable* LastKnownSelection;
+	UIntenSelectable* LastKnownSelection;
 	UPROPERTY()
-		FVector LastKnownGrabPoint;
+	FVector LastKnownGrabPoint;
 	UPROPERTY()
-		UStaticMeshComponent* DebugConeMeshComponent;
+	UStaticMeshComponent* DebugConeMeshComponent;
 	UPROPERTY()
-		UStaticMeshComponent* ForwardRayMeshComponent;
+	UStaticMeshComponent* ForwardRayMeshComponent;
 	UPROPERTY()
-		USplineComponent* SplineComponent;
+	USplineComponent* SplineComponent;
 	UPROPERTY()
-		USplineMeshComponent* SplineMeshComponent;
+	USplineMeshComponent* SplineMeshComponent;
 	UPROPERTY()
-		UMaterialParameterCollectionInstance* ParameterCollectionInstance;
+	UMaterialParameterCollectionInstance* ParameterCollectionInstance;
 	UPROPERTY()
-		UStaticMesh* DebugConeMesh;
+	UStaticMesh* DebugConeMesh;
 	UPROPERTY()
-		UMaterialInterface* DebugConeMaterial;
+	UMaterialInterface* DebugConeMaterial;
 	UPROPERTY()
-		UStaticMesh* ForwardRayMesh;
+	UStaticMesh* ForwardRayMesh;
 #pragma endregion
 
 #pragma region /** SETTINGS */
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		bool SetActiveOnStart = true;	
+	bool SetActiveOnStart = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float MaxSelectionDistance = 5000;
+	float MaxSelectionDistance = 5000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float SelectionConeAngle = 5;
+	float SelectionConeAngle = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float SplineCurvatureStrength = 1;
+	float SplineCurvatureStrength = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float ConeBackwardShiftDistance = 0;
+	float ConeBackwardShiftDistance = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float MaxClickStickAngle = 10;
+	float MaxClickStickAngle = 10;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-		float ForwardRayWidth = 0.01;
+	float ForwardRayWidth = 0.01;
 #pragma endregion
 
 #pragma region /** REFERENCES */
 public:
-	UPROPERTY(EditAnywhere, Category= "IntenSelect|References")
-		UStaticMesh* SplineMesh;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		UMaterialInterface* SplineMaterial;
+	UStaticMesh* SplineMesh;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		UMaterialInterface* ForwardRayMaterial;
+	UMaterialInterface* SplineMaterial;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		UHapticFeedbackEffect_Base* SelectionFeedbackHaptic;
+	UMaterialInterface* ForwardRayMaterial;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		USoundBase* OnSelectSound;
+	UHapticFeedbackEffect_Base* SelectionFeedbackHaptic;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		UMaterialParameterCollection* MaterialParamCollection;
+	USoundBase* OnSelectSound;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
-		UCurveFloat* ForwardRayTransparencyCurve;
+	UMaterialParameterCollection* MaterialParamCollection;
+	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
+	UCurveFloat* ForwardRayTransparencyCurve;
 #pragma endregion
 
 #pragma region /** DEBUG */
 public:
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		bool bDrawDebugCone = false;
+	bool bDrawDebugCone = false;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		bool bDrawForwardRay = true;
+	bool bDrawForwardRay = true;
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		FRotator DebugConeRotation = FRotator(90, 0, 0);
+	FRotator DebugConeRotation = FRotator(90, 0, 0);
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		FVector DebugConeScale = FVector(1,1,1);
+	FVector DebugConeScale = FVector(1, 1, 1);
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		FVector DebugConePosition = FVector(-90, 0, 0);
+	FVector DebugConePosition = FVector(-90, 0, 0);
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Debug")
-		float DebugRayTransparency = 1;
+	float DebugRayTransparency = 1;
 #pragma endregion
 
 
 #pragma region /** Input */
 public:
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|Input")
-		UInputAction* InputClick;
- 
+	UInputAction* InputClick;
+
 #pragma endregion
-	
+
 #pragma region /** EVENTS */
 public:
 	UPROPERTY(BlueprintAssignable)
-		FOnNewComponent OnNewSelectedEvent;
+	FOnNewComponent OnNewSelectedEvent;
 #pragma endregion
 
 
-// FUNCTIONS
-	
+	// FUNCTIONS
+
 #pragma region /** INITIALIZATION */
 private:
 	void InitInputBindings();
@@ -140,28 +138,29 @@ private:
 	void InitForwardRayMeshComponent();
 	void InitMaterialParamCollection();
 #pragma endregion
-	
+
 #pragma region /** SCORING */
 private:
 	float CalculateSphereCastRadius() const;
 	bool GetActorsFromSphereCast(const FVector& SphereCastStart, TArray<FHitResult>& OutHits) const;
-	bool CheckPointInCone(const FVector ConeStartPoint, const FVector ConeForward, const FVector PointToTest, const float Angle) const;
+	bool CheckPointInCone(const FVector ConeStartPoint, const FVector ConeForward, const FVector PointToTest,
+						  const float Angle) const;
 	UIntenSelectable* GetMaxScoreActor(const float DeltaTime);
 #pragma endregion
-	
+
 #pragma region /** VISUALS */
 private:
 	void DrawSelectionCurve(const FVector& EndPoint) const;
 	void AddSplinePointsDefault(const FVector& StartPoint, const FVector& Forward, const FVector& EndPoint) const;
 	void UpdateForwardRay(const FVector& ReferencePoint) const;
 #pragma endregion
-	
+
 #pragma region /** RAYCASTING */
 private:
 	void HandleWidgetInteraction();
 	TOptional<FHitResult> RaytraceForFirstHit(const FVector& Start, const FVector& End) const;
 #pragma endregion
-		
+
 #pragma region /** INPUT-HANDLING */
 private:
 	UFUNCTION(BlueprintCallable)
@@ -177,25 +176,26 @@ private:
 	void HandleNoActorSelected();
 	void HandleActorSelected(UIntenSelectable* NewSelection);
 	FVector ConvertNetVector(FVector_NetQuantize v);
-#pragma endregion 
-	
-public:	
+#pragma endregion
+
+public:
 	UIntenSelectComponent(const FObjectInitializer& ObjectInitializer);
 
 #pragma region /** SELECTION */
 	void SelectObject(UIntenSelectable* SelectableComponent, AActor* SelectedBy);
 	void Unselect();
-#pragma endregion 
+#pragma endregion
 
 	virtual void SetActive(bool bNewActive, bool bReset) override;
-	
+
 	UFUNCTION(BlueprintNativeEvent)
-		void OnNewSelected(UIntenSelectable* Selection);
+	void OnNewSelected(UIntenSelectable* Selection);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+							   FActorComponentTickFunction* ThisTickFunction) override;
 };

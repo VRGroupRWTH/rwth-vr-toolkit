@@ -13,7 +13,7 @@ class UClickBehaviour;
 class USelectionBehaviour;
 class UIntenSelectComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectable : public UActorComponent
 {
 	GENERATED_BODY()
@@ -24,19 +24,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UIntenSelectableScoring* ScoringBehaviour;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UHoverBehaviour*> OnSelectBehaviours;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UActionBehaviour*> OnClickBehaviours;
-	
+
 
 public:
 	UIntenSelectable();
 
-	TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) const;
-	
+	TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
+												   const float ConeBackwardShiftDistance, const float ConeAngle,
+												   const float LastValue, const float DeltaTime) const;
+
 	void HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult);
 	void HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect);
 	void HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect);

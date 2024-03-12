@@ -8,22 +8,21 @@
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"
 
-UIntenSelectable::UIntenSelectable()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
+UIntenSelectable::UIntenSelectable() { PrimaryComponentTick.bCanEverTick = true; }
 
 TPair<FHitResult, float> UIntenSelectable::GetBestPointScorePair(const FVector& ConeOrigin,
-	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
-	const float LastValue, const float DeltaTime) const
+																 const FVector& ConeForwardDirection,
+																 const float ConeBackwardShiftDistance,
+																 const float ConeAngle, const float LastValue,
+																 const float DeltaTime) const
 {
-	checkf(ScoringBehaviour,TEXT("%s"),*GetOwner()->GetName())
-	return ScoringBehaviour->GetBestPointScorePair(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, LastValue, DeltaTime);
+	checkf(ScoringBehaviour, TEXT("%s"), *GetOwner()->GetName()) return ScoringBehaviour->GetBestPointScorePair(
+		ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, LastValue, DeltaTime);
 }
 
 void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
 {
-	for(const UHoverBehaviour* b : OnSelectBehaviours)
+	for (const UHoverBehaviour* b : OnSelectBehaviours)
 	{
 		b->OnHoverStartEvent.Broadcast(IntenSelect, HitResult);
 	}
@@ -31,7 +30,7 @@ void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* In
 
 void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect)
 {
-	for(const UHoverBehaviour* b : OnSelectBehaviours)
+	for (const UHoverBehaviour* b : OnSelectBehaviours)
 	{
 		b->OnHoverEndEvent.Broadcast(IntenSelect);
 	}
@@ -39,7 +38,7 @@ void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* Inte
 
 void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect)
 {
-	for(const UActionBehaviour* b : OnClickBehaviours)
+	for (const UActionBehaviour* b : OnClickBehaviours)
 	{
 		FInputActionValue v{};
 		const UInputAction* a{};
@@ -49,7 +48,7 @@ void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSele
 
 void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
 {
-	for(const UActionBehaviour* b : OnClickBehaviours)
+	for (const UActionBehaviour* b : OnClickBehaviours)
 	{
 		const UInputAction* a{};
 		b->OnActionEndEvent.Broadcast(IntenSelect, a, InputValue);
@@ -58,24 +57,28 @@ void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect
 
 void UIntenSelectable::InitDefaultBehaviourReferences()
 {
-	//Scoring
-	if(UIntenSelectableScoring* AttachedScoring = Cast<UIntenSelectableScoring>(GetOwner()->GetComponentByClass(UIntenSelectableScoring::StaticClass())))
+	// Scoring
+	if (UIntenSelectableScoring* AttachedScoring =
+			Cast<UIntenSelectableScoring>(GetOwner()->GetComponentByClass(UIntenSelectableScoring::StaticClass())))
 	{
 		ScoringBehaviour = AttachedScoring;
-	}else
+	}
+	else
 	{
-		ScoringBehaviour = NewObject<UIntenSelectableSinglePointScoring>(this, UIntenSelectableSinglePointScoring::StaticClass(), "Default Scoring");
+		ScoringBehaviour = NewObject<UIntenSelectableSinglePointScoring>(
+			this, UIntenSelectableSinglePointScoring::StaticClass(), "Default Scoring");
 		ScoringBehaviour->SetWorldLocation(GetOwner()->GetActorLocation());
-		ScoringBehaviour->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		ScoringBehaviour->AttachToComponent(GetOwner()->GetRootComponent(),
+											FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 
-	//Selecting
+	// Selecting
 	TInlineComponentArray<UHoverBehaviour*> AttachedSelectionBehaviours;
 	GetOwner()->GetComponents(AttachedSelectionBehaviours, true);
 
 	this->OnSelectBehaviours = AttachedSelectionBehaviours;
 
-	//Clicking
+	// Clicking
 	TInlineComponentArray<UActionBehaviour*> AttachedClickBehaviours;
 	GetOwner()->GetComponents(AttachedClickBehaviours, true);
 
@@ -97,15 +100,17 @@ void UIntenSelectable::BeginPlay()
 
 	TInlineComponentArray<UIntenSelectable*> AttachedIntenSelectables;
 	GetOwner()->GetComponents(AttachedIntenSelectables, false);
-		
-	if(AttachedIntenSelectables.Num() > 1)
+
+	if (AttachedIntenSelectables.Num() > 1)
 	{
-		if(!ScoringBehaviour)
+		if (!ScoringBehaviour)
 		{
-			ShowErrorAndQuit("Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
+			ShowErrorAndQuit(
+				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
 		}
-	}else
+	}
+	else
 	{
-		InitDefaultBehaviourReferences();	
-	}	
+		InitDefaultBehaviourReferences();
+	}
 }

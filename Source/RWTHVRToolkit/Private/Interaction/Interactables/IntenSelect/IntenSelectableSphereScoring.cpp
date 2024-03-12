@@ -8,17 +8,16 @@
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
-UIntenSelectableSphereScoring::UIntenSelectableSphereScoring()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
+UIntenSelectableSphereScoring::UIntenSelectableSphereScoring() { PrimaryComponentTick.bCanEverTick = true; }
 
-TPair<FHitResult, float> UIntenSelectableSphereScoring::GetBestPointScorePair(const FVector& ConeOrigin,
-	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
-	const float LastValue, const float DeltaTime)
+TPair<FHitResult, float>
+UIntenSelectableSphereScoring::GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
+													 const float ConeBackwardShiftDistance, const float ConeAngle,
+													 const float LastValue, const float DeltaTime)
 {
 	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
-	float Score = GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
+	float Score =
+		GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
 	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
 	return TPair<FHitResult, float>{Result, Score};
 }
@@ -34,32 +33,34 @@ FVector UIntenSelectableSphereScoring::GetClosestSelectionPointTo(const FVector&
 
 	FVector Result = CenterWorld - ProjectionToSphere.GetSafeNormal() * Radius;
 
-	if(!OnlyOutline)
+	if (!OnlyOutline)
 	{
 		const float t = FVector::DotProduct(ToSphere, Direction.GetSafeNormal());
 		const FVector TPoint = Point + Direction.GetSafeNormal() * t;
 		const float Y = (CenterWorld - TPoint).Size();
-		
-		if(Y <= Radius)
+
+		if (Y <= Radius)
 		{
-			const float X = + FMath::Sqrt((Radius * Radius) - (Y * Y));
+			const float X = +FMath::Sqrt((Radius * Radius) - (Y * Y));
 
 			const FVector Result1 = Point + Direction.GetSafeNormal() * (t - X);
 			const FVector Result2 = Point + Direction.GetSafeNormal() * (t + X);
 
-			if(FVector::Distance(Point, Result1) < FVector::Distance(Point, Result2))
+			if (FVector::Distance(Point, Result1) < FVector::Distance(Point, Result2))
 			{
 				Result = Result1;
-			}else
+			}
+			else
 			{
 				Result = Result2;
 			}
 		}
-		
+
 		/*
 		TArray<FHitResult> Out;
 		const float Dist = FVector::Distance(Point, GetComponentLocation());
-		if(GetWorld()->LineTraceMultiByChannel(Out, Point, Point + (Direction.GetSafeNormal() * Dist), ECollisionChannel::ECC_Visibility))
+		if(GetWorld()->LineTraceMultiByChannel(Out, Point, Point + (Direction.GetSafeNormal() * Dist),
+		ECollisionChannel::ECC_Visibility))
 		{
 			for(auto Hit : Out)
 			{
@@ -72,10 +73,10 @@ FVector UIntenSelectableSphereScoring::GetClosestSelectionPointTo(const FVector&
 		}*/
 	}
 
-	if(DrawDebug)
+	if (DrawDebug)
 	{
 		DrawDebugSphere(GetWorld(), CenterWorld, Radius, 20, FColor::Green, false, -1, 0, 1);
 	}
-	
+
 	return Result;
 }

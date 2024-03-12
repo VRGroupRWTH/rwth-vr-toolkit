@@ -4,7 +4,7 @@
 #include "IntenSelectableScoring.h"
 #include "IntenSelectableSphereScoring.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectableSphereScoring : public UIntenSelectableScoring
 {
 	GENERATED_BODY()
@@ -17,16 +17,18 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UMaterialInstance* DebugMaterial;
-	
+
 	UPROPERTY(EditAnywhere)
 	bool OnlyOutline = false;
-	
+
 	UPROPERTY(EditAnywhere)
 	float Radius = 50;
-	
+
 	UPROPERTY(EditAnywhere)
 	bool DrawDebug = true;
-	
-	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
+														   const FVector& ConeForwardDirection,
+														   const float ConeBackwardShiftDistance, const float ConeAngle,
+														   const float LastValue, const float DeltaTime) override;
 };

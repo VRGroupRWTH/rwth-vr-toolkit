@@ -13,17 +13,21 @@ UIntenSelectableCubeScoring::UIntenSelectableCubeScoring()
 	SetRelativeScale3D(FVector::One() * 100);
 }
 
-TPair<FHitResult, float> UIntenSelectableCubeScoring::GetBestPointScorePair(const FVector& ConeOrigin,
-	const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
-	const float LastValue, const float DeltaTime)
+TPair<FHitResult, float>
+UIntenSelectableCubeScoring::GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
+												   const float ConeBackwardShiftDistance, const float ConeAngle,
+												   const float LastValue, const float DeltaTime)
 {
 	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
-	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
+	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point,
+								  LastValue, DeltaTime);
 	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
 	return TPair<FHitResult, float>{Result, Score};
 }
 
-FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& StartPoint, const FVector& Direction, const FVector& Corner00, const FVector& Corner01, const FVector& Corner10, const FVector& Corner11) const
+FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& StartPoint, const FVector& Direction,
+																const FVector& Corner00, const FVector& Corner01,
+																const FVector& Corner10, const FVector& Corner11) const
 {
 	const float X = FVector::Distance(Corner00, Corner10);
 	const float Y = FVector::Distance(Corner00, Corner01);
@@ -31,22 +35,25 @@ FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& S
 
 	FVector Intersection;
 	float T;
-	UKismetMathLibrary::LinePlaneIntersection_OriginNormal(StartPoint, StartPoint + Direction * 10000, Corner00, PlaneNormal, T, Intersection);
+	UKismetMathLibrary::LinePlaneIntersection_OriginNormal(StartPoint, StartPoint + Direction * 10000, Corner00,
+														   PlaneNormal, T, Intersection);
 
 	FVector LocalIntersection = this->GetComponentTransform().InverseTransformPosition(Intersection);
 
-	if(LocalIntersection.Y > X / 2)
+	if (LocalIntersection.Y > X / 2)
 	{
 		LocalIntersection.Y = X / 2;
-	}else if(LocalIntersection.Y < -X / 2)
+	}
+	else if (LocalIntersection.Y < -X / 2)
 	{
 		LocalIntersection.Y = -X / 2;
 	}
-	
-	if(LocalIntersection.Z > Y / 2)
+
+	if (LocalIntersection.Z > Y / 2)
 	{
 		LocalIntersection.Z = Y / 2;
-	}else if(LocalIntersection.Z < -Y / 2)
+	}
+	else if (LocalIntersection.Z < -Y / 2)
 	{
 		LocalIntersection.Z = -Y / 2;
 	}
@@ -56,7 +63,7 @@ FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& S
 	{
 		const float DistToBottom = LocalIntersection.Z + (YLength / 2);
 		const float DistToLeft = LocalIntersection.Y + (XLength / 2);
-		
+
 		if(LocalIntersection.Z < 0)
 		{
 			if(LocalIntersection.Y < 0)
@@ -114,11 +121,12 @@ FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& S
 		}
 	}
 */
-	
+
 	return this->GetComponentTransform().TransformPosition(LocalIntersection);
 }
 
-bool UIntenSelectableCubeScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA, const FVector& ToB, FVector& OutIntersection)
+bool UIntenSelectableCubeScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA,
+														 const FVector& ToB, FVector& OutIntersection)
 {
 	const FVector Da = ToA - FromA;
 	const FVector DB = ToB - FromB;
@@ -128,11 +136,12 @@ bool UIntenSelectableCubeScoring::LineToLineIntersection(const FVector& FromA, c
 	const float Prod = CrossDaDb.X * CrossDaDb.X + CrossDaDb.Y * CrossDaDb.Y + CrossDaDb.Z * CrossDaDb.Z;
 
 	const float Res = FVector::DotProduct(FVector::CrossProduct(DC, DB), FVector::CrossProduct(Da, DB) / Prod);
-	if (Res >= -0.02f && Res <= 1.02f) {
+	if (Res >= -0.02f && Res <= 1.02f)
+	{
 		OutIntersection = FromA + Da * FVector(Res, Res, Res);
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -144,28 +153,28 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 	const FVector Z = this->GetUpVector() * Scale.Z;
 
 	TArray<FPlane> CubeSides;
-	
-	//bottom
-	const FVector BottomWorld = this->GetComponentTransform().TransformPositionNoScale(- Z / 2);
+
+	// bottom
+	const FVector BottomWorld = this->GetComponentTransform().TransformPositionNoScale(-Z / 2);
 	CubeSides.Add(FPlane{BottomWorld, -this->GetUpVector()});
 
-	//top
+	// top
 	const FVector TopWorld = this->GetComponentTransform().TransformPositionNoScale(Z / 2);
 	CubeSides.Add(FPlane{TopWorld, this->GetUpVector()});
-	
-	//left
-	const FVector LeftWorld = this->GetComponentTransform().TransformPositionNoScale(- Y / 2);
+
+	// left
+	const FVector LeftWorld = this->GetComponentTransform().TransformPositionNoScale(-Y / 2);
 	CubeSides.Add(FPlane{LeftWorld, -this->GetRightVector()});
 
-	//right
+	// right
 	const FVector RightWorld = this->GetComponentTransform().TransformPositionNoScale(Y / 2);
 	CubeSides.Add(FPlane{RightWorld, this->GetRightVector()});
 
-	//front
+	// front
 	const FVector FrontWorld = this->GetComponentTransform().TransformPositionNoScale(-X / 2);
 	CubeSides.Add(FPlane{FrontWorld, -this->GetForwardVector()});
 
-	//back
+	// back
 	const FVector BackWorld = this->GetComponentTransform().TransformPositionNoScale(X / 2);
 	CubeSides.Add(FPlane{BackWorld, this->GetForwardVector()});
 
@@ -175,32 +184,34 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 	float OutT;
 	if(TIntrRay3AxisAlignedBox3<float>::FindIntersection(Ray, Box, OutT))
 	{
-		
+
 	}*/
-	
+
 	float MinDistance = TNumericLimits<float>::Max();
 	FVector ClosestPoint = GetComponentLocation();
 	bool IsSet = false;
-	for(FPlane Plane : CubeSides)
+	for (FPlane Plane : CubeSides)
 	{
 		const FVector PlaneToRayOrigin = RayOrigin - Plane.GetOrigin();
-		if(FVector::DotProduct(PlaneToRayOrigin.GetSafeNormal(), Plane.GetNormal()) < 0 && BackFaceCulling)
+		if (FVector::DotProduct(PlaneToRayOrigin.GetSafeNormal(), Plane.GetNormal()) < 0 && BackFaceCulling)
 		{
-			if(DrawDebug)
+			if (DrawDebug)
 			{
-				DrawDebugSolidPlane(GetWorld(), Plane, GetComponentLocation(), 20, FColor::Red.WithAlpha(9), false, -1, 0);
+				DrawDebugSolidPlane(GetWorld(), Plane, GetComponentLocation(), 20, FColor::Red.WithAlpha(9), false, -1,
+									0);
 			}
 			continue;
-		}else
+		}
+		else
 		{
-			if(DrawDebug)
+			if (DrawDebug)
 			{
-				DrawDebugSolidPlane(GetWorld(), Plane, GetComponentLocation(), 20, FColor::Green.WithAlpha(9), false, -1, 0);
+				DrawDebugSolidPlane(GetWorld(), Plane, GetComponentLocation(), 20, FColor::Green.WithAlpha(9), false,
+									-1, 0);
 			}
 		}
-		
-		
-		
+
+
 		FVector CurrentPoint = FMath::RayPlaneIntersection(RayOrigin, RayDirection, Plane);
 		FVector CurrentPointLocal = GetComponentTransform().InverseTransformPositionNoScale(CurrentPoint);
 
@@ -209,74 +220,80 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 		CurrentPointLocal.Y = FMath::Clamp(CurrentPointLocal.Y, -Scale.Y / 2, Scale.Y / 2);
 		CurrentPointLocal.Z = FMath::Clamp(CurrentPointLocal.Z, -Scale.Z / 2, Scale.Z / 2);
 
-		if(OnlyOutline)
+		if (OnlyOutline)
 		{
-			const float XSnapDist = (Scale.X/2) - FMath::Abs(CurrentPointLocal.X);
-			const float YSnapDist = (Scale.Y/2) - FMath::Abs(CurrentPointLocal.Y);
-			const float ZSnapDist = (Scale.Z/2) - FMath::Abs(CurrentPointLocal.Z);
+			const float XSnapDist = (Scale.X / 2) - FMath::Abs(CurrentPointLocal.X);
+			const float YSnapDist = (Scale.Y / 2) - FMath::Abs(CurrentPointLocal.Y);
+			const float ZSnapDist = (Scale.Z / 2) - FMath::Abs(CurrentPointLocal.Z);
 
 			bool SnapX = true;
 			bool SnapY = true;
 			bool SnapZ = true;
-			
-			if(FVector::Parallel(Plane.GetNormal(), GetRightVector()))
+
+			if (FVector::Parallel(Plane.GetNormal(), GetRightVector()))
 			{
-				if(XSnapDist < ZSnapDist)
+				if (XSnapDist < ZSnapDist)
 				{
 					SnapZ = false;
-				}else
+				}
+				else
 				{
 					SnapX = false;
 				}
-				
-			}else if(FVector::Parallel(Plane.GetNormal(), GetUpVector()))
+			}
+			else if (FVector::Parallel(Plane.GetNormal(), GetUpVector()))
 			{
-				if(XSnapDist < YSnapDist)
+				if (XSnapDist < YSnapDist)
 				{
 					SnapY = false;
-				}else
+				}
+				else
 				{
 					SnapX = false;
 				}
-			}else if(FVector::Parallel(Plane.GetNormal(), GetForwardVector()))
+			}
+			else if (FVector::Parallel(Plane.GetNormal(), GetForwardVector()))
 			{
-				if(YSnapDist < ZSnapDist)
+				if (YSnapDist < ZSnapDist)
 				{
 					SnapZ = false;
-				}else
+				}
+				else
 				{
 					SnapY = false;
 				}
 			}
 
 
-			
-			if(SnapX)
+			if (SnapX)
 			{
-				if(CurrentPointLocal.X > 0)
+				if (CurrentPointLocal.X > 0)
 				{
 					CurrentPointLocal.X = Scale.X / 2;
-				}else
+				}
+				else
 				{
 					CurrentPointLocal.X = -Scale.X / 2;
 				}
 			}
-			if(SnapY)
+			if (SnapY)
 			{
-				if(CurrentPointLocal.Y > 0)
+				if (CurrentPointLocal.Y > 0)
 				{
 					CurrentPointLocal.Y = Scale.Y / 2;
-				}else
+				}
+				else
 				{
 					CurrentPointLocal.Y = -Scale.Y / 2;
 				}
 			}
-			if(SnapZ)
+			if (SnapZ)
 			{
-				if(CurrentPointLocal.Z > 0)
+				if (CurrentPointLocal.Z > 0)
 				{
 					CurrentPointLocal.Z = Scale.Z / 2;
-				}else
+				}
+				else
 				{
 					CurrentPointLocal.Z = -Scale.Z / 2;
 				}
@@ -287,45 +304,50 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 
 		const float Distance = FMath::PointDistToLine(CurrentPoint, RayDirection, RayOrigin);
 
-		//DrawDebugPoint(GetWorld(), CurrentPoint, 10, FColor::Black.WithAlpha(1), false, -1, 0);
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, -1, FColor::Red, FString::SanitizeFloat(Distance));
-		
-		if(Distance < 0.001)
+		// DrawDebugPoint(GetWorld(), CurrentPoint, 10, FColor::Black.WithAlpha(1), false, -1, 0);
+		// GEngine->AddOnScreenDebugMessage(INDEX_NONE, -1, FColor::Red, FString::SanitizeFloat(Distance));
+
+		if (Distance < 0.001)
 		{
-			if(MinDistance < 0.001)
+			if (MinDistance < 0.001)
 			{
-				const float DistToPlayerOld = IsSet ? FVector::Distance(RayOrigin, ClosestPoint) : TNumericLimits<float>::Max();
+				const float DistToPlayerOld =
+					IsSet ? FVector::Distance(RayOrigin, ClosestPoint) : TNumericLimits<float>::Max();
 				const float DistToPlayerNew = FVector::Distance(RayOrigin, CurrentPoint);
-			
-				if(DistToPlayerNew < DistToPlayerOld)
+
+				if (DistToPlayerNew < DistToPlayerOld)
 				{
 					MinDistance = Distance;
 					ClosestPoint = CurrentPoint;
 					IsSet = true;
 				}
-			}else
-			{
-				MinDistance = Distance;
-				ClosestPoint = CurrentPoint;
-				IsSet = true;
-			}			
-		}else
-		{
-			if(Distance < MinDistance)
+			}
+			else
 			{
 				MinDistance = Distance;
 				ClosestPoint = CurrentPoint;
 				IsSet = true;
 			}
-		}		
+		}
+		else
+		{
+			if (Distance < MinDistance)
+			{
+				MinDistance = Distance;
+				ClosestPoint = CurrentPoint;
+				IsSet = true;
+			}
+		}
 	}
 
-	if(DrawDebug) DrawDebugBox(GetWorld(), GetComponentLocation(), FVector(Scale.X, Scale.Y, Scale.Z) /2, GetComponentRotation().Quaternion(), FColor::Green, false, -1, 0, 2);
+	if (DrawDebug)
+		DrawDebugBox(GetWorld(), GetComponentLocation(), FVector(Scale.X, Scale.Y, Scale.Z) / 2,
+					 GetComponentRotation().Quaternion(), FColor::Green, false, -1, 0, 2);
 	return ClosestPoint;
 }
 
 void UIntenSelectableCubeScoring::TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+												FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }

@@ -8,14 +8,14 @@ class UIntenSelectableSphereScoring;
 class FPrimitiveDrawInterface;
 class FSceneView;
 
-struct FSphereProxy : HComponentVisProxy 
+struct FSphereProxy : HComponentVisProxy
 {
 	DECLARE_HIT_PROXY();
 
-	FSphereProxy (const UActorComponent* InComponent, int32 InTargetIndex)
-	: HComponentVisProxy (InComponent)
-	, TargetIndex(InTargetIndex)
-	{}
+	FSphereProxy(const UActorComponent* InComponent, int32 InTargetIndex) :
+		HComponentVisProxy(InComponent), TargetIndex(InTargetIndex)
+	{
+	}
 
 	int32 TargetIndex;
 };
@@ -28,7 +28,7 @@ private:
 	FColoredMaterialRenderProxy DebugMaterial;
 	FProperty* PointsProperty;
 	FComponentPropertyPath ScoringBehaviourPropertyPath;
-	
+
 public:
 	FIntenSelectableSphereScoringVisualizer();
 	~FIntenSelectableSphereScoringVisualizer();
@@ -37,10 +37,13 @@ public:
 	virtual bool IsVisualizingArchetype() const override;
 	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
-	
-	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy, const FViewportClick& Click) override;
-	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI) override;
-	virtual bool HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport, FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale) override;
+
+	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy,
+									 const FViewportClick& Click) override;
+	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View,
+								   FPrimitiveDrawInterface* PDI) override;
+	virtual bool HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport, FVector& DeltaTranslate,
+								  FRotator& DeltaRotate, FVector& DeltaScale) override;
 
 	virtual UActorComponent* GetEditedComponent() const override;
 	UIntenSelectableSphereScoring* GetEditedScoringComponent() const;
@@ -49,6 +52,4 @@ public:
 	virtual bool GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const override;
 
 	virtual void EndEditing() override;
-
-	
 };

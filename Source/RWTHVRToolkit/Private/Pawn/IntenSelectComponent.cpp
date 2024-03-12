@@ -1,58 +1,66 @@
 #include "Pawn/IntenSelectComponent.h"
-
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
-#include "Materials/MaterialExpressionStrata.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Misc/MessageDialog.h"
-#include "UI/IntenSelectableWidget.h"
 #include "Templates/Tuple.h"
 
 
 //				INITIALIZATION
 
 // Sets default values for this component's properties
-UIntenSelectComponent::UIntenSelectComponent(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+UIntenSelectComponent::UIntenSelectComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	bShowDebug = false; //otherwise the WidgetInteractionComponent debug vis is shown
-	InteractionSource = EWidgetInteractionSource::Custom; //can also be kept at default (World), this way, however, we efficiently reuse the line traces
+	bShowDebug = false; // otherwise the WidgetInteractionComponent debug vis is shown
+	InteractionSource = EWidgetInteractionSource::Custom; // can also be kept at default (World), this way, however, we
+														  // efficiently reuse the line traces
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultConeMesh(TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/DebugConeMesh.DebugConeMesh'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultConeMesh(
+		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/DebugConeMesh.DebugConeMesh'"));
 	this->DebugConeMesh = DefaultConeMesh.Object;
-	
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultConeMeshMaterial(TEXT("Material'/RWTHVRToolkit/IntenSelect/DebugConeMaterial.DebugConeMaterial'"));
+
+	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultConeMeshMaterial(
+		TEXT("Material'/RWTHVRToolkit/IntenSelect/DebugConeMaterial.DebugConeMaterial'"));
 	this->DebugConeMaterial = DefaultConeMeshMaterial.Object;
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSplineMesh(TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/sectionedCubeMesh.sectionedCubeMesh'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSplineMesh(
+		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/sectionedCubeMesh.sectionedCubeMesh'"));
 	this->SplineMesh = DefaultSplineMesh.Object;
-	
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultForwardRayMesh(TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/RayMesh.RayMesh'"));
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultForwardRayMesh(
+		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/RayMesh.RayMesh'"));
 	this->ForwardRayMesh = DefaultForwardRayMesh.Object;
 
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultSplineMaterial(TEXT("Material'/RWTHVRToolkit/IntenSelect/SelectionSplineMaterial.SelectionSplineMaterial'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultSplineMaterial(
+		TEXT("Material'/RWTHVRToolkit/IntenSelect/SelectionSplineMaterial.SelectionSplineMaterial'"));
 	this->SplineMaterial = DefaultSplineMaterial.Object;
-	
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultForwardRayMaterial(TEXT("Material'/RWTHVRToolkit/IntenSelect/ForwadRayMaterial.ForwadRayMaterial'"));
+
+	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultForwardRayMaterial(
+		TEXT("Material'/RWTHVRToolkit/IntenSelect/ForwadRayMaterial.ForwadRayMaterial'"));
 	this->ForwardRayMaterial = DefaultForwardRayMaterial.Object;
 
-	ConstructorHelpers::FObjectFinder<UHapticFeedbackEffect_Curve> DefaultSelectionFeedbackHaptic(TEXT("HapticFeedbackEffect_Curve'/RWTHVRToolkit/IntenSelect/OnSelectHapticFeedback.OnSelectHapticFeedback'"));
+	ConstructorHelpers::FObjectFinder<UHapticFeedbackEffect_Curve> DefaultSelectionFeedbackHaptic(
+		TEXT("HapticFeedbackEffect_Curve'/RWTHVRToolkit/IntenSelect/OnSelectHapticFeedback.OnSelectHapticFeedback'"));
 	this->SelectionFeedbackHaptic = DefaultSelectionFeedbackHaptic.Object;
-	
-	ConstructorHelpers::FObjectFinder<USoundBase> DefaultOnSelectSound(TEXT("SoundWave'/RWTHVRToolkit/IntenSelect/OnSelectSound.OnSelectSound'"));
+
+	ConstructorHelpers::FObjectFinder<USoundBase> DefaultOnSelectSound(
+		TEXT("SoundWave'/RWTHVRToolkit/IntenSelect/OnSelectSound.OnSelectSound'"));
 	this->OnSelectSound = DefaultOnSelectSound.Object;
-	
-	ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> DefaultMaterialParamCollection(TEXT("MaterialParameterCollection'/RWTHVRToolkit/IntenSelect/ForwardRayParams.ForwardRayParams'"));
+
+	ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> DefaultMaterialParamCollection(
+		TEXT("MaterialParameterCollection'/RWTHVRToolkit/IntenSelect/ForwardRayParams.ForwardRayParams'"));
 	this->MaterialParamCollection = DefaultMaterialParamCollection.Object;
-	
-	ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultForwardRayTransparencyCurve(TEXT("CurveFloat'/RWTHVRToolkit/IntenSelect/ForwardRayTransparencyCurve.ForwardRayTransparencyCurve'"));
+
+	ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultForwardRayTransparencyCurve(
+		TEXT("CurveFloat'/RWTHVRToolkit/IntenSelect/ForwardRayTransparencyCurve.ForwardRayTransparencyCurve'"));
 	this->ForwardRayTransparencyCurve = DefaultForwardRayTransparencyCurve.Object;
-	
-	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(TEXT("/Script/EnhancedInput.InputAction'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
+
+	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(
+		TEXT("/Script/EnhancedInput.InputAction'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
 	this->InputClick = InputActionClick.Object;
 }
 
@@ -66,35 +74,38 @@ void UIntenSelectComponent::BeginPlay()
 	this->InitForwardRayMeshComponent();
 	this->InitDebugConeMeshComponent();
 	this->InitInputBindings();
-	this->InitMaterialParamCollection();	
-	
+	this->InitMaterialParamCollection();
+
 	this->SphereCastRadius = CalculateSphereCastRadius();
 	this->InteractionDistance = this->MaxSelectionDistance;
 
 	this->SetActive(SetActiveOnStart, false);
 }
 
-void UIntenSelectComponent::InitInputBindings(){
+void UIntenSelectComponent::InitInputBindings()
+{
 	const APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
 
 	UInputComponent* PlayerInputComponent = PC->InputComponent;
 	UEnhancedInputComponent* PEI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
-	if(!PEI){
+	if (!PEI)
+	{
 		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
-		
-		#if WITH_EDITOR
-			const FText Title = FText::FromString(FString("ERROR"));
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
-		#endif
-			
+
+#if WITH_EDITOR
+		const FText Title = FText::FromString(FString("ERROR"));
+		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
+#endif
+
 		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
 		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
 		return;
-		}
-	
+	}
+
 	// Bind the actions
 	PEI->BindAction(InputClick, ETriggerEvent::Started, this, &UIntenSelectComponent::OnFireDown);
 	PEI->BindAction(InputClick, ETriggerEvent::Completed, this, &UIntenSelectComponent::OnFireUp);
@@ -104,29 +115,30 @@ void UIntenSelectComponent::InitSplineComponent()
 {
 	SplineComponent = NewObject<USplineComponent>(this, TEXT("SplineComponent"));
 
-	if(SplineComponent)
+	if (SplineComponent)
 	{
 		SplineComponent->SetupAttachment(this);
 		SplineComponent->SetMobility(EComponentMobility::Movable);
 		SplineComponent->RegisterComponent();
 		SplineComponent->CreationMethod = EComponentCreationMethod::Instance;
-
-	}else
+	}
+	else
 	{
 		const FString Message = "Error while spawning SplineComponent!";
-		#if WITH_EDITOR
-			const FText Title = FText::FromString(FString("ERROR"));
-			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
-		#endif
-		
+#if WITH_EDITOR
+		const FText Title = FText::FromString(FString("ERROR"));
+		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
+#endif
+
 		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
 	}
 }
 
 void UIntenSelectComponent::InitSplineMeshComponent()
 {
-	SplineMeshComponent = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), TEXT("SplineMeshComponent"));
-	if(SplineMeshComponent)
+	SplineMeshComponent =
+		NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), TEXT("SplineMeshComponent"));
+	if (SplineMeshComponent)
 	{
 		SplineMeshComponent->SetupAttachment(this);
 		SplineMeshComponent->SetMobility(EComponentMobility::Movable);
@@ -153,8 +165,8 @@ void UIntenSelectComponent::InitSplineMeshComponent()
 
 		SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
 		SplineMeshComponent->CastShadow = false;
-		
-	}else
+	}
+	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error while spawning SplineMeshComponent!"))
 	}
@@ -162,9 +174,10 @@ void UIntenSelectComponent::InitSplineMeshComponent()
 
 void UIntenSelectComponent::InitForwardRayMeshComponent()
 {
-	ForwardRayMeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("ForwardRay"));
+	ForwardRayMeshComponent =
+		NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("ForwardRay"));
 
-	if(ForwardRayMeshComponent)
+	if (ForwardRayMeshComponent)
 	{
 		ForwardRayMeshComponent->SetupAttachment(this);
 		ForwardRayMeshComponent->SetMobility((EComponentMobility::Movable));
@@ -178,21 +191,23 @@ void UIntenSelectComponent::InitForwardRayMeshComponent()
 		ForwardRayMeshComponent->SetRelativeScale3D(FVector(MeshLength, ForwardRayWidth, ForwardRayWidth));
 		ForwardRayMeshComponent->SetRelativeLocation(FVector(MeshLength * 50, 0, 0));
 
-		//const ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-		if(ForwardRayMesh)
+		// const ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+		if (ForwardRayMesh)
 		{
 			ForwardRayMeshComponent->SetStaticMesh(ForwardRayMesh);
-		}else
+		}
+		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Mesh for RayComponent not set!"));
 		}
 
-		UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(ForwardRayMaterial, ForwardRayMeshComponent);
+		UMaterialInstanceDynamic* DynamicMaterial =
+			UMaterialInstanceDynamic::Create(ForwardRayMaterial, ForwardRayMeshComponent);
 		this->ForwardRayMeshComponent->SetMaterial(0, DynamicMaterial);
 
 		ForwardRayMeshComponent->SetHiddenInGame(!bDrawForwardRay);
-
-	}else
+	}
+	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error while spawning ForwardRayMesh component!"));
 	}
@@ -200,17 +215,20 @@ void UIntenSelectComponent::InitForwardRayMeshComponent()
 
 void UIntenSelectComponent::InitMaterialParamCollection()
 {
-	if(MaterialParamCollection)
+	if (MaterialParamCollection)
 	{
 		this->ParameterCollectionInstance = GetWorld()->GetParameterCollectionInstance(MaterialParamCollection);
-		if(this->ParameterCollectionInstance)
+		if (this->ParameterCollectionInstance)
 		{
 			this->ParameterCollectionInstance->SetScalarParameterValue("Transparency", DebugRayTransparency);
-		}else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("MaterialParameterCollection required for rendering of IntenSelect could not be found!"))
 		}
-	}else
+		else
+		{
+			UE_LOG(LogTemp, Warning,
+				   TEXT("MaterialParameterCollection required for rendering of IntenSelect could not be found!"))
+		}
+	}
+	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MaterialParameterCollection required for InteSelect visualization is not set!"));
 	}
@@ -218,22 +236,24 @@ void UIntenSelectComponent::InitMaterialParamCollection()
 
 void UIntenSelectComponent::InitDebugConeMeshComponent()
 {
-	DebugConeMeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("DebugCone"));
+	DebugConeMeshComponent =
+		NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("DebugCone"));
 
-	if(DebugConeMeshComponent)
+	if (DebugConeMeshComponent)
 	{
 		DebugConeMeshComponent->SetupAttachment(this);
 		DebugConeMeshComponent->SetMobility(EComponentMobility::Movable);
 		DebugConeMeshComponent->RegisterComponent();
 		DebugConeMeshComponent->CreationMethod = EComponentCreationMethod::Instance;
-		
+
 
 		FTransform ConeTransform = DebugConeMeshComponent->GetRelativeTransform();
 		const float ConeScale = MaxSelectionDistance / 50 * FMath::Tan(FMath::DegreesToRadians(SelectionConeAngle));
 		ConeTransform.SetScale3D(FVector(ConeScale, ConeScale, MaxSelectionDistance / 100));
 
 		DebugConeMeshComponent->SetRelativeTransform(ConeTransform);
-		DebugConeMeshComponent->SetRelativeLocation(FVector(MaxSelectionDistance - ConeBackwardShiftDistance, 0, 0), false);
+		DebugConeMeshComponent->SetRelativeLocation(FVector(MaxSelectionDistance - ConeBackwardShiftDistance, 0, 0),
+													false);
 		DebugConeMeshComponent->SetRelativeRotation(DebugConeRotation, false);
 		DebugConeMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -255,7 +275,8 @@ void UIntenSelectComponent::InitDebugConeMeshComponent()
 		}
 
 		DebugConeMeshComponent->SetVisibility(bDrawDebugCone);
-	}else
+	}
+	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error while spawning DebugCone component!"))
 	}
@@ -269,23 +290,26 @@ float UIntenSelectComponent::CalculateSphereCastRadius() const
 	return FMath::Tan(FMath::DegreesToRadians(SelectionConeAngle)) * MaxSelectionDistance;
 }
 
-bool UIntenSelectComponent::CheckPointInCone(const FVector ConeStartPoint, const FVector ConeForward, const FVector PointToTest, const float Angle) const
+bool UIntenSelectComponent::CheckPointInCone(const FVector ConeStartPoint, const FVector ConeForward,
+											 const FVector PointToTest, const float Angle) const
 {
 	const FVector ShiftedStartOriginPoint = ConeStartPoint - (ConeForward * ConeBackwardShiftDistance);
 	const FVector DirectionToTestPoint = (PointToTest - ShiftedStartOriginPoint).GetSafeNormal();
 
-	const float AngleToTestPoint = FMath::RadiansToDegrees(FMath::Acos((FVector::DotProduct(ConeForward ,DirectionToTestPoint))));
-	
+	const float AngleToTestPoint =
+		FMath::RadiansToDegrees(FMath::Acos((FVector::DotProduct(ConeForward, DirectionToTestPoint))));
+
 	return AngleToTestPoint <= Angle;
 }
 
 void UIntenSelectComponent::OnNewSelected_Implementation(UIntenSelectable* Selection)
 {
 	CurrentSelection = Selection;
-		
-	if(FeedbackCooldown == 0)
+
+	if (FeedbackCooldown == 0)
 	{
-		//UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayHapticEffect(SelectionFeedbackHaptic, EControllerHand::Right, 0.1, false);
+		// UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayHapticEffect(SelectionFeedbackHaptic,
+		// EControllerHand::Right, 0.1, false);
 		UGameplayStatics::PlaySound2D(GetWorld(), OnSelectSound);
 		FeedbackCooldown = 0.1;
 	}
@@ -293,13 +317,17 @@ void UIntenSelectComponent::OnNewSelected_Implementation(UIntenSelectable* Selec
 
 bool UIntenSelectComponent::GetActorsFromSphereCast(const FVector& SphereCastStart, TArray<FHitResult>& OutHits) const
 {
-	const FVector StartPos = SphereCastStart + (GetComponentTransform().GetRotation().GetForwardVector() * SphereCastRadius);
-	const FVector EndPos = StartPos + (this->GetComponentTransform().GetRotation().GetForwardVector() * (MaxSelectionDistance));
+	const FVector StartPos =
+		SphereCastStart + (GetComponentTransform().GetRotation().GetForwardVector() * SphereCastRadius);
+	const FVector EndPos =
+		StartPos + (this->GetComponentTransform().GetRotation().GetForwardVector() * (MaxSelectionDistance));
 
 	const FCollisionQueryParams Params = FCollisionQueryParams(FName(TEXT("SphereTraceMultiForObjects")), false);
-	//GetWorld()->SweepMultiByChannel(OutHits, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(SphereCastRadius), Params);
-	
-	GetWorld()->SweepMultiByChannel(OutHits, StartPos, EndPos, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(SphereCastRadius), Params);
+	// GetWorld()->SweepMultiByChannel(OutHits, StartPos, EndPos, FQuat::Identity, ECC_Visibility,
+	// FCollisionShape::MakeSphere(SphereCastRadius), Params);
+
+	GetWorld()->SweepMultiByChannel(OutHits, StartPos, EndPos, FQuat::Identity, ECC_Visibility,
+									FCollisionShape::MakeSphere(SphereCastRadius), Params);
 	// UKismetSystemLibrary::SphereTraceMulti(GetWorld(),StartPos,EndPos,SphereCastRadius,ETraceTypeQuery::TraceTypeQuery1,false,{},EDrawDebugTrace::ForOneFrame,OutHits,true);
 	return true;
 }
@@ -310,19 +338,19 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 	const FVector ConeForward = this->GetComponentTransform().GetRotation().GetForwardVector();
 
 	TArray<FHitResult> OutHits;
-	if (GetActorsFromSphereCast(ConeOrigin, OutHits)) {
+	if (GetActorsFromSphereCast(ConeOrigin, OutHits))
+	{
 		for (const FHitResult& Hit : OutHits)
 		{
 			const FVector PointToCheck = Hit.ImpactPoint;
 			const float DistanceToActor = FVector::Dist(ConeOrigin, PointToCheck);
 
 			const AActor* HitActor = Hit.GetActor();
-			if(HitActor)
+			if (HitActor)
 			{
 				const auto Selectable = HitActor->FindComponentByClass<UIntenSelectable>();
 
-				if(Selectable && Selectable->IsSelectable
-					&& DistanceToActor <= MaxSelectionDistance)
+				if (Selectable && Selectable->IsSelectable && DistanceToActor <= MaxSelectionDistance)
 				{
 					ScoreMap.FindOrAdd(Selectable, 0);
 				}
@@ -334,18 +362,19 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 	float MaxScore = TNumericLimits<float>::Min();
 	TArray<UIntenSelectable*> RemoveList;
 	TArray<TPair<UIntenSelectable*, FHitResult>> CandidateList;
-	
+
 	for (TTuple<UIntenSelectable*, float>& OldScoreEntry : ScoreMap)
 	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Black,  OldScoreEntry.Key->GetOwner()->GetName() + " - Score: " + FString::SanitizeFloat(OldScoreEntry.Value));
-		if(!OldScoreEntry.Key)
+		// GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Black,  OldScoreEntry.Key->GetOwner()->GetName() + "
+		// - Score: " + FString::SanitizeFloat(OldScoreEntry.Value));
+		if (!OldScoreEntry.Key)
 		{
 			continue;
 		}
 
 		TPair<FHitResult, float> NewScorePair = OldScoreEntry.Key->GetBestPointScorePair(
 			ConeOrigin, ConeForward, ConeBackwardShiftDistance, SelectionConeAngle, OldScoreEntry.Value, DeltaTime);
-		
+
 		ContactPointMap.Add(OldScoreEntry.Key, NewScorePair.Key);
 		const float DistanceToActor = FVector::Dist(ConeOrigin, NewScorePair.Key.ImpactPoint);
 
@@ -358,13 +387,15 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		{
 			OldScoreEntry.Value = NewScorePair.Value;
 
-			if (NewScorePair.Value > (1.0 - Eps) && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
+			if (NewScorePair.Value > (1.0 - Eps) &&
+				this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
 			{
 				CandidateList.Emplace(OldScoreEntry.Key, NewScorePair.Key);
 				MaxScore = NewScorePair.Value;
 				MaxScoreSelectable = OldScoreEntry.Key;
 			}
-			else if (NewScorePair.Value > MaxScore && this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
+			else if (NewScorePair.Value > MaxScore &&
+					 this->CheckPointInCone(ConeOrigin, ConeForward, NewScorePair.Key.ImpactPoint, SelectionConeAngle))
 			{
 				MaxScore = NewScorePair.Value;
 				MaxScoreSelectable = OldScoreEntry.Key;
@@ -379,12 +410,13 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 	}
 	if (CandidateList.Num() > 0)
 	{
-		auto DistanceToMaxScore = FVector::Distance(MaxScoreSelectable->GetOwner()->GetActorLocation(),GetComponentLocation());
+		auto DistanceToMaxScore =
+			FVector::Distance(MaxScoreSelectable->GetOwner()->GetActorLocation(), GetComponentLocation());
 		auto Dist = TNumericLimits<float>::Max();
-		for(const auto Actor : CandidateList)
+		for (const auto Actor : CandidateList)
 		{
 			const auto DistanceToCandidate = FVector::Distance(Actor.Value.ImpactPoint, GetComponentLocation());
-			if(DistanceToCandidate < Dist)
+			if (DistanceToCandidate < Dist)
 			{
 				MaxScoreSelectable = Actor.Key;
 				Dist = DistanceToCandidate;
@@ -392,7 +424,7 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		}
 	}
 
-	return  MaxScoreSelectable;
+	return MaxScoreSelectable;
 }
 //				RAYCASTING
 
@@ -401,15 +433,15 @@ void UIntenSelectComponent::HandleWidgetInteraction()
 {
 	const FVector Forward = this->GetComponentTransform().GetRotation().GetForwardVector();
 	const FVector Origin = this->GetComponentTransform().GetLocation();
-	
+
 	TOptional<FHitResult> Hit = RaytraceForFirstHit(Origin, Origin + Forward * MaxSelectionDistance);
-	
+
 	if (!Hit.IsSet())
 	{
 		IsWidgetInFocus = false;
 		return;
 	}
-	
+
 	SetCustomHitResult(Hit.GetValue());
 	UWidgetComponent* FocusedWidget = Cast<UWidgetComponent>(Hit.GetValue().GetComponent());
 	IsWidgetInFocus = (FocusedWidget != nullptr);
@@ -462,8 +494,8 @@ TOptional<FHitResult> UIntenSelectComponent::RaytraceForFirstHit(const FVector& 
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params))
 	{
 		return {Hit};
-
-	}else
+	}
+	else
 	{
 		return {};
 	}
@@ -479,7 +511,7 @@ void UIntenSelectComponent::DrawSelectionCurve(const FVector& EndPoint) const
 
 	SplineComponent->ClearSplinePoints(true);
 	SplineMeshComponent->SetHiddenInGame(false);
-	
+
 	AddSplinePointsDefault(StartPoint, Forward, EndPoint);
 
 	const FVector StartPosition = SplineComponent->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::Local);
@@ -490,7 +522,8 @@ void UIntenSelectComponent::DrawSelectionCurve(const FVector& EndPoint) const
 	SplineMeshComponent->SetStartAndEnd(StartPosition, StartTangent, EndPosition, EndTangent, true);
 }
 
-void UIntenSelectComponent::AddSplinePointsDefault(const FVector& StartPoint, const FVector& Forward, const FVector& EndPoint) const
+void UIntenSelectComponent::AddSplinePointsDefault(const FVector& StartPoint, const FVector& Forward,
+												   const FVector& EndPoint) const
 {
 	SplineComponent->AddSplineWorldPoint(StartPoint);
 
@@ -501,22 +534,26 @@ void UIntenSelectComponent::AddSplinePointsDefault(const FVector& StartPoint, co
 
 	SplineComponent->SetSplinePointType(0, ESplinePointType::Curve, true);
 	SplineComponent->SetSplinePointType(1, ESplinePointType::Curve, true);
-	
-	SplineComponent->SetTangentAtSplinePoint(0, Forward * ForwardProjection.Size() * SplineCurvatureStrength, ESplineCoordinateSpace::World, true);
+
+	SplineComponent->SetTangentAtSplinePoint(0, Forward * ForwardProjection.Size() * SplineCurvatureStrength,
+											 ESplineCoordinateSpace::World, true);
 	SplineComponent->SetTangentAtSplinePoint(1, StartToEnd.GetSafeNormal(), ESplineCoordinateSpace::World, true);
 }
 
 void UIntenSelectComponent::UpdateForwardRay(const FVector& ReferencePoint) const
 {
-	if(ForwardRayTransparencyCurve)
+	if (ForwardRayTransparencyCurve)
 	{
 		const FVector ConeForward = this->GetComponentTransform().GetRotation().GetForwardVector();
-		const FVector ConeOrigin = this->GetComponentTransform().GetLocation() - (ConeForward * ConeBackwardShiftDistance);
+		const FVector ConeOrigin =
+			this->GetComponentTransform().GetLocation() - (ConeForward * ConeBackwardShiftDistance);
 
 		const FVector TestPointVector = (ReferencePoint - ConeOrigin).GetSafeNormal();
-		const float AngleToTestPoint = FMath::RadiansToDegrees(FMath::Acos((FVector::DotProduct(ConeForward, TestPointVector))));
-		
-		const float NewTransparency = ForwardRayTransparencyCurve->GetFloatValue(AngleToTestPoint / SelectionConeAngle) * DebugRayTransparency;
+		const float AngleToTestPoint =
+			FMath::RadiansToDegrees(FMath::Acos((FVector::DotProduct(ConeForward, TestPointVector))));
+
+		const float NewTransparency =
+			ForwardRayTransparencyCurve->GetFloatValue(AngleToTestPoint / SelectionConeAngle) * DebugRayTransparency;
 		ParameterCollectionInstance->SetScalarParameterValue("Transparency", NewTransparency);
 	}
 }
@@ -525,27 +562,30 @@ void UIntenSelectComponent::UpdateForwardRay(const FVector& ReferencePoint) cons
 
 void UIntenSelectComponent::OnFireDown()
 {
-	//start interaction of WidgetInteractionComponent
+	// start interaction of WidgetInteractionComponent
 	PressPointerKey(EKeys::LeftMouseButton);
 
-	if(!CurrentSelection)
+	if (!CurrentSelection)
 	{
 		return;
 	}
-	
-	if(CurrentSelection)
+
+	if (CurrentSelection)
 	{
 		const FHitResult GrabbedPoint = *ContactPointMap.Find(CurrentSelection);
 		CurrentSelection->HandleOnClickStartEvents(this);
 		LastKnownSelection = CurrentSelection;
-		LastKnownGrabPoint = LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().InverseTransformPosition(GrabbedPoint.ImpactPoint);
-	}else
+		LastKnownGrabPoint =
+			LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().InverseTransformPosition(
+				GrabbedPoint.ImpactPoint);
+	}
+	else
 	{
 		LastKnownSelection = nullptr;
 	}
-	
+
 	IsGrabbing = true;
-		
+
 	if (bDrawForwardRay && ParameterCollectionInstance)
 	{
 		ParameterCollectionInstance->SetScalarParameterValue("Transparency", 0);
@@ -554,11 +594,11 @@ void UIntenSelectComponent::OnFireDown()
 
 void UIntenSelectComponent::OnFireUp()
 {
-	//end interaction of WidgetInteractionComponent
+	// end interaction of WidgetInteractionComponent
 	ReleasePointerKey(EKeys::LeftMouseButton);
 
 	IsGrabbing = false;
-	
+
 	if (LastKnownSelection)
 	{
 		FInputActionValue v;
@@ -568,14 +608,15 @@ void UIntenSelectComponent::OnFireUp()
 
 //				SELECTION-HANDLING
 
-void UIntenSelectComponent::SelectObject(UIntenSelectable* SelectableComponent, AActor* SelectedBy) {
+void UIntenSelectComponent::SelectObject(UIntenSelectable* SelectableComponent, AActor* SelectedBy)
+{
 	CurrentSelection = SelectableComponent;
 }
 
 void UIntenSelectComponent::Unselect()
 {
 	IsGrabbing = false;
-	
+
 	SplineMeshComponent->SetHiddenInGame(true);
 
 	CurrentSelection = nullptr;
@@ -584,27 +625,28 @@ void UIntenSelectComponent::Unselect()
 
 void UIntenSelectComponent::SetActive(bool bNewActive, bool bReset)
 {
-	if(bNewActive)
+	if (bNewActive)
 	{
 		ForwardRayMeshComponent->SetVisibility(true);
 		SplineMeshComponent->SetVisibility(true);
-		
+
 		Super::SetActive(true, bReset);
-	}else
+	}
+	else
 	{
-		if(CurrentSelection)
+		if (CurrentSelection)
 		{
 			HandleNoActorSelected();
 		}
 
-		if(LastKnownSelection)
+		if (LastKnownSelection)
 		{
 			OnFireUp();
 		}
 
 		ForwardRayMeshComponent->SetVisibility(false);
 		SplineMeshComponent->SetVisibility(false);
-		
+
 		Super::SetActive(false, bReset);
 	}
 }
@@ -623,21 +665,18 @@ void UIntenSelectComponent::HandleCooldown(const float DeltaTime)
 	}
 }
 
-void UIntenSelectComponent::HandleGrabbing(const float DeltaTime) const
-{
-	
-}
+void UIntenSelectComponent::HandleGrabbing(const float DeltaTime) const {}
 
 void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 {
 	if (NewSelection != CurrentSelection)
 	{
-		if(CurrentSelection)
+		if (CurrentSelection)
 		{
 			CurrentSelection->HandleOnSelectEndEvents(this);
 		}
-		
-		if(NewSelection)
+
+		if (NewSelection)
 		{
 			UIntenSelectable* NewIntenSelectable = NewSelection;
 			const FHitResult GrabbedPoint = *ContactPointMap.Find(NewIntenSelectable);
@@ -647,8 +686,8 @@ void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 		CurrentSelection = NewSelection;
 		OnNewSelected(NewSelection);
 	}
-	
-	if(CurrentSelection)
+
+	if (CurrentSelection)
 	{
 		const UIntenSelectable* NewIntenSelectable = NewSelection;
 		const auto V_Net = ContactPointMap.Find(NewIntenSelectable)->ImpactPoint;
@@ -676,12 +715,12 @@ FVector UIntenSelectComponent::ConvertNetVector(FVector_NetQuantize v)
 void UIntenSelectComponent::HandleNoActorSelected()
 {
 	SplineMeshComponent->SetHiddenInGame(true);
-	
-	if(CurrentSelection)
+
+	if (CurrentSelection)
 	{
 		CurrentSelection->HandleOnSelectEndEvents(this);
 	}
-	
+
 	if (bDrawForwardRay && ParameterCollectionInstance)
 	{
 		ParameterCollectionInstance->SetScalarParameterValue("Transparency", DebugRayTransparency);
@@ -689,39 +728,42 @@ void UIntenSelectComponent::HandleNoActorSelected()
 	CurrentSelection = nullptr;
 }
 
-void UIntenSelectComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UIntenSelectComponent::TickComponent(const float DeltaTime, const ELevelTick TickType,
+										  FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+
 	this->HandleCooldown(DeltaTime);
 	UIntenSelectable* const NewSelection = GetMaxScoreActor(DeltaTime);
-	
-	if(IsGrabbing && LastKnownSelection)
+
+	if (IsGrabbing && LastKnownSelection)
 	{
-		const FVector GrabPointWorld = LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().
-		                                                   TransformPosition(LastKnownGrabPoint);
+		const FVector GrabPointWorld =
+			LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().TransformPosition(
+				LastKnownGrabPoint);
 		DrawSelectionCurve(GrabPointWorld);
 
 		const FVector ConeOrigin = this->GetComponentLocation();
 		const FVector ConeForward = this->GetForwardVector().GetSafeNormal();
-		
-		if(!this->CheckPointInCone(ConeOrigin, ConeForward, GrabPointWorld, MaxClickStickAngle))
+
+		if (!this->CheckPointInCone(ConeOrigin, ConeForward, GrabPointWorld, MaxClickStickAngle))
 		{
 			OnFireUp();
 		}
-		
+
 		return;
-	}else if(CurrentSelection && ContactPointMap.Contains(CurrentSelection))
+	}
+	else if (CurrentSelection && ContactPointMap.Contains(CurrentSelection))
 	{
 		const FVector GrabbedPoint = ConvertNetVector(ContactPointMap.Find(CurrentSelection)->ImpactPoint);
 		DrawSelectionCurve(GrabbedPoint);
 	}
-	
-	//this->HandleWidgetInteraction();
+
+	// this->HandleWidgetInteraction();
 	IsWidgetInFocus = false;
-	if(IsWidgetInFocus)
+	if (IsWidgetInFocus)
 	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "Widget focused");
+		// GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "Widget focused");
 		HandleNoActorSelected();
 
 		const FVector PointToDrawTo = WidgetFocusPoint;
@@ -732,16 +774,17 @@ void UIntenSelectComponent::TickComponent(const float DeltaTime, const ELevelTic
 		}
 
 		DrawSelectionCurve(PointToDrawTo);
-	}else
+	}
+	else
 	{
 		if (NewSelection)
 		{
-			//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "Focused Actor:" + NewSelection->GetName());
+			// GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "Focused Actor:" + NewSelection->GetName());
 			HandleActorSelected(NewSelection);
 		}
 		else
 		{
-			//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "No Actor in Focus");
+			// GEngine->AddOnScreenDebugMessage(INDEX_NONE, 0, FColor::Red, "No Actor in Focus");
 			HandleNoActorSelected();
 		}
 	}

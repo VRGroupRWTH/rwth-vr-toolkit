@@ -6,7 +6,7 @@
 #include "IntenSelectableScoring.h"
 #include "IntenSelectableMultiPointScoring.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectableMultiPointScoring : public UIntenSelectableScoring
 {
 	GENERATED_BODY()
@@ -17,11 +17,13 @@ protected:
 public:
 	UIntenSelectableMultiPointScoring();
 
-	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
+														   const FVector& ConeForwardDirection,
+														   const float ConeBackwardShiftDistance, const float ConeAngle,
+														   const float LastValue, const float DeltaTime) override;
 
-    void UpdatePoints();
-	
+	void UpdatePoints();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FVector> PointsToSelect;
-
 };

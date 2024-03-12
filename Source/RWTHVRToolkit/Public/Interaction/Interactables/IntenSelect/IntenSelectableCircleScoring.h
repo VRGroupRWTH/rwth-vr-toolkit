@@ -6,7 +6,7 @@
 #include "IntenSelectableScoring.h"
 #include "IntenSelectableCircleScoring.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectableCircleScoring : public UIntenSelectableScoring
 {
 	GENERATED_BODY()
@@ -16,13 +16,15 @@ protected:
 
 public:
 	UIntenSelectableCircleScoring();
-	
+
 	UPROPERTY(EditAnywhere)
 	bool OnlyOutline = true;
-	
+
 	UPROPERTY(EditAnywhere)
 	float Radius = 50;
-	
-	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle, const float LastValue, const float DeltaTime) override;
 
+	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
+														   const FVector& ConeForwardDirection,
+														   const float ConeBackwardShiftDistance, const float ConeAngle,
+														   const float LastValue, const float DeltaTime) override;
 };

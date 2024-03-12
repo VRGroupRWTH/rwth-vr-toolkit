@@ -9,7 +9,7 @@
 UIntenSelectableLineScoring::UIntenSelectableLineScoring()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	if(this->LinePoints.Num() == 2)
+	if (this->LinePoints.Num() == 2)
 	{
 		const FVector Average = (this->LinePoints[0] + this->LinePoints[1]) / 2;
 
@@ -19,17 +19,20 @@ UIntenSelectableLineScoring::UIntenSelectableLineScoring()
 	}
 }
 
-TPair<FHitResult, float> UIntenSelectableLineScoring::GetBestPointScorePair(const FVector& ConeOrigin,
-                                                                         const FVector& ConeForwardDirection, const float ConeBackwardShiftDistance, const float ConeAngle,
-                                                                         const float LastValue, const float DeltaTime)
+TPair<FHitResult, float>
+UIntenSelectableLineScoring::GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
+												   const float ConeBackwardShiftDistance, const float ConeAngle,
+												   const float LastValue, const float DeltaTime)
 {
 	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
-	float Score = GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
+	float Score =
+		GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point, LastValue, DeltaTime);
 	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
 	return TPair<FHitResult, float>{Result, Score};
 }
 
-bool UIntenSelectableLineScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA, const FVector& ToB, FVector& OutIntersection)
+bool UIntenSelectableLineScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA,
+														 const FVector& ToB, FVector& OutIntersection)
 {
 	const FVector Da = ToA - FromA;
 	const FVector DB = ToB - FromB;
@@ -39,11 +42,12 @@ bool UIntenSelectableLineScoring::LineToLineIntersection(const FVector& FromA, c
 	const float Prod = CrossDaDb.X * CrossDaDb.X + CrossDaDb.Y * CrossDaDb.Y + CrossDaDb.Z * CrossDaDb.Z;
 
 	const float Res = FVector::DotProduct(FVector::CrossProduct(DC, DB), FVector::CrossProduct(Da, DB) / Prod);
-	if (Res >= -0.02f && Res <= 1.02f) {
+	if (Res >= -0.02f && Res <= 1.02f)
+	{
 		OutIntersection = FromA + Da * FVector(Res, Res, Res);
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -51,13 +55,13 @@ FVector UIntenSelectableLineScoring::GetClosestSelectionPointTo(const FVector& P
 {
 	const FVector StartWorld = this->GetComponentTransform().TransformPosition(LinePoints[0]);
 	const FVector EndWorld = this->GetComponentTransform().TransformPosition(LinePoints[1]);
-	const FVector LineDir  = EndWorld-StartWorld;
+	const FVector LineDir = EndWorld - StartWorld;
 
 
-	const FVector CrossProd = UKismetMathLibrary::Cross_VectorVector(LineDir, Direction); //v
-	const FVector LineDifference = StartWorld - Point; //u
+	const FVector CrossProd = UKismetMathLibrary::Cross_VectorVector(LineDir, Direction); // v
+	const FVector LineDifference = StartWorld - Point; // u
 
-	//Project v onto u =>
+	// Project v onto u =>
 	const FVector Proj = LineDifference.ProjectOnTo(CrossProd);
 
 	const FVector OffsetPoint = Point + Proj;
@@ -70,12 +74,12 @@ FVector UIntenSelectableLineScoring::GetClosestSelectionPointTo(const FVector& P
 	LineToLineIntersection(FromA, FromB, ToA, ToB, Result);
 
 	const FVector LineDirRes = Result - StartWorld;
-	if(LineDirRes.Size() > LineDir.Size())
+	if (LineDirRes.Size() > LineDir.Size())
 	{
 		Result = EndWorld;
 	}
 
-	if(!LineDirRes.GetSafeNormal().Equals(LineDir.GetSafeNormal()))
+	if (!LineDirRes.GetSafeNormal().Equals(LineDir.GetSafeNormal()))
 	{
 		Result = StartWorld;
 	}
@@ -84,11 +88,11 @@ FVector UIntenSelectableLineScoring::GetClosestSelectionPointTo(const FVector& P
 }
 
 void UIntenSelectableLineScoring::TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+												FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if(DrawDebug)
+	if (DrawDebug)
 	{
 		const FVector StartWorld = this->GetComponentTransform().TransformPosition(LinePoints[0]);
 		const FVector EndWorld = this->GetComponentTransform().TransformPosition(LinePoints[1]);
