@@ -54,17 +54,17 @@ bool FIntenSelectableMultiPointScoringVisualizer::VisProxyHandleClick(FEditorVie
 			
 			FMultiPointProxy* Proxy = (FMultiPointProxy*)VisProxy;
 			CurrentSelectionIndex = Proxy->TargetIndex;
-			UE_LOG(LogTemp, Warning, TEXT("Handling Click %i"), CurrentSelectionIndex);
+			//UE_LOG(LogTemp, Warning, TEXT("Handling Click %i"), CurrentSelectionIndex);
 		}else
 		{
 			CurrentSelectionIndex = INDEX_NONE;
-			UE_LOG(LogTemp, Warning, TEXT("Handling Click => no selection"));
+			//UE_LOG(LogTemp, Warning, TEXT("Handling Click => no selection"));
 		}
 	}
 	else
 	{
 		CurrentSelectionIndex = INDEX_NONE;
-		UE_LOG(LogTemp, Warning, TEXT("Handling Click => no selection"));
+		//UE_LOG(LogTemp, Warning, TEXT("Handling Click => no selection"));
 
 	}
 
@@ -112,7 +112,7 @@ bool FIntenSelectableMultiPointScoringVisualizer::HandleInputDelta(FEditorViewpo
 		const FVector NewWorldPos = ScoringComponent->GetComponentTransform().InverseTransformPosition(WorldSelection + DeltaTranslate);
 		ScoringComponent->PointsToSelect[CurrentSelectionIndex] = NewWorldPos;
 
-		UE_LOG(LogTemp, Warning, TEXT("New Pos: %s"), *ScoringComponent->PointsToSelect[CurrentSelectionIndex].ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("New Pos: %s"), *ScoringComponent->PointsToSelect[CurrentSelectionIndex].ToString());
 		
 		ScoringComponent->MarkRenderStateDirty();
 		bHandled = true;
@@ -125,7 +125,7 @@ bool FIntenSelectableMultiPointScoringVisualizer::HandleInputDelta(FEditorViewpo
 
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return bHandled;

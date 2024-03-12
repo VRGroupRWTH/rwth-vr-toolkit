@@ -1,5 +1,4 @@
 #include "Interaction/IntenSelectableCylinderScoringVisualizer.h"
-
 #include "ActorEditorUtils.h"
 #include "SceneManagement.h"
 
@@ -50,7 +49,7 @@ bool FIntenSelectableCylinderScoringVisualizer::VisProxyHandleClick(FEditorViewp
 {
 	bool bEditing = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
+	//UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
 	
 	if (VisProxy && VisProxy->Component.IsValid())
 	{
@@ -91,8 +90,6 @@ void FIntenSelectableCylinderScoringVisualizer::DrawVisualization(const UActorCo
 			PDI->SetHitProxy(nullptr);
 		}
 
-		PDI->SetHitProxy(new FCylinderPointProxy(Component, INDEX_NONE));
-		
 		const FVector Start = ComponentCasted->GetComponentTransform().TransformPositionNoScale(ComponentCasted->LinePoints[0]);
 		const FVector End = ComponentCasted->GetComponentTransform().TransformPositionNoScale(ComponentCasted->LinePoints[1]);
 		PDI->DrawLine(Start, End, FColor::Green, SDPG_World);
@@ -100,7 +97,6 @@ void FIntenSelectableCylinderScoringVisualizer::DrawVisualization(const UActorCo
 		const float Dist = (End-Start).Size();
 		DrawCylinder(PDI, Start, End, ComponentCasted->Radius,20 , &DebugMaterial, 0);
 
-		PDI->SetHitProxy(nullptr);
 	}
 }
 
@@ -133,31 +129,39 @@ bool FIntenSelectableCylinderScoringVisualizer::HandleInputDelta(FEditorViewport
 		if (CurrentCylinderSelectionIndex != INDEX_NONE)
 		{
 			ScoringComponent->Modify();
-		
-			UE_LOG(LogTemp, Warning, TEXT("Current Delta: %s"), *DeltaTranslate.ToString());
-			UE_LOG(LogTemp, Warning, TEXT("Current Index: %d"), CurrentCylinderSelectionIndex);
-		
+			
 			const FVector WorldSelection = ScoringComponent->GetComponentTransform().TransformPositionNoScale(ScoringComponent->LinePoints[CurrentCylinderSelectionIndex]);
 			const FVector NewWorldPos = ScoringComponent->GetComponentTransform().InverseTransformPositionNoScale(WorldSelection + DeltaTranslate);
 		
 			ScoringComponent->LinePoints[CurrentCylinderSelectionIndex] += DeltaTranslate;
 		
-			UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *(ScoringComponent->LinePoints[CurrentCylinderSelectionIndex]).ToString());
-						
-			ScoringComponent->MarkRenderStateDirty();
-			GEditor->RedrawLevelEditingViewports(true);
+			//UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *(ScoringComponent->LinePoints[CurrentCylinderSelectionIndex]).ToString());
 
-			const FVector Average = (ScoringComponent->LinePoints[0] + ScoringComponent->LinePoints[1])/ 2;
-			const FVector ShiftToMiddle = Average;
-
-			ScoringComponent->SetWorldLocation(ScoringComponent->GetComponentTransform().TransformPositionNoScale(Average));
-			ScoringComponent->LinePoints[0] -= ShiftToMiddle;
-			ScoringComponent->LinePoints[1] -= ShiftToMiddle;
 
 			TArray<FProperty*> Properties;
 			Properties.Add(PointsProperty);
 			Properties.Add(RadiusProperty);
 			NotifyPropertiesModified(ScoringComponent, Properties, EPropertyChangeType::ValueSet);
+			
+			/*
+			const FVector Average = (ScoringComponent->LinePoints[0] + ScoringComponent->LinePoints[1]) / 2;
+
+			ScoringComponent->SetWorldLocation(ScoringComponent->GetComponentTransform().TransformPositionNoScale(Average));
+			ScoringComponent->LinePoints[0] -= Average;
+			ScoringComponent->LinePoints[1] -= Average;
+			
+			ScoringComponent->MarkRenderStateDirty();
+			GEditor->RedrawLevelEditingViewports(true);
+			
+			ScoringComponent->PostEditChange();
+			GEditor->NoteActorMovement();
+
+			// If you're modifying an actor's component, it might be a good idea to also mark the actor as modified
+			ScoringComponent->GetOwner()->Modify();
+			ScoringComponent->GetOwner()->PostEditChange();
+
+			// If the component's package might be unsaved, mark it dirty to ensure changes aren't lost
+			ScoringComponent->GetOuter()->MarkPackageDirty();*/
 		
 			GEditor->RedrawLevelEditingViewports(true);
 		
@@ -171,7 +175,7 @@ bool FIntenSelectableCylinderScoringVisualizer::HandleInputDelta(FEditorViewport
 			ScoringComponent->MarkRenderStateDirty();
 			GEditor->RedrawLevelEditingViewports(true);
 			
-			UE_LOG(LogTemp, Warning, TEXT("Cylinder Selected!"));
+			//UE_LOG(LogTemp, Warning, TEXT("Cylinder Selected!"));
 			
 			return false;
 		}

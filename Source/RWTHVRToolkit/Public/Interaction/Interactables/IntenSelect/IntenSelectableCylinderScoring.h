@@ -19,6 +19,17 @@ protected:
 public:
 	UIntenSelectableCylinderScoring();
 
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override
+	{
+		Super::PostEditChangeProperty(PropertyChangedEvent);
+
+		// Check if the property changed is MyMonitoredProperty
+		if (PropertyChangedEvent.Property && PropertyChangedEvent.Property->GetName() == TEXT("LinePoints"))
+		{
+
+		}
+	}
+	
 	UPROPERTY(EditAnywhere)
 	bool DrawDebug = true;
 	

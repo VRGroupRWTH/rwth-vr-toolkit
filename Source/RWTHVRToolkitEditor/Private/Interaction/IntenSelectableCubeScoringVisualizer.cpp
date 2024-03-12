@@ -49,7 +49,7 @@ bool FIntenSelectableCubeScoringVisualizer::VisProxyHandleClick(FEditorViewportC
 {
 	bool bEditing = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
+	//UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
 	
 	if (VisProxy && VisProxy->Component.IsValid())
 	{
@@ -108,7 +108,7 @@ bool FIntenSelectableCubeScoringVisualizer::HandleInputDelta(FEditorViewportClie
 
 	if (CurrentSelectionIndex != INDEX_NONE)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 
 		const FVector LocalCenter = GetEditedScoringComponent()->GetComponentLocation();
 		const FVector NewCenter = LocalCenter + DeltaTranslate;
@@ -125,7 +125,7 @@ bool FIntenSelectableCubeScoringVisualizer::HandleInputDelta(FEditorViewportClie
 		bHandled = true;
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return bHandled;

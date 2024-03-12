@@ -43,7 +43,7 @@ bool FIntenSelectableSphereScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 {
 	bool bEditing = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
+	//UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
 	
 	if (VisProxy && VisProxy->Component.IsValid())
 	{
@@ -104,7 +104,7 @@ bool FIntenSelectableSphereScoringVisualizer::HandleInputDelta(FEditorViewportCl
 
 	if (true || CurrentSelectionIndex != INDEX_NONE)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 
 		if((true || CurrentSelectionIndex == 0 )&& GetEditedComponent())
 		{
@@ -143,7 +143,7 @@ bool FIntenSelectableSphereScoringVisualizer::HandleInputDelta(FEditorViewportCl
 		}
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return bHandled;

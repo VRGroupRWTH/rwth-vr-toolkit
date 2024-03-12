@@ -48,7 +48,7 @@ bool FIntenSelectableLineScoringVisualizer::VisProxyHandleClick(FEditorViewportC
 {
 	bool bEditing = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
+	//UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
 	
 	if (VisProxy && VisProxy->Component.IsValid())
 	{
@@ -133,7 +133,7 @@ bool FIntenSelectableLineScoringVisualizer::HandleInputDelta(FEditorViewportClie
 				ScoringComponent->AddWorldRotation(DeltaRotate);
 			}else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+				//UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 		
 				const FVector WorldSelection = ScoringComponent->GetComponentTransform().TransformPositionNoScale(GetEditedScoringComponent()->LinePoints[CurrentLineSelectionIndex]);
 				const FVector NewWorldPos = ScoringComponent->GetComponentTransform().InverseTransformPositionNoScale(WorldSelection + DeltaTranslate);
@@ -159,7 +159,7 @@ bool FIntenSelectableLineScoringVisualizer::HandleInputDelta(FEditorViewportClie
 		
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return bHandled;

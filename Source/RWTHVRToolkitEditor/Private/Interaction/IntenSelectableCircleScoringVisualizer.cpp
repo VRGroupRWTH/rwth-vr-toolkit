@@ -60,7 +60,7 @@ bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 {
 	bool bEditing = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
+	//UE_LOG(LogTemp, Warning, TEXT("Handling Click"));
 	
 	if (VisProxy && VisProxy->Component.IsValid())
 	{
@@ -126,7 +126,7 @@ bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportCl
 
 	if (CurrentSelectionIndex != INDEX_NONE)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Current Selection! %s"), *DeltaTranslate.ToString());
 
 		if(CurrentSelectionIndex == 0)
 		{
@@ -153,7 +153,7 @@ bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportCl
 		NotifyPropertiesModified(GetEditedScoringComponent(), Properties, EPropertyChangeType::ValueSet);
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return bHandled;

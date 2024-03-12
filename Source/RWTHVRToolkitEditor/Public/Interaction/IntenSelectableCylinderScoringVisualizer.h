@@ -52,6 +52,7 @@ private:
 	FColoredMaterialRenderProxy DebugMaterial;
 	FProperty* RadiusProperty;
 	FProperty* PointsProperty;
+	FProperty* LocationProperty;
 	FComponentPropertyPath ScoringBehaviourPropertyPath;
 
 public:

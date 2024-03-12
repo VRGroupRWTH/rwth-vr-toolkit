@@ -241,7 +241,7 @@ bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewpor
 		return bHandled;
 	}else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Selection!"));
 	}
 
 	return false;
