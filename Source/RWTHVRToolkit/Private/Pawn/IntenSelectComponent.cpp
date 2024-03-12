@@ -3,6 +3,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/WidgetComponent.h"
 #include "Haptics/HapticFeedbackEffect_Curve.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Misc/MessageDialog.h"
@@ -413,7 +414,7 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		auto DistanceToMaxScore =
 			FVector::Distance(MaxScoreSelectable->GetOwner()->GetActorLocation(), GetComponentLocation());
 		auto Dist = TNumericLimits<float>::Max();
-		for (const auto Actor : CandidateList)
+		for (const TPair<UIntenSelectable*, FHitResult>& Actor : CandidateList)
 		{
 			const auto DistanceToCandidate = FVector::Distance(Actor.Value.ImpactPoint, GetComponentLocation());
 			if (DistanceToCandidate < Dist)
