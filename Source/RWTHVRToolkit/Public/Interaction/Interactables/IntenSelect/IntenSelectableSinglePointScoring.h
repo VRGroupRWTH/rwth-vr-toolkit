@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "IntenSelectableScoring.h"
-#include "IntenSelectableSinglepointScoring.generated.h"
+#include "IntenSelectableSinglePointScoring.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API UIntenSelectableSinglePointScoring : public UIntenSelectableScoring
