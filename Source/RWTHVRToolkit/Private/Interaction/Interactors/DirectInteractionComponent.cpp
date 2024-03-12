@@ -112,7 +112,8 @@ void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Va
 	if (bOnlyInteractWithClosestActor)
 	{
 		auto MinElement = *Algo::MinElementBy(
-			CurrentInteractableComponentsInRange, [&](auto Element)
+			CurrentInteractableComponentsInRange,
+			[&](auto Element)
 			{ return FVector(Element->GetOwner()->GetActorLocation() - InteractionLocation).Size(); });
 		MinElement->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
 		CurrentlyInteractedComponents = {MinElement};
