@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Utility/RWTHVRUtilities.h"
 #include "MotionControllerComponent.h"
+#include "Camera/CameraComponent.h"
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {

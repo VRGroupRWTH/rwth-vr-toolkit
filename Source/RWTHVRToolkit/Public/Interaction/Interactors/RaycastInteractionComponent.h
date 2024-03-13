@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "Interaction/Interactables/InteractableComponent.h"
 #include "RaycastInteractionComponent.generated.h"
 
 

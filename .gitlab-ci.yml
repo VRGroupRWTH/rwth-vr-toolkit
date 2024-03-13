@@ -36,6 +36,8 @@ include:
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
+#
+# Use the UNREAL_VERSION variable to adjust to your preferred Unreal version.
 
 variables:
     UNREAL_VERSION: "5.3"
@@ -122,6 +124,7 @@ Build_Linux:
         - job: "Generate_Project"
           artifacts: true
 
+# Deploys to vrdev
 Deploy_Windows:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
@@ -131,6 +134,7 @@ Deploy_Windows:
         - job: "Build_Windows"
           artifacts: true          
 
+# Deploys to vrdemo instead of av006de. Use extends: .Deploy_CAVE_ to deploy to legacy av006de
 Deploy_CAVE:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
