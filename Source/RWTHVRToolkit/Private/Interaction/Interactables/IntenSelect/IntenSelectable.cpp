@@ -43,7 +43,7 @@ void UIntenSelectable::BeginPlay()
 
 	if (AttachedIntenSelectables.Num() > 1)
 	{
-		if (!ScoringBehaviours.Num() == 0)
+		if (ScoringBehaviours.Num() == 0)
 		{
 			ShowErrorAndQuit(
 				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
