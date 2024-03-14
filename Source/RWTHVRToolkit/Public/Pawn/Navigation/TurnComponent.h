@@ -39,16 +39,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	class UInputAction* DesktopRotation;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovement_Left;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCMovement_Right;
-
-	/**Input Mapping Context that maps buttons for desktop mode*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	class UInputMappingContext* IMCDesktopRotation;
-
 	/**
 	 * Called every tick as long as stick input is received to allow for continuous turning
 	 * @param Value Stick input value determines turn direction and turn speed
@@ -74,9 +64,6 @@ public:
 private:
 	UPROPERTY()
 	UMotionControllerComponent* RotationHand;
-
-	UPROPERTY()
-	class UInputMappingContext* IMCTurn;
 
 	/**
 	 * If we just use VRPawn->AddControllerYawInput(Yaw), rotation is around tracking origin instead of the actual

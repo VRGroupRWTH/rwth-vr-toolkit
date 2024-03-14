@@ -31,6 +31,9 @@ public:
 
 	virtual void NotifyControllerChanged() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Input")
+	TArray<UInputMappingContext*> InputMappingContexts;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|MotionControllers")
 	UMotionControllerComponent* RightHand;
 
@@ -82,6 +85,10 @@ public:
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
+
+	UFUNCTION(BlueprintCallable)
+	UInputComponent* GetPlayerInputComponent();
 
 	/* LiveLink helper function called on tick */
 	void EvaluateLivelink() const;
@@ -105,4 +112,7 @@ protected:
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();
+
+private:
+	UInputComponent* ActivePlayerInputComponent;
 };

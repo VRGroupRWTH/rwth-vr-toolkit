@@ -4,7 +4,6 @@
 #include "Pawn/Navigation/TeleportationComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "NavigationSystem.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
@@ -19,7 +18,7 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
 
-	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
@@ -28,14 +27,16 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 		GetWorld(), TeleportTraceSystem, VRPawn->GetActorLocation(), FRotator(0), FVector(1), true, true,
 		ENCPoolMethod::AutoRelease, true);
 
-	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
-	SpawnParameters.Name = "TeleportVisualizer";
-
-	if (BPTeleportVisualizer)
+	if (!BPTeleportVisualizer)
 	{
-		TeleportVisualizer = GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(),
-															VRPawn->GetActorRotation(), SpawnParameters);
+		UE_LOG(Toolkit, Error,
+			   TEXT("SetupPlayerInput: BPTeleportVisualizer must be set to an Actor class that can be spawned!"));
+		return;
 	}
+
+	TeleportVisualizer =
+		GetWorld()->SpawnActor<AActor>(BPTeleportVisualizer, VRPawn->GetActorLocation(), VRPawn->GetActorRotation());
+
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 
@@ -44,17 +45,12 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	{
 		TeleportationHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
-		IMCMovement = IMCTeleportRight;
 	}
 	else
 	{
 		TeleportationHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
-		IMCMovement = IMCTeleportLeft;
 	}
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)

@@ -34,12 +34,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement|Teleport")
 	float TeleportLaunchSpeed = 800;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	UInputMappingContext* IMCTeleportLeft;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input")
-	UInputMappingContext* IMCTeleportRight;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	UInputAction* Move;
 
@@ -72,9 +66,6 @@ private:
 
 	UPROPERTY()
 	UMotionControllerComponent* RotationHand;
-
-	UPROPERTY()
-	UInputMappingContext* IMCMovement;
 
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;

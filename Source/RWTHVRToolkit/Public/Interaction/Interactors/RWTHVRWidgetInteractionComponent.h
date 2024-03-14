@@ -11,16 +11,15 @@ UENUM()
 enum EInteractionRayVisibility
 {
 	Visible UMETA(DisplayName = "Interaction ray visible"),
-	VisibleOnHoverOnly UMETA(
-		DisplayName =
-		"Interaction ray only visible when hovering over interactable world UI widgets"),
+	VisibleOnHoverOnly UMETA(DisplayName =
+								 "Interaction ray only visible when hovering over interactable world UI widgets"),
 	Invisible UMETA(DisplayName = "Interaction ray invisible")
 };
 
 
-UCLASS(Blueprintable, Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RWTHVRTOOLKIT_API URWTHVRWidgetInteractionComponent : public UWidgetInteractionComponent,
-                                                        public IInputExtensionInterface
+															public IInputExtensionInterface
 {
 	GENERATED_BODY()
 
@@ -30,7 +29,7 @@ public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+							   FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetInteractionRayVisibility(EInteractionRayVisibility NewVisibility);
@@ -43,9 +42,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	class UInputMappingContext* IMCWidgetInteraction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	class UInputAction* WidgetClickInputAction;

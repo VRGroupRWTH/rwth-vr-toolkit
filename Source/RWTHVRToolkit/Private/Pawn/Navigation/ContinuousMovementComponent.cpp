@@ -3,17 +3,17 @@
 #include "Pawn/Navigation/ContinuousMovementComponent.h"
 
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "Utility/RWTHVRUtilities.h"
 #include "MotionControllerComponent.h"
+#include "Camera/CameraComponent.h"
 
 void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInput(PlayerInputComponent);
 
-	if (!VRPawn || !VRPawn->HasLocalNetOwner() || !InputSubsystem)
+	if (!VRPawn || !VRPawn->HasLocalNetOwner())
 	{
 		return;
 	}
@@ -23,17 +23,12 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 	{
 		MovementHand = VRPawn->RightHand;
 		RotationHand = VRPawn->LeftHand;
-		IMCMovement = IMCMovementRight;
 	}
 	else
 	{
 		MovementHand = VRPawn->LeftHand;
 		RotationHand = VRPawn->RightHand;
-		IMCMovement = IMCMovementLeft;
 	}
-
-	// add Input Mapping context
-	InputSubsystem->AddMappingContext(IMCMovement, 0);
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)

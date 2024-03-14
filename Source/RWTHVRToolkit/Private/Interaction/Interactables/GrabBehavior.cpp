@@ -3,8 +3,9 @@
 
 #include "Interaction/Interactables/GrabBehavior.h"
 #include "Interaction/Interactables/InteractableComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Logging/StructuredLog.h"
 #include "Serialization/JsonTypes.h"
+#include "Utility/RWTHVRUtilities.h"
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
@@ -29,34 +30,42 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 	{
 		return GetHighestParentSimulatingPhysics(Cast<UPrimitiveComponent>(Comp->GetAttachParent()));
 	}
-	else
-	{
-		return Comp;
-	}
+
+	return Comp;
 }
 
 void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 								  const FInputActionValue& Value)
 {
-	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (bObjectGrabbed)
+	{
+		return;
+	}
 
-	USceneComponent* Hand = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
-
+	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
 	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
 
-	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
-
-	if (MyPhysicsComponent)
+	if (MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner()); MyPhysicsComponent != nullptr)
 	{
+		bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
 		MyPhysicsComponent->SetSimulatePhysics(false);
-		MyPhysicsComponent->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(CurrentAttachParent, Rules);
 	}
 	else
 	{
-		GetOwner()->GetRootComponent()->AttachToComponent(Hand, Rules);
+		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(CurrentAttachParent, Rules);
 	}
 
+	if (!bObjectGrabbed)
+	{
+		UE_LOGFMT(Toolkit, Warning, "Grab failed! Cannot attach grabbed component to attach parent ({Parent})",
+				  CurrentAttachParent->GetName());
+		return;
+	}
 
+	// If we want to restrict other interactions while this component is grabbed we add the component
+	// that triggered the interaction to the whitelist of all interactables that are attached to the
+	// affected actor
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;
@@ -66,21 +75,28 @@ void UGrabBehavior::OnActionStart(USceneComponent* TriggeredComponent, const UIn
 			Interactable->RestrictInteractionToComponent(TriggeredComponent);
 		}
 	}
+
+	OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
 }
 
 void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
 								const FInputActionValue& Value)
 {
-	if (MyPhysicsComponent)
+
+	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggeredComponent->GetAttachParent());
+
+	// We try to release the attached component. If it is not succesful we log and return. Otherwise, we continue.
+	if (!TryRelease())
 	{
-		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		MyPhysicsComponent->SetSimulatePhysics(true);
-	}
-	else
-	{
-		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		UE_LOGFMT(Toolkit, Display,
+				  "UGrabBehavior::OnActionEnd: TryRelease failed to release with AttachParent {Parent}",
+				  CurrentAttachParent->GetName());
+		return;
 	}
 
+	OnGrabEndEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
+
+	// Release the interation restriction on all component
 	if (bBlockOtherInteractionsWhileGrabbed)
 	{
 		TArray<UInteractableComponent*> Interactables;
@@ -90,4 +106,24 @@ void UGrabBehavior::OnActionEnd(USceneComponent* TriggeredComponent, const UInpu
 			Interactable->ResetRestrictInteraction();
 		}
 	}
+}
+
+bool UGrabBehavior::TryRelease()
+{
+	if (!bObjectGrabbed)
+	{
+		return false;
+	}
+
+	if (MyPhysicsComponent)
+	{
+		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
+	}
+	else
+	{
+		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
+	bObjectGrabbed = false;
+	return true;
 }

@@ -7,7 +7,7 @@
 
 include:
   - project: '${UNREAL_CI_PROJECT}'
-    ref: master 
+    ref: master
     file: '/shared_scripts.yml'
     
 # In this file you are able to configure your plugins pipeline.
@@ -36,6 +36,11 @@ include:
 #
 # You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
 # with a generated project.
+#
+# Use the UNREAL_VERSION variable to adjust to your preferred Unreal version.
+
+variables:
+    UNREAL_VERSION: "5.3"
 
 stages:
   - analyze
@@ -58,7 +63,7 @@ clang-format:
     allow_failure: false
     script:
         - clang-format --version
-        - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME --depth 1
+        - git fetch --depth 1 origin $CI_MERGE_REQUEST_DIFF_BASE_SHA
         - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
         - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
         - echo "$linter_errors"
@@ -68,10 +73,12 @@ Generate_Project:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Generate_Project_
     variables:
         RUN_SETUP: "false"
-        GEN_TEMPLATE_BRANCH: "5.3"
         GEN_DEPENDENCIES: "(
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
 
@@ -80,6 +87,9 @@ Build_Windows:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Windows_
     tags:
         - windows
@@ -97,6 +107,9 @@ Build_Linux:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      - if: $CI_COMMIT_TAG
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Build_Linux_
     tags:
         - linux
@@ -111,6 +124,7 @@ Build_Linux:
         - job: "Generate_Project"
           artifacts: true
 
+# Deploys to vrdev
 Deploy_Windows:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
@@ -120,6 +134,7 @@ Deploy_Windows:
         - job: "Build_Windows"
           artifacts: true          
 
+# Deploys to vrdemo instead of av006de. Use extends: .Deploy_CAVE_ to deploy to legacy av006de
 Deploy_CAVE:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"

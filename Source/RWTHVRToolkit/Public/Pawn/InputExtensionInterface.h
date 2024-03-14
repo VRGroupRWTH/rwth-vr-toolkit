@@ -24,7 +24,4 @@ class RWTHVRTOOLKIT_API IInputExtensionInterface
 public:
 	// Called by VirtualRealityPawn::SetupPlayerInputComponent
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) {}
-
-	// Helper function to get the local player subsystem
-	virtual UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputLocalPlayerSubsystem(const APawn* Pawn) const;
 };

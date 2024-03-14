@@ -19,12 +19,10 @@ class RWTHVRTOOLKIT_API UMovementComponentBase : public UActorComponent, public 
 
 public:
 	// Already sets up VRPawn and InputSubsystem properties that can be used by child classes.
+	UFUNCTION(BlueprintCallable)
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 protected:
 	UPROPERTY()
 	ARWTHVRPawn* VRPawn;
-
-	UPROPERTY()
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;
 };

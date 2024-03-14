@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "IDisplayCluster.h"
 #include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
@@ -165,7 +164,7 @@ void ACAVEOverlayController::BeginPlay()
 	// Input config
 	if (URWTHVRUtilities::IsPrimaryNode())
 	{
-		if (CycleDoorTypeInputAction == nullptr || IMCCaveOverlayInputMapping == nullptr)
+		if (CycleDoorTypeInputAction == nullptr)
 		{
 			UE_LOGFMT(LogCAVEOverlay, Error, "Input action and mapping not set in CaveOverlayController!");
 			return;
@@ -174,15 +173,6 @@ void ACAVEOverlayController::BeginPlay()
 		UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PC->InputComponent);
 		Input->BindAction(CycleDoorTypeInputAction, ETriggerEvent::Triggered, this,
 						  &ACAVEOverlayController::CycleDoorType);
-
-		if (const ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
-		{
-			if (UEnhancedInputLocalPlayerSubsystem* InputSystem =
-					LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-			{
-				InputSystem->AddMappingContext(IMCCaveOverlayInputMapping, 0);
-			}
-		}
 	}
 
 	// Bind the cluster events that manage the door state.
