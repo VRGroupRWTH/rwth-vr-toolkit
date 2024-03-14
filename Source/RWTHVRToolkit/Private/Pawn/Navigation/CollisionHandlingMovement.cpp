@@ -342,6 +342,10 @@ TOptional<FVector> UCollisionHandlingMovement::GetOverlapResolveDirection() cons
 {
 	TArray<UPrimitiveComponent*> OverlappingComponents;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+
+	// Ideally we would overlap with ECC_Visibility, but there is no object type this can be converted to that I know
+	// of. This returns everything, even triggers etc that are *not* visible, which is why we further check for a
+	// visibility trace and blocking hits.
 	traceObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery_MAX);
 
 	UKismetSystemLibrary::CapsuleOverlapComponents(GetWorld(), CapsuleColliderComponent->GetComponentLocation(),
