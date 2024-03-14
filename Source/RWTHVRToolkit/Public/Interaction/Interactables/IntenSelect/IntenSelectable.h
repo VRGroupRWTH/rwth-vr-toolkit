@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "Components/ActorComponent.h"
+#include "Interaction/Interactables/ActionBehaviour.h"
+#include "Interaction/Interactables/HoverBehaviour.h"
 #include "IntenSelectable.generated.h"
 
 
@@ -23,7 +25,7 @@ public:
 	bool IsSelectable = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UIntenSelectableScoring* ScoringBehaviour;
+	TArray<UIntenSelectableScoring*> ScoringBehaviours;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UHoverBehaviour*> OnSelectBehaviours;

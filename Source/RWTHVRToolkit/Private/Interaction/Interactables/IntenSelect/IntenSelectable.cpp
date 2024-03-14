@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
-
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -16,8 +15,44 @@ TPair<FHitResult, float> UIntenSelectable::GetBestPointScorePair(const FVector& 
 																 const float ConeAngle, const float LastValue,
 																 const float DeltaTime) const
 {
-	checkf(ScoringBehaviour, TEXT("%s"), *GetOwner()->GetName()) return ScoringBehaviour->GetBestPointScorePair(
-		ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, LastValue, DeltaTime);
+	checkf(ScoringBehaviours.Num() > 0, TEXT("%s"), *GetOwner()->GetName());
+
+	float MaxScore = -1;
+	FHitResult MaxResult;
+
+	for (UIntenSelectableScoring* s : ScoringBehaviours)
+	{
+		const TPair<FHitResult, float> Score_Pair = s->GetBestPointScorePair(
+			ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, LastValue, DeltaTime);
+
+		if (Score_Pair.Value >= MaxScore)
+		{
+			MaxResult = Score_Pair.Key;
+			MaxScore = Score_Pair.Value;
+		}
+	}
+	return TPair<FHitResult, float>{MaxResult, MaxScore};
+}
+
+void UIntenSelectable::BeginPlay()
+{
+	Super::BeginPlay();
+
+	TInlineComponentArray<UIntenSelectable*> AttachedIntenSelectables;
+	GetOwner()->GetComponents(AttachedIntenSelectables, false);
+
+	if (AttachedIntenSelectables.Num() > 1)
+	{
+		if (!ScoringBehaviours.Num() == 0)
+		{
+			ShowErrorAndQuit(
+				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
+		}
+	}
+	else
+	{
+		InitDefaultBehaviourReferences();
+	}
 }
 
 void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
@@ -58,18 +93,24 @@ void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect
 void UIntenSelectable::InitDefaultBehaviourReferences()
 {
 	// Scoring
-	if (UIntenSelectableScoring* AttachedScoring =
-			Cast<UIntenSelectableScoring>(GetOwner()->GetComponentByClass(UIntenSelectableScoring::StaticClass())))
+
+	for (TSet<UActorComponent*> AllComponents = GetOwner()->GetComponents(); UActorComponent * c : AllComponents)
 	{
-		ScoringBehaviour = AttachedScoring;
+		if (UIntenSelectableScoring* TryToGetScoring = Cast<UIntenSelectableScoring>(c))
+		{
+			ScoringBehaviours.Add(TryToGetScoring);
+		}
 	}
-	else
+
+	if (ScoringBehaviours.Num() == 0)
 	{
-		ScoringBehaviour = NewObject<UIntenSelectableSinglePointScoring>(
+		const auto InitScoringBehaviour = NewObject<UIntenSelectableSinglePointScoring>(
 			this, UIntenSelectableSinglePointScoring::StaticClass(), "Default Scoring");
-		ScoringBehaviour->SetWorldLocation(GetOwner()->GetActorLocation());
-		ScoringBehaviour->AttachToComponent(GetOwner()->GetRootComponent(),
-											FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		InitScoringBehaviour->SetWorldLocation(GetOwner()->GetActorLocation());
+		InitScoringBehaviour->AttachToComponent(GetOwner()->GetRootComponent(),
+												FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		ScoringBehaviours.Add(InitScoringBehaviour);
 	}
 
 	// Selecting
@@ -92,25 +133,4 @@ void UIntenSelectable::ShowErrorAndQuit(const FString& Message) const
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString("RUNTIME ERROR")));
 #endif
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
-}
-
-void UIntenSelectable::BeginPlay()
-{
-	Super::BeginPlay();
-
-	TInlineComponentArray<UIntenSelectable*> AttachedIntenSelectables;
-	GetOwner()->GetComponents(AttachedIntenSelectables, false);
-
-	if (AttachedIntenSelectables.Num() > 1)
-	{
-		if (!ScoringBehaviour)
-		{
-			ShowErrorAndQuit(
-				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
-		}
-	}
-	else
-	{
-		InitDefaultBehaviourReferences();
-	}
 }
