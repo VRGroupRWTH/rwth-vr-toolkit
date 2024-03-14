@@ -342,19 +342,18 @@ TOptional<FVector> UCollisionHandlingMovement::GetOverlapResolveDirection() cons
 {
 	TArray<UPrimitiveComponent*> OverlappingComponents;
 	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
-	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Visibility));
+
+	// Ideally we would overlap with ECC_Visibility, but there is no object type this can be converted to that I know
+	// of. This returns everything, even triggers etc that are *not* visible, which is why we further check for a
+	// visibility trace and blocking hits.
+	traceObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery_MAX);
+
 	UKismetSystemLibrary::CapsuleOverlapComponents(GetWorld(), CapsuleColliderComponent->GetComponentLocation(),
 												   CapsuleColliderComponent->GetScaledCapsuleRadius(),
 												   CapsuleColliderComponent->GetScaledCapsuleHalfHeight(),
 												   traceObjectTypes, nullptr, ActorsToIgnore, OverlappingComponents);
 
-	if (OverlappingComponents.Num() == 0)
-	{
-		// return unset optional
-		return TOptional<FVector>();
-	}
-
-	FVector ResolveVector = FVector::ZeroVector;
+	TOptional<FVector> ResolveVector;
 	// check what to do to move out of these collisions (or nothing if none is there)
 	// we just add the penetrations so in very unfortunate conditions this can become problematic/blocking but for now
 	// and our regular use cases this works
@@ -362,7 +361,13 @@ TOptional<FVector> UCollisionHandlingMovement::GetOverlapResolveDirection() cons
 	{
 		FHitResult Hit = CreateCapsuleTrace(CapsuleColliderComponent->GetComponentLocation(),
 											OverlappingComp->GetComponentLocation(), false);
-		ResolveVector += Hit.ImpactNormal * Hit.PenetrationDepth;
+
+		if (Hit.bBlockingHit)
+		{
+			FVector Change = Hit.ImpactNormal * Hit.PenetrationDepth;
+			ResolveVector = ResolveVector.IsSet() ? ResolveVector.GetValue() + Change : Change;
+		}
 	}
+
 	return ResolveVector;
 }
