@@ -133,7 +133,8 @@ Build_Linux:
           artifacts: true
 
 
-# Builds for linux without the cluster pluginBuild_Linux_Without_Cluster:
+# Builds for linux without the cluster plugin
+Build_Linux_Without_Cluster:
     extends: Build_Linux
     needs:
         - job: "Generate_Project_Without_Cluster"
