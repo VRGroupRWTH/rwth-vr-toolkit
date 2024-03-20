@@ -70,7 +70,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DisplayCluster")
 	static EEyeStereoOffset GetNodeEyeType();
 
-	//Get Component of Display Cluster by it's name, which is specified in the nDisplay config
+	static void ShowErrorAndQuit(const FString& Message, bool ShouldQuit, const UObject* WorldContext);
+
+	// Get Component of Display Cluster by it's name, which is specified in the nDisplay config
 	UE_DEPRECATED(5.4, "GetClusterComponent has been removed because it is obsolete.")
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "DisplayCluster", meta = (DeprecatedFunction))
 	static USceneComponent* GetClusterComponent(const FString& Name);

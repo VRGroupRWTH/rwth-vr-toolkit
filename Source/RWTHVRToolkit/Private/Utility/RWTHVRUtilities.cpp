@@ -20,10 +20,7 @@
 
 DEFINE_LOG_CATEGORY(Toolkit);
 
-bool URWTHVRUtilities::IsDesktopMode()
-{
-	return !IsRoomMountedMode() && !IsHeadMountedMode();
-}
+bool URWTHVRUtilities::IsDesktopMode() { return !IsRoomMountedMode() && !IsHeadMountedMode(); }
 
 bool URWTHVRUtilities::IsRoomMountedMode()
 {
@@ -48,8 +45,8 @@ bool URWTHVRUtilities::IsCave()
 		return false;
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
-	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
-		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
+	return ClusterConfig->CustomParameters.Contains("Hardware_Platform") &&
+		ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
 #else
 	return false;
 #endif
@@ -62,8 +59,8 @@ bool URWTHVRUtilities::IsRolv()
 		return false;
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
-	return ClusterConfig->CustomParameters.Contains("Hardware_Platform")
-		&& ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
+	return ClusterConfig->CustomParameters.Contains("Hardware_Platform") &&
+		ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
 #else
 	return false;
 #endif
@@ -84,14 +81,11 @@ bool URWTHVRUtilities::IsPrimaryNode()
 	}
 	return Manager->IsPrimary() || !Manager->IsSecondary();
 #else
-    return true;
+	return true;
 #endif
 }
 
-bool URWTHVRUtilities::IsSecondaryNode()
-{
-	return !IsPrimaryNode();
-}
+bool URWTHVRUtilities::IsSecondaryNode() { return !IsPrimaryNode(); }
 
 FString URWTHVRUtilities::GetNodeName()
 {
@@ -114,7 +108,7 @@ float URWTHVRUtilities::GetEyeDistance()
 		const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 		return (RootActor) ? RootActor->GetDefaultCamera()->GetInterpupillaryDistance() : 0.0f;
 #else
-	    return 0.0f;
+		return 0.0f;
 #endif
 	}
 }
@@ -123,12 +117,22 @@ EEyeStereoOffset URWTHVRUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	return static_cast<EEyeStereoOffset>((RootActor)
-		                                     ? RootActor->GetDefaultCamera()->GetStereoOffset()
-		                                     : EDisplayClusterEyeStereoOffset::None);
+	return static_cast<EEyeStereoOffset>((RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset()
+													 : EDisplayClusterEyeStereoOffset::None);
 #else
 	return EDisplayClusterEyeStereoOffset::None;
 #endif
+}
+void URWTHVRUtilities::ShowErrorAndQuit(const FString& Message, bool ShouldQuit, const UObject* WorldContext)
+{
+	UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
+#if WITH_EDITOR
+	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message));
+#endif
+	if (ShouldQuit)
+	{
+		UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
+	}
 }
 
 USceneComponent* URWTHVRUtilities::GetClusterComponent(const FString& Name)
