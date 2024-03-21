@@ -91,6 +91,7 @@ Generate_Project_Without_Cluster:
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
             )"
     script: # if we don't do this, cooking will for some reason fail even though it should use the correct fallback
+      - !reference [Generate_Project, script]
       - echo "Generating without cluster mode, removing nDisplay configs..."
       - cd ${CI_PROJECT_DIR}
       - ls -la
