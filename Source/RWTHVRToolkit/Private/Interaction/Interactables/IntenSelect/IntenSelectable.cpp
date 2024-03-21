@@ -4,6 +4,7 @@
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Logging/StructuredLog.h"
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"
 #include "Utility/RWTHVRUtilities.h"
@@ -46,9 +47,9 @@ void UIntenSelectable::BeginPlay()
 	{
 		if (ScoringBehaviours.Num() == 0)
 		{
-			URWTHVRUtilities::ShowErrorAndQuit(
-				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!",
-				false, this);
+			UE_LOGFMT(
+				Toolkit, Error,
+				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
 		}
 	}
 	else

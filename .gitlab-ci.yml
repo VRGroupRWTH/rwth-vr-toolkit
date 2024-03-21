@@ -80,8 +80,21 @@ Generate_Project:
     variables:
         RUN_SETUP: "false"
         GEN_DEPENDENCIES: "(
-            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            [dev/5.3@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
+            )"
 
+Generate_Project_Without_Cluster:
+    extends: Generate_Project
+    variables:
+        GEN_DEPENDENCIES: "(
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            )"
+    script: # if we don't do this, cooking will for some reason fail even though it should use the correct fallback
+      - !reference [Generate_Project, script]
+      - echo "Generating without cluster mode, removing nDisplay configs..."
+      - cd ${CI_PROJECT_DIR}
+      - sed -i '/DisplayCluster/d' Config/Linux/LinuxEngine.ini
 
 Build_Windows:
     rules: 
@@ -122,6 +135,14 @@ Build_Linux:
         CLIENT_CONFIG: "DebugGame"
     needs:
         - job: "Generate_Project"
+          artifacts: true
+
+
+# Builds for linux without the cluster plugin
+Build_Linux_Without_Cluster:
+    extends: Build_Linux
+    needs:
+        - job: "Generate_Project_Without_Cluster"
           artifacts: true
 
 # Deploys to vrdev
