@@ -564,7 +564,7 @@ void UIntenSelectComponent::OnFireDown()
 	if (CurrentSelection)
 	{
 		const FHitResult GrabbedPoint = *ContactPointMap.Find(CurrentSelection);
-		CurrentSelection->HandleOnClickStartEvents(this);
+		CurrentSelection->HandleOnActionStartEvents(this);
 		LastKnownSelection = CurrentSelection;
 		LastKnownGrabPoint =
 			LastKnownSelection->GetOwner()->GetRootComponent()->GetComponentTransform().InverseTransformPosition(
@@ -593,7 +593,7 @@ void UIntenSelectComponent::OnFireUp()
 	if (LastKnownSelection)
 	{
 		FInputActionValue v;
-		LastKnownSelection->HandleOnClickEndEvents(this, v);
+		LastKnownSelection->HandleOnActionEndEvents(this, v);
 	}
 }
 
@@ -664,14 +664,14 @@ void UIntenSelectComponent::HandleActorSelected(UIntenSelectable* NewSelection)
 	{
 		if (CurrentSelection)
 		{
-			CurrentSelection->HandleOnSelectEndEvents(this);
+			CurrentSelection->HandleOnHoverEndEvents(this);
 		}
 
 		if (NewSelection)
 		{
 			UIntenSelectable* NewIntenSelectable = NewSelection;
 			const FHitResult GrabbedPoint = *ContactPointMap.Find(NewIntenSelectable);
-			NewIntenSelectable->HandleOnSelectStartEvents(this, GrabbedPoint);
+			NewIntenSelectable->HandleOnHoverStartEvents(this, GrabbedPoint);
 		}
 
 		CurrentSelection = NewSelection;
@@ -709,7 +709,7 @@ void UIntenSelectComponent::HandleNoActorSelected()
 
 	if (CurrentSelection)
 	{
-		CurrentSelection->HandleOnSelectEndEvents(this);
+		CurrentSelection->HandleOnHoverEndEvents(this);
 	}
 
 	if (bDrawForwardRay && ParameterCollectionInstance)

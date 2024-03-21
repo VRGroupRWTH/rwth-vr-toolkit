@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,7 +6,6 @@
 #include "Interaction/Interactables/ActionBehaviour.h"
 #include "Interaction/Interactables/HoverBehaviour.h"
 #include "IntenSelectable.generated.h"
-
 
 class UIntenSelectableScoring;
 class UClickBehaviour;
@@ -41,10 +38,10 @@ public:
 												   const float ConeBackwardShiftDistance, const float ConeAngle,
 												   const float LastValue, const float DeltaTime) const;
 
-	void HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult);
-	void HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect);
-	void HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect);
-	void HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue);
+	void HandleOnHoverStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult);
+	void HandleOnHoverEndEvents(const UIntenSelectComponent* IntenSelect);
+	void HandleOnActionStartEvents(UIntenSelectComponent* IntenSelect);
+	void HandleOnActionEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue);
 
 	void InitDefaultBehaviourReferences();
 

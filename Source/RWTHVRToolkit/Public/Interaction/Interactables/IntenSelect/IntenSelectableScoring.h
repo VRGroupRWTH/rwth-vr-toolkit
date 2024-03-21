@@ -19,16 +19,21 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	float CurrentScore = 0;
+
 	UPROPERTY(EditAnywhere)
 	bool IsSelectable = true;
+
 	UPROPERTY(EditAnywhere)
 	float Stickiness = 10;
+
 	UPROPERTY(EditAnywhere)
 	float Snappiness = 15;
+
 	UPROPERTY(EditAnywhere)
 	float CompensationConstant = 0.8;
 
 	bool bOverwritingContrib = false;
+
 	float Contrib = 0;
 
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,

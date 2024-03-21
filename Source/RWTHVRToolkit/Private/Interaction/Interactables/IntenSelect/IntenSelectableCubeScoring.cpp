@@ -1,9 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Interaction/Interactables/IntenSelect/IntenSelectableCubeScoring.h"
-
 #include "DrawDebugHelpers.h"
-#include "Intersection/IntrRay3AxisAlignedBox3.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
@@ -18,7 +14,7 @@ UIntenSelectableCubeScoring::GetBestPointScorePair(const FVector& ConeOrigin, co
 												   const float ConeBackwardShiftDistance, const float ConeAngle,
 												   const float LastValue, const float DeltaTime)
 {
-	FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
+	const FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
 	float Score = Super::GetScore(ConeOrigin, ConeForwardDirection, ConeBackwardShiftDistance, ConeAngle, Point,
 								  LastValue, DeltaTime);
 	FHitResult Result = FHitResult{GetOwner(), nullptr, Point, FVector::ForwardVector};
@@ -27,10 +23,10 @@ UIntenSelectableCubeScoring::GetBestPointScorePair(const FVector& ConeOrigin, co
 
 FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& StartPoint, const FVector& Direction,
 																const FVector& Corner00, const FVector& Corner01,
-																const FVector& Corner10, const FVector& Corner11) const
+																const FVector& Corner10) const
 {
-	const float X = FVector::Distance(Corner00, Corner10);
-	const float Y = FVector::Distance(Corner00, Corner01);
+	const float LengthX = FVector::Distance(Corner00, Corner10);
+	const float LengthY = FVector::Distance(Corner00, Corner01);
 	const FVector PlaneNormal = FVector::CrossProduct(Corner10 - Corner00, Corner01 - Corner00).GetSafeNormal();
 
 	FVector Intersection;
@@ -40,87 +36,9 @@ FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& S
 
 	FVector LocalIntersection = this->GetComponentTransform().InverseTransformPosition(Intersection);
 
-	if (LocalIntersection.Y > X / 2)
-	{
-		LocalIntersection.Y = X / 2;
-	}
-	else if (LocalIntersection.Y < -X / 2)
-	{
-		LocalIntersection.Y = -X / 2;
-	}
+	LocalIntersection.Y = FMath::Clamp(LocalIntersection.Y, -LengthX / 2, LengthX / 2);
+	LocalIntersection.Z = FMath::Clamp(LocalIntersection.Z, -LengthY / 2, LengthY / 2);
 
-	if (LocalIntersection.Z > Y / 2)
-	{
-		LocalIntersection.Z = Y / 2;
-	}
-	else if (LocalIntersection.Z < -Y / 2)
-	{
-		LocalIntersection.Z = -Y / 2;
-	}
-
-	/*
-	if(OnlyOutline)
-	{
-		const float DistToBottom = LocalIntersection.Z + (YLength / 2);
-		const float DistToLeft = LocalIntersection.Y + (XLength / 2);
-
-		if(LocalIntersection.Z < 0)
-		{
-			if(LocalIntersection.Y < 0)
-			{
-				//Bottom and left
-				if(DistToLeft < DistToBottom)
-				{
-					//snap left
-					LocalIntersection.Y = -(XLength / 2);
-				}else
-				{
-					//snap bottom
-					LocalIntersection.Z = -(YLength / 2);
-				}
-			}else
-			{
-				//bottom and right
-				if(XLength - DistToLeft < DistToBottom)
-				{
-					//snap right
-					LocalIntersection.Y = XLength / 2;
-				}else
-				{
-					//snap bottom
-					LocalIntersection.Z = -(YLength / 2);
-				}
-			}
-		}else
-		{
-			if(LocalIntersection.Y < 0)
-			{
-				//top and left
-				if(DistToLeft < YLength - DistToBottom)
-				{
-					//snap left
-					LocalIntersection.Y = -(XLength / 2);
-				}else
-				{
-					//snap top
-					LocalIntersection.Z = (YLength / 2);
-				}
-			}else
-			{
-				//top and right
-				if(XLength - DistToLeft < YLength - DistToBottom)
-				{
-					//snap right
-					LocalIntersection.Y = XLength / 2;
-				}else
-				{
-					//snap top
-					LocalIntersection.Z = (YLength / 2);
-				}
-			}
-		}
-	}
-*/
 
 	return this->GetComponentTransform().TransformPosition(LocalIntersection);
 }
@@ -128,64 +46,60 @@ FVector UIntenSelectableCubeScoring::GetClosestPointToRectangle(const FVector& S
 bool UIntenSelectableCubeScoring::LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA,
 														 const FVector& ToB, FVector& OutIntersection)
 {
-	const FVector Da = ToA - FromA;
-	const FVector DB = ToB - FromB;
-	const FVector DC = FromB - FromA;
+	const FVector DistanceA = ToA - FromA;
+	const FVector DistanceB = ToB - FromB;
+	const FVector DistanceC = FromB - FromA;
 
-	const FVector CrossDaDb = FVector::CrossProduct(Da, DB);
-	const float Prod = CrossDaDb.X * CrossDaDb.X + CrossDaDb.Y * CrossDaDb.Y + CrossDaDb.Z * CrossDaDb.Z;
+	const FVector CrossProductAB = FVector::CrossProduct(DistanceA, DistanceB);
+	const float Prod =
+		CrossProductAB.X * CrossProductAB.X + CrossProductAB.Y * CrossProductAB.Y + CrossProductAB.Z * CrossProductAB.Z;
 
-	const float Res = FVector::DotProduct(FVector::CrossProduct(DC, DB), FVector::CrossProduct(Da, DB) / Prod);
-	if (Res >= -0.02f && Res <= 1.02f)
+	const float Result = FVector::DotProduct(FVector::CrossProduct(DistanceC, DistanceB),
+											 FVector::CrossProduct(DistanceA, DistanceB) / Prod);
+
+	constexpr float IntersectionThreshold = 0.02f;
+	if (Result >= -IntersectionThreshold && Result <= 1 + IntersectionThreshold)
 	{
-		OutIntersection = FromA + Da * FVector(Res, Res, Res);
+		OutIntersection = FromA + DistanceA * FVector(Result, Result, Result);
 		return true;
 	}
 
 	return false;
 }
 
-FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& RayOrigin, const FVector& RayDirection)
+FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& RayOrigin,
+																const FVector& RayDirection) const
 {
 	auto Scale = GetRelativeTransform().GetScale3D();
-	const FVector X = this->GetForwardVector() * Scale.X;
-	const FVector Y = this->GetRightVector() * Scale.Y;
-	const FVector Z = this->GetUpVector() * Scale.Z;
+	const FVector ForwardVectorScaled = this->GetForwardVector() * Scale.X;
+	const FVector RightVectorScaled = this->GetRightVector() * Scale.Y;
+	const FVector UpVectorScaled = this->GetUpVector() * Scale.Z;
 
 	TArray<FPlane> CubeSides;
 
 	// bottom
-	const FVector BottomWorld = this->GetComponentTransform().TransformPositionNoScale(-Z / 2);
+	const FVector BottomWorld = this->GetComponentTransform().TransformPositionNoScale(-UpVectorScaled / 2);
 	CubeSides.Add(FPlane{BottomWorld, -this->GetUpVector()});
 
 	// top
-	const FVector TopWorld = this->GetComponentTransform().TransformPositionNoScale(Z / 2);
+	const FVector TopWorld = this->GetComponentTransform().TransformPositionNoScale(UpVectorScaled / 2);
 	CubeSides.Add(FPlane{TopWorld, this->GetUpVector()});
 
 	// left
-	const FVector LeftWorld = this->GetComponentTransform().TransformPositionNoScale(-Y / 2);
+	const FVector LeftWorld = this->GetComponentTransform().TransformPositionNoScale(-RightVectorScaled / 2);
 	CubeSides.Add(FPlane{LeftWorld, -this->GetRightVector()});
 
 	// right
-	const FVector RightWorld = this->GetComponentTransform().TransformPositionNoScale(Y / 2);
+	const FVector RightWorld = this->GetComponentTransform().TransformPositionNoScale(RightVectorScaled / 2);
 	CubeSides.Add(FPlane{RightWorld, this->GetRightVector()});
 
 	// front
-	const FVector FrontWorld = this->GetComponentTransform().TransformPositionNoScale(-X / 2);
+	const FVector FrontWorld = this->GetComponentTransform().TransformPositionNoScale(-ForwardVectorScaled / 2);
 	CubeSides.Add(FPlane{FrontWorld, -this->GetForwardVector()});
 
 	// back
-	const FVector BackWorld = this->GetComponentTransform().TransformPositionNoScale(X / 2);
+	const FVector BackWorld = this->GetComponentTransform().TransformPositionNoScale(ForwardVectorScaled / 2);
 	CubeSides.Add(FPlane{BackWorld, this->GetForwardVector()});
-
-	/*
-	const TRay3<float> Ray{Point, Direction, false};
-	const TAxisAlignedBox3<float> Box;
-	float OutT;
-	if(TIntrRay3AxisAlignedBox3<float>::FindIntersection(Ray, Box, OutT))
-	{
-
-	}*/
 
 	float MinDistance = TNumericLimits<float>::Max();
 	FVector ClosestPoint = GetComponentLocation();
@@ -303,9 +217,6 @@ FVector UIntenSelectableCubeScoring::GetClosestSelectionPointTo(const FVector& R
 		CurrentPoint = GetComponentTransform().TransformPositionNoScale(CurrentPointLocal);
 
 		const float Distance = FMath::PointDistToLine(CurrentPoint, RayDirection, RayOrigin);
-
-		// DrawDebugPoint(GetWorld(), CurrentPoint, 10, FColor::Black.WithAlpha(1), false, -1, 0);
-		// GEngine->AddOnScreenDebugMessage(INDEX_NONE, -1, FColor::Red, FString::SanitizeFloat(Distance));
 
 		if (Distance < 0.001)
 		{
