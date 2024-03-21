@@ -93,7 +93,8 @@ Generate_Project_Without_Cluster:
     script: # if we don't do this, cooking will for some reason fail even though it should use the correct fallback
       - echo "Generating without cluster mode, removing nDisplay configs..."
       - cd ${CI_PROJECT_DIR}
-      - sed -i '/DisplayCluster/d' ./Config/Linux/LinuxEngine.ini
+      - ls -la
+      - sed -i '/DisplayCluster/d' Config/Linux/LinuxEngine.ini
 
 Build_Windows:
     rules: 
