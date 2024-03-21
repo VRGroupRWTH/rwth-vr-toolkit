@@ -3,7 +3,6 @@
 #include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"
 #include "Utility/RWTHVRUtilities.h"
