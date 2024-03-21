@@ -13,7 +13,7 @@ protected:
 	static bool LineToLineIntersection(const FVector& FromA, const FVector& FromB, const FVector& ToA,
 									   const FVector& ToB, FVector& OutIntersection);
 
-	FVector GetClosestSelectionPointTo(const FVector& RayOrigin, const FVector& RayDirection);
+	FVector GetClosestSelectionPointTo(const FVector& RayOrigin, const FVector& RayDirection) const;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
@@ -30,20 +30,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool OnlyOutline = false;
 
-	// UPROPERTY(EditAnywhere)
-	// float XLength = 100;
-
-	// UPROPERTY(EditAnywhere)
-	// float YLength = 100;
-
-	// UPROPERTY(EditAnywhere)
-	// float ZLength = 100;
-
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
 														   const FVector& ConeForwardDirection,
 														   const float ConeBackwardShiftDistance, const float ConeAngle,
 														   const float LastValue, const float DeltaTime) override;
 
 	FVector GetClosestPointToRectangle(const FVector& StartPoint, const FVector& Direction, const FVector& Corner00,
-									   const FVector& Corner01, const FVector& Corner10, const FVector& Corner11) const;
+									   const FVector& Corner01, const FVector& Corner10) const;
 };

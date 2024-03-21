@@ -46,7 +46,7 @@ bool URWTHVRUtilities::IsCave()
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform") &&
-		ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
+			ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("aixcave", ESearchCase::IgnoreCase);
 #else
 	return false;
 #endif
@@ -60,7 +60,7 @@ bool URWTHVRUtilities::IsRolv()
 
 	const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
 	return ClusterConfig->CustomParameters.Contains("Hardware_Platform") &&
-		ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
+			ClusterConfig->CustomParameters.Find("Hardware_Platform")->Equals("ROLV", ESearchCase::IgnoreCase);
 #else
 	return false;
 #endif
@@ -117,12 +117,14 @@ EEyeStereoOffset URWTHVRUtilities::GetNodeEyeType()
 {
 #if PLATFORM_SUPPORTS_NDISPLAY
 	const ADisplayClusterRootActor* RootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-	return static_cast<EEyeStereoOffset>((RootActor) ? RootActor->GetDefaultCamera()->GetStereoOffset()
-													 : EDisplayClusterEyeStereoOffset::None);
+	return static_cast<EEyeStereoOffset>((RootActor)
+		? RootActor->GetDefaultCamera()->GetStereoOffset()
+		: EDisplayClusterEyeStereoOffset::None);
 #else
 	return EDisplayClusterEyeStereoOffset::None;
 #endif
 }
+
 void URWTHVRUtilities::ShowErrorAndQuit(const FString& Message, bool ShouldQuit, const UObject* WorldContext)
 {
 	UE_LOG(LogTemp, Error, TEXT("%s"), *Message)

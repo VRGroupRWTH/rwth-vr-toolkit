@@ -56,7 +56,7 @@ void UIntenSelectable::BeginPlay()
 	}
 }
 
-void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
+void UIntenSelectable::HandleOnHoverStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
 {
 	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
@@ -64,7 +64,7 @@ void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* In
 	}
 }
 
-void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect)
+void UIntenSelectable::HandleOnHoverEndEvents(const UIntenSelectComponent* IntenSelect)
 {
 	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
@@ -72,7 +72,7 @@ void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* Inte
 	}
 }
 
-void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect)
+void UIntenSelectable::HandleOnActionStartEvents(UIntenSelectComponent* IntenSelect)
 {
 	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
@@ -82,7 +82,7 @@ void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSele
 	}
 }
 
-void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
+void UIntenSelectable::HandleOnActionEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
 {
 	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
