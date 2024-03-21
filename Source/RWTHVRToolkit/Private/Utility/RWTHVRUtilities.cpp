@@ -14,10 +14,7 @@
 
 DEFINE_LOG_CATEGORY(Toolkit);
 
-bool URWTHVRUtilities::IsDesktopMode()
-{
-	return !IsRoomMountedMode() && !IsHeadMountedMode();
-}
+bool URWTHVRUtilities::IsDesktopMode() { return !IsRoomMountedMode() && !IsHeadMountedMode(); }
 
 bool URWTHVRUtilities::IsHeadMountedMode()
 {
