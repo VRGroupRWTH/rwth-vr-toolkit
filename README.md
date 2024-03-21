@@ -4,6 +4,10 @@ The contents of this plugin are constantly extended and improved to reflect chan
 
 [Check out the repository's wiki page for installation, usage and documentation](https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-toolkit/-/wikis/home).
 
+## RWTH VR Cluster Plugin
+
+To add support for nDisplay driven clusters such as the aixCAVE, check out the [RWTH VR Cluster Plugin](https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin).
+
 ## Citation
 
 If you need to reference the toolkit in your scientific work, please use https://zenodo.org/records/10817754
