@@ -94,7 +94,6 @@ Generate_Project_Without_Cluster:
       - !reference [Generate_Project, script]
       - echo "Generating without cluster mode, removing nDisplay configs..."
       - cd ${CI_PROJECT_DIR}
-      - ls -la
       - sed -i '/DisplayCluster/d' Config/Linux/LinuxEngine.ini
 
 Build_Windows:
