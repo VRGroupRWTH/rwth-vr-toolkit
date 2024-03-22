@@ -24,9 +24,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Radius = 50;
 
-	UPROPERTY(EditAnywhere)
-	bool DrawDebug = true;
-
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
 														   const FVector& ConeForwardDirection,
 														   const float ConeBackwardShiftDistance, const float ConeAngle,

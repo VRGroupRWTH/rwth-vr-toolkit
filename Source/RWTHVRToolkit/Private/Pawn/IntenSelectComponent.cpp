@@ -70,17 +70,17 @@ void UIntenSelectComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	this->InitSplineComponent();
-	this->InitSplineMeshComponent();
-	this->InitForwardRayMeshComponent();
-	this->InitDebugConeMeshComponent();
-	this->InitInputBindings();
-	this->InitMaterialParamCollection();
+	InitSplineComponent();
+	InitSplineMeshComponent();
+	InitForwardRayMeshComponent();
+	InitDebugConeMeshComponent();
+	InitInputBindings();
+	InitMaterialParamCollection();
 
-	this->SphereCastRadius = CalculateSphereCastRadius();
-	this->InteractionDistance = this->MaxSelectionDistance;
+	SphereCastRadius = CalculateSphereCastRadius();
+	InteractionDistance = MaxSelectionDistance;
 
-	this->SetActive(SetActiveOnStart, false);
+	SetActive(SetActiveOnStart, false);
 }
 
 void UIntenSelectComponent::InitInputBindings()

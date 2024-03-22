@@ -29,35 +29,47 @@ private:
 	bool IsGrabbing;
 	bool IsWidgetInFocus;
 	FVector WidgetFocusPoint;
+	FVector LastKnownGrabPoint;
 
 	UPROPERTY()
 	UWidgetComponent* LastFocusedWidget;
+
 	UPROPERTY()
 	TMap<UIntenSelectable*, float> ScoreMap;
+
 	UPROPERTY()
 	TMap<UIntenSelectable*, FHitResult> ContactPointMap;
+
 	UPROPERTY()
 	UIntenSelectable* CurrentSelection;
+
 	UPROPERTY()
 	UIntenSelectable* LastKnownSelection;
-	UPROPERTY()
-	FVector LastKnownGrabPoint;
+
 	UPROPERTY()
 	UStaticMeshComponent* DebugConeMeshComponent;
+
 	UPROPERTY()
 	UStaticMeshComponent* ForwardRayMeshComponent;
+
 	UPROPERTY()
 	USplineComponent* SplineComponent;
+
 	UPROPERTY()
 	USplineMeshComponent* SplineMeshComponent;
+
 	UPROPERTY()
 	UMaterialParameterCollectionInstance* ParameterCollectionInstance;
+
 	UPROPERTY()
 	UStaticMesh* DebugConeMesh;
+
 	UPROPERTY()
 	UMaterialInterface* DebugConeMaterial;
+
 	UPROPERTY()
 	UStaticMesh* ForwardRayMesh;
+
 #pragma endregion
 
 #pragma region /** SETTINGS */

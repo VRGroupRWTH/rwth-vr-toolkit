@@ -22,9 +22,6 @@ public:
 	UIntenSelectableRectangleScoring();
 
 	UPROPERTY(EditAnywhere)
-	bool DrawDebug = true;
-
-	UPROPERTY(EditAnywhere)
 	bool OnlyOutline = false;
 
 	UPROPERTY(EditAnywhere)
