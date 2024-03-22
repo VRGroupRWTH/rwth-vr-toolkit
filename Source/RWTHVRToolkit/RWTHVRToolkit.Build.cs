@@ -49,15 +49,23 @@ public class RWTHVRToolkit : ModuleRules
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]{}
 		);
-		
-		if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Linux)
+
+		if (IsPluginEnabledForTarget("RWTHVRCluster", base.Target))
 		{
-			PublicDependencyModuleNames.Add("DisplayCluster");
-			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=1");
+			PrivateDependencyModuleNames.Add("RWTHVRCluster");
+			PrivateDependencyModuleNames.Add("DisplayCluster");
+			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=1");
 		}
 		else
-		{
-			PublicDefinitions.Add("PLATFORM_SUPPORTS_NDISPLAY=0");
+		{			
+			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=0");
 		}
+	}
+	
+	private static bool IsPluginEnabledForTarget(string PluginName, ReadOnlyTargetRules Target)
+	{
+		var PL = Plugins.GetPlugin(PluginName);
+		return PL != null && Target.ProjectFile != null && Plugins.IsPluginEnabledForTarget(PL,
+			ProjectDescriptor.FromFile(Target.ProjectFile), Target.Platform, Target.Configuration, Target.Type);
 	}
 }
