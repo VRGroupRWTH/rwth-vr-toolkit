@@ -21,9 +21,6 @@ protected:
 public:
 	UIntenSelectableCylinderScoring();
 
-	UPROPERTY(EditAnywhere)
-	bool DrawDebug = true;
-
 	virtual TPair<FHitResult, float> GetBestPointScorePair(const FVector& ConeOrigin,
 														   const FVector& ConeForwardDirection,
 														   const float ConeBackwardShiftDistance, const float ConeAngle,

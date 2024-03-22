@@ -22,9 +22,6 @@ public:
 	UIntenSelectableCubeScoring();
 
 	UPROPERTY(EditAnywhere)
-	bool DrawDebug = true;
-
-	UPROPERTY(EditAnywhere)
 	bool BackFaceCulling = false;
 
 	UPROPERTY(EditAnywhere)

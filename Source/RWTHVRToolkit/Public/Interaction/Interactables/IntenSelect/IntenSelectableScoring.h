@@ -17,6 +17,9 @@ protected:
 public:
 	UIntenSelectableScoring();
 
+	UPROPERTY(EditAnywhere)
+	bool DrawDebug = true;
+
 	UPROPERTY(BlueprintReadOnly)
 	float CurrentScore = 0;
 
