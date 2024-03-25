@@ -26,7 +26,7 @@ bool URWTHVRUtilities::IsHeadMountedMode()
 bool URWTHVRUtilities::IsRoomMountedMode()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
-	URWTHVRClusterUtilities::IsRoomMountedMode();
+	return URWTHVRClusterUtilities::IsRoomMountedMode();
 #endif
 	return false;
 }
@@ -34,7 +34,7 @@ bool URWTHVRUtilities::IsRoomMountedMode()
 bool URWTHVRUtilities::IsPrimaryNode()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
-	URWTHVRClusterUtilities::IsPrimaryNode();
+	return URWTHVRClusterUtilities::IsPrimaryNode();
 #endif
 	return false;
 }
