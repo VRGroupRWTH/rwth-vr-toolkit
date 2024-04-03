@@ -12,7 +12,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNewComponent);
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
 class RWTHVRTOOLKIT_API UIntenSelectComponent : public UWidgetInteractionComponent
 {
 	GENERATED_BODY()
@@ -170,7 +170,6 @@ private:
 	 * \brief Initializes the material parameter collection used for visualization.
 	 */
 	void InitMaterialParamCollection();
-
 #pragma endregion
 
 #pragma region /** SCORING */
@@ -346,12 +345,6 @@ protected:
 	 */
 	virtual void BeginPlay() override;
 
-	/**
-	 * \brief Called every frame.
-	 * \param DeltaTime The time since the last frame.
-	 * \param TickType The type of tick.
-	 * \param ThisTickFunction The tick function for this component.
-	 */
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
 };
