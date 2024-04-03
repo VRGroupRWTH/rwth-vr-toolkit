@@ -24,7 +24,7 @@ public:
 	float CurrentScore = 0;
 
 	UPROPERTY(EditAnywhere)
-	bool IsSelectable = true;
+	bool bIsSelectable = true;
 
 	UPROPERTY(EditAnywhere)
 	float Stickiness = 10;
