@@ -12,7 +12,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNewComponent);
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Abstract)
 class RWTHVRTOOLKIT_API UIntenSelectComponent : public UWidgetInteractionComponent
 {
 	GENERATED_BODY()
@@ -59,15 +59,6 @@ private:
 	UPROPERTY()
 	UMaterialParameterCollectionInstance* ParameterCollectionInstance;
 
-	UPROPERTY()
-	UStaticMesh* DebugConeMesh;
-
-	UPROPERTY()
-	UMaterialInterface* DebugConeMaterial;
-
-	UPROPERTY()
-	UStaticMesh* ForwardRayMesh;
-
 #pragma endregion
 
 #pragma region /** SETTINGS */
@@ -92,18 +83,33 @@ public:
 public:
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UStaticMesh* SplineMesh;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UMaterialInterface* SplineMaterial;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UMaterialInterface* ForwardRayMaterial;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UHapticFeedbackEffect_Base* SelectionFeedbackHaptic;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	USoundBase* OnSelectSound;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UMaterialParameterCollection* MaterialParamCollection;
+
 	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
 	UCurveFloat* ForwardRayTransparencyCurve;
+
+	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
+	UStaticMesh* ForwardRayMesh;
+
+	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
+	UMaterialInterface* DebugConeMaterial;
+
+	UPROPERTY(EditAnywhere, Category = "IntenSelect|References")
+	UStaticMesh* DebugConeMesh;
 #pragma endregion
 
 #pragma region /** DEBUG */
