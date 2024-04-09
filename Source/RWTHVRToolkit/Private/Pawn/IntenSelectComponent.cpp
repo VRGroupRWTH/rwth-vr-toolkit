@@ -19,50 +19,6 @@ UIntenSelectComponent::UIntenSelectComponent(const FObjectInitializer& ObjectIni
 	bShowDebug = false; // otherwise the WidgetInteractionComponent debug vis is shown
 	InteractionSource = EWidgetInteractionSource::Custom; // can also be kept at default (World), this way, however, we
 														  // efficiently reuse the line traces
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultConeMesh(
-		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/DebugConeMesh.DebugConeMesh'"));
-	this->DebugConeMesh = DefaultConeMesh.Object;
-
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultConeMeshMaterial(
-		TEXT("Material'/RWTHVRToolkit/IntenSelect/DebugConeMaterial.DebugConeMaterial'"));
-	this->DebugConeMaterial = DefaultConeMeshMaterial.Object;
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultSplineMesh(
-		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/sectionedCubeMesh.sectionedCubeMesh'"));
-	this->SplineMesh = DefaultSplineMesh.Object;
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultForwardRayMesh(
-		TEXT("StaticMesh'/RWTHVRToolkit/IntenSelect/RayMesh.RayMesh'"));
-	this->ForwardRayMesh = DefaultForwardRayMesh.Object;
-
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultSplineMaterial(
-		TEXT("Material'/RWTHVRToolkit/IntenSelect/SelectionSplineMaterial.SelectionSplineMaterial'"));
-	this->SplineMaterial = DefaultSplineMaterial.Object;
-
-	ConstructorHelpers::FObjectFinder<UMaterialInterface> DefaultForwardRayMaterial(
-		TEXT("Material'/RWTHVRToolkit/IntenSelect/ForwadRayMaterial.ForwadRayMaterial'"));
-	this->ForwardRayMaterial = DefaultForwardRayMaterial.Object;
-
-	ConstructorHelpers::FObjectFinder<UHapticFeedbackEffect_Curve> DefaultSelectionFeedbackHaptic(
-		TEXT("HapticFeedbackEffect_Curve'/RWTHVRToolkit/IntenSelect/OnSelectHapticFeedback.OnSelectHapticFeedback'"));
-	this->SelectionFeedbackHaptic = DefaultSelectionFeedbackHaptic.Object;
-
-	ConstructorHelpers::FObjectFinder<USoundBase> DefaultOnSelectSound(
-		TEXT("SoundWave'/RWTHVRToolkit/IntenSelect/OnSelectSound.OnSelectSound'"));
-	this->OnSelectSound = DefaultOnSelectSound.Object;
-
-	ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> DefaultMaterialParamCollection(
-		TEXT("MaterialParameterCollection'/RWTHVRToolkit/IntenSelect/ForwardRayParams.ForwardRayParams'"));
-	this->MaterialParamCollection = DefaultMaterialParamCollection.Object;
-
-	ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultForwardRayTransparencyCurve(
-		TEXT("CurveFloat'/RWTHVRToolkit/IntenSelect/ForwardRayTransparencyCurve.ForwardRayTransparencyCurve'"));
-	this->ForwardRayTransparencyCurve = DefaultForwardRayTransparencyCurve.Object;
-
-	ConstructorHelpers::FObjectFinder<UInputAction> InputActionClick(
-		TEXT("/Script/EnhancedInput.InputAction'/RWTHVRToolkit/IntenSelect/IntenSelectClick.IntenSelectClick'"));
-	this->InputClick = InputActionClick.Object;
 }
 
 // Called when the game starts
