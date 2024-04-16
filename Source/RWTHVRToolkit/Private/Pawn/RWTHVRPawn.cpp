@@ -79,6 +79,10 @@ void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
+
+	UE_LOG(Toolkit, Display, TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
+
+
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
 	{
