@@ -85,31 +85,21 @@ void UIntenSelectComponent::BeginPlay()
 
 void UIntenSelectComponent::InitInputBindings()
 {
-	const APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	const APawn* Pawn = Cast<APawn>(GetOwner());
+	if (!Pawn)
+		return;
+	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 
-	UEnhancedInputLocalPlayerSubsystem* Subsystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
-
-	UInputComponent* PlayerInputComponent = PC->InputComponent;
-	UEnhancedInputComponent* PEI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-
-	if (!PEI)
+	if (!EI)
 	{
 		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
-
-#if WITH_EDITOR
-		const FText Title = FText::FromString(FString("ERROR"));
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
-#endif
-
 		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
-		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
 		return;
 	}
 
 	// Bind the actions
-	PEI->BindAction(InputClick, ETriggerEvent::Started, this, &UIntenSelectComponent::OnFireDown);
-	PEI->BindAction(InputClick, ETriggerEvent::Completed, this, &UIntenSelectComponent::OnFireUp);
+	EI->BindAction(InputClick, ETriggerEvent::Started, this, &UIntenSelectComponent::OnFireDown);
+	EI->BindAction(InputClick, ETriggerEvent::Completed, this, &UIntenSelectComponent::OnFireUp);
 }
 
 void UIntenSelectComponent::InitSplineComponent()
