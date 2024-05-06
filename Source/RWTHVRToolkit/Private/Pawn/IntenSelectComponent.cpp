@@ -59,14 +59,13 @@ void UIntenSelectComponent::InitInputBindings()
 	// Check if the enhanced input component is valid
 	if (!PEI)
 	{
-		// Display an error message and quit the game if the enhanced input component is not found
+		// Display an error message and deactivate if the enhanced input component is not found
 		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
-#if WITH_EDITOR
-		const FText Title = FText::FromString(FString("ERROR"));
-		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
-#endif
-		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
-		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
+
+		UE_LOG(LogTemp, Error, TEXT("%s"), *Message);
+		//Deactivate 
+
+		Super::SetActive(false, true);
 		return;
 	}
 
