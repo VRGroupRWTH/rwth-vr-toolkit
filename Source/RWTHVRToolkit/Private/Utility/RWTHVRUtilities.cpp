@@ -48,12 +48,11 @@ float URWTHVRUtilities::GetEyeDistance()
 	return 0;
 }
 
-void URWTHVRUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
+void URWTHVRUtilities::ShowEngineError(const FString& Message)
 {
 	UE_LOG(Toolkit, Error, TEXT("%s"), *Message)
 #if WITH_EDITOR
 	const FText Title = FText::FromString(FString("RUNTIME ERROR"));
 	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Message), Title);
 #endif
-	UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
 }

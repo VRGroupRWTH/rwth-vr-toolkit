@@ -31,5 +31,5 @@ public:
 	static float GetEyeDistance();
 
 	UFUNCTION(BlueprintCallable)
-	static void ShowErrorAndQuit(UWorld* WorldContext, const FString& Message);
+	static void ShowEngineError(const FString& Message);
 };

@@ -43,9 +43,8 @@ void UIntenSelectable::BeginPlay()
 	{
 		if (ScoringBehaviours.Num() == 0)
 		{
-			URWTHVRUtilities::ShowErrorAndQuit(
-				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!",
-				false, this);
+			URWTHVRUtilities::ShowEngineError(
+				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
 		}
 	}
 	else
