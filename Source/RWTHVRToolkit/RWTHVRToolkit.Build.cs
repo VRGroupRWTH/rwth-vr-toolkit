@@ -5,33 +5,33 @@ public class RWTHVRToolkit : ModuleRules
 	public RWTHVRToolkit(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PrivateIncludePaths.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-			"Core",
-			"CoreUObject",
-			"Engine",
-			"HeadMountedDisplay",
-			"InputCore",
-			"UMG",
-			"Slate",
-			"SlateCore",
-			"DeveloperSettings",
-			"HTTP",
-			"LiveLink",
-			"LiveLinkInterface",
-			"EnhancedInput", 
-			"Niagara",
-			"NavigationSystem"
+				"Core",
+				"CoreUObject",
+				"Engine",
+				"HeadMountedDisplay",
+				"InputCore",
+				"UMG",
+				"Slate",
+				"SlateCore",
+				"DeveloperSettings",
+				"HTTP",
+				"LiveLink",
+				"LiveLinkInterface",
+				"EnhancedInput",
+				"Niagara",
+				"NavigationSystem"
 			}
 		);
 
@@ -47,7 +47,7 @@ public class RWTHVRToolkit : ModuleRules
 		}
 
 		DynamicallyLoadedModuleNames.AddRange(
-			new string[]{}
+			new string[] { }
 		);
 
 		if (IsPluginEnabledForTarget("RWTHVRCluster", base.Target))
@@ -57,11 +57,11 @@ public class RWTHVRToolkit : ModuleRules
 			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=1");
 		}
 		else
-		{			
+		{
 			PublicDefinitions.Add("PLATFORM_SUPPORTS_CLUSTER=0");
 		}
 	}
-	
+
 	private static bool IsPluginEnabledForTarget(string PluginName, ReadOnlyTargetRules Target)
 	{
 		var PL = Plugins.GetPlugin(PluginName);

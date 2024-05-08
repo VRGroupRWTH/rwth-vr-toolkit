@@ -63,7 +63,7 @@ void UIntenSelectComponent::InitInputBindings()
 		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
 
 		UE_LOG(LogTemp, Error, TEXT("%s"), *Message);
-		//Deactivate 
+		// Deactivate
 
 		Super::SetActive(false, true);
 		return;

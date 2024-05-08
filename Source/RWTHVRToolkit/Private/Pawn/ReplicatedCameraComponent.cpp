@@ -47,7 +47,7 @@ void UReplicatedCameraComponent::UpdateState(float DeltaTime)
 }
 
 void UReplicatedCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                               FActorComponentTickFunction* ThisTickFunction)
+											   FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateState(DeltaTime);

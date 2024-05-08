@@ -7,8 +7,8 @@ UIntenSelectableCircleScoring::UIntenSelectableCircleScoring() { PrimaryComponen
 
 TPair<FHitResult, float>
 UIntenSelectableCircleScoring::GetBestPointScorePair(const FVector& ConeOrigin, const FVector& ConeForwardDirection,
-                                                     const float ConeBackwardShiftDistance, const float ConeAngle,
-                                                     const float LastValue, const float DeltaTime)
+													 const float ConeBackwardShiftDistance, const float ConeAngle,
+													 const float LastValue, const float DeltaTime)
 {
 	const FVector Point = GetClosestSelectionPointTo(ConeOrigin, ConeForwardDirection);
 	float Score =
@@ -27,8 +27,8 @@ FVector UIntenSelectableCircleScoring::GetClosestSelectionPointTo(const FVector&
 	FVector IntersectionPoint;
 	constexpr float MaxDistance = 100000;
 	if (!UKismetMathLibrary::LinePlaneIntersection_OriginNormal(Point, Point + Direction * MaxDistance, CenterWorld,
-	                                                            CircleNormalWorld, IntersectionRatio,
-	                                                            IntersectionPoint))
+																CircleNormalWorld, IntersectionRatio,
+																IntersectionPoint))
 	{
 		return CenterWorld;
 	}

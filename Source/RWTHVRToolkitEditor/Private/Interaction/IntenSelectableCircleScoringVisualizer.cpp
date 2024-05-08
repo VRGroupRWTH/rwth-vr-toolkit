@@ -10,12 +10,10 @@ IMPLEMENT_HIT_PROXY(FCircleProxy, HComponentVisProxy);
 FIntenSelectableCircleScoringVisualizer::FIntenSelectableCircleScoringVisualizer()
 {
 	PointsProperty = FindFProperty<FProperty>(UIntenSelectableCircleScoring::StaticClass(),
-	                                          GET_MEMBER_NAME_CHECKED(UIntenSelectableCircleScoring, Radius));
+											  GET_MEMBER_NAME_CHECKED(UIntenSelectableCircleScoring, Radius));
 }
 
-FIntenSelectableCircleScoringVisualizer::~FIntenSelectableCircleScoringVisualizer()
-{
-}
+FIntenSelectableCircleScoringVisualizer::~FIntenSelectableCircleScoringVisualizer() {}
 
 FVector FIntenSelectableCircleScoringVisualizer::GetCurrentVectorWorld() const
 {
@@ -24,16 +22,16 @@ FVector FIntenSelectableCircleScoringVisualizer::GetCurrentVectorWorld() const
 	case 0:
 		return GetEditedScoringComponent()->GetComponentLocation();
 	case 1:
-	{
-		const FVector CenterWorld = GetEditedScoringComponent()->GetComponentLocation();
-		const FVector NormalWorldPoint =
-			GetEditedScoringComponent()->GetComponentTransform().TransformPosition(FVector::ForwardVector);
-		const FVector WorldNormalDir = NormalWorldPoint - CenterWorld;
-		const FVector Y =
-			WorldNormalDir.RotateAngleAxis(90, GetEditedScoringComponent()->GetRightVector()).GetSafeNormal() *
-			GetEditedScoringComponent()->Radius;
-		return CenterWorld + Y;
-	}
+		{
+			const FVector CenterWorld = GetEditedScoringComponent()->GetComponentLocation();
+			const FVector NormalWorldPoint =
+				GetEditedScoringComponent()->GetComponentTransform().TransformPosition(FVector::ForwardVector);
+			const FVector WorldNormalDir = NormalWorldPoint - CenterWorld;
+			const FVector Y =
+				WorldNormalDir.RotateAngleAxis(90, GetEditedScoringComponent()->GetRightVector()).GetSafeNormal() *
+				GetEditedScoringComponent()->Radius;
+			return CenterWorld + Y;
+		}
 	default:
 		return FVector::ZeroVector;
 	}
@@ -58,8 +56,8 @@ bool FIntenSelectableCircleScoringVisualizer::ShouldShowForSelectedSubcomponents
 }
 
 bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportClient,
-                                                                  HComponentVisProxy* VisProxy,
-                                                                  const FViewportClick& Click)
+																  HComponentVisProxy* VisProxy,
+																  const FViewportClick& Click)
 {
 	bool bEditing = false;
 
@@ -90,7 +88,7 @@ bool FIntenSelectableCircleScoringVisualizer::VisProxyHandleClick(FEditorViewpor
 }
 
 void FIntenSelectableCircleScoringVisualizer::DrawVisualization(const UActorComponent* Component,
-                                                                const FSceneView* View, FPrimitiveDrawInterface* PDI)
+																const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
 	const UIntenSelectableCircleScoring* ComponentCasted = Cast<UIntenSelectableCircleScoring>(Component);
 
@@ -109,15 +107,13 @@ void FIntenSelectableCircleScoringVisualizer::DrawVisualization(const UActorComp
 		const FVector Y = WorldNormalDir.RotateAngleAxis(90, ComponentCasted->GetRightVector());
 		const FVector Z = FVector::CrossProduct(Y.GetSafeNormal(), WorldNormalDir);
 		DrawCircle(PDI, CenterWorld, Y.GetSafeNormal(), Z.GetSafeNormal(), FColor::Green, ComponentCasted->Radius, 100,
-		           SDPG_Foreground, 2);
+				   SDPG_Foreground, 2);
 
 		PDI->SetHitProxy(nullptr);
 	}
 }
 
-void FIntenSelectableCircleScoringVisualizer::EndEditing()
-{
-}
+void FIntenSelectableCircleScoringVisualizer::EndEditing() {}
 
 UActorComponent* FIntenSelectableCircleScoringVisualizer::GetEditedComponent() const
 {
@@ -125,8 +121,8 @@ UActorComponent* FIntenSelectableCircleScoringVisualizer::GetEditedComponent() c
 }
 
 bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
-                                                               FViewport* Viewport, FVector& DeltaTranslate,
-                                                               FRotator& DeltaRotate, FVector& DeltaScale)
+															   FViewport* Viewport, FVector& DeltaTranslate,
+															   FRotator& DeltaRotate, FVector& DeltaScale)
 {
 	bool bHandled = false;
 
@@ -167,7 +163,7 @@ bool FIntenSelectableCircleScoringVisualizer::HandleInputDelta(FEditorViewportCl
 }
 
 bool FIntenSelectableCircleScoringVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient,
-                                                                FVector& OutLocation) const
+																FVector& OutLocation) const
 {
 	if (CurrentSelectionIndex != INDEX_NONE)
 	{
