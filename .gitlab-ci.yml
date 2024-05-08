@@ -51,7 +51,7 @@ stages:
   - deploy
 
 clang-format:
-    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/unreal-development/plugins/rwth-vr-toolkit/alpine-analyze:latest
+    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/alpine-analyze:latest
     tags:
         - docker-executor
         - linux
@@ -69,7 +69,7 @@ clang-format:
         - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
         - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
         - echo "$linter_errors"
-        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
+        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix. Make sure you are using the same clang-format version! You can download it from the development section in this repo's wiki."; exit 1; else echo "Formatting is correct"; exit 0; fi
 
 Generate_Project:
     rules: 
