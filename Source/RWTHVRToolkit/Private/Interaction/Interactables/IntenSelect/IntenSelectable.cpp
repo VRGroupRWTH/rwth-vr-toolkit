@@ -95,7 +95,7 @@ void UIntenSelectable::InitDefaultBehaviourReferences()
 	// Scoring
 
 	TSet<UActorComponent*> AllComponents = GetOwner()->GetComponents();
-	for (UActorComponent * c : AllComponents)
+	for (UActorComponent* c : AllComponents)
 	{
 		if (UIntenSelectableScoring* TryToGetScoring = Cast<UIntenSelectableScoring>(c))
 		{
