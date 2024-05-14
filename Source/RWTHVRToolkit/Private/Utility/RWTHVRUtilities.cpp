@@ -27,16 +27,18 @@ bool URWTHVRUtilities::IsRoomMountedMode()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
 	return URWTHVRClusterUtilities::IsRoomMountedMode();
-#endif
+#else
 	return false;
+#endif
 }
 
 bool URWTHVRUtilities::IsPrimaryNode()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
 	return URWTHVRClusterUtilities::IsPrimaryNode();
-#endif
+#else
 	return false;
+#endif	
 }
 
 float URWTHVRUtilities::GetEyeDistance()

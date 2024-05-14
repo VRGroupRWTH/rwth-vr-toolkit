@@ -6,6 +6,7 @@
 #include "MovementComponentBase.h"
 #include "TurnComponent.generated.h"
 
+class UMotionControllerComponent;
 
 UCLASS(Blueprintable)
 class RWTHVRTOOLKIT_API UTurnComponent : public UMovementComponentBase
