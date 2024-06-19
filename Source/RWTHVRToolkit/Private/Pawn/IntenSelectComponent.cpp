@@ -93,7 +93,7 @@ void UIntenSelectComponent::InitInputBindings()
 	if (!EI)
 	{
 		const FString Message = "Could not get PlayerInputComponent for IntenSelect Input Assignment!";
-		UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Message)
 		return;
 	}
 
