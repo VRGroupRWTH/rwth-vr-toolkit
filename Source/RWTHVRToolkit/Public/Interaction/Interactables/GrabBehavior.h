@@ -23,11 +23,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
-	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+	virtual void OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 							   const FInputActionValue& Value) override;
-	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							 const FInputActionValue& Value) override;
-
 
 	/**
 	 * Called after the object was successfully attached to the hand
@@ -60,6 +57,10 @@ private:
 	 * return false.
 	 */
 	bool TryRelease();
+
+	void StartGrab(USceneComponent* TriggerComponent);
+
+	void EndGrab(USceneComponent* TriggerComponent);
 
 	bool bObjectGrabbed = false;
 

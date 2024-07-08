@@ -62,7 +62,8 @@ void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* In
 {
 	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
-		CurrentHoverBehaviour->OnHoverStartEvent.Broadcast(IntenSelect, HitResult);
+		CurrentHoverBehaviour->OnHoverEventEvent.Broadcast(IntenSelect, EInteractionEventType::InteractionStart,
+														   HitResult);
 	}
 }
 
@@ -70,7 +71,9 @@ void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* Inte
 {
 	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
-		CurrentHoverBehaviour->OnHoverEndEvent.Broadcast(IntenSelect);
+		FHitResult EmptyHit;
+		CurrentHoverBehaviour->OnHoverEventEvent.Broadcast(IntenSelect, EInteractionEventType::InteractionEnd,
+														   EmptyHit);
 	}
 }
 
@@ -79,8 +82,8 @@ void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSele
 	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
 		FInputActionValue EmptyInputActionValue{};
-		const UInputAction* EmptyInputAction{};
-		CurrentActionBehaviour->OnActionBeginEvent.Broadcast(IntenSelect, EmptyInputAction, EmptyInputActionValue);
+		CurrentActionBehaviour->OnActionEventEvent.Broadcast(IntenSelect, EInteractionEventType::InteractionStart,
+															 EmptyInputActionValue);
 	}
 }
 
@@ -88,8 +91,8 @@ void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect
 {
 	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
-		const UInputAction* EmptyInputActionValue{};
-		CurrentActionBehaviour->OnActionEndEvent.Broadcast(IntenSelect, EmptyInputActionValue, InputValue);
+		CurrentActionBehaviour->OnActionEventEvent.Broadcast(IntenSelect, EInteractionEventType::InteractionEnd,
+															 InputValue);
 	}
 }
 
@@ -98,7 +101,7 @@ void UIntenSelectable::InitDefaultBehaviourReferences()
 	// Scoring
 
 	TSet<UActorComponent*> AllComponents = GetOwner()->GetComponents();
-	for (UActorComponent * c : AllComponents)
+	for (UActorComponent* c : AllComponents)
 	{
 		if (UIntenSelectableScoring* TryToGetScoring = Cast<UIntenSelectableScoring>(c))
 		{

@@ -3,14 +3,13 @@
 
 #include "Interaction/Interactables/HoverBehaviour.h"
 
-void UHoverBehaviour::OnHoverStart(const USceneComponent* TriggeredComponent, FHitResult Hit) {}
 
-void UHoverBehaviour::OnHoverEnd(const USceneComponent* TriggeredComponent) {}
-
+void UHoverBehaviour::OnHoverEvent(const USceneComponent* TriggerComponent, EInteractionEventType EventType,
+								   const FHitResult& Hit)
+{
+}
 void UHoverBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
-
-	OnHoverStartEvent.AddDynamic(this, &UHoverBehaviour::OnHoverStart);
-	OnHoverEndEvent.AddDynamic(this, &UHoverBehaviour::OnHoverEnd);
+	OnHoverEventEvent.AddDynamic(this, &UHoverBehaviour::OnHoverEvent);
 }

@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/InteractionBitSet.h"
+#include "Interaction/Interactables/InteractionEventType.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
@@ -30,7 +31,7 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	TArray<FHitResult> OutHits;
 	const ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_PhysicsBody);
 
-	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+	const auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
 	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), GetAttachParent()->GetComponentLocation(),
 										   GetAttachParent()->GetComponentLocation(), InteractionSphereRadius,
@@ -59,7 +60,8 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		if (!PreviousInteractableComponentsInRange.Contains(CurrentInteractableComp))
 		{
 			PreviousInteractableComponentsInRange.AddUnique(CurrentInteractableComp);
-			CurrentInteractableComp->HandleOnHoverStartEvents(this, EInteractorType::Direct);
+			CurrentInteractableComp->HandleOnHoverEvents(this, EInteractorType::Direct,
+														 EInteractionEventType::InteractionStart);
 		}
 	}
 
@@ -71,7 +73,8 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		if (!CurrentInteractableCompsInRange.Contains(PrevInteractableComp))
 		{
 			ComponentsToRemove.AddUnique(PrevInteractableComp);
-			PrevInteractableComp->HandleOnHoverEndEvents(this, EInteractorType::Direct);
+			PrevInteractableComp->HandleOnHoverEvents(this, EInteractorType::Direct,
+													  EInteractionEventType::InteractionEnd);
 		}
 	}
 
@@ -97,12 +100,12 @@ void UDirectInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputC
 		return;
 
 	EI->BindAction(InteractionInputAction, ETriggerEvent::Started, this,
-				   &UDirectInteractionComponent::OnBeginInteraction);
+				   &UDirectInteractionComponent::OnBeginInteractionInputAction);
 	EI->BindAction(InteractionInputAction, ETriggerEvent::Completed, this,
-				   &UDirectInteractionComponent::OnEndInteraction);
+				   &UDirectInteractionComponent::OnEndInteractionInputAction);
 }
 
-void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Value)
+void UDirectInteractionComponent::OnBeginInteractionInputAction(const FInputActionValue& Value)
 {
 	const FVector InteractionLocation = GetAttachParent()->GetComponentLocation();
 
@@ -115,7 +118,7 @@ void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Va
 			CurrentInteractableComponentsInRange,
 			[&](auto Element)
 			{ return FVector(Element->GetOwner()->GetActorLocation() - InteractionLocation).Size(); });
-		MinElement->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
+		MinElement->HandleOnActionEvents(this, EInteractorType::Direct, EInteractionEventType::InteractionStart, Value);
 		CurrentlyInteractedComponents = {MinElement};
 	}
 	else
@@ -124,19 +127,21 @@ void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Va
 											  CurrentInteractableComponentsInRange.Num());
 		for (UInteractableComponent* InteractableComp : CurrentInteractableComponentsInRange)
 		{
-			InteractableComp->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
+			InteractableComp->HandleOnActionEvents(this, EInteractorType::Direct,
+												   EInteractionEventType::InteractionStart, Value);
 			CurrentlyInteractedComponents.Add(InteractableComp);
 		}
 	}
 }
 
-void UDirectInteractionComponent::OnEndInteraction(const FInputActionValue& Value)
+void UDirectInteractionComponent::OnEndInteractionInputAction(const FInputActionValue& Value)
 {
 	for (auto& Component : CurrentlyInteractedComponents)
 	{
 		if (Component.IsValid())
 		{
-			Component->HandleOnActionEndEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
+			Component->HandleOnActionEvents(this, EInteractorType::Direct, EInteractionEventType::InteractionStart,
+											Value);
 		}
 	}
 }
