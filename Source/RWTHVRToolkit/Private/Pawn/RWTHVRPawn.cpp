@@ -41,21 +41,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 }
-void ARWTHVRPawn::BeginPlay()
-{
-	Super::BeginPlay();
-
-#if PLATFORM_SUPPORTS_CLUSTER
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-
-	SyncComponent = Cast<USceneComponent>(AddComponentByClass(UDisplayClusterSceneComponentSyncParent::StaticClass(),
-															  false, FTransform::Identity, false));
-	AddInstanceComponent(SyncComponent);
-#endif
-}
+void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -79,26 +65,32 @@ void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
-
 	UE_LOG(Toolkit, Display,
 		   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
-
 
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
 	{
+		UE_LOG(Toolkit, Display,
+			   TEXT("ARWTHVRPawn: Player Controller has changed for local pawn, trying to change DCRA attachment if "
+					"possible..."));
 		// Only do this for the primary node or when we're running in standalone
 		if (URWTHVRUtilities::IsRoomMountedMode() &&
 			(URWTHVRUtilities::IsPrimaryNode() || GetNetMode() == NM_Standalone))
 		{
+			UE_LOG(Toolkit, Display,
+				   TEXT("ARWTHVRPawn: We're the primary node, we want the DCRA attached to our pawn."));
 			// If we are also the authority (standalone or listen server), directly attach it to us.
 			// If we are not (client), ask the server to do it.
 			if (HasAuthority())
 			{
+				UE_LOG(Toolkit, Display, TEXT("ARWTHVRPawn: We have authority, do the attachment."));
 				AttachDCRAtoPawn();
 			}
 			else
 			{
+				UE_LOG(Toolkit, Display, TEXT("ARWTHVRPawn: We don't have authority, ask the sercer to attach."));
+
 				ServerAttachDCRAtoPawnRpc();
 			}
 		}
@@ -247,6 +239,24 @@ void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 	}
 }
 
+void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
+{
+#if PLATFORM_SUPPORTS_CLUSTER
+	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
+	// This is required because for collision based movement, it can happen that the physics engine
+	// for some reason acts different on the nodes, therefore leading to a potential desync when
+	// e.g. colliding with an object while moving.
+
+	if (URWTHVRUtilities::IsRoomMountedMode())
+	{
+		SyncComponent = Cast<USceneComponent>(AddComponentByClass(
+			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
+		AddInstanceComponent(SyncComponent);
+		UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
+	}
+#endif
+}
+
 // Todo rewrite this in some other way or attach it differently, this is horrible
 // Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
@@ -274,6 +284,9 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 		UE_LOGFMT(Toolkit, Warning,
 				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
+
+	if (HasAuthority()) // Should always be the case here, but double check
+		MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()
