@@ -140,7 +140,7 @@ void UDirectInteractionComponent::OnEndInteractionInputAction(const FInputAction
 	{
 		if (Component.IsValid())
 		{
-			Component->HandleOnActionEvents(this, EInteractorType::Direct, EInteractionEventType::InteractionStart,
+			Component->HandleOnActionEvents(this, EInteractorType::Direct, EInteractionEventType::InteractionEnd,
 											Value);
 		}
 	}
