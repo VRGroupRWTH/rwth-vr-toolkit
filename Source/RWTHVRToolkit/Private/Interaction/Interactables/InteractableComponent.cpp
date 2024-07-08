@@ -8,8 +8,6 @@
 #include "Logging/StructuredLog.h"
 #include "Utility/RWTHVRUtilities.h"
 
-bool UInteractableComponent::HasInteractionTypeFlag(EInteractorType type) { return type & InteractorFilter; }
-
 void UInteractableComponent::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
 {
 	if (Components.IsEmpty())

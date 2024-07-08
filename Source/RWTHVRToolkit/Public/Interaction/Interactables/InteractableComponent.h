@@ -55,7 +55,7 @@ public:
 	bool bAllowInteractionFromChildGeometry = true;
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type);
+	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType Type) { return Type & InteractorFilter; }
 
 	/**
 	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other
