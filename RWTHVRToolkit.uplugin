@@ -28,15 +28,6 @@
 	],
 	"Plugins": [
 		{
-			"Name": "RWTHVRCluster",
-			"Enabled": true,
-			"Optional": true,
-			"SupportedTargetPlatforms": [
-				"Win64",
-				"Linux"
-			]
-		},
-		{
 			"Name": "LiveLink",
 			"Enabled": true
 		},
