@@ -100,7 +100,7 @@ public:
 		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
 		if (OperationMode != EDisplayClusterOperationMode::Cluster)
 		{
-			//Cluster event can be bypassed and function directly called
+			// Cluster event can be bypassed and function directly called
 			(Object->*MemberFunction)(Forward<ArgTypes>(Arguments)...);
 		}
 		else
