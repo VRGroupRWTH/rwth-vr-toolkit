@@ -26,7 +26,7 @@ public:
 	{
 		checkf(Object == nullptr, TEXT("The event is already attached."));
 		Object = NewObject;
-		ObjectId = Object->GetUniqueID();
+		ObjectName = Object->GetFullName();
 
 		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
 		if (OperationMode == EDisplayClusterOperationMode::Cluster)
@@ -45,10 +45,10 @@ public:
 
 					FMemoryReader MemoryReader(Event.EventData);
 
-					uint32 EventObjectId;
+					FString EventObjectName;
 					// This reads the value!
-					MemoryReader << EventObjectId;
-					if (EventObjectId != ObjectId)
+					MemoryReader << EventObjectName;
+					if (EventObjectName != ObjectName)
 					{
 						// Event does not belong to this object.
 						return;
@@ -100,6 +100,7 @@ public:
 		EDisplayClusterOperationMode OperationMode = IDisplayCluster::Get().GetOperationMode();
 		if (OperationMode != EDisplayClusterOperationMode::Cluster)
 		{
+			// Cluster event can be bypassed and function directly called
 			(Object->*MemberFunction)(Forward<ArgTypes>(Arguments)...);
 		}
 		else
@@ -112,7 +113,7 @@ public:
 			ClusterEvent.bShouldDiscardOnRepeat = false;
 
 			FMemoryWriter MemoryWriter(ClusterEvent.EventData);
-			MemoryWriter << ObjectId;
+			MemoryWriter << const_cast<FString&>(ObjectName);
 			MemoryWriter << const_cast<FString&>(MethodName);
 			SerializeParameters(&MemoryWriter, Forward<ArgTypes>(Arguments)...);
 
@@ -122,7 +123,7 @@ public:
 
 private:
 	const FString MethodName;
-	uint32 ObjectId;
+	FString ObjectName;
 	ObjectType* Object = nullptr;
 	FOnClusterEventBinaryListener ClusterEventListenerDelegate;
 };
