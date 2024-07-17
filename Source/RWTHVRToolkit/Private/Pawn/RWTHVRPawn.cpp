@@ -68,6 +68,27 @@ void ARWTHVRPawn::NotifyControllerChanged()
 	UE_LOG(Toolkit, Display,
 		   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
 
+
+	// Try and use PlayerType for this:
+
+	if (HasAuthority())
+	{
+		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
+		{
+			const EPlayerType Type = State->GetPlayerType();
+
+			// Only cluster types are valid here as they are set on connection.
+			// For all other player types this is a race condition
+			if (Type == EPlayerType::nDisplayPrimary || GetNetMode() == NM_Standalone)
+			{
+				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching DCRA to Pawn {Pawn}.", GetName());
+				AttachDCRAtoPawn();
+			}
+		}			
+	}
+
+	/*
+	
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
 	{
@@ -95,6 +116,7 @@ void ARWTHVRPawn::NotifyControllerChanged()
 			}
 		}
 	}
+	*/
 }
 
 void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -109,6 +131,9 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		UE_LOG(Toolkit, Warning, TEXT("SetupPlayerInputComponent: Player Controller is invalid"));
 		return;
 	}
+
+	UE_LOGFMT(Toolkit, Display, "SetupPlayerInputComponent: Player Controller is valid, setting up input for {Pawn}", GetName());
+
 
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets
 	// possessed, the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here
@@ -125,6 +150,7 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		const EPlayerType Type = State->GetPlayerType();
 
 		// Don't do anything with the type if it's been set to clustertype or anything.
+		// This is already being done when connecting to the server.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
 
 		if (!bClusterType && URWTHVRUtilities::IsHeadMountedMode())
@@ -285,8 +311,8 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
 
-	if (HasAuthority()) // Should always be the case here, but double check
-		MulticastAddDCSyncComponent();
+	//if (HasAuthority()) // Should always be the case here, but double check
+	//	MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()
