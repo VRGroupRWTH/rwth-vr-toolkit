@@ -65,14 +65,12 @@ void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
-	UE_LOG(Toolkit, Display,
-		   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
-
-
 	// Try and use PlayerType for this:
 
 	if (HasAuthority())
 	{
+		UE_LOG(Toolkit, Display,
+			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
 		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 		{
 			const EPlayerType Type = State->GetPlayerType();
@@ -84,39 +82,8 @@ void ARWTHVRPawn::NotifyControllerChanged()
 				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching DCRA to Pawn {Pawn}.", GetName());
 				AttachDCRAtoPawn();
 			}
-		}			
-	}
-
-	/*
-	
-	// Only do this for all local controlled pawns
-	if (IsLocallyControlled())
-	{
-		UE_LOG(Toolkit, Display,
-			   TEXT("ARWTHVRPawn: Player Controller has changed for local pawn, trying to change DCRA attachment if "
-					"possible..."));
-		// Only do this for the primary node or when we're running in standalone
-		if (URWTHVRUtilities::IsRoomMountedMode() &&
-			(URWTHVRUtilities::IsPrimaryNode() || GetNetMode() == NM_Standalone))
-		{
-			UE_LOG(Toolkit, Display,
-				   TEXT("ARWTHVRPawn: We're the primary node, we want the DCRA attached to our pawn."));
-			// If we are also the authority (standalone or listen server), directly attach it to us.
-			// If we are not (client), ask the server to do it.
-			if (HasAuthority())
-			{
-				UE_LOG(Toolkit, Display, TEXT("ARWTHVRPawn: We have authority, do the attachment."));
-				AttachDCRAtoPawn();
-			}
-			else
-			{
-				UE_LOG(Toolkit, Display, TEXT("ARWTHVRPawn: We don't have authority, ask the sercer to attach."));
-
-				ServerAttachDCRAtoPawnRpc();
-			}
 		}
 	}
-	*/
 }
 
 void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -132,7 +99,8 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		return;
 	}
 
-	UE_LOGFMT(Toolkit, Display, "SetupPlayerInputComponent: Player Controller is valid, setting up input for {Pawn}", GetName());
+	UE_LOGFMT(Toolkit, Display, "SetupPlayerInputComponent: Player Controller is valid, setting up input for {Pawn}",
+			  GetName());
 
 
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets
@@ -283,7 +251,6 @@ void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
 #endif
 }
 
-// Todo rewrite this in some other way or attach it differently, this is horrible
 // Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
 void ARWTHVRPawn::AttachDCRAtoPawn()
@@ -311,7 +278,7 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
 
-	//if (HasAuthority()) // Should always be the case here, but double check
+	// if (HasAuthority()) // Should always be the case here, but double check
 	//	MulticastAddDCSyncComponent();
 }
 
@@ -333,13 +300,6 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
-}
-
-// Requests the server to perform the attachment, as only the server can sync this to all the other clients.
-void ARWTHVRPawn::ServerAttachDCRAtoPawnRpc_Implementation()
-{
-	// We're on the server here - attach the actor to the pawn.
-	AttachDCRAtoPawn();
 }
 
 void ARWTHVRPawn::SetCameraOffset() const
