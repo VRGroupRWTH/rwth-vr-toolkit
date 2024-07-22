@@ -103,10 +103,6 @@ protected:
 
 	/* Replicated functionality */
 
-	/* Ask the server to attach the DCRA to the correct pawn */
-	UFUNCTION(Reliable, Server)
-	void ServerAttachDCRAtoPawnRpc();
-
 	/* Add a sync component to all instances of this pawn */
 	UFUNCTION(Reliable, NetMulticast)
 	void MulticastAddDCSyncComponent();
