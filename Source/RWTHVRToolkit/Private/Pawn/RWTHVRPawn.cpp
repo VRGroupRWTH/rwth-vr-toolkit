@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
+#include "InputMappingContext.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
@@ -143,9 +144,16 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 
 	// bind the current mapping contexts
-	for (const auto& Mapping : InputMappingContexts)
+	for (const auto Mapping : InputMappingContexts)
 	{
-		AddInputMappingContext(PlayerController, Mapping);
+		if (Mapping && IsValid(Mapping))
+		{
+			AddInputMappingContext(PlayerController, Mapping);
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::SetupPlayerInputComponent: InputMappingContext was invalid!");
+		}
 	}
 }
 
