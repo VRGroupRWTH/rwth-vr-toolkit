@@ -102,7 +102,7 @@ protected:
 	void UpdateRightHandForDesktopInteraction() const;
 
 	/* Replicated functionality */
-	
+
 	/* Add a sync component to all instances of this pawn */
 	UFUNCTION(Reliable, NetMulticast)
 	void MulticastAddDCSyncComponent();
