@@ -6,6 +6,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
+#include "InputMappingContext.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
@@ -41,21 +42,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 }
-void ARWTHVRPawn::BeginPlay()
-{
-	Super::BeginPlay();
-
-#if PLATFORM_SUPPORTS_CLUSTER
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-
-	SyncComponent = Cast<USceneComponent>(AddComponentByClass(UDisplayClusterSceneComponentSyncParent::StaticClass(),
-															  false, FTransform::Identity, false));
-	AddInstanceComponent(SyncComponent);
-#endif
-}
+void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -79,27 +66,22 @@ void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
 
+	// Try and use PlayerType for this:
 
-	UE_LOG(Toolkit, Display,
-		   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
-
-
-	// Only do this for all local controlled pawns
-	if (IsLocallyControlled())
+	if (HasAuthority())
 	{
-		// Only do this for the primary node or when we're running in standalone
-		if (URWTHVRUtilities::IsRoomMountedMode() &&
-			(URWTHVRUtilities::IsPrimaryNode() || GetNetMode() == NM_Standalone))
+		UE_LOG(Toolkit, Display,
+			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
+		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 		{
-			// If we are also the authority (standalone or listen server), directly attach it to us.
-			// If we are not (client), ask the server to do it.
-			if (HasAuthority())
+			const EPlayerType Type = State->GetPlayerType();
+
+			// Only cluster types are valid here as they are set on connection.
+			// For all other player types this is a race condition
+			if (Type == EPlayerType::nDisplayPrimary || GetNetMode() == NM_Standalone)
 			{
+				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching DCRA to Pawn {Pawn}.", GetName());
 				AttachDCRAtoPawn();
-			}
-			else
-			{
-				ServerAttachDCRAtoPawnRpc();
 			}
 		}
 	}
@@ -118,6 +100,10 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		return;
 	}
 
+	UE_LOGFMT(Toolkit, Display, "SetupPlayerInputComponent: Player Controller is valid, setting up input for {Pawn}",
+			  GetName());
+
+
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets
 	// possessed, the PC takes on the rotation of the VR Headset ONLY WHEN SPAWNING ON A CLIENT. Reset the rotation here
 	// such that bUseControllerRotationYaw=true does not pass the wrong yaw value to the pawn initially. There is
@@ -133,6 +119,7 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		const EPlayerType Type = State->GetPlayerType();
 
 		// Don't do anything with the type if it's been set to clustertype or anything.
+		// This is already being done when connecting to the server.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
 
 		if (!bClusterType && URWTHVRUtilities::IsHeadMountedMode())
@@ -157,9 +144,16 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 
 	// bind the current mapping contexts
-	for (const auto& Mapping : InputMappingContexts)
+	for (const auto Mapping : InputMappingContexts)
 	{
-		AddInputMappingContext(PlayerController, Mapping);
+		if (Mapping && IsValid(Mapping))
+		{
+			AddInputMappingContext(PlayerController, Mapping);
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning, "ARWTHVRPawn::SetupPlayerInputComponent: InputMappingContext was invalid!");
+		}
 	}
 }
 
@@ -247,7 +241,24 @@ void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 	}
 }
 
-// Todo rewrite this in some other way or attach it differently, this is horrible
+void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
+{
+#if PLATFORM_SUPPORTS_CLUSTER
+	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
+	// This is required because for collision based movement, it can happen that the physics engine
+	// for some reason acts different on the nodes, therefore leading to a potential desync when
+	// e.g. colliding with an object while moving.
+
+	if (URWTHVRUtilities::IsRoomMountedMode())
+	{
+		SyncComponent = Cast<USceneComponent>(AddComponentByClass(
+			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
+		AddInstanceComponent(SyncComponent);
+		UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
+	}
+#endif
+}
+
 // Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
 void ARWTHVRPawn::AttachDCRAtoPawn()
@@ -274,6 +285,9 @@ void ARWTHVRPawn::AttachDCRAtoPawn()
 		UE_LOGFMT(Toolkit, Warning,
 				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
 	}
+
+	// if (HasAuthority()) // Should always be the case here, but double check
+	//	MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()
@@ -294,13 +308,6 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
-}
-
-// Requests the server to perform the attachment, as only the server can sync this to all the other clients.
-void ARWTHVRPawn::ServerAttachDCRAtoPawnRpc_Implementation()
-{
-	// We're on the server here - attach the actor to the pawn.
-	AttachDCRAtoPawn();
 }
 
 void ARWTHVRPawn::SetCameraOffset() const
