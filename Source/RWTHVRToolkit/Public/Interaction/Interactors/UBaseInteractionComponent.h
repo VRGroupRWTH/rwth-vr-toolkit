@@ -37,15 +37,42 @@ public:
 	 * Replication part
 	 */
 
+
+	/**
+	 * Requests the start of the replication process for the given HoverBehaviour, EventType and Hit.
+	 * Depending on authority, this executes the replication of the behaviour directly or requests it via a server RPC.
+	 */
 	void RequestHoverBehaviourReplicationStart(UHoverBehaviour* Behaviour, const EInteractionEventType EventType,
 											   const FHitResult& Hit);
+
+	/**
+	 * This is executed on the server/authority. The behaviour is actually executed directly on the server, or
+	 * multicast to all connected clients. The multicast then executes the behaviour.
+	 */
 	void HoverBehaviourReplicationStart(UHoverBehaviour* Behaviour, const EInteractionEventType EventType,
 										const FHitResult& Hit);
 
+	/**
+	 * This is only executed on the local client which processed the interaction and requested the replication process
+	 * to be started. Can be used e.g. for local effects or things that should be done both on the server and local client.
+	 */
+	void HoverBehaviourReplicationOriginatorCallback(UHoverBehaviour* Behaviour, const EInteractionEventType EventType,
+										const FHitResult& Hit);
+
+	/**
+	 * Requests the start of the replication process for the given ActionBehaviour, EventType and the Value of the Input Action.
+	 * Depending on authority, this executes the replication of the behaviour directly or requests it via a server RPC. 
+	 */
 	void RequestActionBehaviourReplicationStart(UActionBehaviour* Behaviour, const EInteractionEventType EventType,
 												const FInputActionValue& Value);
+
+	/**
+	 * This is executed on the server/authority. The behaviour is actually executed directly on the server, or
+	 * multicast to all connected clients. The multicast then executes the behaviour.
+	 */
 	void ActionBehaviourReplicationStart(UActionBehaviour* Behaviour, const EInteractionEventType EventType,
 										 const FInputActionValue& Value);
+	
 
 	// RPCs
 	UFUNCTION(Server, Reliable)

@@ -25,6 +25,17 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnActionBegin OnActionEventEvent;
 
+	/**
+	 * Replication specific:
+	 * This is only executed on the local client which processed the interaction and requested the replication process
+	 * to be started. Can be used e.g. for local effects or things that should be done both on the server and local
+	 * client. Broadcast by UInteractableComponent when the originating client sends a server rpc to start the
+	 * interaction replication.
+	 */
+	UPROPERTY(BlueprintAssignable)
+	FOnActionBegin OnActionReplicationStartedOriginatorEvent;
+
+
 protected:
 	UFUNCTION()
 	virtual void OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,

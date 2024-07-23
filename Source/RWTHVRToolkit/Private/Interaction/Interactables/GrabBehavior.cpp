@@ -5,8 +5,23 @@
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/InteractionEventType.h"
 #include "Logging/StructuredLog.h"
+#include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Serialization/JsonTypes.h"
 #include "Utility/RWTHVRUtilities.h"
+
+UGrabBehavior::UGrabBehavior()
+{
+	SetIsReplicatedByDefault(true);
+	bExecuteOnServer = true;
+	bExecuteOnAllClients = false;
+}
+
+void UGrabBehavior::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnActionReplicationStartedOriginatorEvent.AddDynamic(this, &UGrabBehavior::ReplicationOriginaterClientCallback);
+}
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
@@ -34,7 +49,38 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 
 	return Comp;
 }
+void UGrabBehavior::ReplicationOriginaterClientCallback(USceneComponent* TriggerComponent,
+														const EInteractionEventType EventType,
+														const FInputActionValue& Value)
+{
+	const USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggerComponent->GetAttachParent());
+	HandleCollisionHandlingMovement(CurrentAttachParent, EventType);
+}
 
+void UGrabBehavior::HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent, const EInteractionEventType EventType)
+{
+	auto CHM = CurrentAttachParent->GetOwner()->GetComponentByClass<UCollisionHandlingMovement>();
+	if(!CHM)
+		return;
+	
+	if (EventType == EInteractionEventType::InteractionStart)
+	{
+		// Add to ignore list for collision handling movement, if it exists
+		if (bIgnoreGrabbedActorInCollisionMovement)
+		{
+			bWasAddedToIgnore = CHM->AddActorToIgnore(GetOwner());
+		}
+	}
+	else
+	{
+		// If our attach parent has a collision handling component, remove
+		if (bWasAddedToIgnore)
+		{
+			CHM->RemoveActorFromIgnore(GetOwner());
+		}
+	}
+
+}
 void UGrabBehavior::OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 								  const FInputActionValue& Value)
 {
@@ -52,6 +98,7 @@ bool UGrabBehavior::TryRelease()
 {
 	if (!bObjectGrabbed)
 	{
+		UE_LOGFMT(Toolkit, Display, "UGrabBehavior::TryRelease: bObjectGrabbed was false!");
 		return false;
 	}
 
@@ -109,6 +156,9 @@ void UGrabBehavior::StartGrab(USceneComponent* TriggerComponent)
 	}
 
 	OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
+
+	// Add to ignore list for collision handling movement, if it exists
+	HandleCollisionHandlingMovement(CurrentAttachParent, InteractionStart);
 }
 
 void UGrabBehavior::EndGrab(USceneComponent* TriggerComponent)
@@ -136,4 +186,7 @@ void UGrabBehavior::EndGrab(USceneComponent* TriggerComponent)
 			Interactable->ResetRestrictInteraction();
 		}
 	}
+
+	// If our attach parent has a collision handling component, remove
+	HandleCollisionHandlingMovement(CurrentAttachParent, InteractionEnd);
 }

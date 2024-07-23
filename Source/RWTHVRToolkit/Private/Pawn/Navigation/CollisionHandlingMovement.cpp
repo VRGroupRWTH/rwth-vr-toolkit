@@ -1,6 +1,8 @@
 ﻿#include "Pawn/Navigation/CollisionHandlingMovement.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Logging/StructuredLog.h"
+#include "Utility/RWTHVRUtilities.h"
 
 UCollisionHandlingMovement::UCollisionHandlingMovement(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
@@ -33,61 +35,69 @@ void UCollisionHandlingMovement::BeginPlay()
 void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick TickType,
 											   FActorComponentTickFunction* ThisTickFunction)
 {
-	SetCapsuleColliderToUserSize();
 
-	FVector InputVector = GetPendingInputVector();
+	if (ShouldSkipUpdate(DeltaTime))
+		return;
 
-	if (NavigationMode == EVRNavigationModes::NAV_WALK)
+	const AController* Controller = PawnOwner->GetController();
+	if (Controller && Controller->IsLocalController())
 	{
-		// you are only allowed to move horizontally in NAV_WALK
-		// everything else will be handled by stepping-up/gravity
-		// so remove Z component for the input vector of the UFloatingPawnMovement
-		InputVector.Z = 0.0f;
-		ConsumeInputVector();
-		AddInputVector(InputVector);
-	}
+		SetCapsuleColliderToUserSize();
 
+		FVector InputVector = GetPendingInputVector();
 
-	if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
-	{
-		// if me managed to get into a collision revert the movement since last Tick
-		CheckAndRevertCollisionSinceLastTick();
-		// check whether we are still in collision e.g. if an object has moved and got us into collision
-		MoveOutOfNewDynamicCollisions();
-
-		if (InputVector.Size() > 0.001)
+		if (NavigationMode == EVRNavigationModes::NAV_WALK)
 		{
-			const FVector SafeSteeringInput = GetCollisionSafeVirtualSteeringVec(InputVector, DeltaTime);
-			if (SafeSteeringInput != InputVector)
+			// you are only allowed to move horizontally in NAV_WALK
+			// everything else will be handled by stepping-up/gravity
+			// so remove Z component for the input vector of the UFloatingPawnMovement
+			InputVector.Z = 0.0f;
+			ConsumeInputVector();
+			AddInputVector(InputVector);
+		}
+
+
+		if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
+		{
+			// if me managed to get into a collision revert the movement since last Tick
+			CheckAndRevertCollisionSinceLastTick();
+			// check whether we are still in collision e.g. if an object has moved and got us into collision
+			MoveOutOfNewDynamicCollisions();
+
+			if (InputVector.Size() > 0.001)
 			{
-				// if we would move into something if we apply this input (estimating distance by max speed)
-				// we only apply its perpendicular part (unless it is facing away from the collision)
+				const FVector SafeSteeringInput = GetCollisionSafeVirtualSteeringVec(InputVector, DeltaTime);
+				if (SafeSteeringInput != InputVector)
+				{
+					// if we would move into something if we apply this input (estimating distance by max speed)
+					// we only apply its perpendicular part (unless it is facing away from the collision)
+					ConsumeInputVector();
+					AddInputVector(SafeSteeringInput);
+				}
+			}
+
+			// in case we are in a collision and collision checks are temporarily deactivated, we only allow physical
+			// movement without any checks, otherwise check collision during physical movement
+			if (bCollisionChecksTemporarilyDeactivated)
+			{
 				ConsumeInputVector();
-				AddInputVector(SafeSteeringInput);
+			}
+			else
+			{
+				// so we add stepping-up (for both walk and fly)
+				// and gravity for walking only
+				MoveByGravityOrStepUp(DeltaTime);
+
+				// if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
+				CheckForPhysWalkingCollision();
 			}
 		}
 
-		// in case we are in a collision and collision checks are temporarily deactivated, we only allow physical
-		// movement without any checks, otherwise check collision during physical movement
-		if (bCollisionChecksTemporarilyDeactivated)
+		if (NavigationMode == EVRNavigationModes::NAV_NONE)
 		{
+			// just remove whatever input is there
 			ConsumeInputVector();
 		}
-		else
-		{
-			// so we add stepping-up (for both walk and fly)
-			// and gravity for walking only
-			MoveByGravityOrStepUp(DeltaTime);
-
-			// if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
-			CheckForPhysWalkingCollision();
-		}
-	}
-
-	if (NavigationMode == EVRNavigationModes::NAV_NONE)
-	{
-		// just remove whatever input is there
-		ConsumeInputVector();
 	}
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -100,6 +110,34 @@ void UCollisionHandlingMovement::SetHeadComponent(USceneComponent* NewHeadCompon
 	const float HalfHeight = 80.0f; // this is just an initial value to look good in editor
 	CapsuleColliderComponent->SetCapsuleSize(CapsuleRadius, HalfHeight);
 	CapsuleColliderComponent->SetWorldLocation(FVector(0.0f, 0.0f, -HalfHeight));
+}
+
+bool UCollisionHandlingMovement::AddActorToIgnore(AActor* ActorToIgnore)
+{
+	if (ActorToIgnore && IsValid(ActorToIgnore))
+	{
+		ActorsToIgnore.AddUnique(ActorToIgnore);
+		return true;
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Warning, "UCollisionHandlingMovement::AddActorToIgnore: Cannot add invalid actor");
+		return false;
+	}
+}
+
+bool UCollisionHandlingMovement::RemoveActorFromIgnore(AActor* ActorToIgnore)
+{
+	if (ActorToIgnore && IsValid(ActorToIgnore))
+	{
+		const int32 NumRemoved = ActorsToIgnore.Remove(ActorToIgnore);
+		return NumRemoved > 0;
+	}
+	else
+	{
+		UE_LOGFMT(Toolkit, Warning, "UCollisionHandlingMovement::RemoveActorFromIgnore: Cannot remove invalid actor");
+		return false;
+	}
 }
 
 void UCollisionHandlingMovement::SetCapsuleColliderToUserSize() const

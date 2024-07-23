@@ -74,6 +74,9 @@ void UInteractableComponent::HandleOnHoverEvents(USceneComponent* TriggerCompone
 				return;
 			}
 			InteractorComponent->RequestHoverBehaviourReplicationStart(HoverBehaviour, EventType, HitResult);
+
+			// Broadcast local callback
+			HoverBehaviour->OnHoverReplicationStartedOriginatorEvent.Broadcast(TriggerComponent, EventType, HitResult);
 		}
 		else if (HoverBehaviour->bExecuteOnAllClients)
 		{
@@ -122,6 +125,9 @@ void UInteractableComponent::HandleOnActionEvents(USceneComponent* TriggerCompon
 				return;
 			}
 			InteractorComponent->RequestActionBehaviourReplicationStart(ActionBehaviour, EventType, Value);
+
+			// Broadcast local callback
+			ActionBehaviour->OnActionReplicationStartedOriginatorEvent.Broadcast(TriggerComponent, EventType, Value);
 		}
 		else if (ActionBehaviour->bExecuteOnAllClients)
 		{
