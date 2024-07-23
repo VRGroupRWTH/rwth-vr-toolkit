@@ -88,7 +88,8 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 				// and gravity for walking only
 				MoveByGravityOrStepUp(DeltaTime);
 
-				// if we physically (in the tracking space) walked into something, move the world away (by moving the pawn)
+				// if we physically (in the tracking space) walked into something, move the world away (by moving the
+				// pawn)
 				CheckForPhysWalkingCollision();
 			}
 		}

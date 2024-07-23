@@ -20,15 +20,14 @@ class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 	GENERATED_BODY()
 
 public:
-
 	UGrabBehavior();
-	
+
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bIgnoreGrabbedActorInCollisionMovement = true;
-	
+
 	/**
 	 * Called after the object was successfully attached to the hand
 	 */
@@ -40,7 +39,7 @@ public:
 	 */
 	UPROPERTY(BlueprintAssignable)
 	FOnGrabEnd OnGrabEndEvent;
-	
+
 	UPROPERTY()
 	UPrimitiveComponent* MyPhysicsComponent;
 
@@ -54,12 +53,13 @@ public:
 	UFUNCTION()
 	void ReplicationOriginaterClientCallback(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 											 const FInputActionValue& Value);
-	
-	void HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent, const EInteractionEventType EventType);
+
+	void HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent,
+										 const EInteractionEventType EventType);
 
 	virtual void OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 							   const FInputActionValue& Value) override;
-	
+
 	UFUNCTION(BlueprintPure)
 	bool IsObjectGrabbed() const { return bObjectGrabbed; }
 

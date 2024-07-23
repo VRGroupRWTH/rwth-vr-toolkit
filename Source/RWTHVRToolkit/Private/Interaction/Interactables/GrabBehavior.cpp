@@ -57,12 +57,13 @@ void UGrabBehavior::ReplicationOriginaterClientCallback(USceneComponent* Trigger
 	HandleCollisionHandlingMovement(CurrentAttachParent, EventType);
 }
 
-void UGrabBehavior::HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent, const EInteractionEventType EventType)
+void UGrabBehavior::HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent,
+													const EInteractionEventType EventType)
 {
 	auto CHM = CurrentAttachParent->GetOwner()->GetComponentByClass<UCollisionHandlingMovement>();
-	if(!CHM)
+	if (!CHM)
 		return;
-	
+
 	if (EventType == EInteractionEventType::InteractionStart)
 	{
 		// Add to ignore list for collision handling movement, if it exists
@@ -79,7 +80,6 @@ void UGrabBehavior::HandleCollisionHandlingMovement(const USceneComponent* Curre
 			CHM->RemoveActorFromIgnore(GetOwner());
 		}
 	}
-
 }
 void UGrabBehavior::OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 								  const FInputActionValue& Value)
