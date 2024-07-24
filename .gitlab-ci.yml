@@ -41,7 +41,7 @@ include:
 # Use the CUSTOM_NDISPLAY_CONFIG variable in case you need a custom ndisplay config. These are always located in /home/vrdemo/configs/ndisplay.
 
 variables:
-    UNREAL_VERSION: "5.3"
+    UNREAL_VERSION: "5.4"
     CUSTOM_NDISPLAY_CONFIG: "aixcave_5_3_dev.ndisplay"
 
 stages:
