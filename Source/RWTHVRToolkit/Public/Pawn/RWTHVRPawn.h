@@ -79,10 +79,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	bool bWorldTransform = false;
 
-	/* The class which to search for DCRA attachment. TODO: Make this better it's ugly */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	TSubclassOf<AActor> CaveSetupActorClass;
-
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
@@ -107,8 +103,8 @@ protected:
 	UFUNCTION(Reliable, NetMulticast)
 	void MulticastAddDCSyncComponent();
 
-	/* Attaches the DCRA to the pawn */
-	void AttachDCRAtoPawn();
+	/* Attaches the Cluster representation to the pawn */
+	void AttachClustertoPawn();
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();

@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerState.h"
 #include "RWTHVRPlayerState.generated.h"
 
+
+class AClusterRepresentationActor;
 enum class EPlayerType : uint8;
 /**
  * Extension of the PlayerState that additionally holds information about what type the player is.
@@ -22,6 +24,15 @@ private:
 	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetPlayerType, meta = (AllowPrivateAccess))
 	EPlayerType PlayerType = EPlayerType::Desktop;
 
+	/** Replicated cluster ID for this player. Is -1 in case player is not a cluster*/
+	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterId, meta = (AllowPrivateAccess))
+	int32 CorrespondingClusterId = -1;
+
+	/** Replicated cluster actor for this player. Is nullptr in case player is not a cluster*/
+	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterActor,
+			  meta = (AllowPrivateAccess))
+	AClusterRepresentationActor* CorrespondingClusterActor = nullptr;
+	
 	UFUNCTION(Reliable, Server)
 	void ServerSetPlayerTypeRpc(EPlayerType NewPlayerType);
 
@@ -30,6 +41,15 @@ private:
 public:
 	UFUNCTION(BlueprintGetter)
 	EPlayerType GetPlayerType() const { return PlayerType; }
+
+	UFUNCTION(BlueprintGetter)
+	int32 GetCorrespondingClusterId() const { return CorrespondingClusterId; }
+
+	UFUNCTION(BlueprintGetter)
+	AClusterRepresentationActor* GetCorrespondingClusterActor() const { return CorrespondingClusterActor; }
+	
+	void SetCorrespondingClusterId(int32 NewCorrespondingClusterId);
+	void SetCorrespondingClusterActor(AClusterRepresentationActor* NewCorrespondingClusterActor);
 
 	UFUNCTION(BlueprintCallable)
 	void RequestSetPlayerType(EPlayerType NewPlayerType);

@@ -3,8 +3,10 @@
 
 #include "Core/RWTHVRPlayerState.h"
 
+#include "Logging/StructuredLog.h"
 #include "Net/UnrealNetwork.h"
 #include "Net/Core/PushModel/PushModel.h"
+#include "Utility/RWTHVRUtilities.h"
 
 // Boilerplate, copies properties to new state
 void ARWTHVRPlayerState::CopyProperties(class APlayerState* PlayerState)
@@ -17,6 +19,8 @@ void ARWTHVRPlayerState::CopyProperties(class APlayerState* PlayerState)
 		if (IsValid(RWTHVRPlayerState))
 		{
 			RWTHVRPlayerState->SetPlayerType(GetPlayerType());
+			RWTHVRPlayerState->SetCorrespondingClusterId(CorrespondingClusterId);
+			RWTHVRPlayerState->SetCorrespondingClusterActor(CorrespondingClusterActor);
 		}
 	}
 }
@@ -32,6 +36,8 @@ void ARWTHVRPlayerState::OverrideWith(class APlayerState* PlayerState)
 		if (IsValid(RWTHVRPlayerState))
 		{
 			SetPlayerType(RWTHVRPlayerState->GetPlayerType());
+			SetCorrespondingClusterId(RWTHVRPlayerState->CorrespondingClusterId);
+			SetCorrespondingClusterActor(RWTHVRPlayerState->CorrespondingClusterActor);
 		}
 	}
 }
@@ -45,6 +51,8 @@ void ARWTHVRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	SharedParams.bIsPushBased = true;
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(ARWTHVRPlayerState, PlayerType, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ARWTHVRPlayerState, CorrespondingClusterId, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(ARWTHVRPlayerState, CorrespondingClusterActor, SharedParams);
 }
 
 void ARWTHVRPlayerState::ServerSetPlayerTypeRpc_Implementation(const EPlayerType NewPlayerType)
@@ -56,6 +64,28 @@ void ARWTHVRPlayerState::SetPlayerType(const EPlayerType NewPlayerType)
 {
 	MARK_PROPERTY_DIRTY_FROM_NAME(ARWTHVRPlayerState, PlayerType, this);
 	PlayerType = NewPlayerType;
+}
+void ARWTHVRPlayerState::SetCorrespondingClusterId(int32 NewCorrespondingClusterId)
+{
+	if (!HasAuthority())
+	{
+		UE_LOGFMT(Toolkit, Warning, "ARWTHVRPlayerState: Cannot set cluster Id on non-authority!");
+		return;
+	}
+
+	MARK_PROPERTY_DIRTY_FROM_NAME(ARWTHVRPlayerState, CorrespondingClusterId, this);
+	CorrespondingClusterId = NewCorrespondingClusterId;
+}
+void ARWTHVRPlayerState::SetCorrespondingClusterActor(AClusterRepresentationActor* NewCorrespondingClusterActor)
+{
+	if (!HasAuthority())
+	{
+		UE_LOGFMT(Toolkit, Warning, "ARWTHVRPlayerState: Cannot set cluster actor ref on non-authority!");
+		return;
+	}
+
+	MARK_PROPERTY_DIRTY_FROM_NAME(ARWTHVRPlayerState, CorrespondingClusterActor, this);
+	CorrespondingClusterActor = NewCorrespondingClusterActor;
 }
 
 void ARWTHVRPlayerState::RequestSetPlayerType(const EPlayerType NewPlayerType)
