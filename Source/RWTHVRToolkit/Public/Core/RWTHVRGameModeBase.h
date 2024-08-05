@@ -35,5 +35,7 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
-	TMap<int32, AClusterRepresentationActor> ConnectedClusters;
+
+	UPROPERTY()
+	TMap<int32, AClusterRepresentationActor*> ConnectedClusters;
 };
