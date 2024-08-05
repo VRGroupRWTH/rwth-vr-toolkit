@@ -43,7 +43,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 				: PrimaryNodeId;
 
 			ClusterId = UGameplayStatics::HasOption(Options, ClusterIdKey)
-				? TextKeyUtil::HashString(*UGameplayStatics::ParseOption(Options, ClusterIdKey))
+				? FCString::Atoi(*UGameplayStatics::ParseOption(Options, ClusterIdKey))
 				: -1;
 
 			const EPlayerType Type =
