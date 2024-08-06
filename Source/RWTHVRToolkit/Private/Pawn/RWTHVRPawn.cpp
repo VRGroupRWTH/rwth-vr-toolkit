@@ -78,7 +78,7 @@ void ARWTHVRPawn::NotifyControllerChanged()
 
 			// Only cluster types are valid here as they are set on connection.
 			// For all other player types this is a race condition
-			if (Type == EPlayerType::nDisplayPrimary || GetNetMode() == NM_Standalone)
+			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
 			{
 				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
 				AttachClustertoPawn();
@@ -266,14 +266,17 @@ void ARWTHVRPawn::AttachClustertoPawn()
 
 	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
-		if (!State->GetCorrespondingClusterActor())
+		const auto ClusterActor = State->GetCorrespondingClusterActor();
+		if (!ClusterActor)
+		{
 			UE_LOGFMT(
 				Toolkit, Error,
 				"ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
 				"the Cave.");
-
+			return;
+		}
 		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
-		bool bAttached = State->GetCorrespondingClusterActor()->AttachToComponent(GetRootComponent(), AttachmentRules);
+		bool bAttached = ClusterActor->AttachToComponent(GetRootComponent(), AttachmentRules);
 		// State->GetCorrespondingClusterActor()->OnAttached();
 		UE_LOGFMT(Toolkit, Display,
 				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
