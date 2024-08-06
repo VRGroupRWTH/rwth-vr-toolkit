@@ -8,7 +8,9 @@
 
 
 class ARWTHVRPlayerState;
+#if PLATFORM_SUPPORTS_CLUSTER
 class ADisplayClusterRootActor;
+#endif
 
 UCLASS()
 class RWTHVRTOOLKIT_API AClusterRepresentationActor : public AActor
@@ -24,8 +26,11 @@ public:
 	void AttachDCRAIfRequired(const ARWTHVRPlayerState* OptionalPlayerState = nullptr);
 
 private:
+	bool bIsAttached = false;
+
+#if PLATFORM_SUPPORTS_CLUSTER
 	bool AttachDCRA();
 	ADisplayClusterRootActor* SpawnDCRA();
 
-	bool bIsAttached = false;
+#endif
 };

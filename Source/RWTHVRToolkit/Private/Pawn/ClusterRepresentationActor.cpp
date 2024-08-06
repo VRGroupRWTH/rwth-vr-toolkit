@@ -2,15 +2,17 @@
 
 
 #include "Pawn/ClusterRepresentationActor.h"
-
-#include "DisplayClusterRootActor.h"
-#include "IDisplayCluster.h"
-#include "Config/IDisplayClusterConfigManager.h"
 #include "Core/RWTHVRPlayerState.h"
-#include "Game/IDisplayClusterGameManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
 #include "Utility/RWTHVRUtilities.h"
+
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "DisplayClusterRootActor.h"
+#include "IDisplayCluster.h"
+#include "Config/IDisplayClusterConfigManager.h"
+#include "Game/IDisplayClusterGameManager.h"
+#endif
 
 // Sets default values
 AClusterRepresentationActor::AClusterRepresentationActor()
@@ -40,6 +42,8 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	// - We are in standalone mode, then attach it for all nodes
 	// - If we are a client, this actor has been spawned on the server only. Therefore I assume that if we
 	//   have replicated this actor to our client, we're good to go.
+
+#if PLATFORM_SUPPORTS_CLUSTER
 
 	if (!URWTHVRUtilities::IsRoomMountedMode())
 		return;
@@ -82,17 +86,12 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 
 		bIsAttached = AttachDCRA();
 	}
+#endif
 }
 
+#if PLATFORM_SUPPORTS_CLUSTER
 bool AClusterRepresentationActor::AttachDCRA()
 {
-
-#if PLATFORM_SUPPORTS_CLUSTER
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		UE_LOGFMT(Toolkit, Display, "{Name}: Trying to attach DCRA", GetName());
@@ -125,7 +124,6 @@ bool AClusterRepresentationActor::AttachDCRA()
 
 		DCRA->SetActorEnableCollision(false);
 	}
-#endif
 	return true;
 }
 
@@ -159,3 +157,5 @@ ADisplayClusterRootActor* AClusterRepresentationActor::SpawnDCRA()
 	}
 	return RootActor;
 }
+
+#endif
