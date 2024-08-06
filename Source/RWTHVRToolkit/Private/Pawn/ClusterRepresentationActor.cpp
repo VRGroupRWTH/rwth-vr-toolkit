@@ -26,7 +26,13 @@ AClusterRepresentationActor::AClusterRepresentationActor()
 void AClusterRepresentationActor::BeginPlay()
 {
 	Super::BeginPlay();
+	// will fail if we're in replicated mode and PlayerState has not yet replicated fully
+	// Therefore we also execute this
+	AttachDCRAIfRequired();
+}
 
+void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState* OptionalPlayerState)
+{
 	// We need to identify the correct ClusterRepresentationActor to do the attachment.
 	// 1. Either we are the local net owner -> Primary Node Pawn
 	// This is hard to do as things might not be synchronized yet.
@@ -38,30 +44,43 @@ void AClusterRepresentationActor::BeginPlay()
 	if (!URWTHVRUtilities::IsRoomMountedMode())
 		return;
 
+	if (bIsAttached)
+	{
+		UE_LOGFMT(Toolkit, Display,
+				  "AClusterRepresentationActor::AttachDCRAIfRequired: Already attached, skipping repeated attachment.");
+		return;
+	}
+	
+	UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::AttachDCRAIfRequired: Starting DCRA Attachment process.");
+
 	// This should give us the first local player controller
 	const auto* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	
+
 	// Only run this for the local controller - redundant, but double check
 	if (!PlayerController || !PlayerController->IsLocalController())
-		return;
-
-	const auto* PlayerState = PlayerController->GetPlayerState<ARWTHVRPlayerState>();
-	if (!PlayerState)
 	{
 		UE_LOGFMT(
-			Toolkit, Error,
-			"AClusterRepresentationActor::BeginPlay: PlayerState is not valid or not of type ARWTHVRPlayerState.");
+			Toolkit, Warning,
+			"AClusterRepresentationActor::AttachDCRAIfRequired: PlayerController not valid or not locally controlled.");
+		return;
+	}
+	const auto* PlayerState =
+		OptionalPlayerState != nullptr ? OptionalPlayerState : PlayerController->GetPlayerState<ARWTHVRPlayerState>();
+	if (!PlayerState)
+	{
+		UE_LOGFMT(Toolkit, Error,
+				  "AClusterRepresentationActor::AttachDCRAIfRequired: PlayerState is not valid or not of type "
+				  "ARWTHVRPlayerState.");
 		return;
 	}
 
 	// The local player this is executed on corresponds to this actor
 	if (PlayerState->GetCorrespondingClusterActor() == this)
 	{
-		check(PlayerState->GetCorrespondingClusterId() == ClusterId);
-		UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::BeginPlay: Attaching DCRA to {Name} with Id: {Id}.",
-				  GetName(), ClusterId);
+		UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::AttachDCRAIfRequired: Attaching DCRA to {Name}.",
+				  GetName());
 
-		AttachDCRA();
+		bIsAttached = AttachDCRA();
 	}
 }
 
@@ -76,7 +95,7 @@ bool AClusterRepresentationActor::AttachDCRA()
 
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		UE_LOGFMT(Toolkit, Display, "{Name}: Trying to attach DCRA for ClusterId {Id}", GetName(), ClusterId);
+		UE_LOGFMT(Toolkit, Display, "{Name}: Trying to attach DCRA", GetName());
 		auto DCRA = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
 
 		if (!IsValid(DCRA))
@@ -94,8 +113,8 @@ bool AClusterRepresentationActor::AttachDCRA()
 		{
 			if (!DCRA->IsPrimaryRootActor())
 			{
-				UE_LOGFMT(Toolkit, Error, "Found DCRA {Name} is not the primary DCRA of Cluster with Id {Id}!",
-						  DCRA->GetName(), ClusterId);
+				UE_LOGFMT(Toolkit, Error, "Found DCRA {Name} is not the primary DCRA of Cluster with Id!",
+						  DCRA->GetName());
 				return false;
 			}
 		}

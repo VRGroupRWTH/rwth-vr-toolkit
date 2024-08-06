@@ -28,9 +28,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 	// Check if we're using our custom PlayerState so that we can save the player type there.
 	// If not, just ingore all related args.
 	ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayerController->PlayerState);
-
-	bool bIsClusterNode = false;
-
+	
 	if (State != nullptr)
 	{
 		int32 ClusterId = -1;
@@ -51,20 +49,25 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 			const EPlayerType Type =
 				NodeName == PrimaryNodeId ? EPlayerType::nDisplayPrimary : EPlayerType::nDisplaySecondary;
 			State->RequestSetPlayerType(Type);
-			bIsClusterNode = true;
 		}
 		else if (GetNetMode() == NM_Standalone && URWTHVRUtilities::IsRoomMountedMode())
 		{
 			ClusterId = 0;
-			bIsClusterNode = true;
 		}
+		State->SetCorrespondingClusterId(ClusterId);
+	}
 
+	return Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
+}
+
+void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+	if (ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayer->PlayerState); State != nullptr)
+	{		
 		// If we're in none-standalone netmode, this is only executed on the server, as the GM only exists there.
 		// On standalone, this is executed on every node.
-
-		State->SetCorrespondingClusterId(ClusterId);
-
-		if (bIsClusterNode)
+		int32 ClusterId = State->GetCorrespondingClusterId();
+		if (ClusterId >= 0) // we're either standalone (0) or in an acutal cluster
 		{
 			AClusterRepresentationActor** ClusterRepresentationPtr = ConnectedClusters.Find(ClusterId);
 			AClusterRepresentationActor* ClusterRepresentation;
@@ -75,7 +78,6 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 				SpawnParameters.Name = FName(*FString::Printf(TEXT("ClusterRepresentation_%d"), ClusterId));
 				SpawnParameters.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
 				ClusterRepresentation = GetWorld()->SpawnActor<AClusterRepresentationActor>(SpawnParameters);
-				ClusterRepresentation->ClusterId = ClusterId;
 				UE_LOGFMT(Toolkit, Display,
 						  "ARWTHVRGameModeBase: Spawned ClusterRepresentationActor {Name} for Cluster {Id}",
 						  ClusterRepresentation->GetName(), ClusterId);
@@ -90,25 +92,17 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 					  *ClusterRepresentation->GetName(), ClusterId);
 
 			// Double check for sanity
-			check(ClusterId == ClusterRepresentation->ClusterId);
-
+			check(ClusterRepresentation != nullptr);
+			
 			State->SetCorrespondingClusterActor(ClusterRepresentation);
 
 			if (State->GetPlayerType() == EPlayerType::nDisplayPrimary)
 			{
 				// We're the owner of the actor!
-				ClusterRepresentation->SetOwner(NewPlayerController);
+				ClusterRepresentation->SetOwner(NewPlayer);
 			}
 		}
-	}
-
-	return Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
-}
-
-void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
-{
-	if (const ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayer->PlayerState); State != nullptr)
-	{
+		
 		// Do we already have an auto-possessing pawn possessed?
 		if (NewPlayer->GetPawn() && NewPlayer->GetPawn()->IsValidLowLevelFast())
 		{

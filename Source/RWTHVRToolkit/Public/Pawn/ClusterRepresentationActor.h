@@ -7,7 +7,9 @@
 #include "ClusterRepresentationActor.generated.h"
 
 
+class ARWTHVRPlayerState;
 class ADisplayClusterRootActor;
+
 UCLASS()
 class RWTHVRTOOLKIT_API AClusterRepresentationActor : public AActor
 {
@@ -17,13 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	AClusterRepresentationActor();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ClusterId = -1;
-
 	virtual void BeginPlay() override;
-	
+
+	void AttachDCRAIfRequired(const ARWTHVRPlayerState* OptionalPlayerState = nullptr);
 
 private:
 	bool AttachDCRA();
 	ADisplayClusterRootActor* SpawnDCRA();
+
+	bool bIsAttached = false;
 };

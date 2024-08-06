@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "PlayerType.h"
 #include "GameFramework/PlayerState.h"
+#include "Logging/StructuredLog.h"
+#include "Pawn/ClusterRepresentationActor.h"
+#include "Utility/RWTHVRUtilities.h"
 #include "RWTHVRPlayerState.generated.h"
 
 
@@ -28,10 +31,17 @@ private:
 	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterId, meta = (AllowPrivateAccess))
 	int32 CorrespondingClusterId = -1;
 
-	/** Replicated cluster actor for this player. Is nullptr in case player is not a cluster*/
-	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterActor,
-			  meta = (AllowPrivateAccess))
-	AClusterRepresentationActor* CorrespondingClusterActor = nullptr;
+	/** Replicated cluster actor for this player. Is nullptr in case player is not a cluster.
+	 * As this is not guaranteed to be valid on BeginPlay, we need to do a callback to the CorrespondingClusterActor here...
+	 */
+	UPROPERTY(ReplicatedUsing = OnRep_CorrespondingClusterActor)
+	TObjectPtr<AClusterRepresentationActor> CorrespondingClusterActor;
+
+	UFUNCTION()
+	virtual void OnRep_CorrespondingClusterActor()
+	{
+		CorrespondingClusterActor->AttachDCRAIfRequired(this);
+	}
 	
 	UFUNCTION(Reliable, Server)
 	void ServerSetPlayerTypeRpc(EPlayerType NewPlayerType);
