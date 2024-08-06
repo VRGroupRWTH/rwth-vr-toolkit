@@ -50,7 +50,7 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 				  "AClusterRepresentationActor::AttachDCRAIfRequired: Already attached, skipping repeated attachment.");
 		return;
 	}
-	
+
 	UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::AttachDCRAIfRequired: Starting DCRA Attachment process.");
 
 	// This should give us the first local player controller

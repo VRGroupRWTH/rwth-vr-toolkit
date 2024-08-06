@@ -17,7 +17,6 @@ class RWTHVRTOOLKIT_API ARWTHVRGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
-	
 	ARWTHVRGameModeBase(const FObjectInitializer& ObjectInitializer);
 
 protected:
@@ -35,7 +34,6 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
-
 	UPROPERTY()
 	TMap<int32, AClusterRepresentationActor*> ConnectedClusters;
 };

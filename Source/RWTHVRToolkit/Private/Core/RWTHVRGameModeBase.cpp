@@ -28,7 +28,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 	// Check if we're using our custom PlayerState so that we can save the player type there.
 	// If not, just ingore all related args.
 	ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayerController->PlayerState);
-	
+
 	if (State != nullptr)
 	{
 		int32 ClusterId = -1;
@@ -63,7 +63,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	if (ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(NewPlayer->PlayerState); State != nullptr)
-	{		
+	{
 		// If we're in none-standalone netmode, this is only executed on the server, as the GM only exists there.
 		// On standalone, this is executed on every node.
 		int32 ClusterId = State->GetCorrespondingClusterId();
@@ -93,7 +93,7 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 
 			// Double check for sanity
 			check(ClusterRepresentation != nullptr);
-			
+
 			State->SetCorrespondingClusterActor(ClusterRepresentation);
 
 			if (State->GetPlayerType() == EPlayerType::nDisplayPrimary)
@@ -102,7 +102,7 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 				ClusterRepresentation->SetOwner(NewPlayer);
 			}
 		}
-		
+
 		// Do we already have an auto-possessing pawn possessed?
 		if (NewPlayer->GetPawn() && NewPlayer->GetPawn()->IsValidLowLevelFast())
 		{

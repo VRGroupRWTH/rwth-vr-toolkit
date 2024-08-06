@@ -28,21 +28,20 @@ private:
 	EPlayerType PlayerType = EPlayerType::Desktop;
 
 	/** Replicated cluster ID for this player. Is -1 in case player is not a cluster*/
-	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterId, meta = (AllowPrivateAccess))
+	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetCorrespondingClusterId,
+			  meta = (AllowPrivateAccess))
 	int32 CorrespondingClusterId = -1;
 
 	/** Replicated cluster actor for this player. Is nullptr in case player is not a cluster.
-	 * As this is not guaranteed to be valid on BeginPlay, we need to do a callback to the CorrespondingClusterActor here...
+	 * As this is not guaranteed to be valid on BeginPlay, we need to do a callback to the CorrespondingClusterActor
+	 * here...
 	 */
 	UPROPERTY(ReplicatedUsing = OnRep_CorrespondingClusterActor)
 	TObjectPtr<AClusterRepresentationActor> CorrespondingClusterActor;
 
 	UFUNCTION()
-	virtual void OnRep_CorrespondingClusterActor()
-	{
-		CorrespondingClusterActor->AttachDCRAIfRequired(this);
-	}
-	
+	virtual void OnRep_CorrespondingClusterActor() { CorrespondingClusterActor->AttachDCRAIfRequired(this); }
+
 	UFUNCTION(Reliable, Server)
 	void ServerSetPlayerTypeRpc(EPlayerType NewPlayerType);
 
@@ -57,7 +56,7 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	AClusterRepresentationActor* GetCorrespondingClusterActor() const { return CorrespondingClusterActor; }
-	
+
 	void SetCorrespondingClusterId(int32 NewCorrespondingClusterId);
 	void SetCorrespondingClusterActor(AClusterRepresentationActor* NewCorrespondingClusterActor);
 

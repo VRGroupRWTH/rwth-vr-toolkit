@@ -267,14 +267,16 @@ void ARWTHVRPawn::AttachClustertoPawn()
 	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
 		if (!State->GetCorrespondingClusterActor())
-			UE_LOGFMT(Toolkit, Error,
-					  "ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
-					  "the Cave.");
+			UE_LOGFMT(
+				Toolkit, Error,
+				"ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
+				"the Cave.");
 
 		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
 		bool bAttached = State->GetCorrespondingClusterActor()->AttachToComponent(GetRootComponent(), AttachmentRules);
-		//State->GetCorrespondingClusterActor()->OnAttached();
-		UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
+		// State->GetCorrespondingClusterActor()->OnAttached();
+		UE_LOGFMT(Toolkit, Display,
+				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
 	}
 	else
 	{
