@@ -79,12 +79,17 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 		return;
 	}
 
+	const auto CCA = PlayerState->GetCorrespondingClusterActor();
+	
+	if (CCA == nullptr) // this can happen often if property isn't replicated yet, this is okay.
+		return;
+	
 	UE_LOGFMT(Toolkit, Display,
 			  "{Name} AttachDCRAIfRequired: Player State is {PlayerState}, PlayerState->CCA is {CCA}.", GetName(),
-			  PlayerState->GetName(), PlayerState->GetCorrespondingClusterActor()->GetName());
+			  PlayerState->GetName(), CCA->GetName());
 
 	// The local player this is executed on corresponds to this actor
-	if (PlayerState->GetCorrespondingClusterActor() == this)
+	if (CCA == this)
 	{
 		UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Attaching DCRA to {Name}.", GetName());
 
