@@ -64,8 +64,7 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	if (!PlayerController || !PlayerController->IsLocalController())
 	{
 		UE_LOGFMT(Toolkit, Warning,
-				  "{Name} AttachDCRAIfRequired: PlayerController not valid or not locally controlled.",
-				  GetName());
+				  "{Name} AttachDCRAIfRequired: PlayerController not valid or not locally controlled.", GetName());
 		return;
 	}
 	const auto* PlayerState =
@@ -80,10 +79,10 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	}
 
 	const auto CCA = PlayerState->GetCorrespondingClusterActor();
-	
+
 	if (CCA == nullptr) // this can happen often if property isn't replicated yet, this is okay.
 		return;
-	
+
 	UE_LOGFMT(Toolkit, Display,
 			  "{Name} AttachDCRAIfRequired: Player State is {PlayerState}, PlayerState->CCA is {CCA}.", GetName(),
 			  PlayerState->GetName(), CCA->GetName());
@@ -91,7 +90,8 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	// The local player this is executed on corresponds to this actor
 	if (CCA == this)
 	{
-		UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Attaching DCRA to {Name}.", GetName(), CCA->GetName());
+		UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Attaching DCRA to {Name}.", GetName(),
+				  CCA->GetName());
 
 		bIsAttached = AttachDCRA();
 	}
