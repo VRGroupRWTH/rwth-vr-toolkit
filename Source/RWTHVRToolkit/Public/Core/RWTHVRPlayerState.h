@@ -40,7 +40,12 @@ private:
 	TObjectPtr<AClusterRepresentationActor> CorrespondingClusterActor;
 
 	UFUNCTION()
-	virtual void OnRep_CorrespondingClusterActor() { CorrespondingClusterActor->AttachDCRAIfRequired(this); }
+	virtual void OnRep_CorrespondingClusterActor()
+	{
+		// Only execute this on the local owning player
+		if (HasLocalNetOwner())
+			CorrespondingClusterActor->AttachDCRAIfRequired(this);
+	}
 
 	UFUNCTION(Reliable, Server)
 	void ServerSetPlayerTypeRpc(EPlayerType NewPlayerType);

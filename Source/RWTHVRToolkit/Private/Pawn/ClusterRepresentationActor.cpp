@@ -50,12 +50,12 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 
 	if (bIsAttached)
 	{
-		UE_LOGFMT(Toolkit, Display,
-				  "AClusterRepresentationActor::AttachDCRAIfRequired: Already attached, skipping repeated attachment.");
+		UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Already attached, skipping repeated attachment.",
+				  *this->GetName());
 		return;
 	}
 
-	UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::AttachDCRAIfRequired: Starting DCRA Attachment process.");
+	UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Starting DCRA Attachment process.", *this->GetName());
 
 	// This should give us the first local player controller
 	const auto* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -63,9 +63,9 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	// Only run this for the local controller - redundant, but double check
 	if (!PlayerController || !PlayerController->IsLocalController())
 	{
-		UE_LOGFMT(
-			Toolkit, Warning,
-			"AClusterRepresentationActor::AttachDCRAIfRequired: PlayerController not valid or not locally controlled.");
+		UE_LOGFMT(Toolkit, Warning,
+				  "{Name} AttachDCRAIfRequired: PlayerController not valid or not locally controlled.",
+				  *this->GetName());
 		return;
 	}
 	const auto* PlayerState =
@@ -73,16 +73,20 @@ void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState*
 	if (!PlayerState)
 	{
 		UE_LOGFMT(Toolkit, Error,
-				  "AClusterRepresentationActor::AttachDCRAIfRequired: PlayerState is not valid or not of type "
-				  "ARWTHVRPlayerState.");
+				  "{Name} AttachDCRAIfRequired: PlayerState is not valid or not of type "
+				  "ARWTHVRPlayerState.",
+				  *this->GetName());
 		return;
 	}
+
+	UE_LOGFMT(Toolkit, Display,
+			  "{Name} AttachDCRAIfRequired: Player State is {PlayerState}, PlayerState->CCA is {CCA}.", GetName(),
+			  PlayerState->GetName(), PlayerState->GetCorrespondingClusterActor()->GetName());
 
 	// The local player this is executed on corresponds to this actor
 	if (PlayerState->GetCorrespondingClusterActor() == this)
 	{
-		UE_LOGFMT(Toolkit, Display, "AClusterRepresentationActor::AttachDCRAIfRequired: Attaching DCRA to {Name}.",
-				  GetName());
+		UE_LOGFMT(Toolkit, Display, "{Name} AttachDCRAIfRequired: Attaching DCRA to {Name}.", GetName());
 
 		bIsAttached = AttachDCRA();
 	}
@@ -119,7 +123,7 @@ bool AClusterRepresentationActor::AttachDCRA()
 		}
 
 		bool bAttached = DCRA->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		UE_LOGFMT(Toolkit, Display, "Attaching {This} to DCRA {DCRA} returned {Res}", GetName(), DCRA->GetName(),
+		UE_LOGFMT(Toolkit, Display, "Attaching DCRA {DCRA} to {this} returned {Res}", GetName(), DCRA->GetName(),
 				  bAttached);
 
 		DCRA->SetActorEnableCollision(false);
