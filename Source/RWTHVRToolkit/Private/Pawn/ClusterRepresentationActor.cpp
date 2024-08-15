@@ -128,7 +128,7 @@ bool AClusterRepresentationActor::AttachDCRA()
 		}
 
 		bool bAttached = DCRA->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		UE_LOGFMT(Toolkit, Display, "Attaching DCRA {DCRA} to {this} returned {Res}", GetName(), DCRA->GetName(),
+		UE_LOGFMT(Toolkit, Display, "Attaching DCRA {DCRA} to {this} returned {Res}", DCRA->GetName(), GetName(),
 				  bAttached);
 
 		DCRA->SetActorEnableCollision(false);

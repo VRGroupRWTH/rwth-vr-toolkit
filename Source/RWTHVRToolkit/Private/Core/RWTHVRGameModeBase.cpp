@@ -53,6 +53,9 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 		else if (GetNetMode() == NM_Standalone && URWTHVRUtilities::IsRoomMountedMode())
 		{
 			ClusterId = 0;
+			const EPlayerType Type =
+				URWTHVRUtilities::IsPrimaryNode() ? EPlayerType::nDisplayPrimary : EPlayerType::nDisplaySecondary;
+			State->RequestSetPlayerType(Type);
 		}
 		State->SetCorrespondingClusterId(ClusterId);
 	}
@@ -112,10 +115,11 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 			return;
 		}
 
+		// When we're not in standalone:
 		// If the new player is a secondary nDisplay node, spawn it only as a Spectator
 		// Potentially we can use MustSpectate instead.
 		UClass* PawnClass;
-		if (State->GetPlayerType() == EPlayerType::nDisplaySecondary)
+		if (GetNetMode() != NM_Standalone && State->GetPlayerType() == EPlayerType::nDisplaySecondary)
 		{
 			// For now, simply use the BP approach of spawning the pawn here. Can do this in a better way potentially.
 			PawnClass = SpectatorClass;
