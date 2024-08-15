@@ -4,6 +4,7 @@
 #include "Pawn/Navigation/TurnComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -110,15 +111,14 @@ void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 
 void UTurnComponent::RotateCameraAndPawn(float Yaw) const
 {
-	const FVector OrigLocation = VRPawn->GetActorLocation();
-	FVector PivotPoint = VRPawn->GetActorTransform().InverseTransformPosition(OrigLocation);
-	PivotPoint.Z = 0.0f;
+	const FVector OrigLocation = VRPawn->HeadCameraComponent->GetComponentLocation();
 
 	const FRotator OrigRotation = VRPawn->GetActorRotation();
-
 	const FRotator NewRotation = FRotator(0, VRPawn->GetActorRotation().Yaw + Yaw, 0);
 
-	const FVector NewLocation = OrigLocation + OrigRotation.RotateVector(PivotPoint);
+	const FVector Offset = VRPawn->GetActorLocation() - OrigLocation;
+	const FVector UntwistedOffset = OrigRotation.GetInverse().RotateVector(Offset);
+	const FVector NewLocation = OrigLocation + NewRotation.RotateVector(UntwistedOffset);
 
 	VRPawn->Controller->SetControlRotation(NewRotation);
 	VRPawn->SetActorLocationAndRotation(NewLocation, NewRotation);
