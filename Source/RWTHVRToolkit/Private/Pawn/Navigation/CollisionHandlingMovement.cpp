@@ -67,13 +67,8 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 			}
 		}
 
-		// in case we are in a collision and collision checks are temporarily deactivated, we only allow physical
-		// movement without any checks, otherwise check collision during physical movement
-		if (bCollisionChecksTemporarilyDeactivated)
-		{
-			ConsumeInputVector();
-		}
-		else
+		// in case we are in a collision and collision checks are temporarily deactivated.
+		if (!bCollisionChecksTemporarilyDeactivated)
 		{
 			// so we add stepping-up (for both walk and fly)
 			// and gravity for walking only
