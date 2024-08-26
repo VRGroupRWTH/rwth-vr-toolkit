@@ -44,15 +44,15 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 		}
 		else
 		{
-			EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+			EI->BindAction(DesktopTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
 		}
 	}
 
 	// bind additional functions for desktop rotations
 	if (URWTHVRUtilities::IsDesktopMode())
 	{
-		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UTurnComponent::StartDesktopRotation);
-		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UTurnComponent::EndDesktopRotation);
+		EI->BindAction(DesktopTurnCondition, ETriggerEvent::Started, this, &UTurnComponent::StartDesktopRotation);
+		EI->BindAction(DesktopTurnCondition, ETriggerEvent::Completed, this, &UTurnComponent::EndDesktopRotation);
 	}
 }
 

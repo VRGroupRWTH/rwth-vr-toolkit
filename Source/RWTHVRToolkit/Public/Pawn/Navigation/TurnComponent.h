@@ -36,9 +36,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	class UInputAction* Turn;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* DesktopTurn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* DesktopRotation;
+	class UInputAction* DesktopTurnCondition;
 
 	/**
 	 * Called every tick as long as stick input is received to allow for continuous turning
