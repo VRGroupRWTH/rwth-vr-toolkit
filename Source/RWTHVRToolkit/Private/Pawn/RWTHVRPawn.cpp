@@ -263,7 +263,6 @@ void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
 void ARWTHVRPawn::AttachClustertoPawn()
 {
-
 	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
 		const auto ClusterActor = State->GetCorrespondingClusterActor();
@@ -287,8 +286,8 @@ void ARWTHVRPawn::AttachClustertoPawn()
 				  "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
 	}
 
-	// if (HasAuthority()) // Should always be the case here, but double check
-	//	MulticastAddDCSyncComponent();
+	if (HasAuthority()) // Should always be the case here, but double check
+		MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()
