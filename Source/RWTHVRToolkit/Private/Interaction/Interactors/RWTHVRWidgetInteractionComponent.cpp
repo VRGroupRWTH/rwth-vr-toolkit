@@ -51,10 +51,20 @@ void URWTHVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* Player
 		return;
 	}
 
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Started, this,
-				   &URWTHVRWidgetInteractionComponent::OnBeginClick);
-	EI->BindAction(WidgetClickInputAction, ETriggerEvent::Completed, this,
-				   &URWTHVRWidgetInteractionComponent::OnEndClick);
+	if(WidgetLeftClickInputAction)
+	{
+		EI->BindAction(WidgetLeftClickInputAction, ETriggerEvent::Started, this,
+					   &URWTHVRWidgetInteractionComponent::OnBeginLeftClick);
+		EI->BindAction(WidgetLeftClickInputAction, ETriggerEvent::Completed, this,
+					   &URWTHVRWidgetInteractionComponent::OnEndLeftClick);
+	}
+	if(WidgetRightClickInputAction)
+	{
+		EI->BindAction(WidgetRightClickInputAction, ETriggerEvent::Started, this,
+					   &URWTHVRWidgetInteractionComponent::OnBeginRightClick);
+		EI->BindAction(WidgetRightClickInputAction, ETriggerEvent::Completed, this,
+					   &URWTHVRWidgetInteractionComponent::OnEndRightClick);
+	}
 }
 
 // Called every frame
@@ -99,15 +109,27 @@ void URWTHVRWidgetInteractionComponent::SetInteractionRayVisibility(EInteraction
 }
 
 // Forward the click to the WidgetInteraction
-void URWTHVRWidgetInteractionComponent::OnBeginClick(const FInputActionValue& Value)
+void URWTHVRWidgetInteractionComponent::OnBeginLeftClick(const FInputActionValue& Value)
 {
 	PressPointerKey(EKeys::LeftMouseButton);
 }
 
 // Forward the end click to the WidgetInteraction
-void URWTHVRWidgetInteractionComponent::OnEndClick(const FInputActionValue& Value)
+void URWTHVRWidgetInteractionComponent::OnEndLeftClick(const FInputActionValue& Value)
 {
 	ReleasePointerKey(EKeys::LeftMouseButton);
+}
+
+// Forward the click to the WidgetInteraction
+void URWTHVRWidgetInteractionComponent::OnBeginRightClick(const FInputActionValue& Value)
+{
+	PressPointerKey(EKeys::RightMouseButton);
+}
+
+// Forward the end click to the WidgetInteraction
+void URWTHVRWidgetInteractionComponent::OnEndRightClick(const FInputActionValue& Value)
+{
+	ReleasePointerKey(EKeys::RightMouseButton);
 }
 
 void URWTHVRWidgetInteractionComponent::CreateInteractionRay()
