@@ -51,14 +51,14 @@ void URWTHVRWidgetInteractionComponent::SetupPlayerInput(UInputComponent* Player
 		return;
 	}
 
-	if(WidgetLeftClickInputAction)
+	if (WidgetLeftClickInputAction)
 	{
 		EI->BindAction(WidgetLeftClickInputAction, ETriggerEvent::Started, this,
 					   &URWTHVRWidgetInteractionComponent::OnBeginLeftClick);
 		EI->BindAction(WidgetLeftClickInputAction, ETriggerEvent::Completed, this,
 					   &URWTHVRWidgetInteractionComponent::OnEndLeftClick);
 	}
-	if(WidgetRightClickInputAction)
+	if (WidgetRightClickInputAction)
 	{
 		EI->BindAction(WidgetRightClickInputAction, ETriggerEvent::Started, this,
 					   &URWTHVRWidgetInteractionComponent::OnBeginRightClick);
