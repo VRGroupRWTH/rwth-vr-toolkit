@@ -282,7 +282,7 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const F
 {
 	const bool bHandIsCloseToWall =
 		FMath::IsWithinInclusive(HandPosition.GetAbsMax(), WallDistance - WallCloseDistance, WallDistance);
-	if (bHandIsCloseToWall && !PositionInDoorOpening(HandPosition))
+	if (bHandIsCloseToWall && !PositionInDoorOpening(HandPosition) && Sign && HandMaterial)
 	{
 		Sign->SetVisibility(true);
 		HandMaterial->SetScalarParameterValue("SignOpacity", CalculateOpacityFromPosition(HandPosition));
@@ -300,7 +300,7 @@ void ACAVEOverlayController::SetSignsForHand(UStaticMeshComponent* Sign, const F
 		const auto Pos = FVector(X, Y, Z);
 		Sign->SetRelativeLocationAndRotation(Pos, Rot);
 	}
-	else
+	else if (Sign)
 	{
 		Sign->SetVisibility(false);
 	}
