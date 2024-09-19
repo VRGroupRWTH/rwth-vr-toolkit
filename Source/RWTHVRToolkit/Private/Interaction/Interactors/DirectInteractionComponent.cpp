@@ -120,6 +120,7 @@ void UDirectInteractionComponent::OnBeginInteraction(const FInputActionValue& Va
 	}
 	else
 	{
+		CurrentlyInteractedComponents.Empty();
 		CurrentlyInteractedComponents.Reserve(CurrentlyInteractedComponents.Num() +
 											  CurrentInteractableComponentsInRange.Num());
 		for (UInteractableComponent* InteractableComp : CurrentInteractableComponentsInRange)
@@ -139,6 +140,7 @@ void UDirectInteractionComponent::OnEndInteraction(const FInputActionValue& Valu
 			Component->HandleOnActionEndEvents(this, InteractionInputAction, Value, EInteractorType::Direct);
 		}
 	}
+	CurrentlyInteractedComponents.Empty();
 }
 
 UInteractableComponent* UDirectInteractionComponent::SearchForInteractable(AActor* HitActor)

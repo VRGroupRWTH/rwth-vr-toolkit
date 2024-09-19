@@ -38,9 +38,11 @@ include:
 # with a generated project.
 #
 # Use the UNREAL_VERSION variable to adjust to your preferred Unreal version.
+# Use the CUSTOM_NDISPLAY_CONFIG variable in case you need a custom ndisplay config. These are always located in /home/vrdemo/configs/ndisplay.
 
 variables:
     UNREAL_VERSION: "5.3"
+    CUSTOM_NDISPLAY_CONFIG: "aixcave_5_3_dev.ndisplay"
 
 stages:
   - analyze
@@ -49,7 +51,7 @@ stages:
   - deploy
 
 clang-format:
-    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/unreal-development/plugins/rwth-vr-toolkit/alpine-analyze:latest
+    image: registry.git-ce.rwth-aachen.de/vr-vis/vr-group/alpine-analyze:latest
     tags:
         - docker-executor
         - linux
@@ -67,7 +69,7 @@ clang-format:
         - echo $CI_MERGE_REQUEST_DIFF_BASE_SHA 
         - linter_errors=$(unbuffer git-clang-format --commit "$CI_MERGE_REQUEST_DIFF_BASE_SHA" *.h *.cpp -q --diff | grep -v --color=always "no modified files to format" || true)
         - echo "$linter_errors"
-        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix"; exit 1; else echo "Formatting is correct"; exit 0; fi
+        - if [ ! -z "$linter_errors" ]; then echo "Detected formatting issues; please fix. Make sure you are using the same clang-format version! You can download it from the development section in this repo's wiki."; exit 1; else echo "Formatting is correct"; exit 0; fi
 
 Generate_Project:
     rules: 
@@ -80,8 +82,21 @@ Generate_Project:
     variables:
         RUN_SETUP: "false"
         GEN_DEPENDENCIES: "(
-            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git')"
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            [dev/5.3@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
+            )"
 
+Generate_Project_Without_Cluster:
+    extends: Generate_Project
+    variables:
+        GEN_DEPENDENCIES: "(
+            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
+            )"
+    script: # if we don't do this, cooking will for some reason fail even though it should use the correct fallback
+      - !reference [Generate_Project, script]
+      - echo "Generating without cluster mode, removing nDisplay configs..."
+      - cd ${CI_PROJECT_DIR}
+      - sed -i '/DisplayCluster/d' Config/Linux/LinuxEngine.ini
 
 Build_Windows:
     rules: 
@@ -122,6 +137,14 @@ Build_Linux:
         CLIENT_CONFIG: "DebugGame"
     needs:
         - job: "Generate_Project"
+          artifacts: true
+
+
+# Builds for linux without the cluster plugin
+Build_Linux_Without_Cluster:
+    extends: Build_Linux
+    needs:
+        - job: "Generate_Project_Without_Cluster"
           artifacts: true
 
 # Deploys to vrdev

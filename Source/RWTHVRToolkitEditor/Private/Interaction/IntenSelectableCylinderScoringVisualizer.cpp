@@ -1,6 +1,8 @@
 #include "Interaction/IntenSelectableCylinderScoringVisualizer.h"
 #include "ActorEditorUtils.h"
 #include "SceneManagement.h"
+#include "Editor.h"
+
 
 IMPLEMENT_HIT_PROXY(FCylinderPointProxy, HComponentVisProxy);
 

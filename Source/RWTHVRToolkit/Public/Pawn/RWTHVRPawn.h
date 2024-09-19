@@ -6,8 +6,6 @@
 #include "LiveLinkRole.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 
-#include "Components/DisplayClusterSceneComponentSyncParent.h"
-
 #include "RWTHVRPawn.generated.h"
 
 class UInputMappingContext;
@@ -26,6 +24,8 @@ class RWTHVRTOOLKIT_API ARWTHVRPawn : public APawn
 
 public:
 	ARWTHVRPawn(const FObjectInitializer& ObjectInitializer);
+
+	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -54,8 +54,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
 	UCameraComponent* HeadCameraComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn|Camera")
-	UDisplayClusterSceneComponentSyncParent* SyncComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
+	USceneComponent* SyncComponent;
 
 	// LiveLink functionality
 

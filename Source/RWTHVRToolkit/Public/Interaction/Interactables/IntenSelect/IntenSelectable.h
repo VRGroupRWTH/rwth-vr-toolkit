@@ -28,10 +28,10 @@ public:
 	TArray<UIntenSelectableScoring*> ScoringBehaviours;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UHoverBehaviour*> OnSelectBehaviours;
+	TArray<UHoverBehaviour*> OnHoverBehaviours;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UActionBehaviour*> OnClickBehaviours;
+	TArray<UActionBehaviour*> OnActionBehaviours;
 
 
 public:
@@ -47,8 +47,6 @@ public:
 	void HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue);
 
 	void InitDefaultBehaviourReferences();
-
-	void ShowErrorAndQuit(const FString& Message) const;
 
 protected:
 	virtual void BeginPlay() override;

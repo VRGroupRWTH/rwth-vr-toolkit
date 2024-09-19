@@ -4,8 +4,10 @@
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Logging/StructuredLog.h"
 #include "Misc/MessageDialog.h"
 #include "Pawn/IntenSelectComponent.h"
+#include "Utility/RWTHVRUtilities.h"
 
 UIntenSelectable::UIntenSelectable() { PrimaryComponentTick.bCanEverTick = true; }
 
@@ -45,7 +47,8 @@ void UIntenSelectable::BeginPlay()
 	{
 		if (ScoringBehaviours.Num() == 0)
 		{
-			ShowErrorAndQuit(
+			UE_LOGFMT(
+				Toolkit, Error,
 				"Please assign the Scoring Behaviour manually when using more than one IntenSelectable Component!");
 		}
 	}
@@ -57,36 +60,36 @@ void UIntenSelectable::BeginPlay()
 
 void UIntenSelectable::HandleOnSelectStartEvents(const UIntenSelectComponent* IntenSelect, const FHitResult& HitResult)
 {
-	for (const UHoverBehaviour* b : OnSelectBehaviours)
+	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
-		b->OnHoverStartEvent.Broadcast(IntenSelect, HitResult);
+		CurrentHoverBehaviour->OnHoverStartEvent.Broadcast(IntenSelect, HitResult);
 	}
 }
 
 void UIntenSelectable::HandleOnSelectEndEvents(const UIntenSelectComponent* IntenSelect)
 {
-	for (const UHoverBehaviour* b : OnSelectBehaviours)
+	for (const UHoverBehaviour* CurrentHoverBehaviour : OnHoverBehaviours)
 	{
-		b->OnHoverEndEvent.Broadcast(IntenSelect);
+		CurrentHoverBehaviour->OnHoverEndEvent.Broadcast(IntenSelect);
 	}
 }
 
 void UIntenSelectable::HandleOnClickStartEvents(UIntenSelectComponent* IntenSelect)
 {
-	for (const UActionBehaviour* b : OnClickBehaviours)
+	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
-		FInputActionValue v{};
-		const UInputAction* a{};
-		b->OnActionBeginEvent.Broadcast(IntenSelect, a, v);
+		FInputActionValue EmptyInputActionValue{};
+		const UInputAction* EmptyInputAction{};
+		CurrentActionBehaviour->OnActionBeginEvent.Broadcast(IntenSelect, EmptyInputAction, EmptyInputActionValue);
 	}
 }
 
 void UIntenSelectable::HandleOnClickEndEvents(UIntenSelectComponent* IntenSelect, FInputActionValue& InputValue)
 {
-	for (const UActionBehaviour* b : OnClickBehaviours)
+	for (const UActionBehaviour* CurrentActionBehaviour : OnActionBehaviours)
 	{
-		const UInputAction* a{};
-		b->OnActionEndEvent.Broadcast(IntenSelect, a, InputValue);
+		const UInputAction* EmptyInputActionValue{};
+		CurrentActionBehaviour->OnActionEndEvent.Broadcast(IntenSelect, EmptyInputActionValue, InputValue);
 	}
 }
 
@@ -115,23 +118,14 @@ void UIntenSelectable::InitDefaultBehaviourReferences()
 	}
 
 	// Selecting
-	TInlineComponentArray<UHoverBehaviour*> AttachedSelectionBehaviours;
-	GetOwner()->GetComponents(AttachedSelectionBehaviours, true);
+	TInlineComponentArray<UHoverBehaviour*> AttachedHoverBehaviours;
+	GetOwner()->GetComponents(AttachedHoverBehaviours, true);
 
-	this->OnSelectBehaviours = AttachedSelectionBehaviours;
+	OnHoverBehaviours = AttachedHoverBehaviours;
 
 	// Clicking
 	TInlineComponentArray<UActionBehaviour*> AttachedClickBehaviours;
 	GetOwner()->GetComponents(AttachedClickBehaviours, true);
 
-	this->OnClickBehaviours = AttachedClickBehaviours;
-}
-
-void UIntenSelectable::ShowErrorAndQuit(const FString& Message) const
-{
-	UE_LOG(LogTemp, Error, TEXT("%s"), *Message)
-#if WITH_EDITOR
-	FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString("RUNTIME ERROR")));
-#endif
-	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
+	OnActionBehaviours = AttachedClickBehaviours;
 }

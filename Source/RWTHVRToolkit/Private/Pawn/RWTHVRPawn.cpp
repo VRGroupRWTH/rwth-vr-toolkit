@@ -16,6 +16,10 @@
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "Components/DisplayClusterSceneComponentSyncParent.h"
+#endif
+
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	BaseEyeHeight = 160.0f;
@@ -36,14 +40,21 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
+}
+void ARWTHVRPawn::BeginPlay()
+{
+	Super::BeginPlay();
 
+#if PLATFORM_SUPPORTS_CLUSTER
 	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
 	// This is required because for collision based movement, it can happen that the physics engine
 	// for some reason acts different on the nodes, therefore leading to a potential desync when
 	// e.g. colliding with an object while moving.
-	SyncComponent =
-		CreateDefaultSubobject<UDisplayClusterSceneComponentSyncParent>(TEXT("Parent Display Cluster Sync Component"));
-	SyncComponent->SetupAttachment(RootComponent);
+
+	SyncComponent = Cast<USceneComponent>(AddComponentByClass(UDisplayClusterSceneComponentSyncParent::StaticClass(),
+															  false, FTransform::Identity, false));
+	AddInstanceComponent(SyncComponent);
+#endif
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
@@ -67,6 +78,11 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
+
+
+	UE_LOG(Toolkit, Display,
+		   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
+
 
 	// Only do this for all local controlled pawns
 	if (IsLocallyControlled())
