@@ -148,7 +148,7 @@ Build_Linux_Without_Cluster:
           artifacts: true
 
 # Deploys to vrdev
-Deploy_Windows:
+.Deploy_Windows:
     rules: 
       - if: $CI_PIPELINE_SOURCE == "web"
       - if: $CI_PIPELINE_SOURCE == "schedule"
