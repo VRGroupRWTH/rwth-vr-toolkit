@@ -42,7 +42,7 @@ include:
 
 variables:
     UNREAL_VERSION: "5.4"
-    CUSTOM_NDISPLAY_CONFIG: "aixcave_5_3_dev.ndisplay"
+    CUSTOM_NDISPLAY_CONFIG: "aixcave_5_4.ndisplay"
 
 stages:
   - analyze
@@ -83,7 +83,7 @@ Generate_Project:
         RUN_SETUP: "false"
         GEN_DEPENDENCIES: "(
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
-            [dev/5.3@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
+            [5.4@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
             )"
 
 Generate_Project_Without_Cluster:
