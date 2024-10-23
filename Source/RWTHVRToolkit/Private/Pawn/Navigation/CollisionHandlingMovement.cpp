@@ -37,7 +37,9 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 {
 
 	if (ShouldSkipUpdate(DeltaTime))
+	{
 		return;
+	}
 
 	const AController* Controller = PawnOwner->GetController();
 	if (Controller && Controller->IsLocalController())
@@ -58,7 +60,7 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 			ConsumeInputVector();
 			AddInputVector(InputVector);
 		}
-		
+
 		if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 		{
 			// if me managed to get into a collision revert the movement since last Tick
