@@ -4,6 +4,7 @@
 #include "Pawn/Navigation/TurnComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -36,22 +37,36 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	// turning
 	if (bAllowTurning)
 	{
-		// no snap turning for desktop mode
-		if (bSnapTurn && !URWTHVRUtilities::IsDesktopMode())
+		if (bSnapTurn)
 		{
-			EI->BindAction(Turn, ETriggerEvent::Started, this, &UTurnComponent::OnBeginSnapTurn);
+			// no snap turning for desktop mode
+			if (!URWTHVRUtilities::IsDesktopMode())
+			{
+				EI->BindAction(XRTurn, ETriggerEvent::Started, this, &UTurnComponent::OnBeginSnapTurn);
+			}
+			else
+			{
+				EI->BindAction(DesktopTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+			}
 		}
 		else
 		{
-			EI->BindAction(Turn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+			if (!URWTHVRUtilities::IsDesktopMode())
+			{
+				EI->BindAction(XRTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+			}
+			else
+			{
+				EI->BindAction(DesktopTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+			}
 		}
 	}
 
 	// bind additional functions for desktop rotations
 	if (URWTHVRUtilities::IsDesktopMode())
 	{
-		EI->BindAction(DesktopRotation, ETriggerEvent::Started, this, &UTurnComponent::StartDesktopRotation);
-		EI->BindAction(DesktopRotation, ETriggerEvent::Completed, this, &UTurnComponent::EndDesktopRotation);
+		EI->BindAction(DesktopTurnCondition, ETriggerEvent::Started, this, &UTurnComponent::StartDesktopRotation);
+		EI->BindAction(DesktopTurnCondition, ETriggerEvent::Completed, this, &UTurnComponent::EndDesktopRotation);
 	}
 }
 
@@ -110,15 +125,14 @@ void UTurnComponent::OnBeginSnapTurn(const FInputActionValue& Value)
 
 void UTurnComponent::RotateCameraAndPawn(float Yaw) const
 {
-	const FVector OrigLocation = VRPawn->GetActorLocation();
-	FVector PivotPoint = VRPawn->GetActorTransform().InverseTransformPosition(OrigLocation);
-	PivotPoint.Z = 0.0f;
+	const FVector OrigLocation = VRPawn->HeadCameraComponent->GetComponentLocation();
 
 	const FRotator OrigRotation = VRPawn->GetActorRotation();
-
 	const FRotator NewRotation = FRotator(0, VRPawn->GetActorRotation().Yaw + Yaw, 0);
 
-	const FVector NewLocation = OrigLocation + OrigRotation.RotateVector(PivotPoint);
+	const FVector Offset = VRPawn->GetActorLocation() - OrigLocation;
+	const FVector UntwistedOffset = OrigRotation.GetInverse().RotateVector(Offset);
+	const FVector NewLocation = OrigLocation + NewRotation.RotateVector(UntwistedOffset);
 
 	VRPawn->Controller->SetControlRotation(NewRotation);
 	VRPawn->SetActorLocationAndRotation(NewLocation, NewRotation);

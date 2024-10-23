@@ -50,13 +50,15 @@ void UCollisionHandlingMovement::TickComponent(float DeltaTime, enum ELevelTick 
 		{
 			// you are only allowed to move horizontally in NAV_WALK
 			// everything else will be handled by stepping-up/gravity
-			// so remove Z component for the input vector of the UFloatingPawnMovement
-			InputVector.Z = 0.0f;
+			// so rotate the input vector onto horizontal plane
+			const FRotator InputRot = FRotator(InputVector.Rotation());
+			const FRotator InputYaw = FRotator(0, InputRot.Yaw, 0);
+			InputVector = InputRot.UnrotateVector(InputVector);
+			InputVector = InputYaw.RotateVector(InputVector);
 			ConsumeInputVector();
 			AddInputVector(InputVector);
 		}
-
-
+		
 		if (NavigationMode == EVRNavigationModes::NAV_FLY || NavigationMode == EVRNavigationModes::NAV_WALK)
 		{
 			// if me managed to get into a collision revert the movement since last Tick
