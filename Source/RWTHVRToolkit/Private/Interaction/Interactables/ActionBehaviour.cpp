@@ -6,13 +6,8 @@
 // We disable ticking here, as we are mainly interested in the events
 UActionBehaviour::UActionBehaviour() { PrimaryComponentTick.bCanEverTick = false; }
 
-void UActionBehaviour::OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+void UActionBehaviour::OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 									 const FInputActionValue& Value)
-{
-}
-
-void UActionBehaviour::OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-								   const FInputActionValue& Value)
 {
 }
 
@@ -20,13 +15,5 @@ void UActionBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnActionBeginEvent.AddDynamic(this, &UActionBehaviour::OnActionStart);
-	OnActionEndEvent.AddDynamic(this, &UActionBehaviour::OnActionEnd);
-}
-
-// Called every frame
-void UActionBehaviour::TickComponent(float DeltaTime, ELevelTick TickType,
-									 FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	OnActionEventEvent.AddDynamic(this, &UActionBehaviour::OnActionEvent);
 }
