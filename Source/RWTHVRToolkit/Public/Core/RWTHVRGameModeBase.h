@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Pawn/ClusterRepresentationActor.h"
 #include "RWTHVRGameModeBase.generated.h"
 
 /**
@@ -15,6 +16,8 @@ UCLASS()
 class RWTHVRTOOLKIT_API ARWTHVRGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+public:
+	ARWTHVRGameModeBase(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	/**
@@ -29,4 +32,8 @@ protected:
 	 * possess. If not, spawn a DefaultPawnClass Pawn and Possess it (Should be BP_VirtualRealityPawn to make sense).
 	 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+private:
+	UPROPERTY()
+	TMap<int32, AClusterRepresentationActor*> ConnectedClusters;
 };

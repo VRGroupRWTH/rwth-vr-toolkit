@@ -8,8 +8,8 @@
 #include "ILiveLinkClient.h"
 #include "InputMappingContext.h"
 #include "Core/RWTHVRPlayerState.h"
-#include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
+#include "Pawn/ClusterRepresentationActor.h"
 #include "Pawn/InputExtensionInterface.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
@@ -61,7 +61,7 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
  * as connections now send their playertype over.
  */
 // This pawn's controller has changed! This is called on both server and owning client. If we are the owning client
-// and the master, request that the DCRA is attached to us.
+// and the master, request that the Cluster is attached to us.
 void ARWTHVRPawn::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
@@ -71,17 +71,17 @@ void ARWTHVRPawn::NotifyControllerChanged()
 	if (HasAuthority())
 	{
 		UE_LOG(Toolkit, Display,
-			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change DCRA attachment if possible..."));
+			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change Cluster attachment if possible..."));
 		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 		{
 			const EPlayerType Type = State->GetPlayerType();
 
 			// Only cluster types are valid here as they are set on connection.
 			// For all other player types this is a race condition
-			if (Type == EPlayerType::nDisplayPrimary || GetNetMode() == NM_Standalone)
+			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
 			{
-				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching DCRA to Pawn {Pawn}.", GetName());
-				AttachDCRAtoPawn();
+				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
+				AttachClustertoPawn();
 			}
 		}
 	}
@@ -259,35 +259,35 @@ void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
 #endif
 }
 
-// Executed on the server only: Finds and attaches the CaveSetup Actor, which contains the DCRA to the Pawn.
+// Executed on the server only: Attaches the ClusterRepresentation Actor, which contains the DCRA to the Pawn.
 // It is only executed on the server because attachments are synced to all clients, but not from client to server.
-void ARWTHVRPawn::AttachDCRAtoPawn()
+void ARWTHVRPawn::AttachClustertoPawn()
 {
-	if (!CaveSetupActorClass || !CaveSetupActorClass->IsValidLowLevelFast())
+	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
-		UE_LOGFMT(Toolkit, Warning, "No CaveSetup Actor class set in pawn!");
-		return;
-	}
-
-	// Find our CaveSetup actor
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), CaveSetupActorClass, FoundActors);
-
-	if (!FoundActors.IsEmpty())
-	{
-		const auto CaveSetupActor = FoundActors[0];
-		FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
-		CaveSetupActor->AttachToActor(this, AttachmentRules);
-		UE_LOGFMT(Toolkit, Display, "VirtualRealityPawn: Attaching CaveSetup to our pawn!");
+		const auto ClusterActor = State->GetCorrespondingClusterActor();
+		if (!ClusterActor)
+		{
+			UE_LOGFMT(
+				Toolkit, Error,
+				"ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
+				"the Cave.");
+			return;
+		}
+		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+		bool bAttached = ClusterActor->AttachToComponent(GetRootComponent(), AttachmentRules);
+		// State->GetCorrespondingClusterActor()->OnAttached();
+		UE_LOGFMT(Toolkit, Display,
+				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
 	}
 	else
 	{
-		UE_LOGFMT(Toolkit, Warning,
-				  "No CaveSetup Actor found which can be attached to the Pawn! This won't work on the Cave.");
+		UE_LOGFMT(Toolkit, Error,
+				  "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
 	}
 
-	// if (HasAuthority()) // Should always be the case here, but double check
-	//	MulticastAddDCSyncComponent();
+	if (HasAuthority()) // Should always be the case here, but double check
+		MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()
