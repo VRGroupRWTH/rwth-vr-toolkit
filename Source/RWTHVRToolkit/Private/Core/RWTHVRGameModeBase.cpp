@@ -143,6 +143,16 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 
+		if (GetNetMode() == NM_Standalone)
+		{
+			const FName BaseName = PawnClass->HasAnyFlags(RF_ClassDefaultObject)
+				? PawnClass->GetFName()
+				: *PawnClass->GetFName().GetPlainNameString();
+
+			SpawnInfo.Name = BaseName;
+			SpawnInfo.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
+		}
+
 		// Spawn and possess the pawn
 		APawn* ResultPawn = GetWorld()->SpawnActor<APawn>(PawnClass, StartSpot->GetTransform(), SpawnInfo);
 		NewPlayer->Possess(ResultPawn);
