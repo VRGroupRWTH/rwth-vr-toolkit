@@ -3,21 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InputAction.h"
+#include "BaseBehaviour.h"
 #include "Components/SceneComponent.h"
 #include "InputActionValue.h"
-#include "InteractionBitSet.h"
 #include "ActionBehaviour.generated.h"
 
+enum EInteractionEventType : uint8;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActionBegin, USceneComponent*, TriggeredComponent,
-											   const UInputAction*, InputAction, const FInputActionValue&, Value);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActionEnd, USceneComponent*, TriggeredComponent, const UInputAction*,
-											   InputAction, const FInputActionValue&, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActionBegin, USceneComponent*, TriggerComponent,
+											   const EInteractionEventType, EventType, const FInputActionValue&, Value);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class RWTHVRTOOLKIT_API UActionBehaviour : public USceneComponent
+class RWTHVRTOOLKIT_API UActionBehaviour : public UBaseBehaviour
 {
 	GENERATED_BODY()
 
@@ -26,22 +23,23 @@ public:
 	UActionBehaviour();
 
 	UPROPERTY(BlueprintAssignable)
-	FOnActionBegin OnActionBeginEvent;
+	FOnActionBegin OnActionEventEvent;
 
+	/**
+	 * Replication specific:
+	 * This is only executed on the local client which processed the interaction and requested the replication process
+	 * to be started. Can be used e.g. for local effects or things that should be done both on the server and local
+	 * client. Broadcast by UInteractableComponent when the originating client sends a server rpc to start the
+	 * interaction replication.
+	 */
 	UPROPERTY(BlueprintAssignable)
-	FOnActionEnd OnActionEndEvent;
+	FOnActionBegin OnActionReplicationStartedOriginatorEvent;
+
 
 protected:
 	UFUNCTION()
-	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
+	virtual void OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
 							   const FInputActionValue& Value);
 
-	UFUNCTION()
-	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							 const FInputActionValue& Value);
-
 	virtual void BeginPlay() override;
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-							   FActorComponentTickFunction* ThisTickFunction) override;
 };

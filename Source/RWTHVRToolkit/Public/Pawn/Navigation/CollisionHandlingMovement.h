@@ -42,6 +42,12 @@ public:
 
 	void SetHeadComponent(USceneComponent* NewHeadComponent);
 
+	UFUNCTION(BlueprintCallable)
+	bool AddActorToIgnore(AActor* ActorToIgnore);
+
+	UFUNCTION(BlueprintCallable)
+	bool RemoveActorFromIgnore(AActor* ActorToIgnore);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement")
 	EVRNavigationModes NavigationMode = EVRNavigationModes::NAV_WALK;
 

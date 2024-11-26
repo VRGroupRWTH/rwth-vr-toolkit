@@ -20,14 +20,13 @@ class RWTHVRTOOLKIT_API UGrabBehavior : public UActionBehaviour
 	GENERATED_BODY()
 
 public:
+	UGrabBehavior();
+
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bBlockOtherInteractionsWhileGrabbed = true;
 
-	virtual void OnActionStart(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							   const FInputActionValue& Value) override;
-	virtual void OnActionEnd(USceneComponent* TriggeredComponent, const UInputAction* InputAction,
-							 const FInputActionValue& Value) override;
-
+	UPROPERTY(EditAnywhere, Category = "Grabbing")
+	bool bIgnoreGrabbedActorInCollisionMovement = true;
 
 	/**
 	 * Called after the object was successfully attached to the hand
@@ -41,13 +40,25 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGrabEnd OnGrabEndEvent;
 
+	UPROPERTY()
+	UPrimitiveComponent* MyPhysicsComponent;
+
+	virtual void BeginPlay() override;
+
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
 	// recursively goes up the hierarchy and returns the highest parent simulating physics
 	UPrimitiveComponent* GetHighestParentSimulatingPhysics(UPrimitiveComponent* Comp);
 
-	UPROPERTY()
-	UPrimitiveComponent* MyPhysicsComponent;
+	UFUNCTION()
+	void ReplicationOriginaterClientCallback(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
+											 const FInputActionValue& Value);
+
+	void HandleCollisionHandlingMovement(const USceneComponent* CurrentAttachParent,
+										 const EInteractionEventType EventType);
+
+	virtual void OnActionEvent(USceneComponent* TriggerComponent, const EInteractionEventType EventType,
+							   const FInputActionValue& Value) override;
 
 	UFUNCTION(BlueprintPure)
 	bool IsObjectGrabbed() const { return bObjectGrabbed; }
@@ -61,7 +72,13 @@ private:
 	 */
 	bool TryRelease();
 
+	void StartGrab(USceneComponent* TriggerComponent);
+
+	void EndGrab(USceneComponent* TriggerComponent);
+
 	bool bObjectGrabbed = false;
 
 	bool bWasSimulatingPhysics;
+
+	bool bWasAddedToIgnore = false;
 };

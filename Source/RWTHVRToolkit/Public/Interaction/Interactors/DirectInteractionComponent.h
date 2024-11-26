@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UBaseInteractionComponent.h"
 #include "Components/SceneComponent.h"
 #include "Interaction/Interactables/InteractableComponent.h"
-#include "Pawn/InputExtensionInterface.h"
 #include "DirectInteractionComponent.generated.h"
 
 UCLASS(Abstract, Blueprintable)
-class RWTHVRTOOLKIT_API UDirectInteractionComponent : public USceneComponent, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API UDirectInteractionComponent : public UUBaseInteractionComponent
 {
 	GENERATED_BODY()
 
@@ -20,29 +20,18 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	class UInputAction* InteractionInputAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direct Interaction")
 	float InteractionSphereRadius = 15.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direct Interaction")
-	bool bShowDebugTrace = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direct Interaction")
 	bool bOnlyInteractWithClosestActor = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Direct Interaction")
-	TArray<AActor*> ActorsToIgnore;
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
-	UFUNCTION()
-	void OnBeginInteraction(const FInputActionValue& Value);
+	virtual void OnBeginInteractionInputAction(const FInputActionValue& Value) override;
 
-	UFUNCTION()
-	void OnEndInteraction(const FInputActionValue& Value);
+	virtual void OnEndInteractionInputAction(const FInputActionValue& Value) override;
 
 	UPROPERTY()
 	TArray<UInteractableComponent*> PreviousInteractableComponentsInRange;

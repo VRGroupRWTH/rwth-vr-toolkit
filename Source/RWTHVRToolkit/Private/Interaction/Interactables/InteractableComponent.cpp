@@ -4,6 +4,9 @@
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/ActionBehaviour.h"
 #include "Interaction/Interactables/HoverBehaviour.h"
+#include "Interaction/Interactors/UBaseInteractionComponent.h"
+#include "Logging/StructuredLog.h"
+#include "Utility/RWTHVRUtilities.h"
 
 void UInteractableComponent::RestrictInteractionToComponents(const TArray<USceneComponent*>& Components)
 {
@@ -39,9 +42,8 @@ void UInteractableComponent::BeginPlay()
 	InitDefaultBehaviourReferences();
 }
 
-// This functions dispatches the HoverStart Event to the attached Hover Behaviour Components
-void UInteractableComponent::HandleOnHoverStartEvents(USceneComponent* TriggerComponent,
-													  const EInteractorType Interactor)
+void UInteractableComponent::HandleOnHoverEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor,
+												 const EInteractionEventType EventType)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
@@ -52,34 +54,47 @@ void UInteractableComponent::HandleOnHoverStartEvents(USceneComponent* TriggerCo
 		return;
 
 	// Broadcast event to all HoverBehaviours
-	for (const UHoverBehaviour* b : OnHoverBehaviours)
+	for (UHoverBehaviour* HoverBehaviour : OnHoverBehaviours)
 	{
-		b->OnHoverStartEvent.Broadcast(TriggerComponent, HitResult);
-	}
-}
+		// Check if we need to replicate the action to the server
+		if (HoverBehaviour->bExecuteOnServer)
+		{
+			// Request the server to execute our behaviour.
+			// As we can only execute RPCs from an owned object, and we don't necessarily own this actor, pipe it
+			// through the interactor. Because behaviours can also be triggered from non-interactors, only do this on a
+			// successful cast
 
-// This functions dispatches the HoverEnd Event to the attached Hover Behaviour Components
-void UInteractableComponent::HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor)
-{
-	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
-		return;
+			auto* InteractorComponent = Cast<UUBaseInteractionComponent>(TriggerComponent);
+			if (!InteractorComponent)
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "Interaction: TriggerComponent {TriggerComponent} is not a UUBaseInteractionComponent. Only "
+						  "UUBaseInteractionComponent TriggerComponents can be replicated.",
+						  TriggerComponent->GetName());
+				return;
+			}
+			InteractorComponent->RequestHoverBehaviourReplicationStart(HoverBehaviour, EventType, HitResult);
 
-	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent))
-		return;
-
-	// Broadcast event to all HoverBehaviours
-	for (const UHoverBehaviour* b : OnHoverBehaviours)
-	{
-		b->OnHoverEndEvent.Broadcast(TriggerComponent);
+			// Broadcast local callback
+			HoverBehaviour->OnHoverReplicationStartedOriginatorEvent.Broadcast(TriggerComponent, EventType, HitResult);
+		}
+		else if (HoverBehaviour->bExecuteOnAllClients)
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "Interaction: Behaviour {BehaviourName} has bExecuteOnAllClients=true, which requires "
+					  "bExecuteOnServer also set to true, which is not the case.",
+					  HoverBehaviour->GetName());
+		}
+		else // skip replication altogether (default case)
+		{
+			HoverBehaviour->OnHoverEventEvent.Broadcast(TriggerComponent, EventType, HitResult);
+		}
 	}
 }
 
 // This functions dispatches the ActionStart Event to the attached Action Behaviour Components
-void UInteractableComponent::HandleOnActionStartEvents(USceneComponent* TriggerComponent,
-													   const UInputAction* InputAction, const FInputActionValue& Value,
-													   const EInteractorType Interactor)
+void UInteractableComponent::HandleOnActionEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor,
+												  const EInteractionEventType EventType, const FInputActionValue& Value)
 {
 	// We early return if there the InteractorFilter is set and the Interactor is allowed.
 	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
@@ -90,28 +105,41 @@ void UInteractableComponent::HandleOnActionStartEvents(USceneComponent* TriggerC
 		return;
 
 	// Broadcast event to all ActionBehaviours
-	for (const UActionBehaviour* b : OnActionBehaviours)
+	for (UActionBehaviour* ActionBehaviour : OnActionBehaviours)
 	{
-		b->OnActionBeginEvent.Broadcast(TriggerComponent, InputAction, Value);
-	}
-}
+		// Check if we need to replicate the action to the server
+		if (ActionBehaviour->bExecuteOnServer)
+		{
+			// Request the server to execute our behaviour.
+			// As we can only execute RPCs from an owned object, and we don't necessarily own this actor, pipe it
+			// through the interactor. Because behaviours can also be triggered from non-interactors, only do this on a
+			// successful cast
 
-// This functions dispatches the ActionEnd Event to the attached Action Behaviour Components
-void UInteractableComponent::HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-													 const FInputActionValue& Value, const EInteractorType Interactor)
-{
-	// We early return if there the InteractorFilter is set and the Interactor is allowed.
-	if (!(InteractorFilter == EInteractorType::None || InteractorFilter & Interactor))
-		return;
+			auto* InteractorComponent = Cast<UUBaseInteractionComponent>(TriggerComponent);
+			if (!InteractorComponent)
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "Interaction: TriggerComponent {TriggerComponent} is not a UUBaseInteractionComponent. Only "
+						  "UUBaseInteractionComponent TriggerComponents can be replicated.",
+						  TriggerComponent->GetName());
+				return;
+			}
+			InteractorComponent->RequestActionBehaviourReplicationStart(ActionBehaviour, EventType, Value);
 
-	// We early return if the source Interactor is not part of the allowed components
-	if (!IsComponentAllowed(TriggerComponent))
-		return;
-
-	// Broadcast event to all ActionBehaviours
-	for (const UActionBehaviour* b : OnActionBehaviours)
-	{
-		b->OnActionEndEvent.Broadcast(TriggerComponent, InputAction, Value);
+			// Broadcast local callback
+			ActionBehaviour->OnActionReplicationStartedOriginatorEvent.Broadcast(TriggerComponent, EventType, Value);
+		}
+		else if (ActionBehaviour->bExecuteOnAllClients)
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "Interaction: Behaviour {BehaviourName} has bExecuteOnAllClients=true, which requires "
+					  "bExecuteOnServer also set to true, which is not the case.",
+					  ActionBehaviour->GetName());
+		}
+		else // skip replication altogether (default case)
+		{
+			ActionBehaviour->OnActionEventEvent.Broadcast(TriggerComponent, EventType, Value);
+		}
 	}
 }
 

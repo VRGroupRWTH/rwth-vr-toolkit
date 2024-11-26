@@ -2,16 +2,15 @@
 
 #pragma once
 
-#include <Pawn/InputExtensionInterface.h>
-
 #include "CoreMinimal.h"
+#include "UBaseInteractionComponent.h"
 #include "Components/SceneComponent.h"
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "RaycastInteractionComponent.generated.h"
 
 
 UCLASS(Abstract, Blueprintable)
-class RWTHVRTOOLKIT_API URaycastInteractionComponent : public USceneComponent, public IInputExtensionInterface
+class RWTHVRTOOLKIT_API URaycastInteractionComponent : public UUBaseInteractionComponent
 {
 	GENERATED_BODY()
 
@@ -23,20 +22,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	class UInputAction* InteractionInputAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
 	float TraceLength = 3000.0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
-	bool bShowDebugTrace = false;
 
 private:
-	UFUNCTION()
-	void OnBeginInteraction(const FInputActionValue& Value);
+	virtual void OnBeginInteractionInputAction(const FInputActionValue& Value) override;
 
-	UFUNCTION()
-	void OnEndInteraction(const FInputActionValue& Value);
+	virtual void OnEndInteractionInputAction(const FInputActionValue& Value) override;
 
 public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;

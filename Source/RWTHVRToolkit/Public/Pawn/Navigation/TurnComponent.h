@@ -35,10 +35,13 @@ public:
 	float SnapTurnAngle = 22.5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* Turn;
+	class UInputAction* XRTurn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* DesktopRotation;
+	class UInputAction* DesktopTurn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* DesktopTurnCondition;
 
 	/**
 	 * Called every tick as long as stick input is received to allow for continuous turning

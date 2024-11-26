@@ -9,6 +9,8 @@
 #include "InteractableComponent.generated.h"
 
 
+enum EInteractionEventType : uint8;
+class UBaseBehaviour;
 struct FInputActionValue;
 class UActionBehaviour;
 class UHoverBehaviour;
@@ -53,7 +55,7 @@ public:
 	bool bAllowInteractionFromChildGeometry = true;
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType type) { return type & InteractorFilter; }
+	FORCEINLINE bool HasInteractionTypeFlag(EInteractorType Type) { return Type & InteractorFilter; }
 
 	/**
 	 * @brief Restrict interactability to given components (e.g. if an object is grabbed, block interactions from other
@@ -74,12 +76,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void HandleOnHoverStartEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
-	void HandleOnHoverEndEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor);
-	void HandleOnActionStartEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-								   const FInputActionValue& Value, const EInteractorType Interactor);
-	void HandleOnActionEndEvents(USceneComponent* TriggerComponent, const UInputAction* InputAction,
-								 const FInputActionValue& Value, const EInteractorType Interactor);
+	void HandleOnHoverEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor,
+							 const EInteractionEventType EventType);
+	void HandleOnActionEvents(USceneComponent* TriggerComponent, const EInteractorType Interactor,
+							  const EInteractionEventType EventType, const FInputActionValue& Value);
 
 	/**
 	 * @brief If hover and action behaviors are not explicitly specified, load all existing ones

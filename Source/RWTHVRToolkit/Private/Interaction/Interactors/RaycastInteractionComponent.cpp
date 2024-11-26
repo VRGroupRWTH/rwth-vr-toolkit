@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "Interaction/Interactables/InteractableComponent.h"
+#include "Interaction/Interactables/InteractionEventType.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
@@ -25,14 +26,13 @@ void URaycastInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 	UInteractableComponent* NewInteractableComponent = nullptr;
 
-
-	TArray<AActor*> ActorsToIgnore;
 	FHitResult Hit;
 	const ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_PhysicsBody);
-	FVector TraceStart = GetAttachParent()->GetComponentLocation();
-	FVector TraceEnd = GetAttachParent()->GetComponentLocation() + TraceLength * GetAttachParent()->GetForwardVector();
+	const FVector TraceStart = GetAttachParent()->GetComponentLocation();
+	const FVector TraceEnd =
+		GetAttachParent()->GetComponentLocation() + TraceLength * GetAttachParent()->GetForwardVector();
 
-	auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+	const auto DebugTrace = bShowDebugTrace ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 
 	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceType, true, ActorsToIgnore, DebugTrace,
 										  Hit, true, FColor::Green);
@@ -53,24 +53,28 @@ void URaycastInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	if (CurrentInteractable != PreviousInteractable)
 	{
 		if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-			CurrentInteractable->HandleOnHoverStartEvents(this, EInteractorType::Raycast);
+			CurrentInteractable->HandleOnHoverEvents(this, EInteractorType::Raycast,
+													 EInteractionEventType::InteractionStart);
 		if (PreviousInteractable && PreviousInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-			PreviousInteractable->HandleOnHoverEndEvents(this, EInteractorType::Raycast);
+			PreviousInteractable->HandleOnHoverEvents(this, EInteractorType::Raycast,
+													  EInteractionEventType::InteractionEnd);
 	}
 
 	PreviousInteractable = CurrentInteractable;
 }
 
-void URaycastInteractionComponent::OnBeginInteraction(const FInputActionValue& Value)
+void URaycastInteractionComponent::OnBeginInteractionInputAction(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionStartEvents(this, InteractionInputAction, Value, EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionEvents(this, EInteractorType::Raycast,
+												  EInteractionEventType::InteractionStart, Value);
 }
 
-void URaycastInteractionComponent::OnEndInteraction(const FInputActionValue& Value)
+void URaycastInteractionComponent::OnEndInteractionInputAction(const FInputActionValue& Value)
 {
 	if (CurrentInteractable && CurrentInteractable->HasInteractionTypeFlag(EInteractorType::Raycast))
-		CurrentInteractable->HandleOnActionEndEvents(this, InteractionInputAction, Value, EInteractorType::Raycast);
+		CurrentInteractable->HandleOnActionEvents(this, EInteractorType::Raycast, EInteractionEventType::InteractionEnd,
+												  Value);
 }
 
 void URaycastInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
@@ -86,7 +90,7 @@ void URaycastInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInput
 		return;
 
 	EI->BindAction(InteractionInputAction, ETriggerEvent::Started, this,
-				   &URaycastInteractionComponent::OnBeginInteraction);
+				   &URaycastInteractionComponent::OnBeginInteractionInputAction);
 	EI->BindAction(InteractionInputAction, ETriggerEvent::Completed, this,
-				   &URaycastInteractionComponent::OnEndInteraction);
+				   &URaycastInteractionComponent::OnEndInteractionInputAction);
 }
