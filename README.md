@@ -10,4 +10,4 @@ To add support for nDisplay driven clusters such as the aixCAVE, check out the [
 
 ## Citation
 
-If you need to reference the toolkit in your scientific work, please use https://zenodo.org/records/10817754
+If you need to reference the toolkit in your scientific work, please use https://zenodo.org/records/10245746.
