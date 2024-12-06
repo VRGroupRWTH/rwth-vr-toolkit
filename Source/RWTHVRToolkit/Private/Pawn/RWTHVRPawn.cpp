@@ -249,7 +249,7 @@ void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
 	// for some reason acts different on the nodes, therefore leading to a potential desync when
 	// e.g. colliding with an object while moving.
 
-	if (URWTHVRUtilities::IsRoomMountedMode())
+	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
 	{
 		SyncComponent = Cast<USceneComponent>(AddComponentByClass(
 			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
