@@ -44,14 +44,22 @@ public:
 	TEnumAsByte<EInteractionRayVisibility> InteractionRayVisibility = EInteractionRayVisibility::Invisible;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
-	class UInputAction* WidgetClickInputAction;
+	class UInputAction* WidgetLeftClickInputAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	class UInputAction* WidgetRightClickInputAction;
 
 private:
 	UFUNCTION()
-	void OnBeginClick(const FInputActionValue& Value);
+	void OnBeginLeftClick(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void OnEndClick(const FInputActionValue& Value);
+	void OnEndLeftClick(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnBeginRightClick(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnEndRightClick(const FInputActionValue& Value);
 
 	void CreateInteractionRay();
 	void SetupInteractionRay();
