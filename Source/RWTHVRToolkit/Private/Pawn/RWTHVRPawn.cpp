@@ -84,6 +84,12 @@ void ARWTHVRPawn::NotifyControllerChanged()
 				AttachClustertoPawn();
 			}
 		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "ARWTHVRPawn: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment only works "
+					  "with correct PlayerStates!");
+		}
 	}
 }
 
