@@ -1,6 +1,7 @@
 #include "Utility/RWTHVRUtilities.h"
 
 #include "AudioDevice.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHeadMountedDisplay.h"
 #include "IXRTrackingSystem.h"
 #include "Engine/Engine.h"
@@ -18,9 +19,7 @@ bool URWTHVRUtilities::IsDesktopMode() { return !IsRoomMountedMode() && !IsHeadM
 
 bool URWTHVRUtilities::IsHeadMountedMode()
 {
-	// In editor builds: checks for EdEngine->IsVRPreviewActive()
-	// In packaged builds: checks for `-vr` in commandline or bStartInVR in UGeneralProjectSettings
-	return FAudioDevice::CanUseVRAudioDevice();
+	return UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
 }
 
 bool URWTHVRUtilities::IsRoomMountedMode()
