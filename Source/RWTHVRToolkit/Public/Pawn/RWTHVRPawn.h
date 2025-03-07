@@ -31,6 +31,9 @@ public:
 
 	virtual void NotifyControllerChanged() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetScale(float NewScale);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Input")
 	TArray<UInputMappingContext*> InputMappingContexts;
 
@@ -111,4 +114,5 @@ protected:
 
 private:
 	UInputComponent* ActivePlayerInputComponent;
+	float InitialWorldToMeters;
 };

@@ -41,8 +41,30 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
+
+	GetRootComponent()->TransformUpdated.AddLambda([this](USceneComponent*, EUpdateTransformFlags, ETeleportType)
+	{
+		FVector CurrentScale = this->GetActorScale3D();
+		if (CurrentScale.X == CurrentScale.Y && CurrentScale.Y == CurrentScale.Z)
+		{
+			float expectedScale = GetWorldSettings()->WorldToMeters / InitialWorldToMeters;
+			float ErrorPrecision = 1E-05;
+			if (FMath::IsNearlyEqual(CurrentScale.X, expectedScale, ErrorPrecision))
+			{
+				return;
+			}
+		}
+		UE_LOGFMT(Toolkit, Warning,
+		          "ARWTHVRPawn: Do not adjust the scale of the pawn directly. This will not work in VR. Use ARWTHVRPawn::SetScale(float) instead.")
+		;
+	});
 }
-void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
+
+void ARWTHVRPawn::BeginPlay()
+{
+	Super::BeginPlay();
+	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
+}
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -54,6 +76,17 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 		UpdateRightHandForDesktopInteraction();
 	}
 	EvaluateLivelink();
+}
+
+/*
+ *	Scales the Pawn while also adjusting the WorldToMeters ratio to adjust for pupillary distance.
+ *	Only supports uniform scaling.
+ */
+void ARWTHVRPawn::SetScale(float NewScale)
+{
+	FVector NewScaleVector = FVector(NewScale, NewScale, NewScale);
+	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * NewScale;
+	SetActorScale3D(NewScaleVector);
 }
 
 /*
@@ -71,7 +104,7 @@ void ARWTHVRPawn::NotifyControllerChanged()
 	if (HasAuthority())
 	{
 		UE_LOG(Toolkit, Display,
-			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change Cluster attachment if possible..."));
+		       TEXT("ARWTHVRPawn: Player Controller has changed, trying to change Cluster attachment if possible..."));
 		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 		{
 			const EPlayerType Type = State->GetPlayerType();
@@ -101,7 +134,7 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 
 	UE_LOGFMT(Toolkit, Display, "SetupPlayerInputComponent: Player Controller is valid, setting up input for {Pawn}",
-			  GetName());
+	          GetName());
 
 
 	// Set the control rotation of the PC to zero again. There is a small period of 2 frames where, when the pawn gets
@@ -173,7 +206,7 @@ void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInp
 			else
 			{
 				UE_LOGFMT(Toolkit, Warning,
-						  "ARWTHVRPawn::AddInputMappingContext: UEnhancedInputLocalPlayerSubsystem is nullptr!");
+				          "ARWTHVRPawn::AddInputMappingContext: UEnhancedInputLocalPlayerSubsystem is nullptr!");
 			}
 		}
 		else
@@ -201,7 +234,7 @@ void ARWTHVRPawn::EvaluateLivelink() const
 			IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
 		FLiveLinkSubjectFrameData SubjectData;
 		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject,
-																		  HeadSubjectRepresentation.Role, SubjectData);
+		                                                                  HeadSubjectRepresentation.Role, SubjectData);
 
 		if (!bHasValidData)
 		{
@@ -278,12 +311,12 @@ void ARWTHVRPawn::AttachClustertoPawn()
 		bool bAttached = ClusterActor->AttachToComponent(GetRootComponent(), AttachmentRules);
 		// State->GetCorrespondingClusterActor()->OnAttached();
 		UE_LOGFMT(Toolkit, Display,
-				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
+		          "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
 	}
 	else
 	{
 		UE_LOGFMT(Toolkit, Error,
-				  "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
+		          "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
 	}
 
 	if (HasAuthority()) // Should always be the case here, but double check
@@ -321,19 +354,19 @@ void ARWTHVRPawn::SetCameraOffset() const
 }
 
 void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
-										 const FLiveLinkTransformStaticData& StaticData) const
+                                         const FLiveLinkTransformStaticData& StaticData) const
 {
 	if (StaticData.bIsLocationSupported)
 	{
 		if (bWorldTransform)
 		{
 			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
+			                                      ETeleportType::TeleportPhysics);
 		}
 		else
 		{
 			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
+			                                         ETeleportType::TeleportPhysics);
 		}
 	}
 
@@ -342,12 +375,12 @@ void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
 		if (bWorldTransform)
 		{
 			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
+			                                      ETeleportType::TeleportPhysics);
 		}
 		else
 		{
 			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
+			                                         ETeleportType::TeleportPhysics);
 		}
 	}
 
