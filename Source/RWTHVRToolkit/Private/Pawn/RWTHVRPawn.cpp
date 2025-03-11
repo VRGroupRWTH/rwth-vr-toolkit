@@ -42,21 +42,16 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
 
+	UniformScale = GetActorScale3D().X;
 	GetRootComponent()->TransformUpdated.AddLambda([this](USceneComponent*, EUpdateTransformFlags, ETeleportType)
 	{
 		FVector CurrentScale = this->GetActorScale3D();
-		if (CurrentScale.X == CurrentScale.Y && CurrentScale.Y == CurrentScale.Z)
+		if (CurrentScale.X != UniformScale || CurrentScale.Y != UniformScale || CurrentScale.Z != UniformScale)
 		{
-			float expectedScale = GetWorldSettings()->WorldToMeters / InitialWorldToMeters;
-			float ErrorPrecision = 1E-05;
-			if (FMath::IsNearlyEqual(CurrentScale.X, expectedScale, ErrorPrecision))
-			{
-				return;
-			}
+			UE_LOGFMT(Toolkit, Warning,
+			          "ARWTHVRPawn: Do not adjust the scale of the pawn directly. This will not work in VR. Use ARWTHVRPawn::SetScale(float) instead.")
+			;
 		}
-		UE_LOGFMT(Toolkit, Warning,
-		          "ARWTHVRPawn: Do not adjust the scale of the pawn directly. This will not work in VR. Use ARWTHVRPawn::SetScale(float) instead.")
-		;
 	});
 }
 
@@ -84,9 +79,17 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
  */
 void ARWTHVRPawn::SetScale(float NewScale)
 {
-	FVector NewScaleVector = FVector(NewScale, NewScale, NewScale);
-	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * NewScale;
-	SetActorScale3D(NewScaleVector);
+	FVector OldScale = GetActorScale();
+	UniformScale = NewScale;
+	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
+	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
+	SetActorRelativeScale3D(NewScaleVector);
+	OnScaleChanged.Broadcast(OldScale, NewScale);
+}
+
+float ARWTHVRPawn::GetScale()
+{
+	return UniformScale;
 }
 
 /*
