@@ -3,6 +3,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Logging/StructuredLog.h"
 #include "Utility/RWTHVRUtilities.h"
+#include "DrawDebugHelpers.h"
 
 UCollisionHandlingMovement::UCollisionHandlingMovement(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
@@ -189,6 +190,9 @@ void UCollisionHandlingMovement::SetCapsuleColliderToUserSize() const
 	}
 
 	CapsuleColliderComponent->SetWorldRotation(FRotator::ZeroRotator);
+
+	// Counteract Pawn Scaling
+	CapsuleColliderComponent->SetWorldScale3D(FVector::One());
 }
 
 void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()
