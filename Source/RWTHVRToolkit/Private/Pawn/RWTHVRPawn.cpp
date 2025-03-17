@@ -88,7 +88,7 @@ void ARWTHVRPawn::SetScale(float NewScale)
 	OnScaleChanged.Broadcast(OldScale, NewScale);
 }
 
-float ARWTHVRPawn::GetScale() {	return UniformScale; }
+float ARWTHVRPawn::GetScale() { return UniformScale; }
 
 /*
  * The alternative would be to do this only on the server on possess and check for player state/type,
