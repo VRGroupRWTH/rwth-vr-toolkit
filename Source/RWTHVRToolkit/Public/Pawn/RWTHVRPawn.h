@@ -32,7 +32,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void NotifyControllerChanged() override;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void SetScale(float NewScale);
 
