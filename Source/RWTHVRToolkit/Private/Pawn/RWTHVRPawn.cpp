@@ -127,12 +127,12 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		// Don't do anything with the type if it's been set to clustertype or anything.
 		// This is already being done when connecting to the server.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
-		
+
 		if (!bClusterType)
 		{
 			if (URWTHVRUtilities::IsHeadMountedMode())
 				Type = EPlayerType::HMD;
-			
+
 			UE_LOGFMT(Toolkit, Display, "Pawn: Requesting Player Type {T}...", StaticCast<int8>(Type));
 			// Could be too early to call this RPC...
 			State->RequestSetPlayerType(Type);

@@ -17,10 +17,7 @@ DEFINE_LOG_CATEGORY(Toolkit);
 
 bool URWTHVRUtilities::IsDesktopMode() { return !IsRoomMountedMode() && !IsHeadMountedMode(); }
 
-bool URWTHVRUtilities::IsHeadMountedMode()
-{
-	return UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
-}
+bool URWTHVRUtilities::IsHeadMountedMode() { return UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled(); }
 
 bool URWTHVRUtilities::IsRoomMountedMode()
 {
@@ -37,7 +34,7 @@ bool URWTHVRUtilities::IsPrimaryNode()
 	return URWTHVRClusterUtilities::IsPrimaryNode();
 #else
 	return false;
-#endif	
+#endif
 }
 
 float URWTHVRUtilities::GetEyeDistance()
