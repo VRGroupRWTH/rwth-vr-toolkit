@@ -26,8 +26,8 @@ void UClientTransformReplication::UpdateState(float DeltaTime)
 		// Only do this if we actually replicate the actor
 		if (GetIsReplicated())
 		{
-			const FVector Loc = OwningActor->GetActorLocation();
-			const FRotator Rot = OwningActor->GetActorRotation();
+			const FVector Loc = OwningActor->GetRootComponent()->GetRelativeLocation();
+			const FRotator Rot = OwningActor->GetRootComponent()->GetRelativeRotation();
 
 			// Only update state if the local state changed
 			if (!Loc.Equals(ReplicatedTransform.Position) || !Rot.Equals(ReplicatedTransform.Rotation))
