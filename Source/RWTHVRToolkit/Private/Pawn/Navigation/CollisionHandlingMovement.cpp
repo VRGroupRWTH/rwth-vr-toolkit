@@ -3,7 +3,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Logging/StructuredLog.h"
 #include "Utility/RWTHVRUtilities.h"
-#include "DrawDebugHelpers.h"
 
 UCollisionHandlingMovement::UCollisionHandlingMovement(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
