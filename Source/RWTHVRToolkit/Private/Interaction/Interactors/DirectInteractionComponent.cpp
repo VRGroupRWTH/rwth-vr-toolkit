@@ -70,6 +70,13 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	// Call hover end events on all components that were previously in range, but not anymore
 	for (UInteractableComponent* PrevInteractableComp : PreviousInteractableComponentsInRange)
 	{
+		// It can happen that a previous component was destroyed
+		if (!PrevInteractableComp || !PrevInteractableComp->IsValidLowLevel())
+		{
+			ComponentsToRemove.Add(PrevInteractableComp); // might have to use indices here
+			continue;
+		}
+		
 		if (!CurrentInteractableCompsInRange.Contains(PrevInteractableComp))
 		{
 			ComponentsToRemove.AddUnique(PrevInteractableComp);
