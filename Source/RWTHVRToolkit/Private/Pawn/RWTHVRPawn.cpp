@@ -89,7 +89,7 @@ void ARWTHVRPawn::SetScale(float NewScale)
 	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
 	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
 	SetActorRelativeScale3D(NewScaleVector);
-	
+
 #if PLATFORM_SUPPORTS_CLUSTER
 	const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
 	if (URWTHVRUtilities::IsHeadMountedMode() && State && State->GetCorrespondingClusterActor())
