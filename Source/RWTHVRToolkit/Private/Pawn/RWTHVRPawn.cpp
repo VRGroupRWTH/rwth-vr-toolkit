@@ -18,6 +18,10 @@
 #include "Utility/RWTHVRUtilities.h"
 
 #if PLATFORM_SUPPORTS_CLUSTER
+#include "DisplayClusterRootActor.h"
+#include "ScalableConfigInterface.h"
+#include "IDisplayCluster.h"
+#include "Game/IDisplayClusterGameManager.h"
 #include "Components/DisplayClusterSceneComponentSyncParent.h"
 #endif
 
@@ -85,7 +89,16 @@ void ARWTHVRPawn::SetScale(float NewScale)
 	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
 	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
 	SetActorRelativeScale3D(NewScaleVector);
-	OnScaleChanged.Broadcast(OldScale, NewScale);
+	
+#if PLATFORM_SUPPORTS_CLUSTER
+	const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
+	if (URWTHVRUtilities::IsHeadMountedMode() && State && State->GetCorrespondingClusterActor())
+	{
+		const auto ClusterRootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+		IScalableConfigInterface* ConfigInterface = Cast<IScalableConfigInterface>(ClusterRootActor);
+		ConfigInterface->OnScaleChanged(NewScale);
+	}
+#endif
 }
 
 float ARWTHVRPawn::GetScale() { return UniformScale; }
