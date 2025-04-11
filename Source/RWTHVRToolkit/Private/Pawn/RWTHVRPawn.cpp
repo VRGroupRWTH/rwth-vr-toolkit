@@ -84,7 +84,6 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
  */
 void ARWTHVRPawn::SetScale(float NewScale)
 {
-	FVector OldScale = GetActorScale();
 	UniformScale = NewScale;
 	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
 	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
@@ -92,11 +91,24 @@ void ARWTHVRPawn::SetScale(float NewScale)
 
 #if PLATFORM_SUPPORTS_CLUSTER
 	const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
-	if (URWTHVRUtilities::IsHeadMountedMode() && State && State->GetCorrespondingClusterActor())
+	if (URWTHVRUtilities::IsRoomMountedMode() && State && State->GetCorrespondingClusterActor())
 	{
-		const auto ClusterRootActor = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-		IScalableConfigInterface* ConfigInterface = Cast<IScalableConfigInterface>(ClusterRootActor);
-		ConfigInterface->OnScaleChanged(NewScale);
+		if (const auto GameMgr = IDisplayCluster::Get().GetGameMgr())
+		{
+			if (const auto ClusterRootActor = GameMgr->GetRootActor())
+			{
+				if (ClusterRootActor->Implements<UScalableConfigInterface>())
+				{
+					IScalableConfigInterface::Execute_OnScaleChanged(ClusterRootActor, NewScale);
+				}
+				else
+				{
+					UE_LOGFMT(Toolkit, Warning,
+							  "The ClusterRootActor {0} does not implement the ScalableConfigInterface. Scaling the Pawn on the cluster will lead to unintended behavior.",
+							  ClusterRootActor->GetName());
+				}
+			}
+		}
 	}
 #endif
 }
