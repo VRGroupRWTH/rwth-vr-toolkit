@@ -104,7 +104,8 @@ void ARWTHVRPawn::SetScale(float NewScale)
 				else
 				{
 					UE_LOGFMT(Toolkit, Warning,
-							  "The ClusterRootActor {0} does not implement the ScalableConfigInterface. Scaling the Pawn on the cluster will lead to unintended behavior.",
+							  "The ClusterRootActor {0} does not implement the ScalableConfigInterface. Scaling the "
+							  "Pawn on the cluster will lead to unintended behavior.",
 							  ClusterRootActor->GetName());
 				}
 			}
