@@ -28,11 +28,11 @@ public:
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
-private:
 	virtual void OnBeginInteractionInputAction(const FInputActionValue& Value) override;
 
 	virtual void OnEndInteractionInputAction(const FInputActionValue& Value) override;
 
+private:
 	UPROPERTY()
 	TArray<UInteractableComponent*> PreviousInteractableComponentsInRange;
 

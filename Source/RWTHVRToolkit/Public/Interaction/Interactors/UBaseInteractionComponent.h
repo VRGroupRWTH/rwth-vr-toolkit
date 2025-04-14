@@ -94,10 +94,11 @@ public:
 	void MulticastActionBehaviourReplicationStartRpc(UActionBehaviour* Behaviour, const EInteractionEventType EventType,
 													 const FInputActionValue& Value);
 
-private:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void OnBeginInteractionInputAction(const FInputActionValue& Value);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void OnEndInteractionInputAction(const FInputActionValue& Value);
+
+private:
 };

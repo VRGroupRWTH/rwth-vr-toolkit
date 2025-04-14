@@ -106,10 +106,10 @@ void UDirectInteractionComponent::SetupPlayerInput(UInputComponent* PlayerInputC
 	if (EI == nullptr)
 		return;
 
-	EI->BindAction(InteractionInputAction, ETriggerEvent::Started, this,
-				   &UDirectInteractionComponent::OnBeginInteractionInputAction);
-	EI->BindAction(InteractionInputAction, ETriggerEvent::Completed, this,
-				   &UDirectInteractionComponent::OnEndInteractionInputAction);
+	// EI->BindAction(InteractionInputAction, ETriggerEvent::Started, this,
+	// 			   &UDirectInteractionComponent::OnBeginInteractionInputAction);
+	// EI->BindAction(InteractionInputAction, ETriggerEvent::Completed, this,
+	// 			   &UDirectInteractionComponent::OnEndInteractionInputAction);
 }
 
 void UDirectInteractionComponent::OnBeginInteractionInputAction(const FInputActionValue& Value)
