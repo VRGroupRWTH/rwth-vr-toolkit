@@ -35,7 +35,10 @@ public:
 	float SnapTurnAngle = 22.5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
-	class UInputAction* XRTurn;
+	class UInputAction* XRTurnContinuous;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
+	class UInputAction* XRTurnSnap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VR Movement|Input|Actions")
 	class UInputAction* DesktopTurn;

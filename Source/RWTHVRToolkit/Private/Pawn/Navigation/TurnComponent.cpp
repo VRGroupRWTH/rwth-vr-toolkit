@@ -42,7 +42,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 			// no snap turning for desktop mode
 			if (!URWTHVRUtilities::IsDesktopMode())
 			{
-				EI->BindAction(XRTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginSnapTurn);
+				EI->BindAction(XRTurnSnap, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginSnapTurn);
 			}
 			else
 			{
@@ -53,7 +53,7 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 		{
 			if (!URWTHVRUtilities::IsDesktopMode())
 			{
-				EI->BindAction(XRTurn, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
+				EI->BindAction(XRTurnContinuous, ETriggerEvent::Triggered, this, &UTurnComponent::OnBeginTurn);
 			}
 			else
 			{
