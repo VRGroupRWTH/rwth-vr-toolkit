@@ -76,7 +76,7 @@ void UDirectInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 			ComponentsToRemove.Add(PrevInteractableComp); // might have to use indices here
 			continue;
 		}
-		
+
 		if (!CurrentInteractableCompsInRange.Contains(PrevInteractableComp))
 		{
 			ComponentsToRemove.AddUnique(PrevInteractableComp);
