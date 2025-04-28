@@ -38,7 +38,7 @@ public class RWTHVRToolkit : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"NetCore"
+				"NetCore", "XRBase"
 			}
 		);
 		if (Target.bBuildEditor == true)
