@@ -117,6 +117,7 @@ bool AClusterRepresentationActor::AttachDCRA()
 				return false;
 			}
 		}
+		/*
 		else // if we just spawned the DCRA, it is not yet the primary one and this check makes no sense
 		{
 			if (!DCRA->IsPrimaryRootActor())
@@ -126,7 +127,7 @@ bool AClusterRepresentationActor::AttachDCRA()
 				return false;
 			}
 		}
-
+		*/
 		bool bAttached = DCRA->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		UE_LOGFMT(Toolkit, Display, "Attaching DCRA {DCRA} to {this} returned {Res}", DCRA->GetName(), GetName(),
 				  bAttached);
