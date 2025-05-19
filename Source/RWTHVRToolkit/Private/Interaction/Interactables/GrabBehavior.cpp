@@ -23,6 +23,12 @@ void UGrabBehavior::BeginPlay()
 	OnActionReplicationStartedOriginatorEvent.AddDynamic(this, &UGrabBehavior::ReplicationOriginaterClientCallback);
 }
 
+void UGrabBehavior::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	OnActionReplicationStartedOriginatorEvent.RemoveDynamic(this, &UGrabBehavior::ReplicationOriginaterClientCallback);
+}
+
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
 {
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
