@@ -18,9 +18,8 @@ UGrabBehavior::UGrabBehavior()
 
 void UGrabBehavior::BeginPlay()
 {
-	Super::BeginPlay();
-
 	OnActionReplicationStartedOriginatorEvent.AddDynamic(this, &UGrabBehavior::ReplicationOriginaterClientCallback);
+	Super::BeginPlay();
 }
 
 void UGrabBehavior::EndPlay(const EEndPlayReason::Type EndPlayReason)

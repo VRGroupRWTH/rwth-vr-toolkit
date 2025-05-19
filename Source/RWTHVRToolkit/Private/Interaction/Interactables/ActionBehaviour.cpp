@@ -17,3 +17,9 @@ void UActionBehaviour::BeginPlay()
 
 	OnActionEventEvent.AddDynamic(this, &UActionBehaviour::OnActionEvent);
 }
+void UActionBehaviour::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	OnActionEventEvent.RemoveDynamic(this, &UActionBehaviour::OnActionEvent);
+
+	Super::EndPlay(EndPlayReason);
+}
