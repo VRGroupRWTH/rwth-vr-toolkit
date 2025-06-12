@@ -122,6 +122,5 @@ protected:
 
 private:
 	UInputComponent* ActivePlayerInputComponent;
-	float InitialWorldToMeters;
 	float UniformScale;
 };

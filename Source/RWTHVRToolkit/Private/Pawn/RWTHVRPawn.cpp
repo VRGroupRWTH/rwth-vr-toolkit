@@ -60,11 +60,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 		});
 }
 
-void ARWTHVRPawn::BeginPlay()
-{
-	Super::BeginPlay();
-	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
-}
+void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -79,14 +75,12 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 }
 
 /*
- *	Scales the Pawn while also adjusting the WorldToMeters ratio for size relative movement speed.
- *	Only supports uniform scaling.
+ *	Scales the Pawn. Only supports uniform scaling.
  */
 void ARWTHVRPawn::SetScale(float NewScale)
 {
 	UniformScale = NewScale;
 	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
-	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
 	SetActorRelativeScale3D(NewScaleVector);
 
 #if PLATFORM_SUPPORTS_CLUSTER
