@@ -79,7 +79,7 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 }
 
 /*
- *	Scales the Pawn while also adjusting the WorldToMeters ratio to adjust for pupillary distance.
+ *	Scales the Pawn while also adjusting the WorldToMeters ratio for size relative movement speed.
  *	Only supports uniform scaling.
  */
 void ARWTHVRPawn::SetScale(float NewScale)
