@@ -14,6 +14,8 @@ class UCameraComponent;
 class UMotionControllerComponent;
 struct FLiveLinkTransformStaticData;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScaleChangedDelegate, FVector, OldScale, float, NewUniformScale);
+
 /**
  * Pawn implementation with additional VR functionality, can be used in the Cave, with an HMD and on desktop.
  */
@@ -30,6 +32,15 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void NotifyControllerChanged() override;
+
+	UFUNCTION(BlueprintCallable)
+	void SetScale(float NewScale);
+
+	UFUNCTION(BlueprintCallable)
+	float GetScale();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnScaleChangedDelegate OnScaleChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Input")
 	TArray<UInputMappingContext*> InputMappingContexts;
@@ -111,4 +122,5 @@ protected:
 
 private:
 	UInputComponent* ActivePlayerInputComponent;
+	float UniformScale;
 };

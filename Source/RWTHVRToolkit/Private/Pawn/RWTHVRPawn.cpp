@@ -18,6 +18,10 @@
 #include "Utility/RWTHVRUtilities.h"
 
 #if PLATFORM_SUPPORTS_CLUSTER
+#include "DisplayClusterRootActor.h"
+#include "ScalableConfigInterface.h"
+#include "IDisplayCluster.h"
+#include "Game/IDisplayClusterGameManager.h"
 #include "Components/DisplayClusterSceneComponentSyncParent.h"
 #endif
 
@@ -41,7 +45,21 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
+
+	UniformScale = GetActorScale3D().X;
+	GetRootComponent()->TransformUpdated.AddLambda(
+		[this](USceneComponent*, EUpdateTransformFlags, ETeleportType)
+		{
+			FVector CurrentScale = this->GetActorScale3D();
+			if (CurrentScale.X != UniformScale || CurrentScale.Y != UniformScale || CurrentScale.Z != UniformScale)
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "ARWTHVRPawn: Do not adjust the scale of the pawn directly. This will not work in VR. Use "
+						  "ARWTHVRPawn::SetScale(float) instead.");
+			}
+		});
 }
+
 void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
@@ -55,6 +73,42 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 	}
 	EvaluateLivelink();
 }
+
+/*
+ *	Scales the Pawn. Only supports uniform scaling.
+ */
+void ARWTHVRPawn::SetScale(float NewScale)
+{
+	UniformScale = NewScale;
+	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
+	SetActorRelativeScale3D(NewScaleVector);
+
+#if PLATFORM_SUPPORTS_CLUSTER
+	const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
+	if (URWTHVRUtilities::IsRoomMountedMode() && State && State->GetCorrespondingClusterActor())
+	{
+		if (const auto GameMgr = IDisplayCluster::Get().GetGameMgr())
+		{
+			if (const auto ClusterRootActor = GameMgr->GetRootActor())
+			{
+				if (ClusterRootActor->Implements<UScalableConfigInterface>())
+				{
+					IScalableConfigInterface::Execute_OnScaleChanged(ClusterRootActor, NewScale);
+				}
+				else
+				{
+					UE_LOGFMT(Toolkit, Warning,
+							  "The ClusterRootActor {0} does not implement the ScalableConfigInterface. Scaling the "
+							  "Pawn on the cluster will lead to unintended behavior.",
+							  ClusterRootActor->GetName());
+				}
+			}
+		}
+	}
+#endif
+}
+
+float ARWTHVRPawn::GetScale() { return UniformScale; }
 
 /*
  * The alternative would be to do this only on the server on possess and check for player state/type,
