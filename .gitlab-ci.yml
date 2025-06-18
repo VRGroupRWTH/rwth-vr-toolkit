@@ -23,6 +23,10 @@ spec:
       description: Custom nDisplay config stored on the cluster filesystem.
       type: string
       default: ""
+    use_zen: 
+      description: Whether or not to connect to the shared Zen storage server. Speeds up build but temporarily modifies DefaultEngine.ini., so turn off if weird build errors happen.
+      type: boolean
+      default: true
 
 ---
 
@@ -68,6 +72,7 @@ variables:
     UNREAL_VERSION: $[[ inputs.unreal_version ]]
     NUMBER_OF_OLD_VERSIONS: $[[ inputs.number_of_old_versions ]]
     CUSTOM_NDISPLAY_CONFIG: $[[ inputs.custom_ndisplay_config ]]
+    USE_SHARED_CACHE_ZEN: $[[ inputs.use_zen ]]
 
 stages:
   - analyze
