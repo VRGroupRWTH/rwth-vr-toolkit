@@ -3,6 +3,30 @@
 # Virtual Reality & Immersive Visualisation Group.
 #-------------------------------------------------------------------------------
 
+spec:
+  inputs:
+    unreal_version:
+      description: The Unreal Engine version in the form of "major.minor"
+      type: string
+      regex: \d+\.\d+
+      default: "5.4"
+    build_type:
+      description: The game build type.
+      type: string
+      options: ["DebugGame", "Shipping"]
+      default: "DebugGame"
+    number_of_old_versions:
+      description: How many successful pipeline builds of this branch should be stored on the cluster.
+      type: number
+      default: 3
+    custom_ndisplay_config:
+      description: Custom nDisplay config stored on the cluster filesystem.
+      type: string
+      default: ""
+
+---
+
+
 # The include file can be change to either be removed or reference a specific commit.
 
 include:
@@ -41,8 +65,9 @@ include:
 # Use the CUSTOM_NDISPLAY_CONFIG variable in case you need a custom ndisplay config. These are always located in /home/vrdemo/configs/ndisplay.
 
 variables:
-    UNREAL_VERSION: "5.5"
-    CUSTOM_NDISPLAY_CONFIG: "aixcave_5_4.ndisplay"
+    UNREAL_VERSION: $[[ inputs.unreal_version ]]
+    NUMBER_OF_OLD_VERSIONS: $[[ inputs.number_of_old_versions ]]
+    CUSTOM_NDISPLAY_CONFIG: $[[ inputs.custom_ndisplay_config ]]
 
 stages:
   - analyze
@@ -113,7 +138,7 @@ Build_Windows:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
         # CLIENT_CONFIG: "Shipping"
-        CLIENT_CONFIG: "DebugGame"
+        CLIENT_CONFIG: $[[ inputs.build_type ]]
     needs:
         - job: "Generate_Project"
           artifacts: true
@@ -134,7 +159,7 @@ Build_Linux:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
         # CLIENT_CONFIG: "Shipping"
-        CLIENT_CONFIG: "DebugGame"
+        CLIENT_CONFIG: $[[ inputs.build_type ]]
     needs:
         - job: "Generate_Project"
           artifacts: true
@@ -146,16 +171,7 @@ Build_Linux_Without_Cluster:
     needs:
         - job: "Generate_Project_Without_Cluster"
           artifacts: true
-
-# Deploys to vrdev
-.Deploy_Windows:
-    rules: 
-      - if: $CI_PIPELINE_SOURCE == "web"
-      - if: $CI_PIPELINE_SOURCE == "schedule"
-    extends: .Deploy_VRDev_
-    needs:
-        - job: "Build_Windows"
-          artifacts: true          
+             
 
 # Deploys to vrdemo instead of av006de. Use extends: .Deploy_CAVE_ to deploy to legacy av006de
 Deploy_CAVE:
