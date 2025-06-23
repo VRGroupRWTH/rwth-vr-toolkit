@@ -18,6 +18,10 @@
 #include "Utility/RWTHVRUtilities.h"
 
 #if PLATFORM_SUPPORTS_CLUSTER
+#include "DisplayClusterRootActor.h"
+#include "ScalableConfigInterface.h"
+#include "IDisplayCluster.h"
+#include "Game/IDisplayClusterGameManager.h"
 #include "Components/DisplayClusterSceneComponentSyncParent.h"
 #endif
 
@@ -56,11 +60,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 		});
 }
 
-void ARWTHVRPawn::BeginPlay()
-{
-	Super::BeginPlay();
-	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
-}
+void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -75,17 +75,37 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 }
 
 /*
- *	Scales the Pawn while also adjusting the WorldToMeters ratio to adjust for pupillary distance.
- *	Only supports uniform scaling.
+ *	Scales the Pawn. Only supports uniform scaling.
  */
 void ARWTHVRPawn::SetScale(float NewScale)
 {
-	FVector OldScale = GetActorScale();
 	UniformScale = NewScale;
 	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
-	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
 	SetActorRelativeScale3D(NewScaleVector);
-	OnScaleChanged.Broadcast(OldScale, NewScale);
+
+#if PLATFORM_SUPPORTS_CLUSTER
+	const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>();
+	if (URWTHVRUtilities::IsRoomMountedMode() && State && State->GetCorrespondingClusterActor())
+	{
+		if (const auto GameMgr = IDisplayCluster::Get().GetGameMgr())
+		{
+			if (const auto ClusterRootActor = GameMgr->GetRootActor())
+			{
+				if (ClusterRootActor->Implements<UScalableConfigInterface>())
+				{
+					IScalableConfigInterface::Execute_OnScaleChanged(ClusterRootActor, NewScale);
+				}
+				else
+				{
+					UE_LOGFMT(Toolkit, Warning,
+							  "The ClusterRootActor {0} does not implement the ScalableConfigInterface. Scaling the "
+							  "Pawn on the cluster will lead to unintended behavior.",
+							  ClusterRootActor->GetName());
+				}
+			}
+		}
+	}
+#endif
 }
 
 float ARWTHVRPawn::GetScale() { return UniformScale; }
@@ -117,6 +137,12 @@ void ARWTHVRPawn::NotifyControllerChanged()
 				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
 				AttachClustertoPawn();
 			}
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "ARWTHVRPawn: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment only works "
+					  "with correct PlayerStates!");
 		}
 	}
 }
@@ -150,14 +176,18 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
 		// Might not be properly synced yet?
-		const EPlayerType Type = State->GetPlayerType();
+		EPlayerType Type = State->GetPlayerType();
 
 		// Don't do anything with the type if it's been set to clustertype or anything.
 		// This is already being done when connecting to the server.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
 
-		if (!bClusterType && URWTHVRUtilities::IsHeadMountedMode())
+		if (!bClusterType)
 		{
+			if (URWTHVRUtilities::IsHeadMountedMode())
+				Type = EPlayerType::HMD;
+
+			UE_LOGFMT(Toolkit, Display, "Pawn: Requesting Player Type {T}...", StaticCast<int8>(Type));
 			// Could be too early to call this RPC...
 			State->RequestSetPlayerType(Type);
 		}
