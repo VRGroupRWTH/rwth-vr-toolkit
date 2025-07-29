@@ -34,8 +34,6 @@ bool FIntenSelectableLineScoringVisualizer::IsVisualizingArchetype() const
 			FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner()));
 }
 
-bool FIntenSelectableLineScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableLineScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

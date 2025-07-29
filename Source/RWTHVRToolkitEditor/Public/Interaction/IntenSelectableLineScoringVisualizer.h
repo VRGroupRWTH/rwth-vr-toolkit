@@ -39,7 +39,6 @@ public:
 	FVector GetCurrentVectorWorld() const;
 
 	virtual bool IsVisualizingArchetype() const override;
-	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
 	virtual void DrawVisualization(const UActorComponent* Component, const FSceneView* View,
 								   FPrimitiveDrawInterface* PDI) override;
