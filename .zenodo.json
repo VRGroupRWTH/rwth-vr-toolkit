@@ -1,679 +1,106 @@
 {
     "creators": [
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "name": "Virtual Reality and Immersive Visualization Group, RWTH Aachen University",
-          "type": "organizational"
-        }
+        "affiliation": "RWTH Aachen University",
+        "name": "Virtual Reality and Immersive Visualization Group RWTH Aachen University"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Gilbert",
-          "given_name": "David",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-3334-5836",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Gilbert, David",
-          "type": "personal"
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid" : "0000-0002-3334-5836",
+        "name": "Gilbert, David"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Ehret",
-          "given_name": "Jonathan",
-          "identifiers": [
-            {
-              "identifier": "0000-0001-6270-5119",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Ehret, Jonathan",
-          "type": "personal"
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-6270-5119",
+        "name": "Ehret, Jonathan"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Kr\u00fcger",
-          "given_name": "Marcel",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-0085-268X",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Kr\u00fcger, Marcel",
-          "type": "personal"
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-0085-268X",
+        "name": "Kr\u00fcger, Marcel"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Rupp",
-          "given_name": "Daniel",
-          "identifiers": [
-            {
-              "identifier": "0009-0000-6689-7330",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Rupp, Daniel",
-          "type": "personal"
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0009-0000-6689-7330",
+        "name": "Rupp, Daniel"
       }
     ],
     "contributors": [
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Gilbert",
-          "given_name": "David",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-3334-5836",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Gilbert, David",
-          "type": "personal"
-        },
-        "role": {
-          "id": "contactperson",
-          "title": {
-            "de": "Kontaktperson",
-            "en": "Contact person"
-          }
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-3334-5836",
+        "name": "Gilbert, David",
+        "type": "ContactPerson"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Kuhlen",
-          "given_name": "Torsten",
-          "identifiers": [
-            {
-              "identifier": "0000-0003-2144-4367",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Kuhlen, Torsten",
-          "type": "personal"
-        },
-        "role": {
-          "id": "supervisor",
-          "title": {
-            "de": "SupervisorIn",
-            "en": "Supervisor"
-          }
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0003-2144-4367",
+        "name": "Kuhlen, Torsten",
+        "type": "Supervisor"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-3334-5836",
+        "name": "Gilbert, David",
+        "type": "ProjectMember"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Gilbert",
-          "given_name": "David",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-3334-5836",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Gilbert, David",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-6270-5119",
+        "name": "Ehret, Jonathan",
+        "type": "ProjectMember"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-0085-268X",
+        "name": "Kr\u00fcger, Marcel",
+        "type": "ProjectMember"
+      }, 
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-8225-5688",
+        "name": "Pape, Sebastian",
+        "type": "ProjectMember"
+      },       
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0009-0000-6689-7330",
+        "name": "Rupp, Daniel",
+        "type": "ProjectMember"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Helwig, Kris Tabea",
+        "type": "ProjectMember"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Ehret",
-          "given_name": "Jonathan",
-          "identifiers": [
-            {
-              "identifier": "0000-0001-6270-5119",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Ehret, Jonathan",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
+        "affiliation": "RWTH Aachen University",
+        "name": "R\u00f6mer, Timon",
+        "type": "ProjectMember"
       },
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Kr\u00fcger",
-          "given_name": "Marcel",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-0085-268X",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Kr\u00fcger, Marcel",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
+        "affiliation": "RWTH Aachen University",
+        "name": "Oehrl, Simon",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6504-2293"
+      },    
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Pape",
-          "given_name": "Sebastian",
-          "identifiers": [
-            {
-              "identifier": "0000-0001-8225-5688",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Pape, Sebastian",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
+        "affiliation": "RWTH Aachen University",
+        "name": "Demiralp, Ali Can",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-6430-1377"
+      },      
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Rupp",
-          "given_name": "Daniel",
-          "identifiers": [
-            {
-              "identifier": "0009-0000-6689-7330",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Rupp, Daniel",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
+        "affiliation": "RWTH Aachen University",
+        "name": "Qurabi, Faysal",
+        "type": "ProjectMember"
+      },          
       {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Helwig",
-          "given_name": "Kris Tabea",
-          "name": "Helwig, Kris Tabea",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "R\u00f6mer",
-          "given_name": "Timon",
-          "name": "R\u00f6mer, Timon",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Oehrl",
-          "given_name": "Simon",
-          "identifiers": [
-            {
-              "identifier": "0000-0001-6504-2293",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Oehrl, Simon",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Demiralp",
-          "given_name": "Ali Can",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-6430-1377",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Demiralp, Ali Can",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Qurabi",
-          "given_name": "Faysal",
-          "name": "Qurabi, Faysal",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "id": "04xfq0f34",
-            "identifiers": [
-              {
-                "identifier": "04xfq0f34",
-                "scheme": "ror"
-              },
-              {
-                "identifier": "grid.1957.a",
-                "scheme": "grid"
-              },
-              {
-                "identifier": "0000 0001 0728 696X",
-                "scheme": "isni"
-              }
-            ],
-            "name": "RWTH Aachen University"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Karwacki",
-          "given_name": "Kamil",
-          "name": "Karwacki, Kamil",
-          "type": "personal"
-        },
-        "role": {
-          "id": "projectmember",
-          "title": {
-            "de": "Projektmitglied",
-            "en": "Project member"
-          }
-        }
+        "affiliation": "RWTH Aachen University",
+        "name": "Karwacki, Kamil",
+        "type": "ProjectMember"
       }
     ],
     "title": "RWTH VR Group Unreal Engine Toolkit",
-    "version": "UE5.5"
+    "version": "UE5.5-1"
 }
