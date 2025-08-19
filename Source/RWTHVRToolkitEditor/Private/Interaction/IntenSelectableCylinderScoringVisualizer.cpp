@@ -38,8 +38,6 @@ FVector FIntenSelectableCylinderScoringVisualizer::GetCurrentVectorWorld() const
 	return FVector::ZeroVector;
 }
 
-bool FIntenSelectableCylinderScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableCylinderScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

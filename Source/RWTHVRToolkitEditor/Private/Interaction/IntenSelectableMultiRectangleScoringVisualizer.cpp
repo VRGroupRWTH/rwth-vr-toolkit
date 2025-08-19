@@ -60,8 +60,6 @@ FVector FIntenSelectableRectangleScoringVisualizer::GetCurrentVectorWorld() cons
 	}
 }
 
-bool FIntenSelectableRectangleScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableRectangleScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

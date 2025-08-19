@@ -30,8 +30,6 @@ bool FIntenSelectableMultiPointScoringVisualizer::IsVisualizingArchetype() const
 		FActorEditorUtils::IsAPreviewOrInactiveActor(GetEditedScoringComponent()->GetOwner());
 }
 
-bool FIntenSelectableMultiPointScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableMultiPointScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

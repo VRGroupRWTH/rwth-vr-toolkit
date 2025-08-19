@@ -58,7 +58,6 @@ public:
 	~FIntenSelectableCylinderScoringVisualizer();
 
 	virtual bool IsVisualizingArchetype() const override;
-	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
 
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy,
