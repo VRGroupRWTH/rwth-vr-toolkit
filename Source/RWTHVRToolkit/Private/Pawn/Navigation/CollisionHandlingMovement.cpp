@@ -232,7 +232,7 @@ void UCollisionHandlingMovement::MoveOutOfNewDynamicCollisions()
 {
 	TOptional<FVector> ResolveDirectionOptional = GetOverlapResolveDirection();
 
-	if (ResolveDirectionOptional.IsSet())
+	if (ResolveDirectionOptional.IsSet() && ResolveDirectionOptional.GetValue().Length() > .01)
 	{
 		FVector ResolveDirection = 1.5f * ResolveDirectionOptional.GetValue(); // scale it up for security distance
 		UpdatedComponent->AddWorldOffset(ResolveDirection);
