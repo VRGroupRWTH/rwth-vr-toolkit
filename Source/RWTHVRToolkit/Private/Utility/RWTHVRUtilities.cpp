@@ -1,6 +1,7 @@
 #include "Utility/RWTHVRUtilities.h"
 
 #include "AudioDevice.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHeadMountedDisplay.h"
 #include "IXRTrackingSystem.h"
 #include "Engine/Engine.h"
@@ -16,12 +17,7 @@ DEFINE_LOG_CATEGORY(Toolkit);
 
 bool URWTHVRUtilities::IsDesktopMode() { return !IsRoomMountedMode() && !IsHeadMountedMode(); }
 
-bool URWTHVRUtilities::IsHeadMountedMode()
-{
-	// In editor builds: checks for EdEngine->IsVRPreviewActive()
-	// In packaged builds: checks for `-vr` in commandline or bStartInVR in UGeneralProjectSettings
-	return FAudioDevice::CanUseVRAudioDevice();
-}
+bool URWTHVRUtilities::IsHeadMountedMode() { return UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled(); }
 
 bool URWTHVRUtilities::IsRoomMountedMode()
 {
@@ -38,7 +34,7 @@ bool URWTHVRUtilities::IsPrimaryNode()
 	return URWTHVRClusterUtilities::IsPrimaryNode();
 #else
 	return false;
-#endif	
+#endif
 }
 
 float URWTHVRUtilities::GetEyeDistance()

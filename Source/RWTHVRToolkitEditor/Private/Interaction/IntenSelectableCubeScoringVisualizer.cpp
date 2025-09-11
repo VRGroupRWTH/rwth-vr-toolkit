@@ -33,8 +33,6 @@ UIntenSelectableCubeScoring* FIntenSelectableCubeScoringVisualizer::GetEditedSco
 	return Cast<UIntenSelectableCubeScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
-bool FIntenSelectableCubeScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableCubeScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

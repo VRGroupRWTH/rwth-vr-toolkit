@@ -189,6 +189,9 @@ void UCollisionHandlingMovement::SetCapsuleColliderToUserSize() const
 	}
 
 	CapsuleColliderComponent->SetWorldRotation(FRotator::ZeroRotator);
+
+	// Counteract Pawn Scaling
+	CapsuleColliderComponent->SetWorldScale3D(FVector::One());
 }
 
 void UCollisionHandlingMovement::CheckAndRevertCollisionSinceLastTick()

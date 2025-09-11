@@ -48,8 +48,6 @@ UIntenSelectableCircleScoring* FIntenSelectableCircleScoringVisualizer::GetEdite
 	return Cast<UIntenSelectableCircleScoring>(ScoringBehaviourPropertyPath.GetComponent());
 }
 
-bool FIntenSelectableCircleScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableCircleScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;

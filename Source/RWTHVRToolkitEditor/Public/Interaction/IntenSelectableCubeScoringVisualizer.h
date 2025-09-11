@@ -39,7 +39,6 @@ public:
 	virtual bool IsVisualizingArchetype() const override;
 	UIntenSelectableCubeScoring* GetEditedScoringComponent() const;
 
-	virtual bool ShowWhenSelected() override;
 	virtual bool ShouldShowForSelectedSubcomponents(const UActorComponent* Component) override;
 	virtual bool VisProxyHandleClick(FEditorViewportClient* InViewportClient, HComponentVisProxy* VisProxy,
 									 const FViewportClick& Click) override;

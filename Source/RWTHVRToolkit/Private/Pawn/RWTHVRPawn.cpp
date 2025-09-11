@@ -41,8 +41,26 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	LeftHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Left Hand MCC"));
 	LeftHand->SetupAttachment(RootComponent);
+
+	UniformScale = GetActorScale3D().X;
+	GetRootComponent()->TransformUpdated.AddLambda(
+		[this](USceneComponent*, EUpdateTransformFlags, ETeleportType)
+		{
+			FVector CurrentScale = this->GetActorScale3D();
+			if (CurrentScale.X != UniformScale || CurrentScale.Y != UniformScale || CurrentScale.Z != UniformScale)
+			{
+				UE_LOGFMT(Toolkit, Warning,
+						  "ARWTHVRPawn: Do not adjust the scale of the pawn directly. This will not work in VR. Use "
+						  "ARWTHVRPawn::SetScale(float) instead.");
+			}
+		});
 }
-void ARWTHVRPawn::BeginPlay() { Super::BeginPlay(); }
+
+void ARWTHVRPawn::BeginPlay()
+{
+	Super::BeginPlay();
+	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
+}
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
 {
@@ -55,6 +73,22 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 	}
 	EvaluateLivelink();
 }
+
+/*
+ *	Scales the Pawn while also adjusting the WorldToMeters ratio to adjust for pupillary distance.
+ *	Only supports uniform scaling.
+ */
+void ARWTHVRPawn::SetScale(float NewScale)
+{
+	FVector OldScale = GetActorScale();
+	UniformScale = NewScale;
+	FVector NewScaleVector = FVector(UniformScale, UniformScale, UniformScale);
+	GetWorldSettings()->WorldToMeters = InitialWorldToMeters * UniformScale;
+	SetActorRelativeScale3D(NewScaleVector);
+	OnScaleChanged.Broadcast(OldScale, NewScale);
+}
+
+float ARWTHVRPawn::GetScale() { return UniformScale; }
 
 /*
  * The alternative would be to do this only on the server on possess and check for player state/type,
@@ -83,6 +117,12 @@ void ARWTHVRPawn::NotifyControllerChanged()
 				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
 				AttachClustertoPawn();
 			}
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "ARWTHVRPawn: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment only works "
+					  "with correct PlayerStates!");
 		}
 	}
 }
@@ -116,14 +156,18 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
 	{
 		// Might not be properly synced yet?
-		const EPlayerType Type = State->GetPlayerType();
+		EPlayerType Type = State->GetPlayerType();
 
 		// Don't do anything with the type if it's been set to clustertype or anything.
 		// This is already being done when connecting to the server.
 		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
 
-		if (!bClusterType && URWTHVRUtilities::IsHeadMountedMode())
+		if (!bClusterType)
 		{
+			if (URWTHVRUtilities::IsHeadMountedMode())
+				Type = EPlayerType::HMD;
+
+			UE_LOGFMT(Toolkit, Display, "Pawn: Requesting Player Type {T}...", StaticCast<int8>(Type));
 			// Could be too early to call this RPC...
 			State->RequestSetPlayerType(Type);
 		}

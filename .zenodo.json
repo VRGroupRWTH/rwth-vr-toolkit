@@ -1,0 +1,106 @@
+{
+    "creators": [
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Virtual Reality and Immersive Visualization Group RWTH Aachen University"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid" : "0000-0002-3334-5836",
+        "name": "Gilbert, David"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-6270-5119",
+        "name": "Ehret, Jonathan"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-0085-268X",
+        "name": "Kr\u00fcger, Marcel"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0009-0000-6689-7330",
+        "name": "Rupp, Daniel"
+      }
+    ],
+    "contributors": [
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-3334-5836",
+        "name": "Gilbert, David",
+        "type": "ContactPerson"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0003-2144-4367",
+        "name": "Kuhlen, Torsten",
+        "type": "Supervisor"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-3334-5836",
+        "name": "Gilbert, David",
+        "type": "ProjectMember"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-6270-5119",
+        "name": "Ehret, Jonathan",
+        "type": "ProjectMember"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0002-0085-268X",
+        "name": "Kr\u00fcger, Marcel",
+        "type": "ProjectMember"
+      }, 
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0000-0001-8225-5688",
+        "name": "Pape, Sebastian",
+        "type": "ProjectMember"
+      },       
+      {
+        "affiliation": "RWTH Aachen University",
+        "orcid": "0009-0000-6689-7330",
+        "name": "Rupp, Daniel",
+        "type": "ProjectMember"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Helwig, Kris Tabea",
+        "type": "ProjectMember"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "R\u00f6mer, Timon",
+        "type": "ProjectMember"
+      },
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Oehrl, Simon",
+        "type": "ProjectMember",
+        "orcid": "0000-0001-6504-2293"
+      },    
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Demiralp, Ali Can",
+        "type": "ProjectMember",
+        "orcid": "0000-0002-6430-1377"
+      },      
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Qurabi, Faysal",
+        "type": "ProjectMember"
+      },          
+      {
+        "affiliation": "RWTH Aachen University",
+        "name": "Karwacki, Kamil",
+        "type": "ProjectMember"
+      }
+    ],
+    "title": "RWTH VR Group Unreal Engine Toolkit",
+    "version": "UE5.5-1"
+}

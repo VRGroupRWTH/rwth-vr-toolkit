@@ -29,8 +29,6 @@ FVector FIntenSelectableSphereScoringVisualizer::GetCurrentVectorWorld() const
 	return GetEditedScoringComponent()->GetComponentLocation();
 }
 
-bool FIntenSelectableSphereScoringVisualizer::ShowWhenSelected() { return false; }
-
 bool FIntenSelectableSphereScoringVisualizer::ShouldShowForSelectedSubcomponents(const UActorComponent* Component)
 {
 	return false;
