@@ -113,7 +113,7 @@ Generate_Project:
         RUN_SETUP: "false"
         GEN_DEPENDENCIES: "(
             [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
-            [dev/5.5@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
+            [dev/5.6@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
             )"
 
 Generate_Project_Without_Cluster:
