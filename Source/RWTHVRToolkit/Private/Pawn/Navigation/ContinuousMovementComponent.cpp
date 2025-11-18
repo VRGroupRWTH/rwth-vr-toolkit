@@ -60,15 +60,19 @@ void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 
 	// Forward/Backward direction
-	if (MoveValue.X != 0.f)
-	{
+	if (MoveValue.X != 0.f) {
+		// const auto ForwardDirectionLen = ForwardDir.Length();
+		// const auto ForwardInput = MoveValue.X;
+		// UE_LOG(LogTemp, Log, TEXT("ForwardDirectionLen: %f; ForwardInput: %f"), ForwardDirectionLen, ForwardInput);
 		VRPawn->AddMovementInput(ForwardDir, MoveValue.X);
 	}
 
 	// Right/Left direction
-	if (MoveValue.Y != 0.f)
-	{
-		VRPawn->AddMovementInput(RightDir, MoveValue.Y);
+	if (MoveValue.Y != 0.f) {
+		// const auto RightDirectionLen = RightDir.Length();
+		// const auto RightInput = MoveValue.Y;
+		// UE_LOG(LogTemp, Log, TEXT("RightDirectionLen: %f; RightInput: %f"), RightDirectionLen, RightInput);
+		VRPawn->AddMovementInput(RightDir, 0.75 * MoveValue.Y);
 	}
 }
 
