@@ -69,8 +69,6 @@ public:
 	void EndDesktopRotation();
 
 private:
-	UPROPERTY()
-	UMotionControllerComponent* RotationHand;
 
 	/**
 	 * If we just use VRPawn->AddControllerYawInput(Yaw), rotation is around tracking origin instead of the actual

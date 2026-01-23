@@ -61,11 +61,6 @@ public:
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
 
 private:
-	UPROPERTY()
-	UMotionControllerComponent* TeleportationHand;
-
-	UPROPERTY()
-	UMotionControllerComponent* RotationHand;
 
 	bool bTeleportTraceActive;
 	float TeleportProjectileRadius = 3.6;

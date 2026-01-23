@@ -43,13 +43,11 @@ void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputCompo
 	// simple way of changing the handedness
 	if (bMoveWithRightHand)
 	{
-		TeleportationHand = VRPawn->RightHand;
-		RotationHand = VRPawn->LeftHand;
+		ReferenceComponent = VRPawn->RightHand;
 	}
 	else
 	{
-		TeleportationHand = VRPawn->LeftHand;
-		RotationHand = VRPawn->RightHand;
+		ReferenceComponent = VRPawn->LeftHand;
 	}
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -81,8 +79,8 @@ void UTeleportationComponent::OnStartTeleportTrace(const FInputActionValue& Valu
 void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value)
 {
 	// Update the teleport trace
-	const FVector StartPosition = TeleportationHand->GetComponentLocation();
-	const FVector ForwardVector = TeleportationHand->GetForwardVector();
+	const FVector StartPosition = ReferenceComponent->GetComponentLocation();
+	const FVector ForwardVector = ReferenceComponent->GetForwardVector();
 
 	TArray<AActor> ActorsToIgnore;
 

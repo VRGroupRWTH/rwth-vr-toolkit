@@ -25,4 +25,7 @@ public:
 protected:
 	UPROPERTY()
 	ARWTHVRPawn* VRPawn;
+	
+	UPROPERTY()
+	USceneComponent* ReferenceComponent;
 };

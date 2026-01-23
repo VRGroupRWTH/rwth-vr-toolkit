@@ -45,11 +45,4 @@ public:
 	void OnMoveUp(const FInputActionValue& Value);
 
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
-
-private:
-	UPROPERTY()
-	UMotionControllerComponent* MovementHand;
-
-	UPROPERTY()
-	UMotionControllerComponent* RotationHand;
 };

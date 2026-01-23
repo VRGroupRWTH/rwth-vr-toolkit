@@ -4,6 +4,7 @@
 #include "Pawn/Navigation/TurnComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "MotionControllerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Pawn/RWTHVRPawn.h"
 #include "Utility/RWTHVRUtilities.h"
@@ -20,11 +21,11 @@ void UTurnComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
 	// simple way of changing the handedness
 	if (bTurnWithLeftHand)
 	{
-		RotationHand = VRPawn->LeftHand;
+		ReferenceComponent = VRPawn->LeftHand;
 	}
 	else
 	{
-		RotationHand = VRPawn->RightHand;
+		ReferenceComponent = VRPawn->RightHand;
 	}
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);

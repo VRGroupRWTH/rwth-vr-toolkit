@@ -21,13 +21,11 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 	// simple way of changing the handedness
 	if (bMoveWithRightHand)
 	{
-		MovementHand = VRPawn->RightHand;
-		RotationHand = VRPawn->LeftHand;
+		ReferenceComponent = VRPawn->RightHand;
 	}
 	else
 	{
-		MovementHand = VRPawn->LeftHand;
-		RotationHand = VRPawn->RightHand;
+		ReferenceComponent = VRPawn->LeftHand;
 	}
 
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
@@ -53,9 +51,9 @@ void UContinuousMovementComponent::OnMove(const FInputActionValue& Value)
 		URWTHVRUtilities::IsDesktopMode() || SteeringMode == EVRSteeringModes::STEER_GAZE_DIRECTED;
 
 	const FVector ForwardDir =
-		bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : MovementHand->GetForwardVector();
+		bGazeDirected ? VRPawn->HeadCameraComponent->GetForwardVector() : ReferenceComponent->GetForwardVector();
 	const FVector RightDir =
-		bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : MovementHand->GetRightVector();
+		bGazeDirected ? VRPawn->HeadCameraComponent->GetRightVector() : ReferenceComponent->GetRightVector();
 
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 
