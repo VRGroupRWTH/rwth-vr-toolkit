@@ -5,6 +5,8 @@
 
 #include "Core/RWTHVRPlayerState.h"
 #include "GameFramework/SpectatorPawn.h"
+#include "Groups/GroupInterfaceActor.h"
+#include "Groups/PlayerGroupManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"
 #include "Pawn/ClusterRepresentationActor.h"
@@ -159,4 +161,53 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 	}
 
 	Super::PostLogin(NewPlayer);
+
+	if (bEnableGroups)
+	{
+		AActor* NewOwner = NewPlayer->GetPawn();
+
+		if (!NewOwner)
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "PostLogin: Failed to get player pawn for player {NP} when trying to spawn GroupInterfaceActor "
+					  "and setting its owner. Setting owner to player controller instead",
+					  NewPlayer->GetName());
+			NewOwner = NewPlayer;
+		}
+
+		auto GroupInterfaceActor = GetWorld()->SpawnActorDeferred<AGroupInterfaceActor>(
+			AGroupInterfaceActor::StaticClass(), FTransform::Identity, NewOwner, Cast<APawn>(NewOwner),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		// attachment not required but should look cleaner
+		GroupInterfaceActor->AttachToActor(NewOwner, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		
+		if (!PlayerGroupManager)
+		{
+			UE_LOGFMT(Toolkit, Error,
+					  "PostLogin: Failed to get Player Group Manager. This should have been initialized in InitGame, "
+					  "something went wrong and code might need to be rewritten.");
+		}
+		else
+		{
+			GroupInterfaceActor->PlayerGroupManager = PlayerGroupManager;
+		}
+		GroupInterfaceActor->FinishSpawning(FTransform::Identity);
+
+		UE_LOGFMT(Toolkit, Display, "Finished spawning group interface actor {GI} for new player {NP}",
+				  GroupInterfaceActor->GetName(), NewPlayer->GetName());
+	}
+}
+void ARWTHVRGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+}
+void ARWTHVRGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	if (bEnableGroups)
+	{
+		PlayerGroupManager = GetWorld()->SpawnActor<APlayerGroupManager>();
+	}
+	
+	Super::InitGame(MapName, Options, ErrorMessage);	
 }

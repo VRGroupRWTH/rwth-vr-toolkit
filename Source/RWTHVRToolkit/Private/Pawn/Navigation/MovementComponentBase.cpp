@@ -12,4 +12,5 @@ void UMovementComponentBase::SetupPlayerInput(UInputComponent* PlayerInputCompon
 	IInputExtensionInterface::SetupPlayerInput(PlayerInputComponent);
 
 	VRPawn = Cast<ARWTHVRPawn>(GetOwner());
+	ActorToMove = VRPawn; // Move pawn by default
 }

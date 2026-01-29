@@ -82,12 +82,11 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	const FVector StartPosition = ReferenceComponent->GetComponentLocation();
 	const FVector ForwardVector = ReferenceComponent->GetForwardVector();
 
-	TArray<AActor> ActorsToIgnore;
-
 	FPredictProjectilePathParams PredictParams = FPredictProjectilePathParams(
 		TeleportProjectileRadius, StartPosition, TeleportLaunchSpeed * ForwardVector, 5.0, ECC_WorldStatic);
 
 	PredictParams.ActorsToIgnore.Add(VRPawn);
+	PredictParams.ActorsToIgnore.Add(ActorToMove);
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
 
 	UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, PredictResult);
@@ -144,13 +143,24 @@ bool UTeleportationComponent::IsValidTeleportLocation(const FHitResult& Hit, FVe
 // On button release -> remove trace and teleport user to location
 void UTeleportationComponent::OnEndTeleportTrace(const FInputActionValue& Value)
 {
-	if (!VRPawn)
+	if (!ActorToMove)
 		return;
+	
 	// End Teleport Trace
 	bTeleportTraceActive = false;
 	TeleportTraceComponent->SetVisibility(false);
 	TeleportVisualizer->SetActorHiddenInGame(true);
 
 	bValidTeleportLocation = false;
-	VRPawn->TeleportTo(FinalTeleportLocation, VRPawn->GetActorRotation());
+	
+	if (!ActorToMove->HasLocalNetOwner())
+	{
+		// todo: need to ask the server to move us
+		UE_LOGFMT(
+			Toolkit, Display,
+			"Teleport: Cannot move desired actor {actor} via pawn {pawn}, client has no local net ownership of {actor}",
+			ActorToMove->GetName(), VRPawn->GetName(), ActorToMove->GetName());
+		return;
+	}
+	ActorToMove->TeleportTo(FinalTeleportLocation, ActorToMove->GetActorRotation());
 }

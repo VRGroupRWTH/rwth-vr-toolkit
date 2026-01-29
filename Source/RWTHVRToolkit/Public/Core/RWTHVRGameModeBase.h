@@ -7,6 +7,7 @@
 #include "Pawn/ClusterRepresentationActor.h"
 #include "RWTHVRGameModeBase.generated.h"
 
+class APlayerGroupManager;
 /**
  * Simple GameModeBase extension that checks for join options such that we can distinguish between primary
  * and secondary nodes in clusters. Could be moved to a different place as well, but quite reasonable here for now.
@@ -32,8 +33,18 @@ protected:
 	 * possess. If not, spawn a DefaultPawnClass Pawn and Possess it (Should be BP_VirtualRealityPawn to make sense).
 	 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+	virtual void BeginPlay() override;
+	
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
 private:
 	UPROPERTY()
 	TMap<int32, AClusterRepresentationActor*> ConnectedClusters;
+	
+	UPROPERTY(EditAnywhere)
+	bool bEnableGroups = true;
+	
+	UPROPERTY()
+	APlayerGroupManager* PlayerGroupManager;
 };

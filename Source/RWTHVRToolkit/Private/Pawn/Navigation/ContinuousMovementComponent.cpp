@@ -31,7 +31,7 @@ void UContinuousMovementComponent::SetupPlayerInput(UInputComponent* PlayerInput
 	UEnhancedInputComponent* EI = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EI)
 	{
-		UE_LOG(Toolkit, Error, TEXT("Cannot cast Input Component to Enhanced Inpu Component in VRPawnMovement"));
+		UE_LOG(Toolkit, Error, TEXT("Cannot cast Input Component to Enhanced Input Component in VRPawnMovement"));
 		return;
 	}
 

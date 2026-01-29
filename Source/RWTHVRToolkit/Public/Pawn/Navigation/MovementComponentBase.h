@@ -26,6 +26,10 @@ protected:
 	UPROPERTY()
 	ARWTHVRPawn* VRPawn;
 	
+	// NEED TO DO SOME OWNER CHANGE HERE TO BE ABLE TO MOVE THIS ONE
+	UPROPERTY()
+	AActor* ActorToMove;	
+	
 	UPROPERTY()
 	USceneComponent* ReferenceComponent;
 };
