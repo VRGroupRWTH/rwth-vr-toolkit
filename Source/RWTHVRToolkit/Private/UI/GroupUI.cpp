@@ -14,9 +14,9 @@ void UGroupUI::RequestGroupCreate()
 	GroupInterfaceActor->RequestCreateGroup();
 }
 
-void UGroupUI::RequestGroupOwnership()
+void UGroupUI::RequestGroupOwnership(int32 GroupId)
 {
-	
+	GroupInterfaceActor->RequestGroupOwnership(GroupId);
 }
 
 void UGroupUI::RequestGroupJoin(int32 GroupId, FName ColocatedGroupName)

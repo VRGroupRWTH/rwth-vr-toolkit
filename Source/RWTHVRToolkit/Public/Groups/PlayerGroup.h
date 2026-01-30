@@ -7,6 +7,7 @@
 #include "PlayerGroup.generated.h"
 
 
+class UClientTransformReplication;
 USTRUCT(BlueprintType)
 struct RWTHVRTOOLKIT_API FColocatedGroup
 {
@@ -59,7 +60,10 @@ public:
 	bool JoinGroup(APawn* Pawn, FName ColocatedGroupName = NAME_None);	
 
 	UFUNCTION()
-	void LeaveGroup(APawn* Pawn);	
+	void LeaveGroup(APawn* Pawn);
+	
+	UFUNCTION()
+	void ChangeOwnership(APawn* Pawn);
 	
 	FOnGroupUpdated OnGroupUpdatedDelegate;
 	
@@ -78,10 +82,22 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_ColocatedGroups, BlueprintReadOnly)
 	TArray<FColocatedGroup> ColocatedGroups;
 	
+	UPROPERTY(ReplicatedUsing=OnRep_OwningPawnChanged, BlueprintReadOnly)
+	TObjectPtr<APawn> OwningPawn;
+	
 private:
 	UFUNCTION()
 	void OnRep_GroupedPlayerPawns();
 	
 	UFUNCTION()
 	void OnRep_ColocatedGroups();
+	
+	UFUNCTION()
+	void OnRep_OwningPawnChanged(APawn* OldPawn);
+	
+	void HandleOldOwner(APawn* OldOwner, APawn* NewOwner);
+	void HandleNewOwner(APawn* NewOwner);
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UClientTransformReplication> ClientTransformReplication;
 };

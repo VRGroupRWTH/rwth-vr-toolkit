@@ -35,7 +35,7 @@ protected:
 	void RequestGroupCreate();
 	
 	UFUNCTION(BlueprintCallable)
-	void RequestGroupOwnership();
+	void RequestGroupOwnership(int32 GroupId = -1);
 	
 	UFUNCTION(BlueprintCallable)
 	void RequestGroupJoin(int32 GroupId, FName ColocatedGroupName = NAME_None);

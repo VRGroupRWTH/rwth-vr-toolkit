@@ -26,23 +26,29 @@ public:
 	// Sets default values for this actor's properties
 	AGroupInterfaceActor();
 	
+	virtual void BeginPlay() override;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-
 	
 	void RequestCreateGroup(APawn* InitialMember = nullptr);
 	
 	void RequestJoinGroup(int32 GroupId, FName ColocatedGroupName = NAME_None);
-	
-	void RequestLeaveGroup(int32 GroupId);
+	int32 GetCurrentGroupIndex(int32 GroupId);
 
-	UPROPERTY(BlueprintReadWrite)
+	void RequestLeaveGroup(int32 GroupId);
+	
+	void RequestGroupOwnership(int32 GroupId);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerGroupManagerSet)
 	TObjectPtr<APlayerGroupManager> PlayerGroupManager;
 	
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;	
+	void Initialize();	
 	
 private:
+	
+	UFUNCTION()
+	void OnRep_PlayerGroupManagerSet();
 	
 	UFUNCTION(Server, Reliable)
 	void ServerCreateGroupRpc(APawn* InitialMember);
@@ -52,6 +58,9 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGroupRpc(int32 GroupId);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerGetGroupOwnershipRpc(int32 GroupId);
 	
 	UFUNCTION()
 	void CreateGroupInternal(APawn* InitialMember);
@@ -64,6 +73,11 @@ private:
 	UFUNCTION()
 	void LeaveGroupInternal(int32 GroupId);
 	
+	UFUNCTION()
+	void GetGroupOwnershipInternal(int32 GroupId);
+	
+	APlayerGroupManager* GetPlayerGroupManager();
+	
 	UPROPERTY()
 	TObjectPtr<UGroupUI> GroupUI;
 	
@@ -74,4 +88,6 @@ private:
 	
 	UPROPERTY(Replicated)
 	TObjectPtr<APlayerGroup> CurrentGroup;
+
+	bool bInitializedOnClient = false;
 };

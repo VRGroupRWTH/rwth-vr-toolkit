@@ -11,6 +11,8 @@
 // Sets default values
 APlayerGroupManager::APlayerGroupManager()
 {
+	bReplicates = true;
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot"));
 }
 
 
@@ -38,11 +40,17 @@ APlayerGroup* APlayerGroupManager::CreateGroup(APawn* InitialMember)
 	
 	auto NewGroup = GetWorld()->SpawnActor<APlayerGroup>(APlayerGroup::StaticClass(), GetTransform());
 	int32 Index = PlayerGroups.Add(NewGroup);
+	
+	NewGroup->OnGroupUpdatedDelegate.AddUObject(this, &APlayerGroupManager::OnGroupUpdated);
+	/*
 	NewGroup->OnGroupUpdatedDelegate.AddLambda([Index, &Delegate = OnGroupUpdatedByIndexDelegate](APlayerGroup* Group)
 	{
 		Delegate.Broadcast(Index, Group);
 	});
-
+	*/
+	UE_LOGFMT(Toolkit, Display, "IsBound: {b}", NewGroup->OnGroupUpdatedDelegate.IsBoundToObject(this));
+	
+	
 	if (InitialMember)
 	{
 		NewGroup->JoinGroup(InitialMember);
@@ -93,4 +101,10 @@ void APlayerGroupManager::LeaveGroup(int32 GroupId, APawn* Pawn)
 	
 	auto Group = PlayerGroups[GroupId];
 	Group->LeaveGroup(Pawn);
+}
+
+void APlayerGroupManager::OnGroupUpdated(APlayerGroup* UpdatedGroup) const
+{
+	if (int32 Idx = PlayerGroups.IndexOfByKey(UpdatedGroup); Idx != -1)
+		OnGroupUpdatedByIndexDelegate.Broadcast(Idx, UpdatedGroup);
 }

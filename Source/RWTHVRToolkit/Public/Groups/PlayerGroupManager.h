@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayerGroup.h"
 #include "GameFramework/Actor.h"
 #include "PlayerGroupManager.generated.h"
 
@@ -46,7 +47,19 @@ public:
 	UFUNCTION()
 	void OnRep_GroupsUpdated() const 
 	{
+		// Update delegate bindings on clients as well
+		for (APlayerGroup* PlayerGroup : PlayerGroups)
+		{
+			if (!PlayerGroup->OnGroupUpdatedDelegate.IsBoundToObject(this))
+			{
+				PlayerGroup->OnGroupUpdatedDelegate.AddUObject(this, &APlayerGroupManager::OnGroupUpdated);
+			}
+		}
+		
 		OnGroupsUpdatedDelegate.Broadcast();
 	}
+	
+	UFUNCTION()
+	void OnGroupUpdated(APlayerGroup* UpdatedGroup) const;
 	
 };

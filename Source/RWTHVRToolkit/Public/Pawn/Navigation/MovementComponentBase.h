@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Pawn/InputExtensionInterface.h"
+#include "Pawn/RWTHVRPawn.h"
 #include "MovementComponentBase.generated.h"
 
-class ARWTHVRPawn;
 /**
  * Base component for specialized MovementComponents. Currently only saves pointers to pawn and input system.
  * Might be used for common replication later on.
@@ -21,6 +21,18 @@ public:
 	// Already sets up VRPawn and InputSubsystem properties that can be used by child classes.
 	UFUNCTION(BlueprintCallable)
 	virtual void SetupPlayerInput(UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION()
+	virtual void ChangeActorToMove(AActor* NewActorToMove)
+	{
+		ActorToMove = NewActorToMove;
+	}
+	
+	UFUNCTION()
+	virtual void ResetActorToMove()
+	{
+		ActorToMove = VRPawn;		
+	}
 
 protected:
 	UPROPERTY()
