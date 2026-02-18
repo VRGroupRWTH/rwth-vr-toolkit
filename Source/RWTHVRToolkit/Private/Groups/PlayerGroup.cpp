@@ -46,16 +46,17 @@ bool APlayerGroup::JoinGroup(APawn* Pawn, FName ColocatedGroupName)
 	}
 	GroupedPlayerPawns.Add(Pawn);
 	
-	auto AttachmentTransformRules = FAttachmentTransformRules::KeepRelativeTransform;
+	auto AttachmentTransformRules = FAttachmentTransformRules::KeepWorldTransform;
 	
 	if (ColocatedGroupName != NAME_None)
 	{
 		auto ColocatedGroup = ColocatedGroups.FindByPredicate([&](const FColocatedGroup& Group){return Group.ColocatedGroupName == ColocatedGroupName;});
+		AttachmentTransformRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+
 		if (ColocatedGroup)
 		{
 			// Group already exists
 			ColocatedGroup->ColocatedPlayerPawns.Add(Pawn);
-			AttachmentTransformRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
 		}
 		else
 		{
@@ -63,6 +64,7 @@ bool APlayerGroup::JoinGroup(APawn* Pawn, FName ColocatedGroupName)
 			FColocatedGroup Grp;
 			Grp.ColocatedGroupName = ColocatedGroupName;
 			Grp.ColocatedPlayerPawns.Add(Pawn);
+			Grp.Origin = FTransform::Identity; // Todo support multiple different origins
 			ColocatedGroups.Add(Grp);
 		}
 	}
@@ -80,6 +82,10 @@ void APlayerGroup::LeaveGroup(APawn* Pawn)
 		Group.ColocatedPlayerPawns.RemoveSingle(Pawn);
 	}
 	
+	if (Pawn->IsAttachedTo(this))
+	{
+		Pawn->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	}
 	
 	bool bRequiresChangedBroadcast = false;
 	if (GroupedPlayerPawns.RemoveSingle(Pawn) > 0)

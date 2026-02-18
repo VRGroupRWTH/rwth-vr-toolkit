@@ -38,7 +38,9 @@ APlayerGroup* APlayerGroupManager::CreateGroup(APawn* InitialMember)
 		return nullptr;
 	}
 	
-	auto NewGroup = GetWorld()->SpawnActor<APlayerGroup>(APlayerGroup::StaticClass(), GetTransform());
+	auto InitialTransform = InitialMember ? InitialMember->GetTransform() : FTransform::Identity;
+	
+	auto NewGroup = GetWorld()->SpawnActor<APlayerGroup>(APlayerGroup::StaticClass(), InitialTransform);
 	int32 Index = PlayerGroups.Add(NewGroup);
 	
 	NewGroup->OnGroupUpdatedDelegate.AddUObject(this, &APlayerGroupManager::OnGroupUpdated);

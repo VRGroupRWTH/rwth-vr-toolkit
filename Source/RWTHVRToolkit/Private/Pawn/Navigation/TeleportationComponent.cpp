@@ -12,6 +12,7 @@
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 #include "Utility/RWTHVRUtilities.h"
 #include "MotionControllerComponent.h"
+#include "Camera/CameraComponent.h"
 
 
 void UTeleportationComponent::SetupPlayerInput(UInputComponent* PlayerInputComponent)
@@ -111,10 +112,13 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	{
 		if (bValidHit)
 		{
-			FinalTeleportLocation = HitLocation;
 			TeleportVisualizer->SetActorHiddenInGame(false);
 			// update location
-			TeleportVisualizer->SetActorLocation(FinalTeleportLocation);
+			TeleportVisualizer->SetActorLocation(HitLocation);
+			const float CurrentHeadHeight = VRPawn->HeadCameraComponent->GetRelativeLocation().Z;
+			const FVector CurrentHeadBase = VRPawn->HeadCameraComponent->GetComponentLocation() - FVector{ 0, 0, CurrentHeadHeight};
+			FVector LocalOffset = CurrentHeadBase - ActorToMove->GetActorLocation();
+			FinalTeleportLocation = HitLocation - LocalOffset;
 		}
 	}
 

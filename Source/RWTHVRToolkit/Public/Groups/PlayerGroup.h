@@ -20,6 +20,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<TObjectPtr<APawn>> ColocatedPlayerPawns;
 
+	UPROPERTY(BlueprintReadOnly)
+	FTransform Origin;
+	
 	FColocatedGroup()
 	{
 	}
@@ -39,6 +42,7 @@ public:
 	{
 		Ar << ColocatedGroupName;
 		Ar << ColocatedPlayerPawns;
+		Ar << Origin;
 		return true;
 	}
 };
