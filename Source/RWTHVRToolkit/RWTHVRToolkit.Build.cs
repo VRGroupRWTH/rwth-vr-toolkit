@@ -31,7 +31,8 @@ public class RWTHVRToolkit : ModuleRules
 			"LiveLinkInterface",
 			"EnhancedInput", 
 			"Niagara",
-			"NavigationSystem"
+			"NavigationSystem",
+			"AIModule"
 			}
 		);
 

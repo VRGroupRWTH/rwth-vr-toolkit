@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "LiveLinkRole.h"
+#include "AI/RVOAvoidanceInterface.h"
+#include "AI/Navigation/NavigationAvoidanceTypes.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
+#include "Runtime/AIModule/Classes/Navigation/CrowdAgentInterface.h"
 
 #include "RWTHVRPawn.generated.h"
 
@@ -20,7 +23,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScaleChangedDelegate, FVector, O
  * Pawn implementation with additional VR functionality, can be used in the Cave, with an HMD and on desktop.
  */
 UCLASS(Abstract)
-class RWTHVRTOOLKIT_API ARWTHVRPawn : public APawn
+class RWTHVRTOOLKIT_API ARWTHVRPawn : public APawn, public ICrowdAgentInterface, public IRVOAvoidanceInterface
 {
 	GENERATED_BODY()
 
@@ -89,7 +92,63 @@ public:
 	/* Set the transform of the component in world space of in its local reference frame. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	bool bWorldTransform = false;
+	
+	// ICrowdAgentInterface Implementation
+	// These functions allow the Detour Crowd to "see" your Pawn
+	// ICrowdAgentInterface Implementation
+	virtual FVector GetCrowdAgentLocation() const override;
+	virtual FVector GetCrowdAgentVelocity() const override;
+	virtual void GetCrowdAgentCollisions(float& CylinderRadius, float& CylinderHalfHeight) const override;
+	virtual float GetCrowdAgentMaxSpeed() const override;
+	virtual int32 GetCrowdAgentAvoidanceGroup() const override;
+	virtual int32 GetCrowdAgentGroupsToAvoid() const override;
+	virtual int32 GetCrowdAgentGroupsToIgnore() const override;
+	
+	// IRVOAvoidance Implementation
+	virtual void SetRVOAvoidanceUID(int32 UID) override;
+	virtual int32 GetRVOAvoidanceUID() override;
+	virtual void SetRVOAvoidanceWeight(float Weight) override;
+	virtual float GetRVOAvoidanceWeight() override;
+	virtual FVector GetRVOAvoidanceOrigin() override;
+	virtual float GetRVOAvoidanceRadius() override;
+	virtual float GetRVOAvoidanceHeight() override;
+	virtual float GetRVOAvoidanceConsiderationRadius() override;
+	virtual FVector GetVelocityForRVOConsideration() override;
+	virtual void SetAvoidanceGroupMask(int32 GroupFlags) override;
+	virtual int32 GetAvoidanceGroupMask() override;
+	virtual void SetGroupsToAvoidMask(int32 GroupFlags) override;
+	virtual int32 GetGroupsToAvoidMask() override;
+	virtual void SetGroupsToIgnoreMask(int32 GroupFlags) override;
+	virtual int32 GetGroupsToIgnoreMask() override;
+	FVector GetActorFeetLocation() const;
 
+	/** No default value, for now it's assumed to be valid if GetAvoidanceManager() returns non-NULL. **/
+	UPROPERTY(Category="Character Movement: Avoidance", VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	int32 AvoidanceUID;
+	
+	/** De facto default value 0.5 (due to that being the default in the avoidance registration function), indicates RVO behavior. */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly)
+	float AvoidanceWeight;
+	
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, meta=(ForceUnits=cm))
+	float AvoidanceConsiderationRadius;
+	
+	/** Current velocity of updated component. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Velocity)
+	FVector Velocity;
+	
+	/** Moving actor's group mask */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask AvoidanceGroup;
+	
+	/** Will avoid other agents if they are in one of specified groups */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask GroupsToAvoid;
+	
+	/** Will NOT avoid other agents if they are in one of specified groups, higher priority than GroupsToAvoid */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask GroupsToIgnore;
+	
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
@@ -119,6 +178,9 @@ protected:
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();
+	
+	/** Helper to find the capsule component in children */
+	class UCapsuleComponent* GetCapsuleComponent() const;
 
 private:
 	UInputComponent* ActivePlayerInputComponent;
