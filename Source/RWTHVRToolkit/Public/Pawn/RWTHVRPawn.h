@@ -180,6 +180,7 @@ protected:
 	void SetupMotionControllerSources();
 	
 	/** Helper to find the capsule component in children */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	class UCapsuleComponent* GetCapsuleComponent() const;
 
 private:
