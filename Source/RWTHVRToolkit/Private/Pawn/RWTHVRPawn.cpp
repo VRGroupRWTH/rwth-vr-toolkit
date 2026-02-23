@@ -9,17 +9,14 @@
 #include "InputMappingContext.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Logging/StructuredLog.h"
-#include "Pawn/ClusterRepresentationActor.h"
 #include "Pawn/InputExtensionInterface.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
+#include "ClusterSetupComponent.h"
 
-#if PLATFORM_SUPPORTS_CLUSTER
-#include "Components/DisplayClusterSceneComponentSyncParent.h"
-#endif
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -35,6 +32,8 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	CollisionHandlingMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Collision Handling Movement"));
 	CollisionHandlingMovement->SetUpdatedComponent(RootComponent);
 	CollisionHandlingMovement->SetHeadComponent(HeadCameraComponent);
+
+	ClusterSetupComponent = CreateDefaultSubobject<UClusterSetupComponent>(TEXT("ClusterSetupComponent"));
 
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
@@ -89,43 +88,6 @@ void ARWTHVRPawn::SetScale(float NewScale)
 }
 
 float ARWTHVRPawn::GetScale() { return UniformScale; }
-
-/*
- * The alternative would be to do this only on the server on possess and check for player state/type,
- * as connections now send their playertype over.
- */
-// This pawn's controller has changed! This is called on both server and owning client. If we are the owning client
-// and the master, request that the Cluster is attached to us.
-void ARWTHVRPawn::NotifyControllerChanged()
-{
-	Super::NotifyControllerChanged();
-
-	// Try and use PlayerType for this:
-
-	if (HasAuthority())
-	{
-		UE_LOG(Toolkit, Display,
-			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change Cluster attachment if possible..."));
-		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
-		{
-			const EPlayerType Type = State->GetPlayerType();
-
-			// Only cluster types are valid here as they are set on connection.
-			// For all other player types this is a race condition
-			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
-			{
-				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
-				AttachClustertoPawn();
-			}
-		}
-		else
-		{
-			UE_LOGFMT(Toolkit, Warning,
-					  "ARWTHVRPawn: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment only works "
-					  "with correct PlayerStates!");
-		}
-	}
-}
 
 void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -283,55 +245,6 @@ void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 			LeftHand->SetRelativeLocation(HeadCameraComponent->GetRelativeLocation());
 		}
 	}
-}
-
-void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
-{
-#if PLATFORM_SUPPORTS_CLUSTER
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-
-	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
-	{
-		SyncComponent = Cast<USceneComponent>(AddComponentByClass(
-			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
-		AddInstanceComponent(SyncComponent);
-		UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
-	}
-#endif
-}
-
-// Executed on the server only: Attaches the ClusterRepresentation Actor, which contains the DCRA to the Pawn.
-// It is only executed on the server because attachments are synced to all clients, but not from client to server.
-void ARWTHVRPawn::AttachClustertoPawn()
-{
-	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
-	{
-		const auto ClusterActor = State->GetCorrespondingClusterActor();
-		if (!ClusterActor)
-		{
-			UE_LOGFMT(
-				Toolkit, Error,
-				"ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
-				"the Cave.");
-			return;
-		}
-		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
-		bool bAttached = ClusterActor->AttachToComponent(GetRootComponent(), AttachmentRules);
-		// State->GetCorrespondingClusterActor()->OnAttached();
-		UE_LOGFMT(Toolkit, Display,
-				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
-	}
-	else
-	{
-		UE_LOGFMT(Toolkit, Error,
-				  "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
-	}
-
-	if (HasAuthority()) // Should always be the case here, but double check
-		MulticastAddDCSyncComponent();
 }
 
 void ARWTHVRPawn::SetupMotionControllerSources()

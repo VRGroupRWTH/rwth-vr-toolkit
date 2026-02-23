@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
 class UMotionControllerComponent;
+class UClusterSetupComponent;
 struct FLiveLinkTransformStaticData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScaleChangedDelegate, FVector, OldScale, float, NewUniformScale);
@@ -30,8 +31,6 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-
-	virtual void NotifyControllerChanged() override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetScale(float NewScale);
@@ -66,7 +65,7 @@ public:
 	UCameraComponent* HeadCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
-	USceneComponent* SyncComponent;
+	UClusterSetupComponent* ClusterSetupComponent;
 
 	// LiveLink functionality
 
@@ -107,15 +106,6 @@ protected:
 	/* Fixes camera rotation in desktop mode. */
 	void SetCameraOffset() const;
 	void UpdateRightHandForDesktopInteraction() const;
-
-	/* Replicated functionality */
-
-	/* Add a sync component to all instances of this pawn */
-	UFUNCTION(Reliable, NetMulticast)
-	void MulticastAddDCSyncComponent();
-
-	/* Attaches the Cluster representation to the pawn */
-	void AttachClustertoPawn();
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();
