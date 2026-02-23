@@ -112,7 +112,7 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 
 	SetupMotionControllerSources();
-	
+
 	LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
 	LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentation;
 

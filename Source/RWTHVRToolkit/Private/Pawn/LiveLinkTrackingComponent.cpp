@@ -7,10 +7,7 @@
 #include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
-ULiveLinkTrackingComponent::ULiveLinkTrackingComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
+ULiveLinkTrackingComponent::ULiveLinkTrackingComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
 void ULiveLinkTrackingComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 											   FActorComponentTickFunction* ThisTickFunction)

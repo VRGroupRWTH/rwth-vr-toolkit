@@ -24,7 +24,7 @@ class RWTHVRTOOLKIT_API ARWTHVRPlayerState : public APlayerState
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 private:
 	/** Replicated player type for this player*/
 	UPROPERTY(Replicated, Category = PlayerState, BlueprintGetter = GetPlayerType, meta = (AllowPrivateAccess))
