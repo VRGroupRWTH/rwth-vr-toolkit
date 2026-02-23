@@ -70,7 +70,7 @@ public:
 	UClusterSetupComponent* ClusterSetupComponent;
 
 	// LiveLink functionality
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
 	ULiveLinkTrackingComponent* LiveLinkTrackingComponent;
 
