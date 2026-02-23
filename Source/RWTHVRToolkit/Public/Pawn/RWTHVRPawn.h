@@ -8,6 +8,8 @@
 
 #include "RWTHVRPawn.generated.h"
 
+
+class ULiveLinkTrackingComponent;
 class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
@@ -68,10 +70,9 @@ public:
 	UClusterSetupComponent* ClusterSetupComponent;
 
 	// LiveLink functionality
-
-	/* Set whether nDisplay should disable LiveLink tracking*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|LiveLink")
-	bool bDisableLiveLink = false;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
+	ULiveLinkTrackingComponent* LiveLinkTrackingComponent;
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
@@ -85,23 +86,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	FLiveLinkSubjectRepresentation RightSubjectRepresentation;
 
-	/* Set the transform of the component in world space of in its local reference frame. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	bool bWorldTransform = false;
-
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
 
 	UFUNCTION(BlueprintCallable)
 	UInputComponent* GetPlayerInputComponent();
-
-	/* LiveLink helper function called on tick */
-	void EvaluateLivelink() const;
-
-	/* Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller.
-	 */
-	void ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData) const;
 
 	/* Fixes camera rotation in desktop mode. */
 	void SetCameraOffset() const;

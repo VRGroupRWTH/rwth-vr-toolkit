@@ -13,9 +13,9 @@
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
-#include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
-#include "ClusterSetupComponent.h"
+#include "Pawn/ClusterSetupComponent.h"
+#include "Pawn/LiveLinkTrackingComponent.h"
 
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -34,6 +34,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	CollisionHandlingMovement->SetHeadComponent(HeadCameraComponent);
 
 	ClusterSetupComponent = CreateDefaultSubobject<UClusterSetupComponent>(TEXT("ClusterSetupComponent"));
+	LiveLinkTrackingComponent = CreateDefaultSubobject<ULiveLinkTrackingComponent>(TEXT("ClusterSetupComponent"));
 
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
@@ -70,7 +71,6 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 		SetCameraOffset();
 		UpdateRightHandForDesktopInteraction();
 	}
-	EvaluateLivelink();
 }
 
 /*
@@ -113,6 +113,9 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 
 	SetupMotionControllerSources();
+	
+	LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
+	LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentation;
 
 	// Should not do this here but on connection or on possess I think.
 	if (ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
@@ -193,40 +196,6 @@ void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInp
 	}
 }
 
-void ARWTHVRPawn::EvaluateLivelink() const
-{
-	if (URWTHVRUtilities::IsRoomMountedMode() && IsLocallyControlled())
-	{
-		if (bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
-		{
-			return;
-		}
-
-		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
-		ILiveLinkClient& LiveLinkClient =
-			IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
-		FLiveLinkSubjectFrameData SubjectData;
-		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject,
-																		  HeadSubjectRepresentation.Role, SubjectData);
-
-		if (!bHasValidData)
-		{
-			return;
-		}
-
-		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and
-		// could be further improved.
-		const FLiveLinkTransformStaticData* StaticData = SubjectData.StaticData.Cast<FLiveLinkTransformStaticData>();
-		const FLiveLinkTransformFrameData* FrameData = SubjectData.FrameData.Cast<FLiveLinkTransformFrameData>();
-
-		if (StaticData && FrameData)
-		{
-			// Finally, apply the transform to this component according to the static data.
-			ApplyLiveLinkTransform(FrameData->Transform, *StaticData);
-		}
-	}
-}
-
 void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 {
 	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
@@ -275,48 +244,4 @@ void ARWTHVRPawn::SetCameraOffset() const
 	FRotator Rotation;
 	GetActorEyesViewPoint(Location, Rotation);
 	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
-										 const FLiveLinkTransformStaticData& StaticData) const
-{
-	if (StaticData.bIsLocationSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
-		}
-	}
-
-	if (StaticData.bIsRotationSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
-		}
-	}
-
-	if (StaticData.bIsScaleSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldScale3D(Transform.GetScale3D());
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeScale3D(Transform.GetScale3D());
-		}
-	}
 }
