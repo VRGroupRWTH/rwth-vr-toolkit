@@ -60,6 +60,34 @@ void ARWTHVRPlayerState::ServerSetPlayerTypeRpc_Implementation(const EPlayerType
 	SetPlayerType(NewPlayerType);
 }
 
+void ARWTHVRPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Not sure if this is the right place here, should be in the playercontroller?
+	// But still feels better than in the pawn
+
+	// Only do this on the client this state belongs to, as only that machine has information about the hardware.
+	if (HasLocalNetOwner())
+	{
+		// Might not be properly synced yet?
+
+		// Don't do anything with the type if it's been set to clustertype or anything.
+		// This is already being done when connecting to the server.
+		const bool bClusterType =
+			PlayerType == EPlayerType::nDisplayPrimary || PlayerType == EPlayerType::nDisplaySecondary;
+
+		if (!bClusterType)
+		{
+			if (URWTHVRUtilities::IsHeadMountedMode())
+			{
+				// Could be too early to call this RPC...
+				RequestSetPlayerType(EPlayerType::HMD);
+			}
+		}
+	}
+}
+
 void ARWTHVRPlayerState::SetPlayerType(const EPlayerType NewPlayerType)
 {
 	MARK_PROPERTY_DIRTY_FROM_NAME(ARWTHVRPlayerState, PlayerType, this);
