@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/RVOAvoidanceInterface.h"
+#include "AI/Navigation/NavigationAvoidanceTypes.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/CapsuleComponent.h"
 
@@ -28,7 +30,7 @@ enum class EVRNavigationModes : uint8
 };
 
 UCLASS()
-class RWTHVRTOOLKIT_API UCollisionHandlingMovement : public UFloatingPawnMovement
+class RWTHVRTOOLKIT_API UCollisionHandlingMovement : public UFloatingPawnMovement, public IRVOAvoidanceInterface
 {
 	GENERATED_UCLASS_BODY()
 
@@ -68,6 +70,49 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Movement", meta = (ClampMin = "0.0"))
 	float CapsuleRadius = 40.0f;
 
+	// IRVOAvoidance Implementation
+	virtual void SetRVOAvoidanceUID(int32 UID) override;
+	virtual int32 GetRVOAvoidanceUID() override;
+	virtual void SetRVOAvoidanceWeight(float Weight) override;
+	virtual float GetRVOAvoidanceWeight() override;
+	virtual FVector GetRVOAvoidanceOrigin() override;
+	virtual float GetRVOAvoidanceRadius() override;
+	virtual float GetRVOAvoidanceHeight() override;
+	virtual float GetRVOAvoidanceConsiderationRadius() override;
+	virtual FVector GetVelocityForRVOConsideration() override;
+	virtual void SetAvoidanceGroupMask(int32 GroupFlags) override;
+	virtual int32 GetAvoidanceGroupMask() override;
+	virtual void SetGroupsToAvoidMask(int32 GroupFlags) override;
+	virtual int32 GetGroupsToAvoidMask() override;
+	virtual void SetGroupsToIgnoreMask(int32 GroupFlags) override;
+	virtual int32 GetGroupsToIgnoreMask() override;
+	FVector GetActorFeetLocation() const;
+	
+	/** No default value, for now it's assumed to be valid if GetAvoidanceManager() returns non-NULL. **/
+	UPROPERTY(Category="Character Movement: Avoidance", VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	int32 AvoidanceUID = 0;
+	
+	/** De facto default value 0.5 (due to that being the default in the avoidance registration function), indicates RVO behavior. */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly)
+	float AvoidanceWeight;
+	
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, meta=(ForceUnits=cm))
+	float AvoidanceConsiderationRadius;
+	
+	/** Moving actor's group mask */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask AvoidanceGroup;
+	
+	/** Will avoid other agents if they are in one of specified groups */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask GroupsToAvoid;
+	
+	/** Will NOT avoid other agents if they are in one of specified groups, higher priority than GroupsToAvoid */
+	UPROPERTY(Category="Character Movement: Avoidance", EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
+	FNavAvoidanceMask GroupsToIgnore;
+	
+	
+	
 private:
 	// check for
 	FHitResult CreateCapsuleTrace(const FVector& Start, const FVector& End, bool DrawDebug = false) const;

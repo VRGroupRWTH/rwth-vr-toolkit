@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
 #include "InputMappingContext.h"
+#include "AI/Navigation/AvoidanceManager.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Logging/StructuredLog.h"
 #include "Pawn/ClusterRepresentationActor.h"
@@ -60,6 +61,8 @@ void ARWTHVRPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
+	
+	SetAvoidanceEnabled(bUseRVOAvoidance);
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
@@ -127,142 +130,27 @@ void ARWTHVRPawn::NotifyControllerChanged()
 	}
 }
 
-FVector ARWTHVRPawn::GetCrowdAgentLocation() const
+void ARWTHVRPawn::SetAvoidanceEnabled(bool bEnable) const
 {
-	return GetActorLocation();
-}
-
-FVector ARWTHVRPawn::GetCrowdAgentVelocity() const
-{
-	return GetVelocity();
-}
-
-void ARWTHVRPawn::GetCrowdAgentCollisions(float& CylinderRadius, float& CylinderHalfHeight) const
-{
-	// Adjust these based on your VR Pawn's size
-	CylinderRadius = 40.f; 
-	CylinderHalfHeight = 80.f;
-}
-
-float ARWTHVRPawn::GetCrowdAgentMaxSpeed() const
-{
-	// Return your Pawn's max speed (e.g., from your movement component)
-	return 300.f; 
-}
-
-int32 ARWTHVRPawn::GetCrowdAgentAvoidanceGroup() const
-{
-	// Group 1 is usually the default. 
-	// You can use a different group if you want specific NPC-only avoidance logic.
-	return 1; 
-}
-
-int32 ARWTHVRPawn::GetCrowdAgentGroupsToAvoid() const
-{
-	// Avoid everyone (MAX_int32)
-	return 0xFFFFFFFF; 
-}
-
-int32 ARWTHVRPawn::GetCrowdAgentGroupsToIgnore() const
-{
-	return 0;
-}
-
-void ARWTHVRPawn::SetRVOAvoidanceUID(int32 UID)
-{
-	AvoidanceUID = UID;
-}
-
-int32 ARWTHVRPawn::GetRVOAvoidanceUID()
-{
-	return AvoidanceUID;
-}
-
-void ARWTHVRPawn::SetRVOAvoidanceWeight(float Weight)
-{
-	AvoidanceWeight = Weight;
-}
-
-float ARWTHVRPawn::GetRVOAvoidanceWeight()
-{
-	return AvoidanceWeight;
-}
-
-FVector ARWTHVRPawn::GetRVOAvoidanceOrigin()
-{
-	return GetActorFeetLocation();
-}
-
-float ARWTHVRPawn::GetRVOAvoidanceRadius()
-{
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	return CapsuleComp ? CapsuleComp->GetScaledCapsuleRadius() : 0.0f;
-}
-
-float ARWTHVRPawn::GetRVOAvoidanceConsiderationRadius()
-{
-	return AvoidanceConsiderationRadius;
-}
-
-float ARWTHVRPawn::GetRVOAvoidanceHeight()
-{
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	return CapsuleComp ? CapsuleComp->GetScaledCapsuleHalfHeight() : 0.0f;
-}
-
-FVector ARWTHVRPawn::GetVelocityForRVOConsideration()
-{
-	return Velocity;
-}
-
-void ARWTHVRPawn::SetAvoidanceGroupMask(int32 GroupFlags)
-{
-	AvoidanceGroup.SetFlagsDirectly(GroupFlags);
-}
-
-int32 ARWTHVRPawn::GetAvoidanceGroupMask()
-{
-	return AvoidanceGroup.Packed;
-}
-
-void ARWTHVRPawn::SetGroupsToAvoidMask(int32 GroupFlags)
-{
-	GroupsToAvoid.SetFlagsDirectly(GroupFlags);
-}
-
-int32 ARWTHVRPawn::GetGroupsToAvoidMask()
-{
-	return GroupsToAvoid.Packed;
-}
-
-void ARWTHVRPawn::SetGroupsToIgnoreMask(int32 GroupFlags)
-{
-	GroupsToIgnore.SetFlagsDirectly(GroupFlags);
-}
-
-int32 ARWTHVRPawn::GetGroupsToIgnoreMask()
-{
-	return GroupsToIgnore.Packed;
-}
-
-FVector ARWTHVRPawn::GetActorFeetLocation() const
-{
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-    
-	if (CapsuleComp)
-	{
-		const float HalfHeight = CapsuleComp->GetScaledCapsuleHalfHeight();
-        
-		// CharacterMovement uses GetGravityDirection, but for a standard VR Pawn
-		// we can usually assume -Z is down. If you need gravity support:
-		const FVector GravityDir = FVector(0.f, 0.f, -1.f); 
-        
-		// Feet Location = Center Location + (HalfHeight * DownDirection)
-		return CapsuleComp->GetComponentLocation() + (HalfHeight * GravityDir);
-	}
-
-	// Fallback to Actor Location if no capsule is found
-	return GetActorLocation();
+	// UWorld* World = GetWorld();
+	// UAvoidanceManager* AvoidanceManager = World ? World->GetAvoidanceManager() : nullptr;
+	//
+	// if (AvoidanceManager && CollisionHandlingMovement)
+	// {
+	// 	if (bEnable)
+	// 	{
+	// 		// We pass the COMPONENT here, which matches the Engine Source signature
+	// 		AvoidanceManager->RegisterMovementComponent(CollisionHandlingMovement, 1.f);
+	// 	}
+	// 	else
+	// 	{
+	// 		if (!AvoidanceManager->IsAutoPurgeEnabled())
+	// 		{
+	// 			// Use the UID stored in the component
+	// 			AvoidanceManager->RemoveAvoidanceObject(CollisionHandlingMovement->GetRVOAvoidanceUID());
+	// 		}
+	// 	}
+	// }
 }
 
 void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

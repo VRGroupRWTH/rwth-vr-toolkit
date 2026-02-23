@@ -145,6 +145,99 @@ bool UCollisionHandlingMovement::RemoveActorFromIgnore(AActor* ActorToIgnore)
 	}
 }
 
+void UCollisionHandlingMovement::SetRVOAvoidanceUID(int32 UID)
+{
+	AvoidanceUID = UID;
+}
+
+int32 UCollisionHandlingMovement::GetRVOAvoidanceUID()
+{
+	return AvoidanceUID;
+}
+
+void UCollisionHandlingMovement::SetRVOAvoidanceWeight(float Weight)
+{
+	AvoidanceWeight = Weight;
+}
+
+float UCollisionHandlingMovement::GetRVOAvoidanceWeight()
+{
+	return AvoidanceWeight;
+}
+
+FVector UCollisionHandlingMovement::GetRVOAvoidanceOrigin()
+{
+	return GetActorFeetLocation();
+}
+
+float UCollisionHandlingMovement::GetRVOAvoidanceRadius()
+{
+	return CapsuleColliderComponent ? CapsuleColliderComponent->GetScaledCapsuleRadius() : 0.0f;
+}
+
+float UCollisionHandlingMovement::GetRVOAvoidanceConsiderationRadius()
+{
+	return AvoidanceConsiderationRadius;
+}
+
+float UCollisionHandlingMovement::GetRVOAvoidanceHeight()
+{
+	return CapsuleColliderComponent ? CapsuleColliderComponent->GetScaledCapsuleHalfHeight() : 0.0f;
+}
+
+FVector UCollisionHandlingMovement::GetVelocityForRVOConsideration()
+{
+	return Velocity;
+}
+
+void UCollisionHandlingMovement::SetAvoidanceGroupMask(int32 GroupFlags)
+{
+	AvoidanceGroup.SetFlagsDirectly(GroupFlags);
+}
+
+int32 UCollisionHandlingMovement::GetAvoidanceGroupMask()
+{
+	return AvoidanceGroup.Packed;
+}
+
+void UCollisionHandlingMovement::SetGroupsToAvoidMask(int32 GroupFlags)
+{
+	GroupsToAvoid.SetFlagsDirectly(GroupFlags);
+}
+
+int32 UCollisionHandlingMovement::GetGroupsToAvoidMask()
+{
+	return GroupsToAvoid.Packed;
+}
+
+void UCollisionHandlingMovement::SetGroupsToIgnoreMask(int32 GroupFlags)
+{
+	GroupsToIgnore.SetFlagsDirectly(GroupFlags);
+}
+
+int32 UCollisionHandlingMovement::GetGroupsToIgnoreMask()
+{
+	return GroupsToIgnore.Packed;
+}
+
+FVector UCollisionHandlingMovement::GetActorFeetLocation() const
+{    
+	if (CapsuleColliderComponent)
+	{
+		const float HalfHeight = CapsuleColliderComponent->GetScaledCapsuleHalfHeight();
+        
+		// CharacterMovement uses GetGravityDirection, but for a standard VR Pawn
+		// we can usually assume -Z is down. If you need gravity support:
+		const FVector GravityDir = FVector(0.f, 0.f, -1.f); 
+        
+		// Feet Location = Center Location + (HalfHeight * DownDirection)
+		return CapsuleColliderComponent->GetComponentLocation() + (HalfHeight * GravityDir);
+	}
+
+	// Fallback to Actor Location if no capsule is found
+	return GetActorLocation();
+}
+
 void UCollisionHandlingMovement::SetCapsuleColliderToUserSize() const
 {
 	// the collider should be placed
