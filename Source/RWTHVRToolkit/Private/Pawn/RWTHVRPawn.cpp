@@ -33,7 +33,7 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	CollisionHandlingMovement->SetHeadComponent(HeadCameraComponent);
 
 	ClusterSetupComponent = CreateDefaultSubobject<UClusterSetupComponent>(TEXT("ClusterSetupComponent"));
-	LiveLinkTrackingComponent = CreateDefaultSubobject<ULiveLinkTrackingComponent>(TEXT("ClusterSetupComponent"));
+	LiveLinkTrackingComponent = CreateDefaultSubobject<ULiveLinkTrackingComponent>(TEXT("LiveLinkTrackingComponent"));
 
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
