@@ -3,7 +3,6 @@
 
 #include "Groups/PlayerGroup.h"
 
-#include "EditorCategoryUtils.h"
 #include "Core/ClientTransformReplication.h"
 #include "Logging/StructuredLog.h"
 #include "Net/UnrealNetwork.h"
