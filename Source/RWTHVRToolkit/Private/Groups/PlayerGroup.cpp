@@ -9,8 +9,6 @@
 #include "Pawn/Navigation/TeleportationComponent.h"
 #include "Utility/RWTHVRUtilities.h"
 
-#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
-
 // Sets default values
 APlayerGroup::APlayerGroup()
 {
