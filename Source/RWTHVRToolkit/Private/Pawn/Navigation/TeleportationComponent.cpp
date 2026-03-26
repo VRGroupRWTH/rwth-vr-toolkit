@@ -86,6 +86,7 @@ void UTeleportationComponent::UpdateTeleportTrace(const FInputActionValue& Value
 	FPredictProjectilePathParams PredictParams = FPredictProjectilePathParams(
 		TeleportProjectileRadius, StartPosition, TeleportLaunchSpeed * ForwardVector, 5.0, ECC_WorldStatic);
 
+	PredictParams.bTraceComplex = true;
 	PredictParams.ActorsToIgnore.Add(VRPawn);
 	PredictParams.ActorsToIgnore.Add(ActorToMove);
 	PredictParams.ActorsToIgnore.Add(TeleportVisualizer);
