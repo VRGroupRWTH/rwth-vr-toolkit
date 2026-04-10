@@ -8,6 +8,7 @@
 #include "GrabBehavior.generated.h"
 
 
+class UPhysicsHandleComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, NewAttachParent, UPrimitiveComponent*,
 											 HeldComponent);
 
@@ -28,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bIgnoreGrabbedActorInCollisionMovement = true;
 
+	UPROPERTY(EditAnywhere, Category = "Grabbing")
+	bool bUsePhysicsGrab = true;
+	
 	/**
 	 * Called after the object was successfully attached to the hand
 	 */
@@ -44,7 +48,9 @@ public:
 	UPrimitiveComponent* MyPhysicsComponent;
 
 	virtual void BeginPlay() override;
-
+	
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
 	// recursively goes up the hierarchy and returns the highest parent simulating physics
@@ -70,7 +76,7 @@ private:
 	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
 	 * return false.
 	 */
-	bool TryRelease();
+	bool TryRelease(USceneComponent* TriggerComponent);
 
 	void StartGrab(USceneComponent* TriggerComponent);
 
@@ -81,4 +87,8 @@ private:
 	bool bWasSimulatingPhysics;
 
 	bool bWasAddedToIgnore = false;
+	
+	ECollisionResponse PrevCollisionResponse;
+	
+	TMap<UPhysicsHandleComponent*, TPair<USceneComponent*, FVector>> ActivePhysicsHandleComponents;
 };
