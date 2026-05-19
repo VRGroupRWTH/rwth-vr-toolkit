@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 
 float UIntenSelectableScoring::GetScore(const FVector& ConeOrigin, const FVector& ConeForwardDirection,

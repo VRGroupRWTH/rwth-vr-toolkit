@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/GrabBehavior.h"
 
 #include "Interaction/Interactables/InteractableComponent.h"
@@ -128,10 +125,10 @@ bool UGrabBehavior::TryRelease(USceneComponent* TriggerComponent)
 		auto PhysicsHandle = TriggerComponent->GetOwner()->GetComponentByClass<UPhysicsHandleComponent>();
 		if (!PhysicsHandle)
 			return false;
-		
-		ActivePhysicsHandleComponents.Remove(PhysicsHandle);			
+
+		ActivePhysicsHandleComponents.Remove(PhysicsHandle);
 		PhysicsHandle->ReleaseComponent();
-		
+
 		if (ActivePhysicsHandleComponents.IsEmpty())
 		{
 			MyPhysicsComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, PrevCollisionResponse);
@@ -190,7 +187,7 @@ void UGrabBehavior::StartGrab(USceneComponent* TriggerComponent)
 					  "Physics-based grab requires the object to be grabbed ({Me})to have a Primitive Component, as "
 					  "well as a PhysicsHandle on the interacting comp {C}!",
 					  this->GetName(), TriggerComponent->GetName());
-		}		
+		}
 	}
 	else
 	{
