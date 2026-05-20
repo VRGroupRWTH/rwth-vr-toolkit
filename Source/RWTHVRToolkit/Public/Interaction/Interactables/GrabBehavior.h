@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -31,7 +29,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bUsePhysicsGrab = true;
-	
+
 	/**
 	 * Called after the object was successfully attached to the hand
 	 */
@@ -48,9 +46,9 @@ public:
 	UPrimitiveComponent* MyPhysicsComponent;
 
 	virtual void BeginPlay() override;
-	
+
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
 	// recursively goes up the hierarchy and returns the highest parent simulating physics
@@ -87,8 +85,8 @@ private:
 	bool bWasSimulatingPhysics;
 
 	bool bWasAddedToIgnore = false;
-	
+
 	ECollisionResponse PrevCollisionResponse;
-	
+
 	TMap<UPhysicsHandleComponent*, TPair<USceneComponent*, FVector>> ActivePhysicsHandleComponents;
 };

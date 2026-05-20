@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/IntenSelect/IntenSelectableCylinderScoring.h"
 
 #include "DrawDebugHelpers.h"

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/ActionBehaviour.h"
 #include "Interaction/Interactables/HoverBehaviour.h"
