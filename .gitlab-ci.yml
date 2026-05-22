@@ -9,7 +9,7 @@ spec:
       description: The Unreal Engine version in the form of "major.minor"
       type: string
       regex: \d+\.\d+
-      default: "5.6"
+      default: "5.7"
     build_type:
       description: The game build type.
       type: string
