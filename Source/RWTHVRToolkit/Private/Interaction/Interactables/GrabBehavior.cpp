@@ -1,11 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/GrabBehavior.h"
+
 #include "Interaction/Interactables/InteractableComponent.h"
 #include "Interaction/Interactables/InteractionEventType.h"
 #include "Logging/StructuredLog.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Serialization/JsonTypes.h"
 #include "Utility/RWTHVRUtilities.h"
 
@@ -14,6 +13,9 @@ UGrabBehavior::UGrabBehavior()
 	SetIsReplicatedByDefault(true);
 	bExecuteOnServer = true;
 	bExecuteOnAllClients = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	UActorComponent::SetComponentTickEnabled(false);
+	//SetTickGroup(TG_PrePhysics);
 }
 
 void UGrabBehavior::BeginPlay()
@@ -21,6 +23,22 @@ void UGrabBehavior::BeginPlay()
 	Super::BeginPlay();
 
 	OnActionReplicationStartedOriginatorEvent.AddDynamic(this, &UGrabBehavior::ReplicationOriginaterClientCallback);
+}
+
+void UGrabBehavior::TickComponent(float DeltaTime, enum ELevelTick TickType,
+								  FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (bObjectGrabbed && bUsePhysicsGrab)
+	{
+		//CurrentlyActiveInteractorComponent->GetComponentTransform().TransformVector(HandleOffset)
+		//  No rotation for now
+		for (auto PhysicsHandleData : ActivePhysicsHandleComponents)
+		{
+			const FVector NewPosition = PhysicsHandleData.Value.Key->GetComponentLocation() + PhysicsHandleData.Value.Value;
+			PhysicsHandleData.Key->SetTargetLocation(NewPosition);
+		}
+	}
 }
 
 UPrimitiveComponent* UGrabBehavior::GetFirstComponentSimulatingPhysics(const AActor* TargetActor)
@@ -49,6 +67,7 @@ UPrimitiveComponent* UGrabBehavior::GetHighestParentSimulatingPhysics(UPrimitive
 
 	return Comp;
 }
+
 void UGrabBehavior::ReplicationOriginaterClientCallback(USceneComponent* TriggerComponent,
 														const EInteractionEventType EventType,
 														const FInputActionValue& Value)
@@ -94,51 +113,103 @@ void UGrabBehavior::OnActionEvent(USceneComponent* TriggerComponent, const EInte
 	}
 }
 
-bool UGrabBehavior::TryRelease()
+bool UGrabBehavior::TryRelease(USceneComponent* TriggerComponent)
 {
 	if (!bObjectGrabbed)
 	{
 		UE_LOGFMT(Toolkit, Display, "UGrabBehavior::TryRelease: bObjectGrabbed was false!");
 		return false;
 	}
-
-	if (MyPhysicsComponent)
+	if (bUsePhysicsGrab)
 	{
-		MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
+		auto PhysicsHandle = TriggerComponent->GetOwner()->GetComponentByClass<UPhysicsHandleComponent>();
+		if (!PhysicsHandle)
+			return false;
+
+		ActivePhysicsHandleComponents.Remove(PhysicsHandle);
+		PhysicsHandle->ReleaseComponent();
+
+		if (ActivePhysicsHandleComponents.IsEmpty())
+		{
+			MyPhysicsComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, PrevCollisionResponse);
+			SetComponentTickEnabled(false);
+			bObjectGrabbed = false;
+		}
 	}
 	else
 	{
-		GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		if (MyPhysicsComponent)
+		{
+			MyPhysicsComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			MyPhysicsComponent->SetSimulatePhysics(bWasSimulatingPhysics);
+		}
+		else
+		{
+			GetOwner()->GetRootComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		}
+		bObjectGrabbed = false;
 	}
-	bObjectGrabbed = false;
 	return true;
 }
+
 void UGrabBehavior::StartGrab(USceneComponent* TriggerComponent)
 {
-	if (bObjectGrabbed)
+	if (bObjectGrabbed && !bUsePhysicsGrab)
 	{
 		return;
 	}
 
-	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggerComponent->GetAttachParent());
-	const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
+	MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner());
 
-	if (MyPhysicsComponent = GetFirstComponentSimulatingPhysics(GetOwner()); MyPhysicsComponent != nullptr)
+	if (bUsePhysicsGrab)
 	{
-		bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
-		MyPhysicsComponent->SetSimulatePhysics(false);
-		bObjectGrabbed = MyPhysicsComponent->AttachToComponent(CurrentAttachParent, Rules);
+		// the triggering actor (pawn) should have a physics handle component:
+		AActor* GrabbingActor = TriggerComponent->GetOwner();
+		auto PhysicsHandleComponent = GrabbingActor->GetComponentByClass<UPhysicsHandleComponent>();
+		if (PhysicsHandleComponent && MyPhysicsComponent)
+		{
+
+			FVector ClosestPoint;
+			if (MyPhysicsComponent->GetClosestPointOnCollision(TriggerComponent->GetComponentLocation(),
+															   ClosestPoint) <= 0)
+				ClosestPoint = TriggerComponent->GetComponentLocation();
+			auto HandleOffset = ClosestPoint - TriggerComponent->GetComponentLocation();
+			PhysicsHandleComponent->GrabComponentAtLocation(MyPhysicsComponent, NAME_None, ClosestPoint);
+			PrevCollisionResponse = MyPhysicsComponent->GetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn);
+			MyPhysicsComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Block);
+			bObjectGrabbed = true;
+			SetComponentTickEnabled(true);
+			ActivePhysicsHandleComponents.Add(PhysicsHandleComponent, {TriggerComponent, HandleOffset});
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Warning,
+					  "Physics-based grab requires the object to be grabbed ({Me})to have a Primitive Component, as "
+					  "well as a PhysicsHandle on the interacting comp {C}!",
+					  this->GetName(), TriggerComponent->GetName());
+		}
 	}
 	else
 	{
-		bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(CurrentAttachParent, Rules);
+		USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggerComponent->GetAttachParent());
+		const FAttachmentTransformRules Rules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
+
+		if (MyPhysicsComponent)
+		{
+			bWasSimulatingPhysics = MyPhysicsComponent->IsSimulatingPhysics();
+			MyPhysicsComponent->SetSimulatePhysics(false);
+			bObjectGrabbed = MyPhysicsComponent->AttachToComponent(CurrentAttachParent, Rules);
+		}
+		else
+		{
+			bObjectGrabbed = GetOwner()->GetRootComponent()->AttachToComponent(CurrentAttachParent, Rules);
+		}
 	}
 
 	if (!bObjectGrabbed)
 	{
 		UE_LOGFMT(Toolkit, Warning, "Grab failed! Cannot attach grabbed component to attach parent ({Parent})",
-				  CurrentAttachParent->GetName());
+				  TriggerComponent->GetName());
 		return;
 	}
 
@@ -155,10 +226,10 @@ void UGrabBehavior::StartGrab(USceneComponent* TriggerComponent)
 		}
 	}
 
-	OnGrabStartEvent.Broadcast(CurrentAttachParent, MyPhysicsComponent);
+	OnGrabStartEvent.Broadcast(TriggerComponent, MyPhysicsComponent);
 
 	// Add to ignore list for collision handling movement, if it exists
-	HandleCollisionHandlingMovement(CurrentAttachParent, InteractionStart);
+	HandleCollisionHandlingMovement(TriggerComponent, InteractionStart);
 }
 
 void UGrabBehavior::EndGrab(USceneComponent* TriggerComponent)
@@ -166,7 +237,7 @@ void UGrabBehavior::EndGrab(USceneComponent* TriggerComponent)
 	USceneComponent* CurrentAttachParent = Cast<USceneComponent>(TriggerComponent->GetAttachParent());
 
 	// We try to release the attached component. If it is not succesful we log and return. Otherwise, we continue.
-	if (!TryRelease())
+	if (!TryRelease(TriggerComponent))
 	{
 		UE_LOGFMT(Toolkit, Display,
 				  "UGrabBehavior::OnActionEnd: TryRelease failed to release with AttachParent {Parent}",

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Interaction/Interactables/ActionBehaviour.h"
 
 // We disable ticking here, as we are mainly interested in the events

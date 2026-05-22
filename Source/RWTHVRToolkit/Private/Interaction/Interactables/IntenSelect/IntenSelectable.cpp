@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Interaction/Interactables/IntenSelect/IntenSelectable.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableScoring.h"
 #include "Interaction/Interactables/IntenSelect/IntenSelectableSinglePointScoring.h"

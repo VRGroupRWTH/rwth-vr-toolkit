@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,6 +6,7 @@
 #include "GrabBehavior.generated.h"
 
 
+class UPhysicsHandleComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGrabStart, USceneComponent*, NewAttachParent, UPrimitiveComponent*,
 											 HeldComponent);
 
@@ -28,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grabbing")
 	bool bIgnoreGrabbedActorInCollisionMovement = true;
 
+	UPROPERTY(EditAnywhere, Category = "Grabbing")
+	bool bUsePhysicsGrab = true;
+
 	/**
 	 * Called after the object was successfully attached to the hand
 	 */
@@ -44,6 +46,8 @@ public:
 	UPrimitiveComponent* MyPhysicsComponent;
 
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPrimitiveComponent* GetFirstComponentSimulatingPhysics(const AActor* TargetActor);
 
@@ -70,7 +74,7 @@ private:
 	 * @return true if object was successfully detached. If detachment failed or if object was not grabbed before,
 	 * return false.
 	 */
-	bool TryRelease();
+	bool TryRelease(USceneComponent* TriggerComponent);
 
 	void StartGrab(USceneComponent* TriggerComponent);
 
@@ -81,4 +85,8 @@ private:
 	bool bWasSimulatingPhysics;
 
 	bool bWasAddedToIgnore = false;
+
+	ECollisionResponse PrevCollisionResponse;
+
+	TMap<UPhysicsHandleComponent*, TPair<USceneComponent*, FVector>> ActivePhysicsHandleComponents;
 };

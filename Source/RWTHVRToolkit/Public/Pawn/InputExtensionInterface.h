@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "UObject/Interface.h"
 #include "InputExtensionInterface.generated.h"
