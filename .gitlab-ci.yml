@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2022 RWTH Aachen University, Germany,
+# Copyright (c) 2026 RWTH Aachen University, Germany,
 # Virtual Reality & Immersive Visualisation Group.
 #-------------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@ spec:
       description: The Unreal Engine version in the form of "major.minor"
       type: string
       regex: \d+\.\d+
-      default: "5.6"
+      default: "5.7"
     build_type:
       description: The game build type.
       type: string
@@ -23,20 +23,48 @@ spec:
       description: Custom nDisplay config stored on the cluster filesystem.
       type: string
       default: ""
-    use_zen: 
-      description: Whether or not to connect to the shared Zen storage server. Speeds up build but temporarily modifies DefaultEngine.ini., so turn off if weird build errors happen.
-      type: boolean
-      default: true
+    use_shared_cache_zen:
+      description: Whether or not to use the remote cache server
+      type: string
+      options: ["true", "false"]
+      default: "true"
+    cluster_address:
+      description: The address to the cluster host.
+      type: string
+      default: "cc-win.vr.rwth-aachen.de"
+    plugin_dependencies:
+      type: array
+      description: Plugin repositories to additionally add to the generated project.
+      default:
+        - https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git#master
+        - https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git#dev/5.6
+
 
 ---
-
 
 # The include file can be change to either be removed or reference a specific commit.
 
 include:
-  - project: '${UNREAL_CI_PROJECT}'
-    ref: master
-    file: '/shared_scripts.yml'
+  # include the component located in the current project from the current SHA
+  # - component: $CI_SERVER_FQDN/$UNREAL_CI_PROJECT/generate-project@master
+  #   inputs:
+  #     unreal_version: $[[ inputs.unreal_version ]]
+  - component: $CI_SERVER_FQDN/$UNREAL_CI_PROJECT/build-windows@master
+    inputs:
+      unreal_version: $[[ inputs.unreal_version ]]
+      use_shared_cache_zen: $[[ inputs.use_shared_cache_zen ]]
+      build_type: $[[ inputs.build_type ]]
+      custom_ndisplay_config: $[[ inputs.custom_ndisplay_config ]]
+  - component: $CI_SERVER_FQDN/$UNREAL_CI_PROJECT/generate-project@master
+    inputs:
+      unreal_version: $[[ inputs.unreal_version ]]
+      plugin_dependencies: $[[ inputs.plugin_dependencies ]]
+  - component: $CI_SERVER_FQDN/$UNREAL_CI_PROJECT/deploy@master
+    inputs:
+      unreal_version: $[[ inputs.unreal_version ]]
+      cluster_address: $[[ inputs.cluster_address ]]
+      number_of_old_versions: $[[ inputs.number_of_old_versions ]]
+
     
 # In this file you are able to configure your plugins pipeline.
 # If you want to customize something, either overwrite things that are defined in the shared_scripts repository,
@@ -48,31 +76,7 @@ include:
 # If you want to alter the unreal-building process two variables are defined for either changing the CLIENT_CONFIG or
 # for adding EXTRA_ARGS to the building process
 # 
-# For the generate stage, you can specify needed dependencies in GEN_DEPENDENCIES with [Branch@PluginFolder] as key
-# Example:
-#
-# Generate_Project:
-#    only: ['web', 'schedules']
-#    extends: .Generate_Project_
-#    variables:
-#        GEN_TEMPLATE_REPO: "https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/unrealprojecttemplate.git"
-#        GEN_TEMPLATE_BRANCH: "4.26"
-#        GEN_DEPENDENCIES: "(
-#            [4.26@RWTHVRToolkit]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/rwth-vr-toolkit.git'
-#            [4.26@UniversalLogging]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/Plugins/universallogging.git'
-#        )"
-#
-# You can uncomment the deploy lines to deploy your project to the CAVE/VRDev. This only makes sense, if your plugin works
-# with a generated project.
-#
-# Use the UNREAL_VERSION variable to adjust to your preferred Unreal version.
-# Use the CUSTOM_NDISPLAY_CONFIG variable in case you need a custom ndisplay config. These are always located in /home/vrdemo/configs/ndisplay.
 
-variables:
-    UNREAL_VERSION: $[[ inputs.unreal_version ]]
-    NUMBER_OF_OLD_VERSIONS: $[[ inputs.number_of_old_versions ]]
-    CUSTOM_NDISPLAY_CONFIG: $[[ inputs.custom_ndisplay_config ]]
-    USE_SHARED_CACHE_ZEN: $[[ inputs.use_zen ]]
 
 stages:
   - analyze
@@ -109,24 +113,6 @@ Generate_Project:
       - if: $CI_COMMIT_TAG
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     extends: .Generate_Project_
-    variables:
-        RUN_SETUP: "false"
-        GEN_DEPENDENCIES: "(
-            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
-            [dev/5.6@RWTHVRCluster]='https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git'
-            )"
-
-Generate_Project_Without_Cluster:
-    extends: Generate_Project
-    variables:
-        GEN_DEPENDENCIES: "(
-            [master@UnrealDTrackPlugin]='https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git'
-            )"
-    script: # if we don't do this, cooking will for some reason fail even though it should use the correct fallback
-      - !reference [Generate_Project, script]
-      - echo "Generating without cluster mode, removing nDisplay configs..."
-      - cd ${CI_PROJECT_DIR}
-      - sed -i '/DisplayCluster/d' Config/Linux/LinuxEngine.ini
 
 Build_Windows:
     rules: 
@@ -142,48 +128,37 @@ Build_Windows:
     variables:
         GIT_STRATEGY: none   
         GIT_CHECKOUT: "false"
-        # CLIENT_CONFIG: "Shipping"
         CLIENT_CONFIG: $[[ inputs.build_type ]]
     needs:
         - job: "Generate_Project"
           artifacts: true
     
-Build_Linux:
-    rules: 
-      - if: $CI_PIPELINE_SOURCE == "web"
-      - if: $CI_PIPELINE_SOURCE == "schedule"
-      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      - if: $CI_COMMIT_TAG
-      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    extends: .Build_Linux_
-    tags:
-        - linux
-        - unreal
-        - docker-executor
-    variables:
-        GIT_STRATEGY: none   
-        GIT_CHECKOUT: "false"
-        # CLIENT_CONFIG: "Shipping"
-        CLIENT_CONFIG: $[[ inputs.build_type ]]
-    needs:
-        - job: "Generate_Project"
-          artifacts: true
+#.Build_Linux:
+#    rules: 
+#      - if: $CI_PIPELINE_SOURCE == "web"
+#      - if: $CI_PIPELINE_SOURCE == "schedule"
+#      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+#      - if: $CI_COMMIT_TAG
+#      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#    extends: .Build_Linux_
+#    tags:
+#        - linux
+#        - unreal
+#        - docker-executor
+#    variables:
+#        GIT_STRATEGY: none   
+#        GIT_CHECKOUT: "false"
+#        # CLIENT_CONFIG: "Shipping"
+#        CLIENT_CONFIG: $[[ inputs.build_type ]]
+#    needs:
+#        - job: "Generate_Project"
+#          artifacts: true
 
-
-# Builds for linux without the cluster plugin
-Build_Linux_Without_Cluster:
-    extends: Build_Linux
-    needs:
-        - job: "Generate_Project_Without_Cluster"
-          artifacts: true
-             
-
-# Deploys to vrdemo instead of av006de. Use extends: .Deploy_CAVE_ to deploy to legacy av006de
-Deploy_CAVE:
-    rules: 
-      - if: $CI_PIPELINE_SOURCE == "web"
-      - if: $CI_PIPELINE_SOURCE == "schedule"
-    extends: .Deploy_vrdemo_
-    needs:
-        - job: "Build_Linux"
-          artifacts: true
+Deploy_General:
+  rules: 
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  extends: .Deploy_General_
+  needs:
+    - job: Build_Windows
+      artifacts: true
