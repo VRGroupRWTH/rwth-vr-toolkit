@@ -6,10 +6,13 @@
 
 #include "RWTHVRPawn.generated.h"
 
+
+class ULiveLinkTrackingComponent;
 class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
 class UMotionControllerComponent;
+class UClusterSetupComponent;
 struct FLiveLinkTransformStaticData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScaleChangedDelegate, FVector, OldScale, float, NewUniformScale);
@@ -28,8 +31,6 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-
-	virtual void NotifyControllerChanged() override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetScale(float NewScale);
@@ -64,13 +65,12 @@ public:
 	UCameraComponent* HeadCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
-	USceneComponent* SyncComponent;
+	UClusterSetupComponent* ClusterSetupComponent;
 
 	// LiveLink functionality
 
-	/* Set whether nDisplay should disable LiveLink tracking*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|LiveLink")
-	bool bDisableLiveLink = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
+	ULiveLinkTrackingComponent* LiveLinkTrackingComponent;
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
@@ -84,10 +84,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	FLiveLinkSubjectRepresentation RightSubjectRepresentation;
 
-	/* Set the transform of the component in world space of in its local reference frame. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	bool bWorldTransform = false;
-
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
@@ -95,25 +91,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	UInputComponent* GetPlayerInputComponent();
 
-	/* LiveLink helper function called on tick */
-	void EvaluateLivelink() const;
-
-	/* Helper function that applies the LiveLink data to this component. Taken from the LiveLink Transform Controller.
-	 */
-	void ApplyLiveLinkTransform(const FTransform& Transform, const FLiveLinkTransformStaticData& StaticData) const;
-
 	/* Fixes camera rotation in desktop mode. */
 	void SetCameraOffset() const;
 	void UpdateRightHandForDesktopInteraction() const;
-
-	/* Replicated functionality */
-
-	/* Add a sync component to all instances of this pawn */
-	UFUNCTION(Reliable, NetMulticast)
-	void MulticastAddDCSyncComponent();
-
-	/* Attaches the Cluster representation to the pawn */
-	void AttachClustertoPawn();
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();
