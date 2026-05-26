@@ -111,9 +111,27 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	SetupMotionControllerSources();
 
-	LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
-	LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentation;
-
+	if (URWTHVRUtilities::IsRoomMountedMode())
+	{
+		// Get current viewpoint/user
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser();
+		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: Setting Livelink head subject representation for User {ViewpointUser}",
+					  ViewpointUser);
+			LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentations[ViewpointUser];
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: No valid Livelink head subject representation for User {ViewpointUser} "
+					  "found, skipping setup.",
+					  ViewpointUser);
+		}
+		LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
+	}
+	
 	// Should not do this here but on connection or on possess I think.
 
 	if (URWTHVRUtilities::IsDesktopMode())
@@ -207,8 +225,22 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		MotionControllerSourceLeft = LeftSubjectRepresentation.Subject;
-		MotionControllerSourceRight = RightSubjectRepresentation.Subject;
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser();
+		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) && RightSubjectRepresentations.IsValidIndex(ViewpointUser))
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: Setting Livelink controller subject representation for User {ViewpointUser}",
+					  ViewpointUser);
+			MotionControllerSourceLeft = LeftSubjectRepresentations[ViewpointUser].Subject;
+			MotionControllerSourceRight = RightSubjectRepresentations[ViewpointUser].Subject; ;
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: No valid Livelink controller subject representation for User {ViewpointUser} "
+					  "found, skipping setup.",
+					  ViewpointUser);
+		}
 	}
 	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);

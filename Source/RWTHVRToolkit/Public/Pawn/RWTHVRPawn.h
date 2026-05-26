@@ -74,15 +74,15 @@ public:
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	FLiveLinkSubjectRepresentation HeadSubjectRepresentation;
+	TArray<FLiveLinkSubjectRepresentation> HeadSubjectRepresentations;
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	FLiveLinkSubjectRepresentation LeftSubjectRepresentation;
+	TArray<FLiveLinkSubjectRepresentation> LeftSubjectRepresentations;
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
-	FLiveLinkSubjectRepresentation RightSubjectRepresentation;
+	TArray<FLiveLinkSubjectRepresentation> RightSubjectRepresentations;
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;

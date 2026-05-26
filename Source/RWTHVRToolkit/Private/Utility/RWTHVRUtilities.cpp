@@ -45,6 +45,14 @@ float URWTHVRUtilities::GetEyeDistance()
 	}
 	return 0;
 }
+int32 URWTHVRUtilities::GetViewpointUser()
+{
+#if PLATFORM_SUPPORTS_CLUSTER
+	return URWTHVRClusterUtilities::GetViewpointUser();
+#else
+	return 1;
+#endif
+}
 
 void URWTHVRUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Message)
 {
