@@ -114,7 +114,7 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		// Get current viewpoint/user
-		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser();
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
 		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
 			UE_LOGFMT(Toolkit, Display,
@@ -225,7 +225,7 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser();
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
 		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) && RightSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
 			UE_LOGFMT(Toolkit, Display,
