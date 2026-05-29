@@ -5,19 +5,15 @@
 #include "GameFramework/PlayerController.h"
 #include "ILiveLinkClient.h"
 #include "InputMappingContext.h"
-#include "Core/RWTHVRPlayerState.h"
 #include "Logging/StructuredLog.h"
-#include "Pawn/ClusterRepresentationActor.h"
 #include "Pawn/InputExtensionInterface.h"
 #include "Pawn/Navigation/CollisionHandlingMovement.h"
 #include "Pawn/ReplicatedCameraComponent.h"
 #include "Pawn/ReplicatedMotionControllerComponent.h"
-#include "Roles/LiveLinkTransformTypes.h"
 #include "Utility/RWTHVRUtilities.h"
+#include "Pawn/ClusterSetupComponent.h"
+#include "Pawn/LiveLinkTrackingComponent.h"
 
-#if PLATFORM_SUPPORTS_CLUSTER
-#include "Components/DisplayClusterSceneComponentSyncParent.h"
-#endif
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -33,6 +29,9 @@ ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	CollisionHandlingMovement = CreateDefaultSubobject<UCollisionHandlingMovement>(TEXT("Collision Handling Movement"));
 	CollisionHandlingMovement->SetUpdatedComponent(RootComponent);
 	CollisionHandlingMovement->SetHeadComponent(HeadCameraComponent);
+
+	ClusterSetupComponent = CreateDefaultSubobject<UClusterSetupComponent>(TEXT("ClusterSetupComponent"));
+	LiveLinkTrackingComponent = CreateDefaultSubobject<ULiveLinkTrackingComponent>(TEXT("LiveLinkTrackingComponent"));
 
 	RightHand = CreateDefaultSubobject<UReplicatedMotionControllerComponent>(TEXT("Right Hand MCC"));
 	RightHand->SetupAttachment(RootComponent);
@@ -69,7 +68,6 @@ void ARWTHVRPawn::Tick(float DeltaSeconds)
 		SetCameraOffset();
 		UpdateRightHandForDesktopInteraction();
 	}
-	EvaluateLivelink();
 }
 
 /*
@@ -87,43 +85,6 @@ void ARWTHVRPawn::SetScale(float NewScale)
 }
 
 float ARWTHVRPawn::GetScale() { return UniformScale; }
-
-/*
- * The alternative would be to do this only on the server on possess and check for player state/type,
- * as connections now send their playertype over.
- */
-// This pawn's controller has changed! This is called on both server and owning client. If we are the owning client
-// and the master, request that the Cluster is attached to us.
-void ARWTHVRPawn::NotifyControllerChanged()
-{
-	Super::NotifyControllerChanged();
-
-	// Try and use PlayerType for this:
-
-	if (HasAuthority())
-	{
-		UE_LOG(Toolkit, Display,
-			   TEXT("ARWTHVRPawn: Player Controller has changed, trying to change Cluster attachment if possible..."));
-		if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
-		{
-			const EPlayerType Type = State->GetPlayerType();
-
-			// Only cluster types are valid here as they are set on connection.
-			// For all other player types this is a race condition
-			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
-			{
-				UE_LOGFMT(Toolkit, Display, "ARWTHVRPawn: Attaching Cluster to Pawn {Pawn}.", GetName());
-				AttachClustertoPawn();
-			}
-		}
-		else
-		{
-			UE_LOGFMT(Toolkit, Warning,
-					  "ARWTHVRPawn: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment only works "
-					  "with correct PlayerStates!");
-		}
-	}
-}
 
 void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -150,26 +111,28 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	SetupMotionControllerSources();
 
-	// Should not do this here but on connection or on possess I think.
-	if (ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
+	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		// Might not be properly synced yet?
-		EPlayerType Type = State->GetPlayerType();
-
-		// Don't do anything with the type if it's been set to clustertype or anything.
-		// This is already being done when connecting to the server.
-		const bool bClusterType = Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary;
-
-		if (!bClusterType)
+		// Get current viewpoint/user
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
-			if (URWTHVRUtilities::IsHeadMountedMode())
-				Type = EPlayerType::HMD;
-
-			UE_LOGFMT(Toolkit, Display, "Pawn: Requesting Player Type {T}...", StaticCast<int8>(Type));
-			// Could be too early to call this RPC...
-			State->RequestSetPlayerType(Type);
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: Setting Livelink head subject representation for User {ViewpointUser}",
+					  ViewpointUser);
+			LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentations[ViewpointUser];
 		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: No valid Livelink head subject representation for User {ViewpointUser} "
+					  "found, skipping setup.",
+					  ViewpointUser);
+		}
+		LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
 	}
+	
+	// Should not do this here but on connection or on possess I think.
 
 	if (URWTHVRUtilities::IsDesktopMode())
 	{
@@ -229,40 +192,6 @@ void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInp
 	}
 }
 
-void ARWTHVRPawn::EvaluateLivelink() const
-{
-	if (URWTHVRUtilities::IsRoomMountedMode() && IsLocallyControlled())
-	{
-		if (bDisableLiveLink || HeadSubjectRepresentation.Subject.IsNone() || HeadSubjectRepresentation.Role == nullptr)
-		{
-			return;
-		}
-
-		// Get the LiveLink interface and evaluate the current existing frame data for the given Subject and Role.
-		ILiveLinkClient& LiveLinkClient =
-			IModularFeatures::Get().GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
-		FLiveLinkSubjectFrameData SubjectData;
-		const bool bHasValidData = LiveLinkClient.EvaluateFrame_AnyThread(HeadSubjectRepresentation.Subject,
-																		  HeadSubjectRepresentation.Role, SubjectData);
-
-		if (!bHasValidData)
-		{
-			return;
-		}
-
-		// Assume we are using a Transform Role to track the components! This is a slightly dangerous assumption, and
-		// could be further improved.
-		const FLiveLinkTransformStaticData* StaticData = SubjectData.StaticData.Cast<FLiveLinkTransformStaticData>();
-		const FLiveLinkTransformFrameData* FrameData = SubjectData.FrameData.Cast<FLiveLinkTransformFrameData>();
-
-		if (StaticData && FrameData)
-		{
-			// Finally, apply the transform to this component according to the static data.
-			ApplyLiveLinkTransform(FrameData->Transform, *StaticData);
-		}
-	}
-}
-
 void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 {
 	if (const APlayerController* PC = Cast<APlayerController>(GetController()))
@@ -283,55 +212,6 @@ void ARWTHVRPawn::UpdateRightHandForDesktopInteraction() const
 	}
 }
 
-void ARWTHVRPawn::MulticastAddDCSyncComponent_Implementation()
-{
-#if PLATFORM_SUPPORTS_CLUSTER
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-
-	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
-	{
-		SyncComponent = Cast<USceneComponent>(AddComponentByClass(
-			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
-		AddInstanceComponent(SyncComponent);
-		UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
-	}
-#endif
-}
-
-// Executed on the server only: Attaches the ClusterRepresentation Actor, which contains the DCRA to the Pawn.
-// It is only executed on the server because attachments are synced to all clients, but not from client to server.
-void ARWTHVRPawn::AttachClustertoPawn()
-{
-	if (const ARWTHVRPlayerState* State = GetPlayerState<ARWTHVRPlayerState>())
-	{
-		const auto ClusterActor = State->GetCorrespondingClusterActor();
-		if (!ClusterActor)
-		{
-			UE_LOGFMT(
-				Toolkit, Error,
-				"ARWTHVRPawn::AttachClustertoPawn: GetCorrespondingClusterActor returned null! This won't work on "
-				"the Cave.");
-			return;
-		}
-		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
-		bool bAttached = ClusterActor->AttachToComponent(GetRootComponent(), AttachmentRules);
-		// State->GetCorrespondingClusterActor()->OnAttached();
-		UE_LOGFMT(Toolkit, Display,
-				  "ARWTHVRPawn: Attaching corresponding cluster actor to our pawn returned: {Attached}", bAttached);
-	}
-	else
-	{
-		UE_LOGFMT(Toolkit, Error,
-				  "ARWTHVRPawn::AttachClustertoPawn: No ARWTHVRPlayerState set! This won't work on the Cave.");
-	}
-
-	if (HasAuthority()) // Should always be the case here, but double check
-		MulticastAddDCSyncComponent();
-}
-
 void ARWTHVRPawn::SetupMotionControllerSources()
 {
 	// Setup Motion Controllers
@@ -345,8 +225,22 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		MotionControllerSourceLeft = LeftSubjectRepresentation.Subject;
-		MotionControllerSourceRight = RightSubjectRepresentation.Subject;
+		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) && RightSubjectRepresentations.IsValidIndex(ViewpointUser))
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: Setting Livelink controller subject representation for User {ViewpointUser}",
+					  ViewpointUser);
+			MotionControllerSourceLeft = LeftSubjectRepresentations[ViewpointUser].Subject;
+			MotionControllerSourceRight = RightSubjectRepresentations[ViewpointUser].Subject; ;
+		}
+		else
+		{
+			UE_LOGFMT(Toolkit, Display,
+					  "SetupPlayerInputComponent: No valid Livelink controller subject representation for User {ViewpointUser} "
+					  "found, skipping setup.",
+					  ViewpointUser);
+		}
 	}
 	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
@@ -360,48 +254,4 @@ void ARWTHVRPawn::SetCameraOffset() const
 	FRotator Rotation;
 	GetActorEyesViewPoint(Location, Rotation);
 	HeadCameraComponent->SetWorldLocationAndRotation(Location, Rotation);
-}
-
-void ARWTHVRPawn::ApplyLiveLinkTransform(const FTransform& Transform,
-										 const FLiveLinkTransformStaticData& StaticData) const
-{
-	if (StaticData.bIsLocationSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldLocation(Transform.GetLocation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeLocation(Transform.GetLocation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
-		}
-	}
-
-	if (StaticData.bIsRotationSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldRotation(Transform.GetRotation(), false, nullptr,
-												  ETeleportType::TeleportPhysics);
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeRotation(Transform.GetRotation(), false, nullptr,
-													 ETeleportType::TeleportPhysics);
-		}
-	}
-
-	if (StaticData.bIsScaleSupported)
-	{
-		if (bWorldTransform)
-		{
-			HeadCameraComponent->SetWorldScale3D(Transform.GetScale3D());
-		}
-		else
-		{
-			HeadCameraComponent->SetRelativeScale3D(Transform.GetScale3D());
-		}
-	}
 }
