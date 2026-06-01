@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Groups/PlayerGroupManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/GroupUI.h"
 #include "Utility/RWTHVRUtilities.h"
@@ -90,6 +91,19 @@ void AGroupInterfaceActor::Initialize()
 		PlayerGroupManager->OnGroupUpdatedByIndexDelegate.AddUFunction(GroupUI, "OnGroupUpdated");
 	}
 	*/
+	// Initialize UI widgets if we haven't already done so from the UI side
+	for ( TObjectIterator<UGroupUI> Itr; Itr; ++Itr )
+	{
+		UGroupUI* LiveWidget = *Itr;
+
+		// Skip any widget that's not in the current world context or that is not a child of the class specified.
+		if (LiveWidget->GetWorld() != GetWorld() || !LiveWidget->GetClass()->IsChildOf(UGroupUI::StaticClass()))
+		{
+			continue;
+		}
+		
+		LiveWidget->InitUI(this);
+	}
 	
 	bInitializedOnClient = true;
 	
