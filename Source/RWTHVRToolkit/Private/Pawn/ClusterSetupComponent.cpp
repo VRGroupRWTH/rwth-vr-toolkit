@@ -111,13 +111,13 @@ void UClusterSetupComponent::MulticastAddDCSyncComponent_Implementation()
 	// This is required because for collision based movement, it can happen that the physics engine
 	// for some reason acts different on the nodes, therefore leading to a potential desync when
 	// e.g. colliding with an object while moving.
-
-	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
-	{
-		SyncComponent = Cast<USceneComponent>(GetOwner()->AddComponentByClass(
-			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
-		GetOwner()->AddInstanceComponent(SyncComponent);
-		UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
-	}
+	
+	// if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
+	// {
+	// 	SyncComponent = Cast<USceneComponent>(GetOwner()->AddComponentByClass(
+	// 		UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
+	// 	GetOwner()->AddInstanceComponent(SyncComponent);
+	// 	UE_LOGFMT(Toolkit, Display, "RWTHVRPawn: Added Sync Component to pawn {Pawn}", GetName());
+	// }
 #endif
 }
