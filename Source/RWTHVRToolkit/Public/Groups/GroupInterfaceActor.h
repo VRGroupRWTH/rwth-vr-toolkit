@@ -32,6 +32,8 @@ public:
 	
 	void RequestCreateGroup(APawn* InitialMember = nullptr);
 	
+	void RequestCreateOrJoinColocatedGroup(FName ColocatedGroupName);
+	
 	void RequestJoinGroup(int32 GroupId, FName ColocatedGroupName = NAME_None);
 	int32 GetCurrentGroupIndex(int32 GroupId);
 
@@ -54,6 +56,9 @@ private:
 	void ServerCreateGroupRpc(APawn* InitialMember);
 	
 	UFUNCTION(Server, Reliable)
+	void ServerCreateOrJoinColocatedGroupRpc(FName ColocatedGroupName);
+	
+	UFUNCTION(Server, Reliable)
 	void ServerJoinGroupRpc(int32 GroupId, FName ColocatedGroupName);
 
 	UFUNCTION(Server, Reliable)
@@ -64,6 +69,9 @@ private:
 	
 	UFUNCTION()
 	void CreateGroupInternal(APawn* InitialMember);
+	
+	UFUNCTION()
+	void CreateOrJoinColocatedGroupInternal(FName ColocatedGroupName);
 	
 	APawn* GetOwningPawn() const;
 
@@ -83,8 +91,8 @@ private:
 	
 	TSubclassOf<UGroupUI> GroupUIBPClass;
 	
-	UPROPERTY()
-	TObjectPtr<UWidgetComponent> WidgetComponent;
+	//UPROPERTY()
+	//TObjectPtr<UWidgetComponent> WidgetComponent;
 	
 	UPROPERTY(Replicated)
 	TObjectPtr<APlayerGroup> CurrentGroup;

@@ -4,12 +4,17 @@
 #include "Groups/GroupInterfaceActor.h"
 
 #include "Components/WidgetComponent.h"
+#include "Core/RWTHVRPlayerState.h"
 #include "Groups/PlayerGroupManager.h"
-#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/GroupUI.h"
 #include "Utility/RWTHVRUtilities.h"
 
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "Config/IDisplayClusterConfigManager.h"
+#include "DisplayClusterConfigurationTypes.h"
+#include "IDisplayCluster.h"
+#endif
 
 AGroupInterfaceActor::AGroupInterfaceActor()
 {
@@ -18,9 +23,9 @@ AGroupInterfaceActor::AGroupInterfaceActor()
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot"));
 
 
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("MarionetteWidgetComponent"));
-	WidgetComponent->SetupAttachment(RootComponent);
-	WidgetComponent->SetDrawSize(FVector2D(1920, 1080));
+	//WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("GroupWidgetComponent"));
+	//WidgetComponent->SetupAttachment(RootComponent);
+	//WidgetComponent->SetDrawSize(FVector2D(1920, 1080));
 	auto UIBPAssetPath = TEXT("Blueprint'/RWTHVRToolkit/UI/WBP_GroupUI'");
 	ConstructorHelpers::FClassFinder<UGroupUI> UIBPAsset(UIBPAssetPath);
 	if (!UIBPAsset.Succeeded())
@@ -66,8 +71,9 @@ void AGroupInterfaceActor::Initialize()
 		return;
 	}
 	
+	/*
 	auto LocalPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	
+
 	if (!GroupUI && GroupUIBPClass)
 	{
 		GroupUI = CreateWidget<UGroupUI, APlayerController*>(LocalPlayerController, GroupUIBPClass);
@@ -75,18 +81,52 @@ void AGroupInterfaceActor::Initialize()
 		GroupUI->SetDesiredSizeInViewport({600, 500});
 		GroupUI->GroupInterfaceActor = this;
 	}
+	
+	//UGameplayStatics::GetAc
 
 	if (GroupUI)
 	{
 		PlayerGroupManager->OnGroupsUpdatedDelegate.AddUFunction(GroupUI, "OnGroupsUpdated");
 		PlayerGroupManager->OnGroupUpdatedByIndexDelegate.AddUFunction(GroupUI, "OnGroupUpdated");
 	}
+	*/
+	
 	bInitializedOnClient = true;
+	
+	// Replication is finished. If we're a primary node and want a colocated setting, tell the server to create a group
+	// If the co-located group already exists, join it. 
+	// Use the custom config data to determine the group name
+	APlayerController* LocalPC = GEngine->GetFirstLocalPlayerController(GetWorld());
+	if (!LocalPC->HasLocalNetOwner())
+		return;
+	if (const auto* PlayerState = LocalPC->GetPlayerState<ARWTHVRPlayerState>())
+	{
+		// this should always both be true or false
+		if (PlayerState->GetPlayerType() == EPlayerType::nDisplayPrimary && URWTHVRUtilities::IsPrimaryNode())
+		{
+			// find out if we've got a type/name set in custom settings (ndisplay cfg)
+#if PLATFORM_SUPPORTS_CLUSTER
+			const UDisplayClusterConfigurationData* ClusterConfig = IDisplayCluster::Get().GetConfigMgr()->GetConfig();
+			FString GroupName = ClusterConfig->Info.Description;
+			GroupName.LeftInline(15, EAllowShrinking::Yes);
+			
+			UE_LOGFMT(Toolkit, Display, "Primary Node initialized, requesting to join/create group with name {GRP}", GroupName);
+
+			RequestCreateOrJoinColocatedGroup(FName(GroupName));
+			
+#endif
+		}
+	}
 
 }
 void AGroupInterfaceActor::OnRep_PlayerGroupManagerSet()
 {
 	Initialize();
+}
+
+void AGroupInterfaceActor::ServerCreateOrJoinColocatedGroupRpc_Implementation(FName ColocatedGroupName)
+{
+	CreateOrJoinColocatedGroupInternal(ColocatedGroupName);
 }
 
 void AGroupInterfaceActor::RequestCreateGroup(APawn* InitialMember)
@@ -95,6 +135,14 @@ void AGroupInterfaceActor::RequestCreateGroup(APawn* InitialMember)
 		CreateGroupInternal(InitialMember);
 	else
 		ServerCreateGroupRpc(InitialMember);
+}
+
+void AGroupInterfaceActor::RequestCreateOrJoinColocatedGroup(FName ColocatedGroupName)
+{
+	if (HasAuthority())
+		CreateOrJoinColocatedGroupInternal(ColocatedGroupName);
+	else
+		ServerCreateOrJoinColocatedGroupRpc(ColocatedGroupName);
 }
 
 void AGroupInterfaceActor::RequestJoinGroup(int32 GroupId, FName ColocatedGroupName)
@@ -240,6 +288,34 @@ void AGroupInterfaceActor::CreateGroupInternal(APawn* InitialMember)
 	}
 
 	PlayerGroupManager->CreateGroup(InitialMember);
+}
+
+void AGroupInterfaceActor::CreateOrJoinColocatedGroupInternal(FName ColocatedGroupName)
+{
+	if (!GetPlayerGroupManager())
+	{
+		UE_LOGFMT(Toolkit, Error, "PlayerGroupManager not set when creating group, aborting.");
+		return;
+	}
+	// See if the Colocated Group exists somewhere:
+	for (const APlayerGroup* Group : PlayerGroupManager->PlayerGroups)
+	{
+		bool bGroupExists = Group->ColocatedGroups.ContainsByPredicate([ColocatedGroupName](const FColocatedGroup& ColocatedGroup)
+		{
+			return ColocatedGroup.ColocatedGroupName == ColocatedGroupName;
+		});
+		if (bGroupExists)
+		{
+			// slightly inefficient but w/e
+			int32 GroupIndex = PlayerGroupManager->PlayerGroups.IndexOfByKey(Group);
+			UE_LOGFMT(Toolkit, Display, "Found group {Idx} which contains a colocated group with name: {GRP}", GroupIndex, ColocatedGroupName);
+			JoinGroupInternal(GroupIndex, ColocatedGroupName);
+			return;
+		}
+	}
+	// If we arrive here, no group has been found. Create one and join it.
+	CreateGroupInternal(nullptr);
+	JoinGroupInternal(PlayerGroupManager->PlayerGroups.Num() - 1, ColocatedGroupName);
 }
 
 
