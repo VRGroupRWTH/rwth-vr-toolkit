@@ -32,6 +32,12 @@ protected:
 	 * possess. If not, spawn a DefaultPawnClass Pawn and Possess it (Should be BP_VirtualRealityPawn to make sense).
 	 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+	/**
+	 * Override the Unreal default PlayerStart finding behavior so it supports multiple PlayerStarts
+	 * Determiniscally ordering the spawn position based on the [ClusterID % Num] so it always map to the same PlayerStart 
+	 */
+	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName = TEXT("")) override;
 
 private:
 	UPROPERTY()
