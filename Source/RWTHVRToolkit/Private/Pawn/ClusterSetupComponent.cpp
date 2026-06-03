@@ -107,6 +107,14 @@ void UClusterSetupComponent::OnNotifyControllerChanged(APawn* Pawn, AController*
 void UClusterSetupComponent::MulticastAddDCSyncComponent_Implementation()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
+	
+	UE_LOG(LogTemp, Warning,
+		TEXT("[CLUSTER-SYNC] MulticastAddDCSyncComponent called | "
+			 "IsRoomMounted:%d | SyncComponent:%s"),
+		URWTHVRUtilities::IsRoomMountedMode() ? 1 : 0,
+		SyncComponent ? TEXT("already exists") : TEXT("null")
+	);
+	
 	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
 	// This is required because for collision based movement, it can happen that the physics engine
 	// for some reason acts different on the nodes, therefore leading to a potential desync when

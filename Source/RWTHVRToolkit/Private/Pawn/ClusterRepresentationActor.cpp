@@ -103,8 +103,20 @@ bool AClusterRepresentationActor::AttachDCRA()
 {
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[CLUSTER-DCRA] AttachDCRA called on %s"),
+			*GetName()
+		);
 		UE_LOGFMT(Toolkit, Display, "{Name}: Trying to attach DCRA", GetName());
+		
 		auto DCRA = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
+		
+		UE_LOG(LogTemp, Warning,
+			TEXT("[CLUSTER-DCRA] DCRA found: %s | IsValid: %d | IsPrimary: %d"),
+			DCRA ? *DCRA->GetName() : TEXT("null"),
+			IsValid(DCRA) ? 1 : 0,
+			IsValid(DCRA) ? (DCRA->IsPrimaryRootActor() ? 1 : 0) : -1
+		);
 
 		if (!IsValid(DCRA))
 		{
