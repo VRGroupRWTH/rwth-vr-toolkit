@@ -114,7 +114,8 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		// Get current viewpoint/user
-		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		//int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		int32 ViewpointUser = 0; // HACK OVERRIDE
 		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
 			UE_LOGFMT(Toolkit, Display,
