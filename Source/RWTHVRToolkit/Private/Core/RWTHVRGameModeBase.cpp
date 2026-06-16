@@ -36,7 +36,7 @@ FString ARWTHVRGameModeBase::InitNewPlayer(APlayerController* NewPlayerControlle
 			const FString PrimaryNodeId = UGameplayStatics::ParseOption(Options, PrimaryNodeIdKey);
 
 			// When the primary node is a listen server, it apparently doesn't get the node option...
-			// Could additionally check for listen, but this should be save enough.
+			// Could additionally check for listen, but this should be safe enough.
 			const FString NodeName = UGameplayStatics::HasOption(Options, NodeNameKey)
 				? UGameplayStatics::ParseOption(Options, NodeNameKey)
 				: PrimaryNodeId;
@@ -69,7 +69,7 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 		// If we're in none-standalone netmode, this is only executed on the server, as the GM only exists there.
 		// On standalone, this is executed on every node.
 		int32 ClusterId = State->GetCorrespondingClusterId();
-		if (ClusterId >= 0) // we're either standalone (0) or in an acutal cluster
+		if (ClusterId >= 0) // we're either standalone (0) or in an actual cluster
 		{
 			AClusterRepresentationActor** ClusterRepresentationPtr = ConnectedClusters.Find(ClusterId);
 			AClusterRepresentationActor* ClusterRepresentation;
@@ -190,7 +190,7 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 			GroupInterfaceActor->PlayerGroupManager = PlayerGroupManager;
 		}
 		GroupInterfaceActor->FinishSpawning(FTransform::Identity);
-
+		
 		UE_LOGFMT(Toolkit, Display, "Finished spawning group interface actor {GI} for new player {NP}",
 				  GroupInterfaceActor->GetName(), NewPlayer->GetName());
 	}

@@ -19,18 +19,18 @@ public:
 	ULiveLinkTrackingComponent();
 
 	/* Set whether nDisplay should disable LiveLink tracking*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn|LiveLink")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bDisableLiveLink = false;
 
 	/* Set the transform of the component in world space of in its local reference frame. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bWorldTransform = false;
 
 	/* Set the LiveLink Subject Representation to be used by this pawn. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FLiveLinkSubjectRepresentation SubjectRepresentation;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USceneComponent* TrackedComponent;
 
 protected:

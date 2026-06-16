@@ -32,6 +32,11 @@
 			"Enabled": true
 		},
 		{
+			"Name": "RWTHVRCluster",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
 			"Name": "EnhancedInput",
 			"Enabled": true
 		},

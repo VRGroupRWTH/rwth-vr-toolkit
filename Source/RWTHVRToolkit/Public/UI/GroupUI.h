@@ -24,12 +24,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGroupUpdated(int32 GroupId, APlayerGroup* Group);
 	
-	// Set by AGroupInterfaceActor itself
-	UPROPERTY(BLueprintReadOnly)
-	TObjectPtr<AGroupInterfaceActor> GroupInterfaceActor;
+	void InitUI(AGroupInterfaceActor* InterfaceActor = nullptr);
 	
 protected:
+	// Set by AGroupInterfaceActor itself
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<AGroupInterfaceActor> GroupInterfaceActor;
+	
 	virtual void NativeConstruct() override;
+	
+	virtual void NativeDestruct() override;
 	
 	UFUNCTION(BlueprintCallable)
 	void RequestGroupCreate();
@@ -42,4 +46,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	void RequestGroupLeave(int32 GroupId = -1);	
+	
+private:	
+	FDelegateHandle UpdatedHandle;
+	FDelegateHandle UpdatedByIndexHandle;
+	
+
 };
