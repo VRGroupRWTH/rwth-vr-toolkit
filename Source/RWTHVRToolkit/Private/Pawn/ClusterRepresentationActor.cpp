@@ -2,6 +2,8 @@
 
 
 #include "Pawn/ClusterRepresentationActor.h"
+
+#include "Cluster/IDisplayClusterClusterManager.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/StructuredLog.h"

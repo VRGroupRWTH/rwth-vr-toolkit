@@ -3,9 +3,12 @@
 
 #include "Pawn/ClusterSetupComponent.h"
 
+#include "IDisplayCluster.h"
+#include "Cluster/IDisplayClusterClusterManager.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Utility/RWTHVRUtilities.h"
 #include "Pawn/ClusterRepresentationActor.h"
+#include "Pawn/VRClusterSyncComponent.h"
 
 #if PLATFORM_SUPPORTS_CLUSTER
 #include "Components/DisplayClusterSceneComponentSyncParent.h"
@@ -53,6 +56,7 @@ void UClusterSetupComponent::AttachClusterToPawn()
 		UE_LOGFMT(Toolkit, Display,
 				  "UClusterSetupComponent: Attaching corresponding cluster actor to our pawn returned: {Attached}",
 				  bAttached);
+		
 	}
 	else
 	{
@@ -77,55 +81,49 @@ void UClusterSetupComponent::OnNotifyControllerChanged(APawn* Pawn, AController*
 	// Try and use PlayerType for this:
 	UE_LOG(Toolkit, Display, TEXT("UClusterSetupComponent: Player Controller has changed,"));
 
+	// Server path — existing cluster actor attachment logic.
 	if (Pawn->HasAuthority() && NewController)
 	{
-		UE_LOG(Toolkit, Display,
-			   TEXT("UClusterSetupComponent: Player Controller has changed, trying to change Cluster attachment if "
-					"possible..."));
 		if (const ARWTHVRPlayerState* State = Pawn->GetPlayerState<ARWTHVRPlayerState>())
 		{
 			const EPlayerType Type = State->GetPlayerType();
-
-			// Only cluster types are valid here as they are set on connection.
-			// For all other player types this is a race condition
 			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
 			{
-				UE_LOGFMT(Toolkit, Display, "UClusterSetupComponent: Attaching Cluster to Pawn {Pawn}.", GetName());
 				AttachClusterToPawn();
 			}
 		}
-		else
+	}
+ 
+	// Client path — UE 5.7: HasAuthority() is always false here on clients,
+	// so the server-only branch above never fires the sync component add on
+	// the client side. We call it directly instead. See OnRep_PlayerState in
+	// AVRPawn for the event-driven retry that fires once PlayerState/PlayerType
+	// has actually replicated, removing the old timer-based race condition.
+	if (!Pawn->HasAuthority() && NewController && NewController->IsLocalController())
+	{
+		if (const ARWTHVRPlayerState* State = Pawn->GetPlayerState<ARWTHVRPlayerState>())
 		{
-			UE_LOGFMT(Toolkit, Warning,
-					  "UClusterSetupComponent: PlayerState is not a subclass of ARWTHVRPlayerState. Cluster attachment "
-					  "only works "
-					  "with correct PlayerStates!");
+			const EPlayerType Type = State->GetPlayerType();
+			if (Type == EPlayerType::nDisplayPrimary || Type == EPlayerType::nDisplaySecondary)
+			{
+				MulticastAddDCSyncComponent();
+			}
 		}
+		// If PlayerState/PlayerType isn't ready yet, AVRPawn::OnRep_PlayerState
+		// will call MulticastAddDCSyncComponent() once it replicates in.
 	}
 }
 
 void UClusterSetupComponent::MulticastAddDCSyncComponent_Implementation()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
-	
-	UE_LOG(LogTemp, Warning,
-		TEXT("[CLUSTER-SYNC] MulticastAddDCSyncComponent called | "
-			 "IsRoomMounted:%d | SyncComponent:%s"),
-		URWTHVRUtilities::IsRoomMountedMode() ? 1 : 0,
-		SyncComponent ? TEXT("already exists") : TEXT("null")
-	);
-	
-	// Add an nDisplay Parent Sync Component. It syncs the parent's transform from master to clients.
-	// This is required because for collision based movement, it can happen that the physics engine
-	// for some reason acts different on the nodes, therefore leading to a potential desync when
-	// e.g. colliding with an object while moving.
-	
 	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
 	{
+		// UVRClusterSyncComponent overrides GetSyncTransform/SetSyncTransform/
 		SyncComponent = Cast<USceneComponent>(GetOwner()->AddComponentByClass(
-			UDisplayClusterSceneComponentSyncParent::StaticClass(), false, FTransform::Identity, false));
+			UVRClusterSyncComponent::StaticClass(), false, FTransform::Identity, false));
 		GetOwner()->AddInstanceComponent(SyncComponent);
-		UE_LOGFMT(Toolkit, Display, "UClusterSetupComponent: Added Sync Component to pawn {Pawn}", GetName());
+		UE_LOGFMT(Toolkit, Display, "UClusterSetupComponent: Added VRClusterSyncComponent to pawn {Pawn}", GetName());
 	}
 #endif
 }
