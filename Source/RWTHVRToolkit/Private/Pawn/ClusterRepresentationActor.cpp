@@ -19,8 +19,7 @@
 // Sets default values
 AClusterRepresentationActor::AClusterRepresentationActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetActorEnableCollision(false);
 
@@ -33,6 +32,38 @@ void AClusterRepresentationActor::BeginPlay()
 	// will fail if we're in replicated mode and PlayerState has not yet replicated fully
 	// Therefore we also execute this
 	AttachDCRAIfRequired();
+}
+
+void AClusterRepresentationActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+#if PLATFORM_SUPPORTS_CLUSTER
+	// Only the primary node drives the DCRA from CRA tick.
+	// Secondary nodes have their DCRA driven directly by VRClusterSyncComponent::SetSyncTransform,
+	// which bypasses Mover's SimProxy interpolation. If we also pushed from the CRA tick on
+	// secondary, we'd fight SetSyncTransform with the lagging pawn/CRA position.
+	if (!URWTHVRUtilities::IsPrimaryNode()) return;
+	if (!CachedDCRA.IsValid()) return;
+
+	const FVector NewLoc = GetActorLocation();
+	const FRotator NewRot = GetActorRotation();
+
+	const float PosDeltaSq = FVector::DistSquared(NewLoc, LastAppliedDCRALoc);
+	const float RotDelta = FMath::Abs(FRotator::NormalizeAxis(NewRot.Yaw - LastAppliedDCRARot.Yaw))
+		+ FMath::Abs(FRotator::NormalizeAxis(NewRot.Pitch - LastAppliedDCRARot.Pitch))
+		+ FMath::Abs(FRotator::NormalizeAxis(NewRot.Roll - LastAppliedDCRARot.Roll));
+
+	const bool bPositionChanged = PosDeltaSq > FMath::Square(PositionDeadzoneCm);
+	const bool bRotationChanged = RotDelta > RotationDeadzoneDeg;
+
+	if (bPositionChanged || bRotationChanged)
+	{
+		CachedDCRA->SetActorLocationAndRotation(NewLoc, NewRot, false, nullptr, ETeleportType::TeleportPhysics);
+		LastAppliedDCRALoc = NewLoc;
+		LastAppliedDCRARot = NewRot;
+	}
+#endif
 }
 
 void AClusterRepresentationActor::AttachDCRAIfRequired(const ARWTHVRPlayerState* OptionalPlayerState)
@@ -141,9 +172,18 @@ bool AClusterRepresentationActor::AttachDCRA()
 			}
 		}
 
-		bool bAttached = DCRA->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		UE_LOGFMT(Toolkit, Display, "Attaching DCRA {DCRA} to {this} returned {Res}", DCRA->GetName(), GetName(),
-				  bAttached);
+		// Do NOT use AttachToActor — a hard attachment mirrors every sub-mm wiggle from Mover's
+		// idle solver noise directly into the DCRA, feeding node_floor's SimProxy interpolator
+		// indefinitely. Instead, cache the DCRA and drive it manually from Tick() with a deadzone.
+		CachedDCRA = DCRA;
+		const FVector SnapLoc = GetActorLocation();
+		const FRotator SnapRot = GetActorRotation();
+		DCRA->SetActorLocationAndRotation(SnapLoc, SnapRot, false, nullptr, ETeleportType::TeleportPhysics);
+		LastAppliedDCRALoc = SnapLoc;
+		LastAppliedDCRARot = SnapRot;
+
+		UE_LOG(LogTemp, Display, TEXT("[CLUSTER-DCRA] Cached DCRA %s on %s, one-time snap to %s"),
+			   *DCRA->GetName(), *GetName(), *SnapLoc.ToString());
 
 		DCRA->SetActorEnableCollision(false);
 	}
