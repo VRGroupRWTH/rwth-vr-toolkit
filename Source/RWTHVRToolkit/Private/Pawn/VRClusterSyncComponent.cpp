@@ -50,9 +50,27 @@ FTransform UVRClusterSyncComponent::GetSyncTransform() const
 	return FTransform(StableSyncRot, StableSyncLoc, GetOwner()->GetActorScale3D());
 }
 
+bool UVRClusterSyncComponent::GetLastReceivedSyncTransform(FTransform& OutTransform) const
+{
+	if (!bHasReceivedSyncTransform) return false;
+	OutTransform = LastReceivedSyncTransform;
+	return true;
+}
+
+double UVRClusterSyncComponent::GetSecondsSinceLastSyncTransform() const
+{
+	if (!bHasReceivedSyncTransform) return 1e9;
+	return FPlatformTime::Seconds() - LastSyncTransformTimeSeconds;
+}
+
 void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 {
 	if (!GetOwner()) return;
+
+	// Record timestamp and last received transform for SimProxy snap logic in VRMoverComponent.
+	LastReceivedSyncTransform = t;
+	LastSyncTransformTimeSeconds = FPlatformTime::Seconds();
+	bHasReceivedSyncTransform = true;
 
 #if PLATFORM_SUPPORTS_CLUSTER
 	// On secondary nodes, the pawn is ROLE_SimulatedProxy. Mover's interpolation system
@@ -75,19 +93,20 @@ void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 				if (DCRA)
 				{
 					UE_LOG(LogTemp, Warning,
-						TEXT("[SYNC-SET-CHECK] Applying transform | NewLoc:%s | OwnerLoc:%s"),
-						*t.GetLocation().ToString(),
-						*GetOwner()->GetActorLocation().ToString());
+						TEXT("[SYNC-SET-CHECK] Pawn:%s | Applying transform | NewLoc:%s | OwnerLoc:%s"),
+						*GetOwner()->GetName(),
+						*t.GetLocation().ToCompactString(),
+						*GetOwner()->GetActorLocation().ToCompactString());
 
 					// Drive DCRA directly — bypasses Mover SimProxy interpolation for rendering.
 					DCRA->SetActorLocationAndRotation(
 						t.GetLocation(), t.GetRotation(),
 						false, nullptr, ETeleportType::TeleportPhysics);
 
-					// Also snap the pawn root to the real-time position so the avatar mesh
-					// (VRProxy skeletal mesh and all attached VR components) sits at the correct
-					// world position, not the Mover-interpolated (lagging) one.
-					// ETeleportType::TeleportPhysics prevents physics collision re-resolution.
+					// Also snap the pawn root so the avatar mesh sits at the correct world
+					// position during movement. Mover's TickInterpolatedSimProxy runs after this
+					// and may overwrite it, but OnMoverPostFinalize (VRMoverComponent) re-snaps
+					// back to the last sync position when movement has stopped.
 					USceneComponent* Root = GetOwner()->GetRootComponent();
 					if (Root)
 					{
@@ -109,9 +128,10 @@ void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 	if (Root)
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("[SYNC-SET-CHECK] Fallback — setting pawn root | NewLoc:%s | OwnerLoc:%s"),
-			*t.GetLocation().ToString(),
-			*GetOwner()->GetActorLocation().ToString());
+			TEXT("[SYNC-SET-CHECK] Pawn:%s | Fallback — setting pawn root | NewLoc:%s | OwnerLoc:%s"),
+			*GetOwner()->GetName(),
+			*t.GetLocation().ToCompactString(),
+			*GetOwner()->GetActorLocation().ToCompactString());
 
 		Root->SetWorldTransform(t, false, nullptr, ETeleportType::TeleportPhysics);
 	}
@@ -131,8 +151,9 @@ bool UVRClusterSyncComponent::IsDirty() const
 	if (!bChanged && WasMovingLastFrame)
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("[DIRTY] Just stopped — IsDirty:false | Loc:%s"),
-			*Current.ToString());
+			TEXT("[DIRTY] Pawn:%s | Just stopped — IsDirty:false | Loc:%s"),
+			*GetOwner()->GetName(),
+			*Current.ToCompactString());
 	}
 	WasMovingLastFrame = bChanged;
 	LastWorldLoc = Current; // update every frame so we track velocity, not cumulative offset

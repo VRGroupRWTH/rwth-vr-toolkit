@@ -20,6 +20,14 @@ class RWTHVRTOOLKIT_API UVRClusterSyncComponent : public UDisplayClusterSceneCom
 {
 	GENERATED_BODY()
 
+public:
+	// Returns the last transform received via SetSyncTransform (secondary/node_floor only).
+	// Returns false if SetSyncTransform has never been called.
+	bool GetLastReceivedSyncTransform(FTransform& OutTransform) const;
+
+	// Seconds since SetSyncTransform was last called. Returns a large value if never called.
+	double GetSecondsSinceLastSyncTransform() const;
+
 protected:
 	virtual FString GenerateSyncId() override;
 	virtual FTransform GetSyncTransform() const override;
@@ -33,9 +41,12 @@ private:
 	mutable bool WasMovingLastFrame = false;
 
 	// Stable snapshot used by GetSyncTransform to suppress autonomous-proxy reconciliation drift.
-	// Mover's client-side rollback/correction produces a smooth positional drift after the player
-	// stops, which would be broadcast to secondary nodes as fake continued motion.
 	mutable FVector StableSyncLoc = FVector::ZeroVector;
 	mutable FRotator StableSyncRot = FRotator::ZeroRotator;
 	mutable bool bHasStableSync = false;
+
+	// Last transform received on secondary node via SetSyncTransform.
+	FTransform LastReceivedSyncTransform = FTransform::Identity;
+	double LastSyncTransformTimeSeconds = -1e9;
+	bool bHasReceivedSyncTransform = false;
 };
