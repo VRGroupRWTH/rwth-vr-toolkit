@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Pawn/VRClusterSyncComponent.h"
+#include "RWTHVRToolkit.h"
 #include "Pawn/ClusterRepresentationActor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
@@ -92,11 +93,13 @@ void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 				ADisplayClusterRootActor* DCRA = CRA->GetCachedDCRA();
 				if (DCRA)
 				{
+#if CAVE_SYNC_DEBUG_LOGS // [SYNC-SET-CHECK] debug: transform applied to DCRA/pawn root on secondary node
 					UE_LOG(LogTemp, Warning,
 						TEXT("[SYNC-SET-CHECK] Pawn:%s | Applying transform | NewLoc:%s | OwnerLoc:%s"),
 						*GetOwner()->GetName(),
 						*t.GetLocation().ToCompactString(),
 						*GetOwner()->GetActorLocation().ToCompactString());
+#endif
 
 					// Drive DCRA directly — bypasses Mover SimProxy interpolation for rendering.
 					DCRA->SetActorLocationAndRotation(
@@ -104,9 +107,8 @@ void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 						false, nullptr, ETeleportType::TeleportPhysics);
 
 					// Also snap the pawn root so the avatar mesh sits at the correct world
-					// position during movement. Mover's TickInterpolatedSimProxy runs after this
-					// and may overwrite it, but OnMoverPostFinalize (VRMoverComponent) re-snaps
-					// back to the last sync position when movement has stopped.
+					// position. On secondary nodes Mover's UpdatedComponent is redirected to a
+					// dummy (AVRPawn::BeginPlay), so this write is the sole driver of the pawn.
 					USceneComponent* Root = GetOwner()->GetRootComponent();
 					if (Root)
 					{
@@ -127,11 +129,13 @@ void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 	USceneComponent* Root = GetOwner()->GetRootComponent();
 	if (Root)
 	{
+#if CAVE_SYNC_DEBUG_LOGS // [SYNC-SET-CHECK] debug: fallback path when no CRA/DCRA is attached yet
 		UE_LOG(LogTemp, Warning,
 			TEXT("[SYNC-SET-CHECK] Pawn:%s | Fallback — setting pawn root | NewLoc:%s | OwnerLoc:%s"),
 			*GetOwner()->GetName(),
 			*t.GetLocation().ToCompactString(),
 			*GetOwner()->GetActorLocation().ToCompactString());
+#endif
 
 		Root->SetWorldTransform(t, false, nullptr, ETeleportType::TeleportPhysics);
 	}
@@ -148,6 +152,7 @@ bool UVRClusterSyncComponent::IsDirty() const
 	// catches only genuine intentional movement (joystick or room-scale).
 	const bool bChanged = !Current.Equals(LastWorldLoc, 1.0f);
 
+#if CAVE_SYNC_DEBUG_LOGS // [DIRTY] debug: logs the frame the primary node detects movement stop
 	if (!bChanged && WasMovingLastFrame)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -155,6 +160,7 @@ bool UVRClusterSyncComponent::IsDirty() const
 			*GetOwner()->GetName(),
 			*Current.ToCompactString());
 	}
+#endif
 	WasMovingLastFrame = bChanged;
 	LastWorldLoc = Current; // update every frame so we track velocity, not cumulative offset
 	return bChanged;

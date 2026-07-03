@@ -3,6 +3,7 @@
 
 #include "Pawn/ClusterRepresentationActor.h"
 
+#include "RWTHVRToolkit.h"
 #include "Cluster/IDisplayClusterClusterManager.h"
 #include "Core/RWTHVRPlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -136,20 +137,24 @@ bool AClusterRepresentationActor::AttachDCRA()
 {
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
+#if CAVE_SYNC_DEBUG_LOGS // [CLUSTER-DCRA] debug: DCRA attach flow tracing
 		UE_LOG(LogTemp, Warning,
 			TEXT("[CLUSTER-DCRA] AttachDCRA called on %s"),
 			*GetName()
 		);
+#endif
 		UE_LOGFMT(Toolkit, Display, "{Name}: Trying to attach DCRA", GetName());
-		
+
 		auto DCRA = IDisplayCluster::Get().GetGameMgr()->GetRootActor();
-		
+
+#if CAVE_SYNC_DEBUG_LOGS // [CLUSTER-DCRA] debug: DCRA lookup result
 		UE_LOG(LogTemp, Warning,
 			TEXT("[CLUSTER-DCRA] DCRA found: %s | IsValid: %d | IsPrimary: %d"),
 			DCRA ? *DCRA->GetName() : TEXT("null"),
 			IsValid(DCRA) ? 1 : 0,
 			IsValid(DCRA) ? (DCRA->IsPrimaryRootActor() ? 1 : 0) : -1
 		);
+#endif
 
 		if (!IsValid(DCRA))
 		{
@@ -182,8 +187,10 @@ bool AClusterRepresentationActor::AttachDCRA()
 		LastAppliedDCRALoc = SnapLoc;
 		LastAppliedDCRARot = SnapRot;
 
+#if CAVE_SYNC_DEBUG_LOGS // [CLUSTER-DCRA] debug: one-time DCRA cache + snap confirmation
 		UE_LOG(LogTemp, Display, TEXT("[CLUSTER-DCRA] Cached DCRA %s on %s, one-time snap to %s"),
 			   *DCRA->GetName(), *GetName(), *SnapLoc.ToString());
+#endif
 
 		DCRA->SetActorEnableCollision(false);
 	}
