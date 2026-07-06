@@ -45,16 +45,13 @@ void AClusterRepresentationActor::Tick(float DeltaTime)
 	if (!URWTHVRUtilities::IsPrimaryNode()) return;
 	if (!CachedDCRA.IsValid()) return;
 
+	// Experiment: drive the DCRA unconditionally, no deadzone. If the primary node stays stable
+	// at rest, the server-side idle latch (VRMoverComponent::OnVRPostMovement) already removed
+	// the noise at its source and this deadzone was redundant, so it can be deleted for good.
 	const FVector NewLoc = GetActorLocation();
 	const FRotator NewRot = GetActorRotation();
 
-	if (URWTHVRUtilities::ExceedsTransformDeadzone(NewLoc, NewRot, LastAppliedDCRALoc, LastAppliedDCRARot,
-												   PositionDeadzoneCm, RotationDeadzoneDeg))
-	{
-		CachedDCRA->SetActorLocationAndRotation(NewLoc, NewRot, false, nullptr, ETeleportType::TeleportPhysics);
-		LastAppliedDCRALoc = NewLoc;
-		LastAppliedDCRARot = NewRot;
-	}
+	CachedDCRA->SetActorLocationAndRotation(NewLoc, NewRot, false, nullptr, ETeleportType::TeleportPhysics);
 #endif
 }
 
