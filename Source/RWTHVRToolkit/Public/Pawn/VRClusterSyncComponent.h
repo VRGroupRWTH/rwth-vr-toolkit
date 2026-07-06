@@ -29,7 +29,6 @@ protected:
 
 private:
 	mutable FVector LastWorldLoc = FVector::ZeroVector;
-	mutable bool WasMovingLastFrame = false;
 
 	// Stable snapshot used by GetSyncTransform to suppress autonomous-proxy reconciliation drift.
 	mutable FVector StableSyncLoc = FVector::ZeroVector;

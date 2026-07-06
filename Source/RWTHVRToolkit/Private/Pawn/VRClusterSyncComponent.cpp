@@ -116,16 +116,6 @@ bool UVRClusterSyncComponent::IsDirty() const
 	// catches only genuine intentional movement (joystick or room-scale).
 	const bool bChanged = !Current.Equals(LastWorldLoc, 1.0f);
 
-#if CAVE_SYNC_DEBUG_LOGS // [DIRTY] debug: logs the frame the primary node detects movement stop
-	if (!bChanged && WasMovingLastFrame)
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[DIRTY] Pawn:%s | Just stopped — IsDirty:false | Loc:%s"),
-			*GetOwner()->GetName(),
-			*Current.ToCompactString());
-	}
-#endif
-	WasMovingLastFrame = bChanged;
 	LastWorldLoc = Current; // update every frame so we track velocity, not cumulative offset
 	return bChanged;
 }

@@ -19,7 +19,6 @@ UClusterSetupComponent::UClusterSetupComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
-	// ...
 }
 void UClusterSetupComponent::InitializeComponent()
 {
@@ -52,7 +51,6 @@ void UClusterSetupComponent::AttachClusterToPawn()
 		}
 		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
 		bool bAttached = ClusterActor->AttachToComponent(GetOwner()->GetRootComponent(), AttachmentRules);
-		// State->GetCorrespondingClusterActor()->OnAttached();
 		UE_LOGFMT(Toolkit, Display,
 				  "UClusterSetupComponent: Attaching corresponding cluster actor to our pawn returned: {Attached}",
 				  bAttached);
@@ -119,7 +117,8 @@ void UClusterSetupComponent::MulticastAddDCSyncComponent_Implementation()
 #if PLATFORM_SUPPORTS_CLUSTER
 	if (URWTHVRUtilities::IsRoomMountedMode() && !SyncComponent)
 	{
-		// UVRClusterSyncComponent overrides GetSyncTransform/SetSyncTransform/
+		// UVRClusterSyncComponent overrides GetSyncTransform/SetSyncTransform to sync the pawn
+		// across cluster nodes (see that class for the primary/secondary split).
 		SyncComponent = Cast<USceneComponent>(GetOwner()->AddComponentByClass(
 			UVRClusterSyncComponent::StaticClass(), false, FTransform::Identity, false));
 		GetOwner()->AddInstanceComponent(SyncComponent);
