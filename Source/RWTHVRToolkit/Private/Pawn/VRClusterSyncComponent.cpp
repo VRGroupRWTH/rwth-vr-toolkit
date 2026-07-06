@@ -3,6 +3,7 @@
 #include "Pawn/VRClusterSyncComponent.h"
 #include "RWTHVRToolkit.h"
 #include "Pawn/ClusterRepresentationActor.h"
+#include "Utility/RWTHVRUtilities.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 
@@ -37,12 +38,8 @@ FTransform UVRClusterSyncComponent::GetSyncTransform() const
 		bHasStableSync = true;
 	}
 
-	const float PosDelta = FVector::Dist(CurrentLoc, StableSyncLoc);
-	const float RotDelta = FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Yaw - StableSyncRot.Yaw))
-		+ FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Pitch - StableSyncRot.Pitch))
-		+ FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Roll - StableSyncRot.Roll));
-
-	if (PosDelta > PositionDeadzoneCm || RotDelta > RotationDeadzoneDeg)
+	if (URWTHVRUtilities::ExceedsTransformDeadzone(CurrentLoc, CurrentRot, StableSyncLoc, StableSyncRot,
+												   PositionDeadzoneCm, RotationDeadzoneDeg))
 	{
 		StableSyncLoc = CurrentLoc;
 		StableSyncRot = CurrentRot;

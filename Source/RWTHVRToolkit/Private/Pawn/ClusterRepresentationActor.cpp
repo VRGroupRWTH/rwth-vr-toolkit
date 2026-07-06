@@ -48,15 +48,8 @@ void AClusterRepresentationActor::Tick(float DeltaTime)
 	const FVector NewLoc = GetActorLocation();
 	const FRotator NewRot = GetActorRotation();
 
-	const float PosDeltaSq = FVector::DistSquared(NewLoc, LastAppliedDCRALoc);
-	const float RotDelta = FMath::Abs(FRotator::NormalizeAxis(NewRot.Yaw - LastAppliedDCRARot.Yaw))
-		+ FMath::Abs(FRotator::NormalizeAxis(NewRot.Pitch - LastAppliedDCRARot.Pitch))
-		+ FMath::Abs(FRotator::NormalizeAxis(NewRot.Roll - LastAppliedDCRARot.Roll));
-
-	const bool bPositionChanged = PosDeltaSq > FMath::Square(PositionDeadzoneCm);
-	const bool bRotationChanged = RotDelta > RotationDeadzoneDeg;
-
-	if (bPositionChanged || bRotationChanged)
+	if (URWTHVRUtilities::ExceedsTransformDeadzone(NewLoc, NewRot, LastAppliedDCRALoc, LastAppliedDCRARot,
+												   PositionDeadzoneCm, RotationDeadzoneDeg))
 	{
 		CachedDCRA->SetActorLocationAndRotation(NewLoc, NewRot, false, nullptr, ETeleportType::TeleportPhysics);
 		LastAppliedDCRALoc = NewLoc;

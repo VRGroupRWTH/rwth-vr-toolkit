@@ -32,4 +32,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void ShowErrorAndQuit(UWorld* WorldContext, const FString& Message);
+
+	/**
+	 * Returns true if the position or rotation delta between Current and Reference exceeds the deadzone.
+	 * TO BE REMOVED: Might not be necessary
+	 */
+	static bool ExceedsTransformDeadzone(const FVector& CurrentLoc, const FRotator& CurrentRot,
+										 const FVector& ReferenceLoc, const FRotator& ReferenceRot,
+										 float PositionDeadzoneCm, float RotationDeadzoneDeg);
 };

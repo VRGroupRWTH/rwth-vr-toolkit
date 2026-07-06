@@ -55,3 +55,15 @@ void URWTHVRUtilities::ShowErrorAndQuit(UWorld* WorldContext, const FString& Mes
 #endif
 	UKismetSystemLibrary::QuitGame(WorldContext, nullptr, EQuitPreference::Quit, false);
 }
+
+bool URWTHVRUtilities::ExceedsTransformDeadzone(const FVector& CurrentLoc, const FRotator& CurrentRot,
+												const FVector& ReferenceLoc, const FRotator& ReferenceRot,
+												float PositionDeadzoneCm, float RotationDeadzoneDeg)
+{
+	const float PosDeltaSq = FVector::DistSquared(CurrentLoc, ReferenceLoc);
+	const float RotDelta = FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Yaw - ReferenceRot.Yaw))
+		+ FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Pitch - ReferenceRot.Pitch))
+		+ FMath::Abs(FRotator::NormalizeAxis(CurrentRot.Roll - ReferenceRot.Roll));
+
+	return PosDeltaSq > FMath::Square(PositionDeadzoneCm) || RotDelta > RotationDeadzoneDeg;
+}
