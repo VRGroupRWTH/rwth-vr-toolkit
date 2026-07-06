@@ -51,92 +51,56 @@ FTransform UVRClusterSyncComponent::GetSyncTransform() const
 	return FTransform(StableSyncRot, StableSyncLoc, GetOwner()->GetActorScale3D());
 }
 
-bool UVRClusterSyncComponent::GetLastReceivedSyncTransform(FTransform& OutTransform) const
+#if PLATFORM_SUPPORTS_CLUSTER
+// Finds the DCRA driven by the CRA attached to this pawn. Returns nullptr on the primary node
+// path, or on secondary before the CRA has cached its DCRA.
+static ADisplayClusterRootActor* FindAttachedDCRA(const AActor* Owner)
 {
-	if (!bHasReceivedSyncTransform) return false;
-	OutTransform = LastReceivedSyncTransform;
-	return true;
-}
+	const APawn* OwnerPawn = Cast<APawn>(Owner);
+	if (!OwnerPawn) return nullptr;
 
-double UVRClusterSyncComponent::GetSecondsSinceLastSyncTransform() const
-{
-	if (!bHasReceivedSyncTransform) return 1e9;
-	return FPlatformTime::Seconds() - LastSyncTransformTimeSeconds;
+	TArray<AActor*> AttachedActors;
+	OwnerPawn->GetAttachedActors(AttachedActors);
+	for (AActor* Attached : AttachedActors)
+	{
+		if (const AClusterRepresentationActor* CRA = Cast<AClusterRepresentationActor>(Attached))
+		{
+			return CRA->GetCachedDCRA();
+		}
+	}
+	return nullptr;
 }
+#endif
 
 void UVRClusterSyncComponent::SetSyncTransform(const FTransform& t)
 {
-	if (!GetOwner()) return;
+	AActor* Owner = GetOwner();
+	if (!Owner) return;
 
-	// Record timestamp and last received transform for SimProxy snap logic in VRMoverComponent.
-	LastReceivedSyncTransform = t;
-	LastSyncTransformTimeSeconds = FPlatformTime::Seconds();
-	bHasReceivedSyncTransform = true;
+	USceneComponent* Root = Owner->GetRootComponent();
 
 #if PLATFORM_SUPPORTS_CLUSTER
-	// On secondary nodes, the pawn is ROLE_SimulatedProxy. Mover's interpolation system
-	// overrides SetWorldTransform on the pawn root every tick, so writing to the pawn
-	// produces no visible effect — the interpolator wins and the view lags by the buffer.
-	//
-	// The DCRA is what drives the CAVE rendering on this node. We go directly to it
-	// via the CRA that is attached to the pawn, bypassing Mover entirely.
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn)
+	// On secondary nodes the pawn is ROLE_SimulatedProxy. Mover's interpolator overrides the
+	// pawn root every tick, so writing to the pawn alone lags the view by the interpolation
+	// buffer. The DCRA is what drives CAVE rendering, so we drive it directly (bypassing Mover)
+	// and also snap the pawn root — Mover's UpdatedComponent is redirected to a dummy on this
+	// node (AVRPawn), so this write is the sole driver of the visible pawn.
+	if (ADisplayClusterRootActor* DCRA = FindAttachedDCRA(Owner))
 	{
-		// Find the CRA attached to this pawn and drive the DCRA directly
-		TArray<AActor*> AttachedActors;
-		OwnerPawn->GetAttachedActors(AttachedActors);
-		for (AActor* Attached : AttachedActors)
+		DCRA->SetActorLocationAndRotation(t.GetLocation(), t.GetRotation(), false, nullptr,
+										  ETeleportType::TeleportPhysics);
+		if (Root)
 		{
-			if (AClusterRepresentationActor* CRA = Cast<AClusterRepresentationActor>(Attached))
-			{
-				ADisplayClusterRootActor* DCRA = CRA->GetCachedDCRA();
-				if (DCRA)
-				{
-#if CAVE_SYNC_DEBUG_LOGS // [SYNC-SET-CHECK] debug: transform applied to DCRA/pawn root on secondary node
-					UE_LOG(LogTemp, Warning,
-						TEXT("[SYNC-SET-CHECK] Pawn:%s | Applying transform | NewLoc:%s | OwnerLoc:%s"),
-						*GetOwner()->GetName(),
-						*t.GetLocation().ToCompactString(),
-						*GetOwner()->GetActorLocation().ToCompactString());
-#endif
-
-					// Drive DCRA directly — bypasses Mover SimProxy interpolation for rendering.
-					DCRA->SetActorLocationAndRotation(
-						t.GetLocation(), t.GetRotation(),
-						false, nullptr, ETeleportType::TeleportPhysics);
-
-					// Also snap the pawn root so the avatar mesh sits at the correct world
-					// position. On secondary nodes Mover's UpdatedComponent is redirected to a
-					// dummy (AVRPawn::BeginPlay), so this write is the sole driver of the pawn.
-					USceneComponent* Root = GetOwner()->GetRootComponent();
-					if (Root)
-					{
-						Root->SetWorldLocationAndRotation(
-							t.GetLocation(), t.GetRotation(),
-							false, nullptr, ETeleportType::TeleportPhysics);
-					}
-
-					return;
-				}
-			}
+			Root->SetWorldLocationAndRotation(t.GetLocation(), t.GetRotation(), false, nullptr,
+											  ETeleportType::TeleportPhysics);
 		}
+		return;
 	}
 #endif
 
-	// Fallback: no CRA/DCRA found — write directly to the pawn root (primary node path,
-	// or secondary before CRA has attached).
-	USceneComponent* Root = GetOwner()->GetRootComponent();
+	// Fallback: no CRA/DCRA found (primary node, or secondary before the CRA has attached).
 	if (Root)
 	{
-#if CAVE_SYNC_DEBUG_LOGS // [SYNC-SET-CHECK] debug: fallback path when no CRA/DCRA is attached yet
-		UE_LOG(LogTemp, Warning,
-			TEXT("[SYNC-SET-CHECK] Pawn:%s | Fallback — setting pawn root | NewLoc:%s | OwnerLoc:%s"),
-			*GetOwner()->GetName(),
-			*t.GetLocation().ToCompactString(),
-			*GetOwner()->GetActorLocation().ToCompactString());
-#endif
-
 		Root->SetWorldTransform(t, false, nullptr, ETeleportType::TeleportPhysics);
 	}
 }
@@ -168,7 +132,6 @@ bool UVRClusterSyncComponent::IsDirty() const
 
 void UVRClusterSyncComponent::ClearDirty()
 {
-	// Intentionally left minimal — LastWorldLoc is now updated every frame in IsDirty.
-	if (!GetOwner()) return;
-	LastWorldRot = GetOwner()->GetActorRotation();
+	// Intentionally a no-op: LastWorldLoc is updated every frame in IsDirty(), which is what
+	// the velocity-based dirty check relies on. Nothing to reset here.
 }
