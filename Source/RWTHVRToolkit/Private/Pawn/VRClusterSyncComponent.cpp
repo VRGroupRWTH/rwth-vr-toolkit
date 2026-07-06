@@ -19,33 +19,7 @@ FString UVRClusterSyncComponent::GenerateSyncId()
 FTransform UVRClusterSyncComponent::GetSyncTransform() const
 {
 	if (!GetOwner()) return FTransform::Identity;
-
-	const FVector CurrentLoc = GetOwner()->GetActorLocation();
-	const FRotator CurrentRot = GetOwner()->GetActorRotation();
-
-	// Deadzone: suppress Mover autonomous-proxy reconciliation drift.
-	// After the player stops, Mover smoothly corrects the client position toward the server
-	// authoritative value. That drift (~25 units/frame for ~2s) appears as fake continued
-	// motion on secondary nodes. We latch the position once movement falls below 1cm/frame
-	// and only update the latch when real movement exceeds that threshold.
-	constexpr float PositionDeadzoneCm = 1.0f;
-	constexpr float RotationDeadzoneDeg = 0.5f;
-
-	if (!bHasStableSync)
-	{
-		StableSyncLoc = CurrentLoc;
-		StableSyncRot = CurrentRot;
-		bHasStableSync = true;
-	}
-
-	if (URWTHVRUtilities::ExceedsTransformDeadzone(CurrentLoc, CurrentRot, StableSyncLoc, StableSyncRot,
-												   PositionDeadzoneCm, RotationDeadzoneDeg))
-	{
-		StableSyncLoc = CurrentLoc;
-		StableSyncRot = CurrentRot;
-	}
-
-	return FTransform(StableSyncRot, StableSyncLoc, GetOwner()->GetActorScale3D());
+	return GetOwner()->GetActorTransform();
 }
 
 #if PLATFORM_SUPPORTS_CLUSTER
@@ -107,10 +81,6 @@ bool UVRClusterSyncComponent::IsDirty() const
 	if (!GetOwner()) return false;
 	const FVector Current = GetOwner()->GetActorLocation();
 
-	// Compare frame-to-frame delta, not cumulative drift from last ClearDirty.
-	// Mover's autonomous-proxy reconciliation moves the pawn ~25 units/frame for ~2s after
-	// stopping — that's large enough to fool a cumulative check. A per-frame velocity check
-	// catches only genuine intentional movement (joystick or room-scale).
 	const bool bChanged = !Current.Equals(LastWorldLoc, 1.0f);
 
 	LastWorldLoc = Current; // update every frame so we track velocity, not cumulative offset
