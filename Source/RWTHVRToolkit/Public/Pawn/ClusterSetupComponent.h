@@ -17,11 +17,12 @@ public:
 	UClusterSetupComponent();
 
 	virtual void InitializeComponent() override;
-
-protected:
+	
 	/* Add a sync component to all instances of this pawn */
 	UFUNCTION(Reliable, NetMulticast)
 	void MulticastAddDCSyncComponent();
+
+protected:
 
 	/* Attaches the Cluster representation to the pawn */
 	void AttachClusterToPawn();
