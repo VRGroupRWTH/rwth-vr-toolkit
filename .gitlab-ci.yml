@@ -37,7 +37,7 @@ spec:
       description: Plugin repositories to additionally add to the generated project.
       default:
         - https://github.com/VRGroupRWTH/UnrealDTrackPlugin.git#master
-        - https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git#dev/5.6
+        - https://git-ce.rwth-aachen.de/vr-vis/VR-Group/unreal-development/plugins/rwth-vr-cluster-plugin.git#dev/5.7
 
 
 ---
