@@ -30,7 +30,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
-	
+
 	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -98,7 +98,7 @@ protected:
 
 	/* Set device specific motion controller sources (None, L/R, Livelink) */
 	void SetupMotionControllerSources();
-	
+
 	/* Set up livelink sources and tracked component */
 	void SetupLiveLinkTracking();
 

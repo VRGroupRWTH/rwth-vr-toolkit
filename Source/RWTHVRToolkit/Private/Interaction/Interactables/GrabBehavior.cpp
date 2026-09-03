@@ -15,7 +15,7 @@ UGrabBehavior::UGrabBehavior()
 	bExecuteOnAllClients = false;
 	PrimaryComponentTick.bCanEverTick = true;
 	UActorComponent::SetComponentTickEnabled(false);
-	//SetTickGroup(TG_PrePhysics);
+	// SetTickGroup(TG_PrePhysics);
 }
 
 void UGrabBehavior::BeginPlay()
@@ -31,11 +31,12 @@ void UGrabBehavior::TickComponent(float DeltaTime, enum ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (bObjectGrabbed && bUsePhysicsGrab)
 	{
-		//CurrentlyActiveInteractorComponent->GetComponentTransform().TransformVector(HandleOffset)
-		//  No rotation for now
+		// CurrentlyActiveInteractorComponent->GetComponentTransform().TransformVector(HandleOffset)
+		//   No rotation for now
 		for (auto PhysicsHandleData : ActivePhysicsHandleComponents)
 		{
-			const FVector NewPosition = PhysicsHandleData.Value.Key->GetComponentLocation() + PhysicsHandleData.Value.Value;
+			const FVector NewPosition =
+				PhysicsHandleData.Value.Key->GetComponentLocation() + PhysicsHandleData.Value.Value;
 			PhysicsHandleData.Key->SetTargetLocation(NewPosition);
 		}
 	}

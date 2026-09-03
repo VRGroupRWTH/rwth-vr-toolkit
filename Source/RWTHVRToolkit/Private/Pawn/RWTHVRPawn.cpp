@@ -122,11 +122,12 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	SetupMotionControllerSources();
 	SetupLiveLinkTracking();
-	
+
 #if PLATFORM_SUPPORTS_CLUSTER
-	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
+	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(
+		FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
 #endif
-	
+
 	// Should not do this here but on connection or on possess I think.
 
 	if (URWTHVRUtilities::IsDesktopMode())
@@ -221,18 +222,22 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
-		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) && RightSubjectRepresentations.IsValidIndex(ViewpointUser))
+		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) &&
+			RightSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
 			UE_LOGFMT(Toolkit, Display,
-					  "SetupPlayerInputComponent: Setting Livelink controller subject representation for User {ViewpointUser}",
+					  "SetupPlayerInputComponent: Setting Livelink controller subject representation for User "
+					  "{ViewpointUser}",
 					  ViewpointUser);
 			MotionControllerSourceLeft = LeftSubjectRepresentations[ViewpointUser].Subject;
-			MotionControllerSourceRight = RightSubjectRepresentations[ViewpointUser].Subject; ;
+			MotionControllerSourceRight = RightSubjectRepresentations[ViewpointUser].Subject;
+			;
 		}
 		else
 		{
 			UE_LOGFMT(Toolkit, Display,
-					  "SetupPlayerInputComponent: No valid Livelink controller subject representation for User {ViewpointUser} "
+					  "SetupPlayerInputComponent: No valid Livelink controller subject representation for User "
+					  "{ViewpointUser} "
 					  "found, skipping setup.",
 					  ViewpointUser);
 		}

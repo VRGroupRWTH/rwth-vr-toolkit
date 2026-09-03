@@ -29,13 +29,13 @@ public:
 	/* Distance in meters */
 	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit")
 	static float GetEyeDistance();
-	
+
 	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit")
 	static int32 GetViewpointUser();
 
 	UFUNCTION(BlueprintPure, Category = "RWTHVRToolkit")
 	static int32 GetFlystickUser();
-	
+
 	UFUNCTION(BlueprintCallable)
 	static void ShowErrorAndQuit(UWorld* WorldContext, const FString& Message);
 };
