@@ -14,6 +14,9 @@
 #include "Pawn/ClusterSetupComponent.h"
 #include "Pawn/LiveLinkTrackingComponent.h"
 
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "Utility/RWTHVRClusterUtilities.h"
+#endif
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -57,6 +60,14 @@ void ARWTHVRPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	InitialWorldToMeters = GetWorldSettings()->WorldToMeters;
+}
+
+void ARWTHVRPawn::BeginDestroy()
+{
+#if PLATFORM_SUPPORTS_CLUSTER
+	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate());
+#endif
+	Super::BeginDestroy();
 }
 
 void ARWTHVRPawn::Tick(float DeltaSeconds)
@@ -110,28 +121,11 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerController->SetControlRotation(FRotator::ZeroRotator);
 
 	SetupMotionControllerSources();
-
-	if (URWTHVRUtilities::IsRoomMountedMode())
-	{
-		// Get current viewpoint/user
-		//int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
-		int32 ViewpointUser = 0; // HACK OVERRIDE
-		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
-		{
-			UE_LOGFMT(Toolkit, Display,
-					  "SetupPlayerInputComponent: Setting Livelink head subject representation for User {ViewpointUser}",
-					  ViewpointUser);
-			LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentations[ViewpointUser];
-		}
-		else
-		{
-			UE_LOGFMT(Toolkit, Display,
-					  "SetupPlayerInputComponent: No valid Livelink head subject representation for User {ViewpointUser} "
-					  "found, skipping setup.",
-					  ViewpointUser);
-		}
-		LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
-	}
+	SetupLiveLinkTracking();
+	
+#if PLATFORM_SUPPORTS_CLUSTER
+	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
+#endif
 	
 	// Should not do this here but on connection or on possess I think.
 
@@ -164,7 +158,6 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 }
 
 UInputComponent* ARWTHVRPawn::GetPlayerInputComponent() { return ActivePlayerInputComponent; }
-
 
 void ARWTHVRPawn::AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const
 {
@@ -245,6 +238,41 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	LeftHand->SetTrackingMotionSource(MotionControllerSourceLeft);
 	RightHand->SetTrackingMotionSource(MotionControllerSourceRight);
+}
+
+void ARWTHVRPawn::SetupLiveLinkTracking()
+{
+	if (URWTHVRUtilities::IsRoomMountedMode())
+	{
+		// Get current viewpoint/user
+		int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
+		{
+			UE_LOGFMT(
+				Toolkit, Display,
+				"SetupPlayerInputComponent: Setting Livelink head subject representation for User {ViewpointUser}",
+				ViewpointUser);
+			LiveLinkTrackingComponent->SubjectRepresentation = HeadSubjectRepresentations[ViewpointUser];
+		}
+		else
+		{
+			UE_LOGFMT(
+				Toolkit, Display,
+				"SetupPlayerInputComponent: No valid Livelink head subject representation for User {ViewpointUser} "
+				"found, skipping setup.",
+				ViewpointUser);
+		}
+		LiveLinkTrackingComponent->TrackedComponent = HeadCameraComponent;
+	}
+}
+
+void ARWTHVRPawn::SetViewpointUser(IConsoleVariable* Var)
+{
+	if (this && IsValid(this) && URWTHVRUtilities::IsRoomMountedMode())
+	{
+		SetupMotionControllerSources();
+		SetupLiveLinkTracking();
+	}
 }
 
 void ARWTHVRPawn::SetCameraOffset() const
