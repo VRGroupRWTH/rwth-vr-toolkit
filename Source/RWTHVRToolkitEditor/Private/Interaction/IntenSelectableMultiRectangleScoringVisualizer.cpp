@@ -173,7 +173,7 @@ bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewpor
 			ScoringComponent->YLength -= DeltaTranslate.Z;
 			if (ScoringComponent->YLength < 0.1)
 			{
-				ScoringComponent->YLength = 0.1;
+				ScoringComponent->YLength = 0.1f;
 			}
 			else
 			{
@@ -186,7 +186,7 @@ bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewpor
 			ScoringComponent->XLength -= DeltaTranslate.Y;
 			if (ScoringComponent->XLength < 0.1)
 			{
-				ScoringComponent->XLength = 0.1;
+				ScoringComponent->XLength = 0.1f;
 			}
 			else
 			{
@@ -199,7 +199,7 @@ bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewpor
 			ScoringComponent->YLength += DeltaTranslate.Z;
 			if (ScoringComponent->YLength < 0.1)
 			{
-				ScoringComponent->YLength = 0.1;
+				ScoringComponent->YLength = 0.1f;
 			}
 			else
 			{
@@ -212,7 +212,7 @@ bool FIntenSelectableRectangleScoringVisualizer::HandleInputDelta(FEditorViewpor
 			ScoringComponent->XLength += DeltaTranslate.Y;
 			if (ScoringComponent->XLength < 0.1)
 			{
-				ScoringComponent->XLength = 0.1;
+				ScoringComponent->XLength = 0.1f;
 			}
 			else
 			{

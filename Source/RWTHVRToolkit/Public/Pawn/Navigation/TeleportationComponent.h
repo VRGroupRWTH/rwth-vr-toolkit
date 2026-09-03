@@ -61,8 +61,8 @@ public:
 private:
 
 	bool bTeleportTraceActive;
-	float TeleportProjectileRadius = 3.6;
-	float RotationArrowRadius = 10.0;
+	float TeleportProjectileRadius = 3.6f;
+	float RotationArrowRadius = 10.0f;
 	FPredictProjectilePathResult PredictResult;
 	bool bValidTeleportLocation = false;
 	FVector FinalTeleportLocation;
