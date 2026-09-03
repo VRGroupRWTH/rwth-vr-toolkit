@@ -161,87 +161,38 @@ void ARWTHVRGameModeBase::PostLogin(APlayerController* NewPlayer)
 
 AActor* ARWTHVRGameModeBase::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
 {
-	 // Only apply cluster logic if we have a valid player state
-    if (ARWTHVRPlayerState* State = 
-        Cast<ARWTHVRPlayerState>(Player->PlayerState))
-    {
-        const int32 ClusterId = State->GetCorrespondingClusterId();
-        const EPlayerType PlayerType = State->GetPlayerType();
+	// Only apply cluster logic if we have a valid player state
+	if (ARWTHVRPlayerState* State = Cast<ARWTHVRPlayerState>(Player->PlayerState))
+	{
+		const int32 ClusterId = State->GetCorrespondingClusterId();
+		const EPlayerType PlayerType = State->GetPlayerType();
 
-        // Only primary nodes and standalone players get their own spawn point
-        // Secondary nodes share the primary's spawn point (same cluster)
-        if (ClusterId >= 0 && PlayerType != EPlayerType::nDisplaySecondary)
-        {
-            // Collect all Player Starts and sort them deterministically
-            // Use fixed seed so order is consistent across all nodes and runs
-            TArray<AActor*> PlayerStarts;
-            UGameplayStatics::GetAllActorsOfClass(
-                GetWorld(), 
-                APlayerStart::StaticClass(), 
-                PlayerStarts
-            );
+		// Only primary nodes and standalone players get their own spawn point
+		// Secondary nodes share the primary's spawn point (same cluster)
+		if (ClusterId >= 0 &&
+			(PlayerType == EPlayerType::nDisplaySecondary || PlayerType == EPlayerType::nDisplayPrimary))
+		{
+			// Collect all Player Starts and sort them deterministically
+			// Use fixed seed so order is consistent across all nodes and runs
+			TArray<AActor*> PlayerStarts;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
 
-            if (PlayerStarts.Num() == 0)
-            {
-                return Super::FindPlayerStart_Implementation(Player, IncomingName);
-            }
+			if (PlayerStarts.Num() == 0)
+			{
+				return Super::FindPlayerStart_Implementation(Player, IncomingName);
+			}
 
-            // Sort by name for deterministic ordering — same result on all nodes
-            // regardless of actor spawn order in the level
-            PlayerStarts.Sort([](const AActor& A, const AActor& B)
-            {
-                return A.GetName() < B.GetName();
-            });
+			// Sort by name for deterministic ordering — same result on all nodes
+			// regardless of actor spawn order in the level
+			PlayerStarts.Sort([](const AActor& A, const AActor& B) { return A.GetName() < B.GetName(); });
 
-            // Use ClusterId as index — wraps around if more clusters than starts
-            const int32 StartIndex = ClusterId % PlayerStarts.Num();
+			// Use ClusterId as index
+			// TODO: This does not actually work as ClusterId can be an arbitrary number
+			const int32 StartIndex = ClusterId % PlayerStarts.Num();
+			return PlayerStarts[StartIndex];
+		}
+	}
 
-            UE_LOG(LogTemp, Warning,
-                TEXT("[GAMEMODE] ClusterId:%d | PlayerType:%d | "
-                     "PlayerStart:%s | Location:%s"),
-                ClusterId,
-                (int32)PlayerType,
-                *PlayerStarts[StartIndex]->GetName(),
-                *PlayerStarts[StartIndex]->GetActorLocation().ToString()
-            );
-
-            return PlayerStarts[StartIndex];
-        }
-
-        // Secondary nodes — return same start as their primary
-        // They share the cluster's position
-        if (ClusterId >= 0 && PlayerType == EPlayerType::nDisplaySecondary)
-        {
-            TArray<AActor*> PlayerStarts;
-            UGameplayStatics::GetAllActorsOfClass(
-                GetWorld(),
-                APlayerStart::StaticClass(),
-                PlayerStarts
-            );
-
-            if (PlayerStarts.Num() == 0)
-            {
-                return Super::FindPlayerStart_Implementation(Player, IncomingName);
-            }
-
-            PlayerStarts.Sort([](const AActor& A, const AActor& B)
-            {
-                return A.GetName() < B.GetName();
-            });
-
-            const int32 StartIndex = ClusterId % PlayerStarts.Num();
-
-            UE_LOG(LogTemp, Warning,
-                TEXT("[GAMEMODE] Secondary node | ClusterId:%d | "
-                     "Sharing PlayerStart:%s"),
-                ClusterId,
-                *PlayerStarts[StartIndex]->GetName()
-            );
-
-            return PlayerStarts[StartIndex];
-        }
-    }
-
-    // Non-cluster players (desktop, HMD) — default distribution
-    return Super::FindPlayerStart_Implementation(Player, IncomingName);
+	// Non-cluster players (desktop, HMD) — default distribution
+	return Super::FindPlayerStart_Implementation(Player, IncomingName);
 }
