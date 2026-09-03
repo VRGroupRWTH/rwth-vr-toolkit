@@ -13,8 +13,10 @@
 #include "Utility/RWTHVRUtilities.h"
 #include "Pawn/ClusterSetupComponent.h"
 #include "Pawn/LiveLinkTrackingComponent.h"
-#include "Utility/RWTHVRClusterUtilities.h"
 
+#if PLATFORM_SUPPORTS_CLUSTER
+#include "Utility/RWTHVRClusterUtilities.h"
+#endif
 
 ARWTHVRPawn::ARWTHVRPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -62,7 +64,9 @@ void ARWTHVRPawn::BeginPlay()
 
 void ARWTHVRPawn::BeginDestroy()
 {
+#if PLATFORM_SUPPORTS_CLUSTER
 	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate());
+#endif
 	Super::BeginDestroy();
 }
 
@@ -119,8 +123,10 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	SetupMotionControllerSources();
 	SetupLiveLinkTracking();
 	
+#if PLATFORM_SUPPORTS_CLUSTER
 	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
-
+#endif
+	
 	// Should not do this here but on connection or on possess I think.
 
 	if (URWTHVRUtilities::IsDesktopMode())
