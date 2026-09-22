@@ -85,6 +85,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Pawn|LiveLink")
 	TArray<FLiveLinkSubjectRepresentation> RightSubjectRepresentations;
 
+	/* Update viewpoint User Index CVar Callback */
+	void SetViewpointUser(IConsoleVariable* Var = nullptr);
+	
+	/* Update viewpoint User Index CVar Callback */
+	void SetFlystickUser(IConsoleVariable* Var = nullptr);
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void AddInputMappingContext(const APlayerController* PC, const UInputMappingContext* Context) const;
@@ -101,9 +107,6 @@ protected:
 
 	/* Set up livelink sources and tracked component */
 	void SetupLiveLinkTracking();
-
-	/* Update viewpoint User Index CVar Callback */
-	void SetViewpointUser(IConsoleVariable* Var = nullptr);
 
 private:
 	UInputComponent* ActivePlayerInputComponent;

@@ -65,7 +65,8 @@ void ARWTHVRPawn::BeginPlay()
 void ARWTHVRPawn::BeginDestroy()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
-	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate());
+	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
+	CVarOverrideViewpointUserForFlystick->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetFlystickUser));
 #endif
 	Super::BeginDestroy();
 }
@@ -276,8 +277,15 @@ void ARWTHVRPawn::SetViewpointUser(IConsoleVariable* Var)
 {
 	if (this && IsValid(this) && URWTHVRUtilities::IsRoomMountedMode())
 	{
-		SetupMotionControllerSources();
 		SetupLiveLinkTracking();
+	}
+}
+
+void ARWTHVRPawn::SetFlystickUser(IConsoleVariable* Var)
+{
+	if (this && IsValid(this) && URWTHVRUtilities::IsRoomMountedMode())
+	{
+		SetupMotionControllerSources();
 	}
 }
 
