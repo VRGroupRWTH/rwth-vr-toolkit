@@ -73,7 +73,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
 	float MaxClickStickAngle = 10;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IntenSelect|Settings")
-	float ForwardRayWidth = 0.01;
+	float ForwardRayWidth = 0.01f;
 #pragma endregion
 
 #pragma region /** REFERENCES */

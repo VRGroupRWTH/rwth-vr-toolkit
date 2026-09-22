@@ -302,7 +302,7 @@ void UIntenSelectComponent::OnNewSelected_Implementation(UIntenSelectable* Selec
 		// UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayHapticEffect(SelectionFeedbackHaptic,
 		// EControllerHand::Right, 0.1, false);
 		UGameplayStatics::PlaySound2D(GetWorld(), OnSelectSound);
-		FeedbackCooldown = 0.1;
+		FeedbackCooldown = 0.1f;
 	}
 }
 
@@ -369,7 +369,7 @@ UIntenSelectable* UIntenSelectComponent::GetMaxScoreActor(const float DeltaTime)
 		ContactPointMap.Add(OldScoreEntry.Key, NewScorePair.Key);
 		const float DistanceToActor = FVector::Dist(ConeOrigin, NewScorePair.Key.ImpactPoint);
 
-		const float Eps = 0.01;
+		const float Eps = 0.01f;
 		if (NewScorePair.Value <= 0.01 || DistanceToActor >= MaxSelectionDistance || !OldScoreEntry.Key->IsSelectable)
 		{
 			RemoveList.Add(OldScoreEntry.Key);

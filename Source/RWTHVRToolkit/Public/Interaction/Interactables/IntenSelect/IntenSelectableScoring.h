@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Snappiness = 15;
 	UPROPERTY(EditAnywhere)
-	float CompensationConstant = 0.8;
+	float CompensationConstant = 0.8f;
 
 	bool bOverwritingContrib = false;
 	float Contrib = 0;
