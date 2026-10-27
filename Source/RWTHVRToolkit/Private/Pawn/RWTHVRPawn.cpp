@@ -65,8 +65,8 @@ void ARWTHVRPawn::BeginPlay()
 void ARWTHVRPawn::BeginDestroy()
 {
 #if PLATFORM_SUPPORTS_CLUSTER
-	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
-	CVarOverrideViewpointUserForFlystick->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetFlystickUser));
+	CVarOverrideViewpointUserForFlystick->OnChangedDelegate().Remove(OnFlystickChangedDelegateHandle);
+	CVarOverrideViewpointUserForFlystick->OnChangedDelegate().Remove(OnGlassesChangedDelegateHandle);	
 #endif
 	Super::BeginDestroy();
 }
@@ -124,9 +124,10 @@ void ARWTHVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	SetupMotionControllerSources();
 	SetupLiveLinkTracking();
 
+	
 #if PLATFORM_SUPPORTS_CLUSTER
-	CVarOverrideViewpointUserForGlasses->SetOnChangedCallback(
-		FConsoleVariableDelegate::CreateUObject(this, &ARWTHVRPawn::SetViewpointUser));
+	OnFlystickChangedDelegateHandle = CVarOverrideViewpointUserForFlystick->OnChangedDelegate().AddUObject(this, &ARWTHVRPawn::SetFlystickUser);
+	OnGlassesChangedDelegateHandle = CVarOverrideViewpointUserForGlasses->OnChangedDelegate().AddUObject(this, &ARWTHVRPawn::SetViewpointUser);
 #endif
 
 	// Should not do this here but on connection or on possess I think.
@@ -222,7 +223,7 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		const int32 ViewpointUser = URWTHVRUtilities::GetFlystickUser() - 1;
 		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) &&
 			RightSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{

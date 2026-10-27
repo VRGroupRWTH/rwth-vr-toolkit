@@ -112,4 +112,8 @@ private:
 	UInputComponent* ActivePlayerInputComponent;
 	float InitialWorldToMeters;
 	float UniformScale;
+	
+	FDelegateHandle OnFlystickChangedDelegateHandle;
+	FDelegateHandle OnGlassesChangedDelegateHandle;
+
 };
