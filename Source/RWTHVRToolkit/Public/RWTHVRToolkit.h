@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Fixes/ActivateConsoleInShipping.h"
-#include "Fixes/LiveLinkMotionControllerFix.h"
 
 
 class FRWTHVRToolkitModule : public IModuleInterface
@@ -13,5 +12,4 @@ public:
 
 private:
 	FActivateConsoleInShipping ConsoleActivation;
-	TUniquePtr<FLiveLinkMotionControllerFix> LiveLinkMotionController;
 };
