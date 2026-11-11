@@ -221,7 +221,7 @@ void ARWTHVRPawn::SetupMotionControllerSources()
 	}
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
-		const int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		const int32 ViewpointUser = FMath::Max(0, URWTHVRUtilities::GetViewpointUser() - 1);
 		if (LeftSubjectRepresentations.IsValidIndex(ViewpointUser) &&
 			RightSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
@@ -251,7 +251,7 @@ void ARWTHVRPawn::SetupLiveLinkTracking()
 	if (URWTHVRUtilities::IsRoomMountedMode())
 	{
 		// Get current viewpoint/user
-		int32 ViewpointUser = URWTHVRUtilities::GetViewpointUser() - 1;
+		int32 ViewpointUser = FMath::Max(0, URWTHVRUtilities::GetViewpointUser() - 1);
 		if (HeadSubjectRepresentations.IsValidIndex(ViewpointUser))
 		{
 			UE_LOGFMT(

@@ -16,7 +16,7 @@ void UGroupUI::InitUI(AGroupInterfaceActor* InterfaceActor)
 		GroupInterfaceActor = Cast<AGroupInterfaceActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGroupInterfaceActor::StaticClass()));
 	}
 	
-	if (GroupInterfaceActor)
+	if (GroupInterfaceActor && GroupInterfaceActor->PlayerGroupManager)
 	{
 		UpdatedHandle = GroupInterfaceActor->PlayerGroupManager->OnGroupsUpdatedDelegate.AddUFunction(this, "OnGroupsUpdated");
 		UpdatedByIndexHandle = GroupInterfaceActor->PlayerGroupManager->OnGroupUpdatedByIndexDelegate.AddUFunction(this, "OnGroupUpdated");
